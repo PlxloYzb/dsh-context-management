@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "hostVersion": "0.1.2-rc.1",
+  "startedAt": "2026-09-07T13:31:47.055Z",
+  "sessionId": "session-746d01b8-ac34-47df-9f18-4dd979206430",
+  "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+  "config": {
+    "strategy": "windowed",
+    "windowBudgetTokens": null,
+    "maxOutputTokens": 8192,
+    "safetyMarginTokens": 4096
+  },
+  "turns": [
+    {
+      "page": 1,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 7890
+    },
+    {
+      "page": 2,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 7864
+    },
+    {
+      "page": 3,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 46947
+    },
+    {
+      "page": 4,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 4661
+    },
+    {
+      "page": 5,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 6235
+    },
+    {
+      "page": 6,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 9356
+    },
+    {
+      "page": 7,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 20359
+    },
+    {
+      "page": 8,
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 4663
+    },
+    {
+      "stage": "recall",
+      "end": {
+        "kind": "completed"
+      },
+      "elapsedMs": 6233
+    }
+  ],
+  "physicalOverflow": "NOT EXERCISED",
+  "completed": true,
+  "failures": [],
+  "tarballHash": "b4ae9a930e4bce5c27738a57b8e907816b82218ca941f3f0af4dff7c39ecc4ce",
+  "installEvidence": "docs/evidence/install/ctx-v010-capacity-b4ae9a930e4b.json",
+  "score": {
+    "correct": 12,
+    "total": 12,
+    "matched": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12"
+    ],
+    "values": {
+      "F01": "/srv/project-6e0bd5f3/config.yaml",
+      "F02": "value-7962af7e",
+      "F03": "value-059caaf9",
+      "F04": "发布-e3d04d44-华东",
+      "F05": "value-a822d408",
+      "F06": "value-671111fa",
+      "F07": "value-ae6639e0",
+      "F08": "2940ms",
+      "F09": "value-83335d9d",
+      "F10": "value-2e6efe38",
+      "F11": "value-38042086",
+      "F12": "value-6defeb50"
+    }
+  },
+  "actualRoute": [
+    {
+      "seq": 12,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192
+    }
+  ],
+  "requestContexts": [
+    {
+      "seq": 13,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "contextWindow": 1000000
+    }
+  ],
+  "usage": [
+    {
+      "seq": 22,
+      "inputTokens": 7980,
+      "outputTokens": 16,
+      "totalTokens": 12860,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 41,
+      "inputTokens": 3140,
+      "outputTokens": 53,
+      "totalTokens": 12921,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 51,
+      "inputTokens": 7231,
+      "outputTokens": 7,
+      "totalTokens": 16966,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 72,
+      "inputTokens": 4857,
+      "outputTokens": 53,
+      "totalTokens": 17070,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 82,
+      "inputTokens": 8746,
+      "outputTokens": 7,
+      "totalTokens": 20913,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 103,
+      "inputTokens": 3940,
+      "outputTokens": 53,
+      "totalTokens": 21017,
+      "cacheReadTokens": 17024
+    },
+    {
+      "seq": 113,
+      "inputTokens": 7829,
+      "outputTokens": 7,
+      "totalTokens": 24860,
+      "cacheReadTokens": 17024
+    },
+    {
+      "seq": 134,
+      "inputTokens": 3023,
+      "outputTokens": 53,
+      "totalTokens": 24964,
+      "cacheReadTokens": 21888
+    },
+    {
+      "seq": 144,
+      "inputTokens": 6912,
+      "outputTokens": 7,
+      "totalTokens": 28807,
+      "cacheReadTokens": 21888
+    },
+    {
+      "seq": 165,
+      "inputTokens": 4538,
+      "outputTokens": 53,
+      "totalTokens": 28911,
+      "cacheReadTokens": 24320
+    },
+    {
+      "seq": 175,
+      "inputTokens": 8427,
+      "outputTokens": 7,
+      "totalTokens": 32754,
+      "cacheReadTokens": 24320
+    },
+    {
+      "seq": 196,
+      "inputTokens": 3621,
+      "outputTokens": 53,
+      "totalTokens": 32858,
+      "cacheReadTokens": 29184
+    },
+    {
+      "seq": 206,
+      "inputTokens": 7510,
+      "outputTokens": 7,
+      "totalTokens": 36701,
+      "cacheReadTokens": 29184
+    },
+    {
+      "seq": 227,
+      "inputTokens": 2704,
+      "outputTokens": 53,
+      "totalTokens": 36805,
+      "cacheReadTokens": 34048
+    },
+    {
+      "seq": 237,
+      "inputTokens": 6593,
+      "outputTokens": 7,
+      "totalTokens": 40648,
+      "cacheReadTokens": 34048
+    },
+    {
+      "seq": 258,
+      "inputTokens": 4219,
+      "outputTokens": 53,
+      "totalTokens": 40752,
+      "cacheReadTokens": 36480
+    },
+    {
+      "seq": 268,
+      "inputTokens": 8108,
+      "outputTokens": 7,
+      "totalTokens": 44595,
+      "cacheReadTokens": 36480
+    },
+    {
+      "seq": 312,
+      "inputTokens": 3283,
+      "outputTokens": 179,
+      "totalTokens": 44806,
+      "cacheReadTokens": 41344
+    }
+  ],
+  "windows": [],
+  "routeVerified": true,
+  "finishedAt": "2026-09-07T13:33:41.727Z"
+}

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "testedAt": "2026-09-07T14:31:40.597Z",
+  "completed": true,
+  "results": [
+    {
+      "phase": "before-start",
+      "signal": "SIGKILL",
+      "durablePrefix": 78,
+      "baselineCount": 77,
+      "generation": 0,
+      "integrity": {
+        "incomplete": false,
+        "orphanSummaries": 0,
+        "appliedUnclosed": 0,
+        "unsupportedSchema": 0,
+        "corruptMetadata": 0
+      },
+      "resumed": true,
+      "endSeedObserved": true
+    },
+    {
+      "phase": "after-summary",
+      "signal": "SIGKILL",
+      "durablePrefix": 78,
+      "baselineCount": 77,
+      "generation": 0,
+      "integrity": {
+        "incomplete": false,
+        "orphanSummaries": 0,
+        "appliedUnclosed": 0,
+        "unsupportedSchema": 0,
+        "corruptMetadata": 0
+      },
+      "resumed": true,
+      "endSeedObserved": true
+    },
+    {
+      "phase": "applied-no-end",
+      "signal": "SIGKILL",
+      "durablePrefix": 81,
+      "baselineCount": 77,
+      "generation": 1,
+      "integrity": {
+        "incomplete": true,
+        "orphanSummaries": 0,
+        "appliedUnclosed": 1,
+        "unsupportedSchema": 0,
+        "corruptMetadata": 0
+      },
+      "resumed": true,
+      "endSeedObserved": true
+    },
+    {
+      "phase": "after-end",
+      "signal": "SIGKILL",
+      "durablePrefix": 78,
+      "baselineCount": 77,
+      "generation": 0,
+      "integrity": {
+        "incomplete": false,
+        "orphanSummaries": 0,
+        "appliedUnclosed": 0,
+        "unsupportedSchema": 0,
+        "corruptMetadata": 0
+      },
+      "resumed": true,
+      "endSeedObserved": true
+    },
+    {
+      "phase": "after-flush",
+      "signal": "SIGKILL",
+      "durablePrefix": 82,
+      "baselineCount": 77,
+      "generation": 1,
+      "integrity": {
+        "incomplete": false,
+        "orphanSummaries": 0,
+        "appliedUnclosed": 0,
+        "unsupportedSchema": 0,
+        "corruptMetadata": 0
+      },
+      "resumed": true,
+      "endSeedObserved": true
+    }
+  ]
+}

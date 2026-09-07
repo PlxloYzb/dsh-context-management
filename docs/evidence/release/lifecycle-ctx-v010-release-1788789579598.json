@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "startedAt": "2026-09-07T13:59:39.602Z",
+  "profile": "ctx-v010-release-1788789579598",
+  "tarballHash": "c14e46d711e377449c878c3e8b4e575156bec2f370b06eff2a53ea54b37361b0",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "presetsBefore": {
+    "standard": "f18dd942686aa71f43ffc4fd328a712f79af113fb67a35b54cb6de4fc3b84bda",
+    "minimal": "c952e72ff87cb09e6d2700dcf806c6584a67cf867adcd103ec822a6c538d4f87",
+    "ptc": "2cd76a7ad066029e10efd90932b2e7c1e269b02669edcbb557be2c5ee15abe2f",
+    "cordis": "74b1be71ae313aede30ffab8b19b6ef07a4b4f5bc1d34b627a1bbaec4afa907d"
+  },
+  "stages": [
+    {
+      "stage": "installed-first-request",
+      "end": {
+        "kind": "completed"
+      },
+      "backend": "ArcCompactionEngine",
+      "headers": [
+        {
+          "seq": 12,
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash",
+          "tools": [
+            "arc_status",
+            "ask_user_question",
+            "bash",
+            "compress",
+            "create_goal",
+            "decompress",
+            "edit",
+            "exit_plan_mode",
+            "get_goal",
+            "glob",
+            "grep",
+            "interrupt_agent",
+            "job_kill",
+            "job_list",
+            "job_output",
+            "list_agents",
+            "new_context",
+            "ralph",
+            "read",
+            "read_image",
+            "search_context",
+            "send_message",
+            "skill",
+            "subagent",
+            "subagent_fork",
+            "todo_write",
+            "update_goal",
+            "web_fetch",
+            "web_search",
+            "workflow",
+            "write"
+          ]
+        }
+      ],
+      "prefixPreserved": true,
+      "eventCount": 35
+    },
+    {
+      "stage": "installed-restart",
+      "end": {
+        "kind": "completed"
+      },
+      "backend": "ArcCompactionEngine",
+      "headers": [
+        {
+          "seq": 41,
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash",
+          "tools": [
+            "arc_status",
+            "ask_user_question",
+            "bash",
+            "compress",
+            "create_goal",
+            "decompress",
+            "edit",
+            "exit_plan_mode",
+            "get_goal",
+            "glob",
+            "grep",
+            "interrupt_agent",
+            "job_kill",
+            "job_list",
+            "job_output",
+            "list_agents",
+            "new_context",
+            "ralph",
+            "read",
+            "read_image",
+            "search_context",
+            "send_message",
+            "skill",
+            "subagent",
+            "subagent_fork",
+            "todo_write",
+            "update_goal",
+            "web_fetch",
+            "web_search",
+            "workflow",
+            "write"
+          ]
+        }
+      ],
+      "prefixPreserved": true,
+      "eventCount": 58
+    },
+    {
+      "stage": "uninstalled-restart",
+      "end": {
+        "kind": "completed"
+      },
+      "backend": "BasicCompactionEngine",
+      "headers": [
+        {
+          "seq": 64,
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash",
+          "tools": [
+            "ask_user_question",
+            "bash",
+            "create_goal",
+            "edit",
+            "exit_plan_mode",
+            "get_goal",
+            "glob",
+            "grep",
+            "interrupt_agent",
+            "job_kill",
+            "job_list",
+            "job_output",
+            "list_agents",
+            "ralph",
+            "read",
+            "read_image",
+            "send_message",
+            "skill",
+            "subagent",
+            "subagent_fork",
+            "todo_write",
+            "update_goal",
+            "web_fetch",
+            "web_search",
+            "workflow",
+            "write"
+          ]
+        }
+      ],
+      "prefixPreserved": true,
+      "eventCount": 82
+    }
+  ],
+  "completed": true,
+  "failures": [],
+  "sessionId": "session-d04ac67c-c6ef-46ec-a27d-5790c7d779f6",
+  "presetsAfter": {
+    "standard": "f18dd942686aa71f43ffc4fd328a712f79af113fb67a35b54cb6de4fc3b84bda",
+    "minimal": "c952e72ff87cb09e6d2700dcf806c6584a67cf867adcd103ec822a6c538d4f87",
+    "ptc": "2cd76a7ad066029e10efd90932b2e7c1e269b02669edcbb557be2c5ee15abe2f",
+    "cordis": "74b1be71ae313aede30ffab8b19b6ef07a4b4f5bc1d34b627a1bbaec4afa907d"
+  },
+  "finishedAt": "2026-09-07T14:00:10.032Z"
+}

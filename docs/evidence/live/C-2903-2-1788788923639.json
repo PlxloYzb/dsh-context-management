@@ -1,0 +1,1584 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+  "seed": 2903,
+  "arm": "C",
+  "run": 2,
+  "requestedRoute": {
+    "provider": "opencode-go",
+    "model": "glm-5.3-flash"
+  },
+  "startedAt": "2026-09-07T13:48:43.639Z",
+  "turns": [
+    {
+      "stage": "read-1",
+      "elapsedMs": 14326,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-1-OK",
+      "throughSeq": 105
+    },
+    {
+      "stage": "read-2",
+      "elapsedMs": 9550,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-2-OK",
+      "throughSeq": 205
+    },
+    {
+      "stage": "read-3",
+      "elapsedMs": 12744,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-3-OK",
+      "throughSeq": 298
+    },
+    {
+      "stage": "read-4",
+      "elapsedMs": 28539,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-4-OK\n\nFacts are preserved: F01=/srv/project-6e0bd5f3/config.yaml; F02=value-7962af7e; F03=revised-2903-green; F04=发布-e3d04d44-华东; F05=value-a822d408; F06=value-671111fa; F07=value-ae6639e0; F08=2940ms; F09=latest-2903-港口; F10=value-2e6efe38; F11=value-38042086; F12=value-6defeb50. Corrections: {F03: revised-2903-green, F09: latest-2903-港口}. page-4.txt contained only telemetry (4.0–4.149, uniform healthy/ready), no new facts. Context handoff requested (accepted, generation 2).",
+      "throughSeq": 425
+    },
+    {
+      "stage": "read-5",
+      "elapsedMs": 29972,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-5-OK",
+      "throughSeq": 522
+    },
+    {
+      "stage": "read-6",
+      "elapsedMs": 41459,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-6-OK",
+      "throughSeq": 619
+    },
+    {
+      "stage": "read-7",
+      "elapsedMs": 8017,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-7-OK",
+      "throughSeq": 709
+    },
+    {
+      "stage": "read-8",
+      "elapsedMs": 12749,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-8-OK",
+      "throughSeq": 799
+    },
+    {
+      "stage": "blind-recall",
+      "elapsedMs": 4735,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "{\"F01\":\"/srv/project-6e0bd5f3/config.yaml\",\"F02\":\"value-7962af7e\",\"F03\":\"revised-2903-green\",\"F04\":\"发布-e3d04d44-华东\",\"F05\":\"value-a822d408\",\"F06\":\"value-671111fa\",\"F07\":\"value-ae6639e0\",\"F08\":\"2940ms\",\"F09\":\"latest-2903-港口\",\"F10\":\"value-2e6efe38\",\"F11\":\"value-38042086\",\"F12\":\"value-6defeb50\"}",
+      "throughSeq": 841
+    },
+    {
+      "stage": "archive-pagination",
+      "elapsedMs": 41232,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "F01 verified against archive source (block `95e6a02a-c12c-441b-83f5-646c383f3f70`, seq 37, offset 207): `\"F01\": \"/srv/project-6e0bd5f3/config.yaml\"` — matches current value. Largest-page retrieval done at 4096 tokens with one cursor continuation (second page also bounded, incomplete: false, further cursor available). Status: backend `dsh-context-management` active, strategy windowed, generation 7, window `819e0ce8-d59e-456b-9c28-c2591966235e`. Both archive responses were bounded by the 4096-token cap (original block length 17682 chars, not recovered in full).",
+      "throughSeq": 971
+    },
+    {
+      "stage": "restart-recall",
+      "elapsedMs": 56340,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "```json\n{\n  \"F01\": \"/srv/project-6e0bd5f3/config.yaml\",\n  \"F02\": \"value-7962af7e\",\n  \"F03\": \"revised-2903-green\",\n  \"F04\": \"发布-e3d04d44-华东\",\n  \"F05\": \"value-a822d408\",\n  \"F06\": \"value-671111fa\",\n  \"F07\": \"value-ae6639e0\",\n  \"F08\": \"2940ms\",\n  \"F09\": \"latest-2903-港口\",\n  \"F10\": \"value-2e6efe38\",\n  \"F11\": \"value-38042086\",\n  \"F12\": \"value-6defeb50\"\n}\n```\n\nRecovered from archived conversation history (seq 37 source records), with the user's seq 110 corrections applied: F03 → \"revised-2903-green\", F09 → \"latest-2903-港口\". Archive searches found no other correction sets, so all other values retain their original seq 37 values.",
+      "throughSeq": 1181
+    }
+  ],
+  "failures": [],
+  "incomplete": [],
+  "config": {
+    "strategy": "windowed",
+    "windowBudgetTokens": 32768,
+    "maxOutputTokens": 8192,
+    "safetyMarginTokens": 4096
+  },
+  "physicalOverflow": "NOT EXERCISED",
+  "completed": true,
+  "installEvidence": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/install/ctx-v010-window-final-bfde79687a67.json",
+  "tarballHash": "bfde79687a6737eca0b90f8c2248cf6c6507895dbb15c04a54ddbf09c5743bd7",
+  "installedFilesVerified": true,
+  "configHash": "cd51c7ee11eead7e632d869d4ac2cb5ca0ecdf8a4305238049c7ba44358fc1be",
+  "cwd": "/var/folders/fz/d5zdnj3d16s8dx6586w9nvbc0000gn/T/dsh-context-corpus-2903-eM6skH",
+  "sessionId": "session-5f18b237-edae-4d28-a541-6f5a4831287d",
+  "updatedAt": "2026-09-07T14:00:29.386Z",
+  "blindScore": {
+    "scorerVersion": 2,
+    "correct": 12,
+    "total": 12,
+    "matched": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12"
+    ],
+    "values": {
+      "F01": "/srv/project-6e0bd5f3/config.yaml",
+      "F02": "value-7962af7e",
+      "F03": "revised-2903-green",
+      "F04": "发布-e3d04d44-华东",
+      "F05": "value-a822d408",
+      "F06": "value-671111fa",
+      "F07": "value-ae6639e0",
+      "F08": "2940ms",
+      "F09": "latest-2903-港口",
+      "F10": "value-2e6efe38",
+      "F11": "value-38042086",
+      "F12": "value-6defeb50"
+    }
+  },
+  "actualRoute": [
+    {
+      "seq": 12,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 126,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 197,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 226,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 290,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 318,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 381,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 446,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 514,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 542,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 611,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 640,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 701,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 729,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 791,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 983,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "new_context",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    }
+  ],
+  "requestContexts": [
+    {
+      "seq": 13,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "contextWindow": 1000000
+    }
+  ],
+  "usage": [
+    {
+      "seq": 22,
+      "kind": "agent",
+      "inputTokens": 12892,
+      "outputTokens": 14,
+      "totalTokens": 12906
+    },
+    {
+      "seq": 35,
+      "kind": "agent",
+      "inputTokens": 3186,
+      "outputTokens": 15,
+      "totalTokens": 12929,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 93,
+      "kind": "agent",
+      "inputTokens": 12105,
+      "outputTokens": 211,
+      "totalTokens": 17180,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 103,
+      "kind": "agent",
+      "inputTokens": 5077,
+      "outputTokens": 7,
+      "totalTokens": 17244,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 117,
+      "kind": "agent",
+      "inputTokens": 2776,
+      "outputTokens": 15,
+      "totalTokens": 17383,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 187,
+      "kind": "agent",
+      "inputTokens": 10955,
+      "outputTokens": 267,
+      "totalTokens": 16086,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 203,
+      "kind": "agent",
+      "inputTokens": 10244,
+      "outputTokens": 7,
+      "totalTokens": 15115,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 219,
+      "kind": "agent",
+      "inputTokens": 3172,
+      "outputTokens": 15,
+      "totalTokens": 15347,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 280,
+      "kind": "agent",
+      "inputTokens": 4367,
+      "outputTokens": 281,
+      "totalTokens": 16808,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 296,
+      "kind": "agent",
+      "inputTokens": 10556,
+      "outputTokens": 7,
+      "totalTokens": 15427,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 311,
+      "kind": "agent",
+      "inputTokens": 3362,
+      "outputTokens": 15,
+      "totalTokens": 15537,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 371,
+      "kind": "agent",
+      "inputTokens": 4557,
+      "outputTokens": 295,
+      "totalTokens": 17012,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 423,
+      "kind": "agent",
+      "inputTokens": 10623,
+      "outputTokens": 195,
+      "totalTokens": 15682,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 439,
+      "kind": "agent",
+      "inputTokens": 3739,
+      "outputTokens": 15,
+      "totalTokens": 15914,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 504,
+      "kind": "agent",
+      "inputTokens": 4934,
+      "outputTokens": 309,
+      "totalTokens": 17403,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 520,
+      "kind": "agent",
+      "inputTokens": 10807,
+      "outputTokens": 7,
+      "totalTokens": 15678,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 535,
+      "kind": "agent",
+      "inputTokens": 3613,
+      "outputTokens": 15,
+      "totalTokens": 15788,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 601,
+      "kind": "agent",
+      "inputTokens": 4808,
+      "outputTokens": 308,
+      "totalTokens": 17276,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 617,
+      "kind": "agent",
+      "inputTokens": 10672,
+      "outputTokens": 7,
+      "totalTokens": 15543,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 633,
+      "kind": "agent",
+      "inputTokens": 3600,
+      "outputTokens": 15,
+      "totalTokens": 15775,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 691,
+      "kind": "agent",
+      "inputTokens": 4795,
+      "outputTokens": 272,
+      "totalTokens": 17227,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 707,
+      "kind": "agent",
+      "inputTokens": 10717,
+      "outputTokens": 7,
+      "totalTokens": 15588,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 722,
+      "kind": "agent",
+      "inputTokens": 3523,
+      "outputTokens": 15,
+      "totalTokens": 15698,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 781,
+      "kind": "agent",
+      "inputTokens": 4718,
+      "outputTokens": 272,
+      "totalTokens": 17150,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 797,
+      "kind": "agent",
+      "inputTokens": 10607,
+      "outputTokens": 7,
+      "totalTokens": 15478,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 839,
+      "kind": "agent",
+      "inputTokens": 3503,
+      "outputTokens": 142,
+      "totalTokens": 15805,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 858,
+      "kind": "agent",
+      "inputTokens": 3917,
+      "outputTokens": 18,
+      "totalTokens": 16095,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 881,
+      "kind": "agent",
+      "inputTokens": 4732,
+      "outputTokens": 74,
+      "totalTokens": 16966,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 907,
+      "kind": "agent",
+      "inputTokens": 5548,
+      "outputTokens": 92,
+      "totalTokens": 17800,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 969,
+      "kind": "agent",
+      "inputTokens": 3657,
+      "outputTokens": 172,
+      "totalTokens": 18421,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1036,
+      "kind": "agent",
+      "inputTokens": 9053,
+      "outputTokens": 170,
+      "totalTokens": 14087,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 1089,
+      "kind": "agent",
+      "inputTokens": 10645,
+      "outputTokens": 119,
+      "totalTokens": 15628,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 1179,
+      "kind": "agent",
+      "inputTokens": 11473,
+      "outputTokens": 279,
+      "totalTokens": 16616,
+      "cacheReadTokens": 4864
+    }
+  ],
+  "windows": [
+    {
+      "seq": 192,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "session:session-5f18b237-edae-4d28-a541-6f5a4831287d/window:0",
+      "toWindowId": "d90085e6-bda4-4218-b667-b476b839d606",
+      "generationAfter": 1,
+      "parentBlockIds": [],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": false,
+        "formatVersion": 1
+      },
+      "requestId": "45716655e5d0716bcceae5e3b3e94f788709fff1c079ec1144200841eff78877",
+      "operationId": "3c2ebc8b-29e3-4876-859a-10e62f173177",
+      "shadowedSeqs": [
+        8,
+        9,
+        10,
+        22,
+        24,
+        35,
+        122,
+        93,
+        95,
+        103
+      ],
+      "shadowedTokenCount": 3480
+    },
+    {
+      "seq": 285,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "d90085e6-bda4-4218-b667-b476b839d606",
+      "toWindowId": "a73dc2ce-f638-428a-9350-97fd897f0c05",
+      "generationAfter": 2,
+      "parentBlockIds": [
+        "3c2ebc8b-29e3-4876-859a-10e62f173177"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": false,
+        "formatVersion": 1
+      },
+      "requestId": "501e1fbd7c0a35e001cb2e4229d40af04f36bc052de7d7e21bda8e14fca3c78f",
+      "operationId": "c19b3c5f-d382-4ea5-9d13-b4f87c985c29",
+      "shadowedSeqs": [
+        193,
+        110,
+        117,
+        124,
+        187,
+        189,
+        196,
+        203
+      ],
+      "shadowedTokenCount": 3980
+    },
+    {
+      "seq": 376,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "a73dc2ce-f638-428a-9350-97fd897f0c05",
+      "toWindowId": "e2700cfe-07a2-47ae-8316-714bd9fb514e",
+      "generationAfter": 3,
+      "parentBlockIds": [
+        "c19b3c5f-d382-4ea5-9d13-b4f87c985c29"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "requestId": "d49544457951c09cc7bd5d77a7cd5e9756dd05b1d6d14682bebfda6d9ae3cf70",
+      "operationId": "c52d2fe1-2bba-4d8a-b2be-55c8338e3e36",
+      "shadowedSeqs": [
+        286,
+        210,
+        211,
+        219,
+        224,
+        280,
+        282,
+        289,
+        296
+      ],
+      "shadowedTokenCount": 4285
+    },
+    {
+      "seq": 509,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "e2700cfe-07a2-47ae-8316-714bd9fb514e",
+      "toWindowId": "104d3de7-7842-4584-ba13-3a623350044f",
+      "generationAfter": 4,
+      "parentBlockIds": [
+        "c52d2fe1-2bba-4d8a-b2be-55c8338e3e36"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "requestId": "5b264b84cbf8838e0ec6986aa9b781622547c0cbb3fe22c8831932c7f4d6a127",
+      "operationId": "95e6a02a-c12c-441b-83f5-646c383f3f70",
+      "shadowedSeqs": [
+        377,
+        303,
+        311,
+        316,
+        371,
+        373,
+        380,
+        423
+      ],
+      "shadowedTokenCount": 4416
+    },
+    {
+      "seq": 606,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "104d3de7-7842-4584-ba13-3a623350044f",
+      "toWindowId": "13709698-515a-44d3-8532-549a8217577d",
+      "generationAfter": 5,
+      "parentBlockIds": [
+        "95e6a02a-c12c-441b-83f5-646c383f3f70"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "requestId": "14e195f65c1b05ee99aba3a5a7e2e0dc50218c08124b308c91e2e24a87f194a1",
+      "operationId": "7caf53d3-6d36-41f4-b2e8-749c6a20eccb",
+      "shadowedSeqs": [
+        510,
+        430,
+        431,
+        439,
+        444,
+        504,
+        506,
+        513,
+        520
+      ],
+      "shadowedTokenCount": 4480
+    },
+    {
+      "seq": 696,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "13709698-515a-44d3-8532-549a8217577d",
+      "toWindowId": "4f3bed1b-3534-4266-b031-73b9854a587e",
+      "generationAfter": 6,
+      "parentBlockIds": [
+        "7caf53d3-6d36-41f4-b2e8-749c6a20eccb"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "requestId": "9316d61deb070f5f5e303d3e17b395343b2101121aeb47ba0303b7cd7746053f",
+      "operationId": "71d673ef-8dee-4516-9430-ca3f4fa98a03",
+      "shadowedSeqs": [
+        607,
+        527,
+        535,
+        540,
+        601,
+        603,
+        610,
+        617
+      ],
+      "shadowedTokenCount": 4322
+    },
+    {
+      "seq": 786,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "model",
+      "fromWindowId": "4f3bed1b-3534-4266-b031-73b9854a587e",
+      "toWindowId": "819e0ce8-d59e-456b-9c28-c2591966235e",
+      "generationAfter": 7,
+      "parentBlockIds": [
+        "71d673ef-8dee-4516-9430-ca3f4fa98a03"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "requestId": "a50bc53358f1fd205e6d67d8b271cc2acbd3d0a16dd820c4fb6686cfd280b73f",
+      "operationId": "b89c29de-4dbf-4231-afbe-affd1dbdf92b",
+      "shadowedSeqs": [
+        697,
+        624,
+        625,
+        633,
+        638,
+        691,
+        693,
+        700,
+        707
+      ],
+      "shadowedTokenCount": 4441
+    },
+    {
+      "seq": 977,
+      "schemaVersion": 1,
+      "kind": "window",
+      "trigger": "pressure",
+      "fromWindowId": "819e0ce8-d59e-456b-9c28-c2591966235e",
+      "toWindowId": "0535bc7d-008a-4712-a708-7c98469ecd87",
+      "generationAfter": 8,
+      "parentBlockIds": [
+        "b89c29de-4dbf-4231-afbe-affd1dbdf92b"
+      ],
+      "route": {
+        "provider": "opencode-go",
+        "model": "glm-5.3-flash"
+      },
+      "seed": {
+        "incomplete": true,
+        "formatVersion": 1
+      },
+      "incomingUserId": "faa6d286-9281-4794-9fb9-7c46d61f7a64",
+      "operationId": "9a557180-7990-4b52-8e8c-60957983139c",
+      "shadowedSeqs": [
+        787,
+        714,
+        722,
+        727,
+        781,
+        783,
+        790,
+        797,
+        804,
+        805,
+        839,
+        846,
+        847,
+        858,
+        860,
+        862,
+        881,
+        883,
+        907,
+        909,
+        969
+      ],
+      "shadowedTokenCount": 6839
+    }
+  ],
+  "compactions": [
+    {
+      "seq": 192,
+      "operationId": "3c2ebc8b-29e3-4876-859a-10e62f173177",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 285,
+      "operationId": "c19b3c5f-d382-4ea5-9d13-b4f87c985c29",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 376,
+      "operationId": "c52d2fe1-2bba-4d8a-b2be-55c8338e3e36",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 509,
+      "operationId": "95e6a02a-c12c-441b-83f5-646c383f3f70",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 606,
+      "operationId": "7caf53d3-6d36-41f4-b2e8-749c6a20eccb",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 696,
+      "operationId": "71d673ef-8dee-4516-9430-ca3f4fa98a03",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 786,
+      "operationId": "b89c29de-4dbf-4231-afbe-affd1dbdf92b",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    },
+    {
+      "seq": 977,
+      "operationId": "9a557180-7990-4b52-8e8c-60957983139c",
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash"
+    }
+  ],
+  "toolCalls": [
+    {
+      "seq": 22,
+      "name": "glob",
+      "callId": "chatcmpl-tool-b75c0ad2a96498cb"
+    },
+    {
+      "seq": 35,
+      "name": "read",
+      "callId": "chatcmpl-tool-ba2314f60ec0894e"
+    },
+    {
+      "seq": 93,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-ae2dadb44eae4a3f"
+    },
+    {
+      "seq": 117,
+      "name": "read",
+      "callId": "chatcmpl-tool-b112138007042020"
+    },
+    {
+      "seq": 187,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-be1d40d0f9cf2f03"
+    },
+    {
+      "seq": 219,
+      "name": "read",
+      "callId": "chatcmpl-tool-8a9e08079a7bb6c7"
+    },
+    {
+      "seq": 280,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-956ceeb93d5b668e"
+    },
+    {
+      "seq": 311,
+      "name": "read",
+      "callId": "chatcmpl-tool-9efdd0b8d6d9a008"
+    },
+    {
+      "seq": 371,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-a82a7dca6a01c273"
+    },
+    {
+      "seq": 439,
+      "name": "read",
+      "callId": "chatcmpl-tool-87a9cfa2eea85f8d"
+    },
+    {
+      "seq": 504,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-84af69679bb164d9"
+    },
+    {
+      "seq": 535,
+      "name": "read",
+      "callId": "chatcmpl-tool-b81511268cf44c2c"
+    },
+    {
+      "seq": 601,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-b3713197f3e2efb7"
+    },
+    {
+      "seq": 633,
+      "name": "read",
+      "callId": "chatcmpl-tool-89ea77409425c1f1"
+    },
+    {
+      "seq": 691,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-bdebef92d94fbb95"
+    },
+    {
+      "seq": 722,
+      "name": "read",
+      "callId": "chatcmpl-tool-ba6c7828e984f6b6"
+    },
+    {
+      "seq": 781,
+      "name": "new_context",
+      "callId": "chatcmpl-tool-ace267e44066feda"
+    },
+    {
+      "seq": 858,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-b1a0f490a3b6b001"
+    },
+    {
+      "seq": 858,
+      "name": "arc_status",
+      "callId": "chatcmpl-tool-821d352f4f0dc23e"
+    },
+    {
+      "seq": 881,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-86291dbf4980eb1f"
+    },
+    {
+      "seq": 907,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-a7f5dab3322feb33"
+    },
+    {
+      "seq": 1036,
+      "name": "arc_status",
+      "callId": "chatcmpl-tool-847e80795896e6ff"
+    },
+    {
+      "seq": 1036,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-b3d88bd8f396ea54"
+    },
+    {
+      "seq": 1036,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-98be5c640abd6c41"
+    },
+    {
+      "seq": 1089,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-919414d465c6d8b8"
+    },
+    {
+      "seq": 1089,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-a8eb227035915332"
+    }
+  ],
+  "routeVerified": true,
+  "latestCorrectionsKept": true,
+  "awaitingRestart": false,
+  "restartScore": {
+    "scorerVersion": 2,
+    "correct": 12,
+    "total": 12,
+    "matched": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12"
+    ],
+    "values": {
+      "F01": "/srv/project-6e0bd5f3/config.yaml",
+      "F02": "value-7962af7e",
+      "F03": "revised-2903-green",
+      "F04": "发布-e3d04d44-华东",
+      "F05": "value-a822d408",
+      "F06": "value-671111fa",
+      "F07": "value-ae6639e0",
+      "F08": "2940ms",
+      "F09": "latest-2903-港口",
+      "F10": "value-2e6efe38",
+      "F11": "value-38042086",
+      "F12": "value-6defeb50"
+    }
+  },
+  "restartVerified": true,
+  "sourceVerification": {
+    "archiveCount": 8,
+    "recoveredTextSources": 218,
+    "recoveredTextBytes": 1113902,
+    "pages": 314,
+    "pairingBalanced": true,
+    "sourceTextComplete": true,
+    "cursorScopeChecks": 4,
+    "requestPairingChecked": 16,
+    "integrity": {
+      "incomplete": false,
+      "orphanSummaries": 0,
+      "appliedUnclosed": 0,
+      "unsupportedSchema": 0,
+      "corruptMetadata": 0
+    }
+  }
+}

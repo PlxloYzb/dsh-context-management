@@ -1,0 +1,23 @@
+{
+  "startedAt": "2026-09-07T10:10:45.715Z",
+  "scope": "host-web-model-smoke-only",
+  "pluginInstalled": false,
+  "baseUrl": "http://127.0.0.1:3097",
+  "requestedRoute": {
+    "provider": "opencode-go",
+    "model": "glm-5.3-flash"
+  },
+  "checks": {
+    "authenticationExchange": 303,
+    "webRoot": {
+      "status": 200,
+      "html": true
+    }
+  },
+  "limitations": [
+    "No candidate plugin exists; this is not plugin acceptance or a compaction quality benchmark."
+  ],
+  "passed": false,
+  "error": "session.create: HTTP 404",
+  "finishedAt": "2026-09-07T10:10:45.745Z"
+}

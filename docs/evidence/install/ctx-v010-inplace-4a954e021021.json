@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "profile": "ctx-v010-inplace",
+  "installedAt": "2026-09-07T12:37:26.460Z",
+  "tarballHash": "4a954e021021d7fef20bf44e8e58bd1de5f840dc7512bac9c0dcef373fe25c35",
+  "tarball": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/candidates/4a954e021021d7fef20bf44e8e58bd1de5f840dc7512bac9c0dcef373fe25c35/dsh-context-management-0.1.0.tgz",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "inventory": [
+    {
+      "path": "dist/archive-health.d.ts",
+      "sha256": "0dc30d07a2b91b4401a7445cd360673c09a608749a6db9e8d032ea57c2dc8e62"
+    },
+    {
+      "path": "dist/archive.d.ts",
+      "sha256": "e9a5d4f5bf64d3e18682dcc77438186fdaac75080c4eec44e44228491e5c04bc"
+    },
+    {
+      "path": "dist/bridge.d.ts",
+      "sha256": "2b3b4d9e9d5628977f56eb7bade0c0f551b4843c5741fdbc10fb2d1bb255699b"
+    },
+    {
+      "path": "dist/bridge.js",
+      "sha256": "08c860b9e16e65cd737f95080ffdd8345949ddd381df253a136070ff7ee3bfab"
+    },
+    {
+      "path": "dist/bridge.js.map",
+      "sha256": "d75fe3e4ed724586df8a424e7c997e13ff9d24a845fd752588ad868ded5e79c3"
+    },
+    {
+      "path": "dist/chunk-PFQE6OF3.js",
+      "sha256": "e2a9b08f64402700824a3840e4392d0ff74820a623251f3457f36961c0ca84ad"
+    },
+    {
+      "path": "dist/chunk-PFQE6OF3.js.map",
+      "sha256": "aff63eed7681fc109e7817e52d48fa9c8c059aa91a8dfb309dcc3acfa31d9f4a"
+    },
+    {
+      "path": "dist/chunk-WTQBYU3N.js",
+      "sha256": "31f8a0cf4f4c201496119295e0464fcd4d8376e9fcc4ab30245c6ad9ac877409"
+    },
+    {
+      "path": "dist/chunk-WTQBYU3N.js.map",
+      "sha256": "fcea24af0d7d03d7407a46860d004b9cfad6c7d18787e113ad96acea6d4ea019"
+    },
+    {
+      "path": "dist/commands.d.ts",
+      "sha256": "f5939774f579b679b78c31a8fdbe7852922973044d77a2063fe0d5739e1da002"
+    },
+    {
+      "path": "dist/config.d.ts",
+      "sha256": "2db1443d2510219c39badda7d1ec2073b7293ff10eef3d18abd88d51ae4f931f"
+    },
+    {
+      "path": "dist/fallback.d.ts",
+      "sha256": "f82d4f38d58648ae38ceeeae8648b6dc9216d4cc58713f40b676f5fcc02fbbc0"
+    },
+    {
+      "path": "dist/governor.d.ts",
+      "sha256": "d42242009937e24ebcc3817a9a99bce6613e74d20980eb5c8d77e7233d05a921"
+    },
+    {
+      "path": "dist/host-budget.d.ts",
+      "sha256": "6d234758e032ddcc706d2eb8326337dee1cef8f86daa33ebd5b4880ab973d741"
+    },
+    {
+      "path": "dist/index.d.ts",
+      "sha256": "eefb80814e729b8ce5e959fded6b9e5db0f84aa9128f75ec34e368bbf39cbaa6"
+    },
+    {
+      "path": "dist/index.js",
+      "sha256": "8f5a77c5f5934716e9e2d84d6be52270b4e48d43b9bb0746b1255cf63365b8d0"
+    },
+    {
+      "path": "dist/index.js.map",
+      "sha256": "cba81f7ad4d5b1b629bf43823f1082e73a10d0c3114c937515e7f8c1047629b3"
+    },
+    {
+      "path": "dist/messages.d.ts",
+      "sha256": "219df2f998a091e26e8edaa78a62a909f9244982c62790e47e42bbcaac597344"
+    },
+    {
+      "path": "dist/nudge.d.ts",
+      "sha256": "04971c8d2541c3cf80c9593cca30f735407c44f580ffe4029ca81662cb55629f"
+    },
+    {
+      "path": "dist/preset-cli.d.ts",
+      "sha256": "5768b9a0c2b1cbd0e628edb15112c7c23f19ba953aadfc41ce1ca1148e89ad73"
+    },
+    {
+      "path": "dist/preset-cli.js",
+      "sha256": "f9e3ffcb9479e1927b7adad26de9d199c084b984c4b0caa1d64cae38db5863a6"
+    },
+    {
+      "path": "dist/preset-cli.js.map",
+      "sha256": "034a400b083c1a64b8ca5eb90c78a64a79cc53d64dfc3e1a91ec6d048d725e34"
+    },
+    {
+      "path": "dist/preset-compat.d.ts",
+      "sha256": "31f0708864c32e6349fff75390b4f7807aaca5ed476f12bd29f8aba6dddb1896"
+    },
+    {
+      "path": "dist/prompts.d.ts",
+      "sha256": "f46272b27da2e8a9851204cfec9098767d1353cb1cd571183ddda126065f5ff8"
+    },
+    {
+      "path": "dist/region.d.ts",
+      "sha256": "56a66478cf39669a2cd0e3a857f69172647d9e4db6a75c7ea9efe2f7e4aed844"
+    },
+    {
+      "path": "dist/state.d.ts",
+      "sha256": "5979b7dad7f218335af729c2e11ba93a5fc790d4c67c47c6c8a2fc6284e9c4a4"
+    },
+    {
+      "path": "dist/system-prompt.d.ts",
+      "sha256": "fa47288c27a4111dfa9742edbbda96f632b19938bdc1948a0b3ac4c11fc776e4"
+    },
+    {
+      "path": "dist/tools.d.ts",
+      "sha256": "aed9cbd94b24cbaee563a8f849e5176449747e031f34cf17045274d830668dda"
+    },
+    {
+      "path": "dist/window-controller.d.ts",
+      "sha256": "469fb5f6fb7c9584848055480c4f5da718f95b909a6454aee601e895cbf968c6"
+    },
+    {
+      "path": "dist/window.d.ts",
+      "sha256": "d6029b2b87995a03c87ba859f37172c013238875a0f89622e9ac0a0e8995296a"
+    }
+  ],
+  "installedFilesVerified": true
+}

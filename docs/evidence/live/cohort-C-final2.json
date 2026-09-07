@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-07T13:00:31.738Z",
+  "arm": "C",
+  "samples": [
+    {
+      "seed": 1701,
+      "run": 1,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-1-1788786031782.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-1.log"
+    },
+    {
+      "seed": 1701,
+      "run": 2,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-2-1788786031782.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-2.log"
+    },
+    {
+      "seed": 1701,
+      "run": 3,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-3-1788786031782.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-3.log"
+    },
+    {
+      "seed": 2903,
+      "run": 1,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-1-1788786206717.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-1.log"
+    },
+    {
+      "seed": 2903,
+      "run": 2,
+      "status": "failed",
+      "exitCode": 1,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-2-1788786220869.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-2.log"
+    },
+    {
+      "seed": 2903,
+      "run": 3,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-3-1788786285134.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-3.log"
+    },
+    {
+      "seed": 4307,
+      "run": 1,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-1-1788786361788.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-1.log"
+    },
+    {
+      "seed": 4307,
+      "run": 2,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-2-1788786399395.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-2.log"
+    },
+    {
+      "seed": 4307,
+      "run": 3,
+      "status": "awaiting-restart",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-3-1788786423012.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-3.log"
+    }
+  ],
+  "finishedAt": "2026-09-07T13:09:31.706Z",
+  "cohortRole": "superseded diagnostic candidate; preserve all samples"
+}

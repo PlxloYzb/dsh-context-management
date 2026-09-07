@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "seed": 7331,
+  "fixtureHash": "9bd741dd85eaa5910fbde68b1c04a3facf775d9a5b3edcdfe4849e861b25e6ee",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "measuredAt": "2026-09-07T14:21:58.737Z",
+  "machine": {
+    "cpu": "Apple M4 Pro",
+    "logicalCpus": 14,
+    "totalMemory": 25769803776,
+    "platform": "darwin",
+    "release": "25.4.0",
+    "node": "v22.23.1"
+  },
+  "events": 100001,
+  "archives": 1100,
+  "windows": 100,
+  "inputBytes": 24523373,
+  "heapLimitMiB": 512,
+  "memory": {
+    "rss": 295387136,
+    "heapTotal": 146800640,
+    "heapUsed": 111197688,
+    "external": 3692347,
+    "arrayBuffers": 1208992
+  },
+  "coldMs": 438.90983300000016,
+  "searchP95Ms": 16.215041000000383,
+  "searchMaxMs": 21.778665999999703,
+  "hotNoChangeMs": 0.00023624999999810825,
+  "cancelMs": 0.13383299999986775,
+  "cancellationMode": "pre-aborted signal; each synchronous search is bounded by scan/visit caps",
+  "completed": true,
+  "failures": []
+}

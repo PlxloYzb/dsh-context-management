@@ -1,0 +1,18 @@
+# Replaces standard preset Basic compaction through an effect-owned runtime bridge.
+- insert:
+    - id: compaction-context-management-bridge
+      name: dsh-context-management/bridge
+      config:
+        adaptiveGovernor:
+          enabled: true
+          strategy: windowed
+          maxOutputTokens: auto
+          safetyMarginTokens: 4096
+          nudgeAtEffectiveCapacityPct: 0.75
+          emergencyAtEffectiveCapacityPct: 0.90
+          targetAfterTurnoverPct: 0.55
+          emergencyFallback: true
+        archive:
+          seedMaxTokens: 4096
+          retrievalDefaultMaxTokens: 2048
+          retrievalMaxTokens: 4096

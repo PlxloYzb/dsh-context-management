@@ -1,0 +1,359 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+  "seed": 2903,
+  "arm": "B",
+  "run": 2,
+  "requestedRoute": {
+    "provider": "opencode-go",
+    "model": "glm-5.3-flash"
+  },
+  "startedAt": "2026-09-07T12:39:02.827Z",
+  "turns": [
+    {
+      "stage": "read-1",
+      "elapsedMs": 4571,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-1-OK",
+      "throughSeq": 54
+    },
+    {
+      "stage": "read-2",
+      "elapsedMs": 18531,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-2-OK",
+      "throughSeq": 84
+    },
+    {
+      "stage": "read-3",
+      "elapsedMs": 10849,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-3-OK",
+      "throughSeq": 111
+    },
+    {
+      "stage": "read-4",
+      "elapsedMs": 4640,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-4-OK",
+      "throughSeq": 139
+    },
+    {
+      "stage": "read-5",
+      "elapsedMs": 3083,
+      "end": {
+        "kind": "error",
+        "error": {
+          "message": "context-budget-exhausted: assembled request exceeds the safe input budget",
+          "code": "UNKNOWN"
+        }
+      },
+      "response": "",
+      "throughSeq": 165
+    }
+  ],
+  "failures": [
+    "read-5: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+  ],
+  "incomplete": [],
+  "config": {
+    "strategy": "in-place",
+    "windowBudgetTokens": 32768,
+    "maxOutputTokens": 8192,
+    "safetyMarginTokens": 4096
+  },
+  "physicalOverflow": "NOT EXERCISED",
+  "completed": false,
+  "installEvidence": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/install/ctx-v010-inplace-4a954e021021.json",
+  "tarballHash": "4a954e021021d7fef20bf44e8e58bd1de5f840dc7512bac9c0dcef373fe25c35",
+  "installedFilesVerified": true,
+  "configHash": "7353a93e30353267787b8f2d0adf1a20fd4d79f546fe848f9c51b4e27883abdc",
+  "cwd": "/var/folders/fz/d5zdnj3d16s8dx6586w9nvbc0000gn/T/dsh-context-corpus-2903-YvJUVz",
+  "sessionId": "session-eb789135-e8c7-47b6-a449-68fcd314ee11",
+  "updatedAt": "2026-09-07T12:39:44.689Z",
+  "actualRoute": [
+    {
+      "seq": 12,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 76,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 103,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 131,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    }
+  ],
+  "requestContexts": [
+    {
+      "seq": 13,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "contextWindow": 1000000
+    }
+  ],
+  "usage": [
+    {
+      "seq": 22,
+      "kind": "agent",
+      "inputTokens": 7759,
+      "outputTokens": 15,
+      "totalTokens": 12638,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 52,
+      "kind": "agent",
+      "inputTokens": 6950,
+      "outputTokens": 63,
+      "totalTokens": 16741,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 67,
+      "kind": "agent",
+      "inputTokens": 4705,
+      "outputTokens": 15,
+      "totalTokens": 16880,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 82,
+      "kind": "agent",
+      "inputTokens": 5588,
+      "outputTokens": 7,
+      "totalTokens": 15323,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 96,
+      "kind": "agent",
+      "inputTokens": 3258,
+      "outputTokens": 15,
+      "totalTokens": 15433,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 109,
+      "kind": "agent",
+      "inputTokens": 4453,
+      "outputTokens": 7,
+      "totalTokens": 16620,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 124,
+      "kind": "agent",
+      "inputTokens": 4555,
+      "outputTokens": 15,
+      "totalTokens": 16730,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 137,
+      "kind": "agent",
+      "inputTokens": 5750,
+      "outputTokens": 7,
+      "totalTokens": 17917,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 152,
+      "kind": "agent",
+      "inputTokens": 3420,
+      "outputTokens": 15,
+      "totalTokens": 18027,
+      "cacheReadTokens": 14592
+    }
+  ],
+  "windows": [],
+  "compactions": [
+    {
+      "seq": 159,
+      "operationId": "ea4a9687-6d66-4dcc-ab83-eb8b190827cf",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    }
+  ],
+  "toolCalls": [
+    {
+      "seq": 22,
+      "name": "read",
+      "callId": "chatcmpl-tool-a274fbbd11e03d88"
+    },
+    {
+      "seq": 67,
+      "name": "read",
+      "callId": "chatcmpl-tool-979cb4e31ae5ea9f"
+    },
+    {
+      "seq": 96,
+      "name": "read",
+      "callId": "chatcmpl-tool-99970f3ec869ddde"
+    },
+    {
+      "seq": 124,
+      "name": "read",
+      "callId": "chatcmpl-tool-b3fdef4a3293ab31"
+    },
+    {
+      "seq": 152,
+      "name": "read",
+      "callId": "chatcmpl-tool-815a28d7c829a099"
+    }
+  ],
+  "routeVerified": true
+}

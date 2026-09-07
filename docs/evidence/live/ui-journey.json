@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "capturedAt": "2026-09-07T14:31:19.793Z",
+  "sessionId": "session-945ecfee-b492-440f-aec1-0680b77da33d",
+  "browser": "Codex in-app browser",
+  "commands": [
+    {
+      "commandId": "cmd-2f9f8d97-1",
+      "name": "context",
+      "args": "",
+      "startSeq": 3,
+      "endSeq": 4,
+      "kind": "success",
+      "backend": {
+        "status": "active",
+        "resolvedBackend": "dsh-context-management"
+      },
+      "strategy": "windowed",
+      "generation": 0
+    },
+    {
+      "commandId": "cmd-58b51618-1",
+      "name": "context",
+      "args": "",
+      "startSeq": 204,
+      "endSeq": 205,
+      "kind": "success",
+      "backend": {
+        "status": "active",
+        "resolvedBackend": "dsh-context-management"
+      },
+      "strategy": "windowed",
+      "generation": 0
+    },
+    {
+      "commandId": "cmd-f23d6b38-1",
+      "name": "context",
+      "args": " ",
+      "startSeq": 207,
+      "endSeq": 208,
+      "kind": "success",
+      "backend": {
+        "status": "active",
+        "resolvedBackend": "dsh-context-management"
+      },
+      "strategy": "windowed",
+      "generation": 0
+    },
+    {
+      "commandId": "cmd-f23d6b38-2",
+      "name": "context",
+      "args": " new",
+      "startSeq": 209,
+      "endSeq": 214,
+      "kind": "success",
+      "compactionId": "90bf9a17-4d99-4735-b5a5-409f9b551588",
+      "summaryHash": "c9a357adbfadd6db110736e2a4c671c4f7e69265c23b071f1e7781730008cd76",
+      "shadowedSeqs": [
+        9,
+        10,
+        11,
+        22
+      ]
+    },
+    {
+      "commandId": "cmd-f23d6b38-3",
+      "name": "compact",
+      "args": "",
+      "startSeq": 215,
+      "endSeq": 218,
+      "kind": "error",
+      "error": "Compaction could not produce a useful summary. The conversation is unchanged; the attempt is recorded in the session log."
+    },
+    {
+      "commandId": "cmd-f23d6b38-4",
+      "name": "context",
+      "args": " search UI_CHECK_7319",
+      "startSeq": 219,
+      "endSeq": 220,
+      "kind": "success",
+      "hits": [
+        {
+          "blockId": "90bf9a17-4d99-4735-b5a5-409f9b551588",
+          "generation": 1,
+          "seq": 9,
+          "textBlockPath": [
+            0
+          ],
+          "offset": 88,
+          "snippet": "s or call shell tools. Remember UI_CHECK_7319 and reply only READY."
+        }
+      ]
+    },
+    {
+      "commandId": "cmd-f23d6b38-5",
+      "name": "context",
+      "args": " decompress 90bf9a17-4d99-4735-b5a5-409f9b551588",
+      "startSeq": 221,
+      "endSeq": 222,
+      "kind": "success",
+      "pageBytes": 2047,
+      "containsSyntheticOriginal": true,
+      "hasNextCursor": true
+    },
+    {
+      "commandId": "cmd-383469e0-1",
+      "name": "context",
+      "args": " status",
+      "startSeq": 224,
+      "endSeq": 225,
+      "kind": "success",
+      "backend": {
+        "status": "active",
+        "resolvedBackend": "dsh-context-management"
+      },
+      "strategy": "windowed",
+      "generation": 1
+    },
+    {
+      "commandId": "cmd-f5fee9f2-1",
+      "name": "context",
+      "args": " status",
+      "startSeq": 227,
+      "endSeq": 228,
+      "kind": "success",
+      "backend": {
+        "status": "active",
+        "resolvedBackend": "dsh-context-management"
+      },
+      "strategy": "windowed",
+      "generation": 1
+    },
+    {
+      "commandId": "cmd-f5fee9f2-2",
+      "name": "context",
+      "args": " search UI_CHECK_7319",
+      "startSeq": 229,
+      "endSeq": 230,
+      "kind": "success",
+      "hits": [
+        {
+          "blockId": "90bf9a17-4d99-4735-b5a5-409f9b551588",
+          "generation": 1,
+          "seq": 9,
+          "textBlockPath": [
+            0
+          ],
+          "offset": 88,
+          "snippet": "s or call shell tools. Remember UI_CHECK_7319 and reply only READY."
+        }
+      ]
+    },
+    {
+      "commandId": "cmd-f5fee9f2-3",
+      "name": "context",
+      "args": " decompress 90bf9a17-4d99-4735-b5a5-409f9b551588",
+      "startSeq": 231,
+      "endSeq": 232,
+      "kind": "success",
+      "pageBytes": 2047,
+      "containsSyntheticOriginal": true,
+      "hasNextCursor": true
+    }
+  ],
+  "observations": [
+    "Native context command input hint selected, arguments typed and submitted with Enter.",
+    "Manual context new rendered the host compaction feedback.",
+    "Official compact rendered the expected no-useful-summary error on the already-small remaining history.",
+    "Native search located the original synthetic message, and native decompress returned a bounded page with an explicit historical boundary.",
+    "A new candidate reopened this synthetic UI session and executed native context status, preserving generation 1 with the active backend. Earlier command records are retained with their original sequence numbers."
+  ],
+  "completed": true,
+  "failures": [],
+  "installEvidence": "docs/evidence/install/ctx-v010-test-81640a3426be.json",
+  "tarballHash": "81640a3426be8c84bf32497c2464ed4e507d46dec30bca0347951730af31b543"
+}

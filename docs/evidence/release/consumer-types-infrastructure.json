@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "hostVersion": "0.1.2-rc.1",
+  "tarballHash": "c14e46d711e377449c878c3e8b4e575156bec2f370b06eff2a53ea54b37361b0",
+  "checkedAt": "2026-09-07T14:03:22.155Z",
+  "compilerOptions": [
+    "--noEmit",
+    "--strict",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--target",
+    "ES2022",
+    "--skipLibCheck",
+    "false"
+  ],
+  "completed": false,
+  "failures": [
+    "error TS5112: tsconfig.json is present but will not be loaded if files are specified on commandline. Use '--ignoreConfig' to skip this error.\n"
+  ]
+}

@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "startedAt": "2026-09-07T13:59:30.792Z",
+  "arm": "C",
+  "samples": [
+    {
+      "seed": 1701,
+      "run": 1,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-1-1788789570843.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-1.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 1701,
+      "run": 2,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-2-1788789570843.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-2.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 1701,
+      "run": 3,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-1701-3-1788789570843.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-1701-3.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 2903,
+      "run": 1,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-1-1788789570843.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-1.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 2903,
+      "run": 2,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-2-1788789570844.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-2.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 2903,
+      "run": 3,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-2903-3-1788789570845.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-2903-3.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 4307,
+      "run": 1,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-1-1788789717978.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-1.log",
+      "restartExitCode": 0,
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 4307,
+      "run": 2,
+      "status": "completed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-2-1788789730514.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-2.log",
+      "restartExitCode": 0,
+      "restartInfrastructureAttempts": [
+        {
+          "exitCode": 1,
+          "modelRequestStarted": false,
+          "reason": "Web startup not ready; launch URL unavailable"
+        }
+      ],
+      "sourceVerificationExitCode": 0
+    },
+    {
+      "seed": 4307,
+      "run": 3,
+      "status": "failed",
+      "exitCode": 0,
+      "report": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/live/C-4307-3-1788789753227.json",
+      "log": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/cohort/C-4307-3.log",
+      "restartExitCode": 1,
+      "sourceVerificationExitCode": 0
+    }
+  ],
+  "finishedAt": "2026-09-07T14:05:14.463Z",
+  "cohortRole": "superseded diagnostic candidate; preserve all samples"
+}

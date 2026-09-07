@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-09-07T14:34:38.492074+00:00",
+  "files": [
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/tools/handlers/new_context_window.rs",
+      "expected": "6f9edc8e9bad41681626db5fa493236dccc9a4527c29f14dc0d0a7c3147ef08e",
+      "actual": "6f9edc8e9bad41681626db5fa493236dccc9a4527c29f14dc0d0a7c3147ef08e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/session/turn.rs",
+      "expected": "1be73d98dc1cdb03d3edbf405291cc717abea8fee57cb5c9ea8eaafe479cabdf",
+      "actual": "1be73d98dc1cdb03d3edbf405291cc717abea8fee57cb5c9ea8eaafe479cabdf",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/session/context_window.rs",
+      "expected": "5540624a6f1bba20dff29c1b4ccd5186f84bb485923642ba02e1735713f5ecee",
+      "actual": "5540624a6f1bba20dff29c1b4ccd5186f84bb485923642ba02e1735713f5ecee",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/session/token_budget.rs",
+      "expected": "3c1e7374586aeb2ab65866ca4c9e7f67feddc30bac02c72c29ae7220a03b08d2",
+      "actual": "3c1e7374586aeb2ab65866ca4c9e7f67feddc30bac02c72c29ae7220a03b08d2",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/state/auto_compact_window.rs",
+      "expected": "61dd15e182e64fd43883098522854cdc2c6365d8d94d0f2408a03f6da7db6731",
+      "actual": "61dd15e182e64fd43883098522854cdc2c6365d8d94d0f2408a03f6da7db6731",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/region.ts",
+      "expected": "6a1908abcd2779a091384dd72ce472b0f3ad42004a6b6cc2a0b34fc93e8258fe",
+      "actual": "6a1908abcd2779a091384dd72ce472b0f3ad42004a6b6cc2a0b34fc93e8258fe",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/tools.ts",
+      "expected": "ef2e785c1b3b92eb751165fec7e383183b63bc92c01428bef13ce56f58cd4b3c",
+      "actual": "ef2e785c1b3b92eb751165fec7e383183b63bc92c01428bef13ce56f58cd4b3c",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/state.ts",
+      "expected": "b6140bdc0a312dcba1e990bd8572c68b45a8190e3dfd3d766dfd979aba28a0b6",
+      "actual": "b6140bdc0a312dcba1e990bd8572c68b45a8190e3dfd3d766dfd979aba28a0b6",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/bridge.ts",
+      "expected": "a605477de77c96b570897e04ee9fcfa70ed7aba92cc3308996cbb31aa07e6d0b",
+      "actual": "a605477de77c96b570897e04ee9fcfa70ed7aba92cc3308996cbb31aa07e6d0b",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-token-meter/lib/index.js",
+      "expected": "17d420e99bc34638bb4783c13b49702a4b2a3450dc364dba3f53d595e1fbe03e",
+      "actual": "17d420e99bc34638bb4783c13b49702a4b2a3450dc364dba3f53d595e1fbe03e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-compaction/lib/types/index.d.ts",
+      "expected": "358511be30c6b9dc9e2c9e31e2d0a2687678ba41cfce4d218385641833f933e1",
+      "actual": "358511be30c6b9dc9e2c9e31e2d0a2687678ba41cfce4d218385641833f933e1",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-agent-presets/presets/standard/agent.cordis.yml",
+      "expected": "f18dd942686aa71f43ffc4fd328a712f79af113fb67a35b54cb6de4fc3b84bda",
+      "actual": "f18dd942686aa71f43ffc4fd328a712f79af113fb67a35b54cb6de4fc3b84bda",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-agent-loop/lib/index.js",
+      "expected": "a9142d46163d961ed5774ad544cb997da2197fefca5684ec820060dd50c1c935",
+      "actual": "a9142d46163d961ed5774ad544cb997da2197fefca5684ec820060dd50c1c935",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-api-session-controller/lib/typert.remote-client.js",
+      "expected": "dfb419c2c3155858fac5c2485c70772ccd3fb6dbe09132cd3c39240a70f872f0",
+      "actual": "dfb419c2c3155858fac5c2485c70772ccd3fb6dbe09132cd3c39240a70f872f0",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-client-connection/lib/index.js",
+      "expected": "91b8e7b90c5189a5dc0f4eafc4a62494eef9b5a28ded0715146ddf1a31126c8e",
+      "actual": "91b8e7b90c5189a5dc0f4eafc4a62494eef9b5a28ded0715146ddf1a31126c8e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-api-gateway/lib/index.js",
+      "expected": "c69e238a1b9b7cf36950e05a6ad5e86228a476b956e4ad056fb9125dc156f8a8",
+      "actual": "c69e238a1b9b7cf36950e05a6ad5e86228a476b956e4ad056fb9125dc156f8a8",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/archive/SPEC-pre-review.md",
+      "expected": "4ee6c0aec621a92e1dc3accab7c48bf28a5b9db80d758a62054f62cbb8f73ab0",
+      "actual": "4ee6c0aec621a92e1dc3accab7c48bf28a5b9db80d758a62054f62cbb8f73ab0",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/archive/PLAN-pre-review.md",
+      "expected": "55cdc929fee1b3a0f170e297ceba77bc1548cfff8877de07bd6552b52c59916f",
+      "actual": "55cdc929fee1b3a0f170e297ceba77bc1548cfff8877de07bd6552b52c59916f",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/features/src/lib.rs",
+      "expected": "451604ebcb3e805ce22e62a87fc425b95f774bcdadc9bcc60b422075cedd7c85",
+      "actual": "451604ebcb3e805ce22e62a87fc425b95f774bcdadc9bcc60b422075cedd7c85",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/compact_token_budget.rs",
+      "expected": "274a57e36ee1ca74abe73d088867e9b8bde98b66de53a77d004b194bea571d12",
+      "actual": "274a57e36ee1ca74abe73d088867e9b8bde98b66de53a77d004b194bea571d12",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/tools/handlers/new_context_window_spec.rs",
+      "expected": "a8ae795a800d353ace35ed1366ee6917717066dd83f441cde60f78dc1cabd749",
+      "actual": "a8ae795a800d353ace35ed1366ee6917717066dd83f441cde60f78dc1cabd749",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/codex-rs/core/src/context/world_state/context_window_guidance.rs",
+      "expected": "448c236a3b0b28ae86f0573f6585d0c1264cfb3dad89ec89aa24b38a5dc83d02",
+      "actual": "448c236a3b0b28ae86f0573f6585d0c1264cfb3dad89ec89aa24b38a5dc83d02",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/fallback.ts",
+      "expected": "55ea621e55032ebaccfe556da32646d54c2eebe4043ebd2b2e372b66438d2ea5",
+      "actual": "55ea621e55032ebaccfe556da32646d54c2eebe4043ebd2b2e372b66438d2ea5",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/index.ts",
+      "expected": "baa4b55a19e3c1dcd28903bfe13ff09b97d4f0983ef325e07e55d82ac0121f5a",
+      "actual": "baa4b55a19e3c1dcd28903bfe13ff09b97d4f0983ef325e07e55d82ac0121f5a",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/src/messages.ts",
+      "expected": "6550a2c81e3ffffe623de4621d254530e0918f8eb13791eb697cafe57f56f1f7",
+      "actual": "6550a2c81e3ffffe623de4621d254530e0918f8eb13791eb697cafe57f56f1f7",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/research/bench/driver.mjs",
+      "expected": "45da767fb75cd9efffcf92c701a94c370c1ed04ff7b9c1131139b0194e5f2ad7",
+      "actual": "45da767fb75cd9efffcf92c701a94c370c1ed04ff7b9c1131139b0194e5f2ad7",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-arc-context/LICENSE",
+      "expected": "40ec43c0510a1fe6287ad16ea23f62f361da7d8f55e7b5123020232947ba5bda",
+      "actual": "40ec43c0510a1fe6287ad16ea23f62f361da7d8f55e7b5123020232947ba5bda",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/Workspace/dsh-plugin-dev/codex-main/LICENSE",
+      "expected": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+      "actual": "d17f227e4df5da1600391338865ce0f3055211760a36688f816941d58232d8dc",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-token-meter/lib/types/types.d.ts",
+      "expected": "6494bb40296e0b7b7cc4e44511b8a7abb8ee0f9d4634fe28e1a7452fcc539d29",
+      "actual": "6494bb40296e0b7b7cc4e44511b8a7abb8ee0f9d4634fe28e1a7452fcc539d29",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-compaction-basic/lib/index.js",
+      "expected": "5b915306c73465f8c1f9a8441062bea9d797b7cff43bb68f921354d922db3e4e",
+      "actual": "5b915306c73465f8c1f9a8441062bea9d797b7cff43bb68f921354d922db3e4e",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/dsh-agent-presets/lib/index.js",
+      "expected": "8d9de90d3812abf18e923a14b57e772a89d0a8dd87abf4cfcbd8a4430d9ffec1",
+      "actual": "8d9de90d3812abf18e923a14b57e772a89d0a8dd87abf4cfcbd8a4430d9ffec1",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/bruceplxl/.local/lib/node_modules/@deepseek-ai/dsh/node_modules/@deepseek-ai/cordis/lib/index.js",
+      "expected": "1729cdbf8ee40b17c8839e06bf96491490548559e11ef7e411271e0754e751c5",
+      "actual": "1729cdbf8ee40b17c8839e06bf96491490548559e11ef7e411271e0754e751c5",
+      "unchanged": true
+    }
+  ],
+  "arcHead": "82fc3004d10c445f82aa97a93ad2a88a3a8794cd",
+  "arcStatus": "?? .codegraph/",
+  "completed": true,
+  "failures": []
+}

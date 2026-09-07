@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "checkedAt": "2026-09-07T13:37:00.355Z",
+  "arms": [
+    {
+      "arm": "A",
+      "manifest": "docs/evidence/live/cohort-A-final.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "blindTotal": 108,
+      "restartCorrect": 108,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 9,
+      "routeVerified": 9,
+      "restartVerified": 9,
+      "failures": [],
+      "usage": {
+        "inputTokens": 1111220,
+        "cacheReadTokens": 1675648,
+        "cacheWriteTokens": 0,
+        "outputTokens": 22578
+      },
+      "usageCalls": 179,
+      "elapsedMs": 1709102,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": []
+    },
+    {
+      "arm": "B",
+      "manifest": "docs/evidence/live/cohort-B-final5.json",
+      "samples": 9,
+      "completed": 0,
+      "blindCorrect": 0,
+      "blindTotal": 108,
+      "restartCorrect": 0,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 0,
+      "routeVerified": 9,
+      "restartVerified": 0,
+      "failures": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "failure": "read-7: turn ended {\"kind\":\"error\",\"error\":{\"message\":\"context-budget-exhausted: assembled request exceeds the safe input budget\",\"code\":\"UNKNOWN\"}}"
+        }
+      ],
+      "usage": {
+        "inputTokens": 1001989,
+        "cacheReadTokens": 1004416,
+        "cacheWriteTokens": 0,
+        "outputTokens": 2605
+      },
+      "usageCalls": 119,
+      "elapsedMs": 811874,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": [
+        "b4ae9a930e4bce5c27738a57b8e907816b82218ca941f3f0af4dff7c39ecc4ce"
+      ]
+    },
+    {
+      "arm": "C",
+      "manifest": "docs/evidence/live/cohort-C-final4.json",
+      "samples": 9,
+      "completed": 8,
+      "blindCorrect": 106,
+      "blindTotal": 108,
+      "restartCorrect": 108,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 3,
+      "latestCorrections": 8,
+      "routeVerified": 9,
+      "restartVerified": 9,
+      "failures": [
+        {
+          "seed": 1701,
+          "run": 2,
+          "failure": "latest correction lost"
+        }
+      ],
+      "usage": {
+        "inputTokens": 1711034,
+        "cacheReadTokens": 2602240,
+        "cacheWriteTokens": 0,
+        "outputTokens": 21521
+      },
+      "usageCalls": 268,
+      "elapsedMs": 2224917,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": [
+        "b4ae9a930e4bce5c27738a57b8e907816b82218ca941f3f0af4dff7c39ecc4ce"
+      ]
+    }
+  ],
+  "checks": {
+    "sampleCount": true,
+    "sameFixtures": true,
+    "route": true,
+    "sourceText": true,
+    "journey": false,
+    "corrections": false,
+    "blindQuality": false
+  },
+  "completed": false,
+  "limitations": [
+    "Basic uses its native physical-capacity threshold; budgets are not directly comparable. No cost superiority claim.",
+    "In-place safe-budget stops remain failed comparator samples.",
+    "Only 27 fixed synthetic samples; no general accuracy guarantee.",
+    "Physical provider overflow: NOT EXERCISED."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "kind": "test-infrastructure",
+  "stage": "server-start-before-auth-or-session",
+  "completed": false,
+  "failure": "ENOENT observer-capacity.patch.yml: test launcher referenced a nonexistent overlay",
+  "resolution": "Used the existing observer.patch.yml; the waiting driver then authenticated and began its first model sample. No model attempt was retried."
+}

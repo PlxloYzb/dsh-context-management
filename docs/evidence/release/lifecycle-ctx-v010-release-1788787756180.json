@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.0",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "startedAt": "2026-09-07T13:29:16.189Z",
+  "profile": "ctx-v010-release-1788787756180",
+  "tarballHash": "b4ae9a930e4bce5c27738a57b8e907816b82218ca941f3f0af4dff7c39ecc4ce",
+  "lockHash": "62bc5ee251113daf25e5bdadcd32550e21912e63e25d07b17fa474874695f900",
+  "presetsBefore": {
+    "standard": "f18dd942686aa71f43ffc4fd328a712f79af113fb67a35b54cb6de4fc3b84bda",
+    "minimal": "c952e72ff87cb09e6d2700dcf806c6584a67cf867adcd103ec822a6c538d4f87",
+    "ptc": "2cd76a7ad066029e10efd90932b2e7c1e269b02669edcbb557be2c5ee15abe2f",
+    "cordis": "74b1be71ae313aede30ffab8b19b6ef07a4b4f5bc1d34b627a1bbaec4afa907d"
+  },
+  "stages": [],
+  "completed": false,
+  "failures": [
+    "ENOENT: no such file or directory, open '/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/ctx-v010-release-1788787756180/observed/session-ad854b1f-513b-4fc6-84e3-234c44c775be.pressure.jsonl'"
+  ],
+  "sessionId": "session-ad854b1f-513b-4fc6-84e3-234c44c775be",
+  "finishedAt": "2026-09-07T13:29:34.205Z"
+}
