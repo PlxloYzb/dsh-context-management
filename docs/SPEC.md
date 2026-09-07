@@ -1,6 +1,6 @@
 # dsh-context-management v0.1.0 产品规格
 
-状态：**0.1.0 代码与本地发行包已完成，G1–G7 验收通过；尚未公开发布**。制定日期：2026-09-07。已验证事实见 [REVIEW.md](REVIEW.md) 和 [VALIDATION.md](VALIDATION.md)，实施顺序见 [PLAN.md](PLAN.md)。旧草案保存在 archive，不再约束本项目。
+状态：**0.1.0 代码与本地发行包已完成，G1–G7 验收通过；已于 2026-09-07 公开发布到 npm**。制定日期：2026-09-07。已验证事实见 [REVIEW.md](REVIEW.md) 和 [VALIDATION.md](VALIDATION.md)，实施顺序见 [PLAN.md](PLAN.md)。旧草案保存在 archive，不再约束本项目。
 
 ## 1. 产品目标
 

@@ -10,4 +10,4 @@
 - 提供 `/context` 状态、手动换窗、搜索和恢复命令，以及 `/arc` 迁移别名。
 - 加入事务故障、强杀重放、真实宿主、Web 模型旅程、规模与安装卸载验收。
 
-本地发行状态与限制见 [docs/RELEASE.md](docs/RELEASE.md)。不包含公开 npm 发布或旧包废弃操作。
+本地发行状态与限制见 [docs/RELEASE.md](docs/RELEASE.md)。公开 npm 发布已于 2026-09-07 完成,旧包废弃尚未执行。

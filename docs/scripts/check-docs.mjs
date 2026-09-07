@@ -32,7 +32,8 @@ for (const file of ['web-smoke.json', 'web-smoke-fresh.json', 'projection-probe.
 for (const file of ['web-smoke.mjs', 'projection-probe.mjs', 'check-docs.mjs']) {
   execFileSync(process.execPath, ['--check', resolve(root, 'scripts', file)])
 }
-assert((await readFile(resolve(root, 'SPEC.md'), 'utf8')).includes('尚未实现或发布'))
+// SPEC 状态行在公开发布后不得再回到"尚未公开发布"标记;原审查期断言"尚未实现或发布"随 SPEC 定稿移除。
+assert(!(await readFile(resolve(root, 'SPEC.md'), 'utf8')).includes('尚未公开发布'))
 const report = {
   checkedAt: new Date().toISOString(), scope: 'documentation-only', markdownFiles: files.length,
   localLinksChecked: links, sourceHashesChecked: manifest.files.length,

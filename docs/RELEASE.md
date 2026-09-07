@@ -48,4 +48,4 @@ Basic 使用其官方 schema 的物理容量阈值，口径与插件逻辑预算
 
 SHA-256：`81640a3426be8c84bf32497c2464ed4e507d46dec30bca0347951730af31b543`。
 
-公开 npm 发布不在本次范围内。安装和故障处理见 [README](../README.md)。
+公开 npm 发布于 2026-09-07 完成:`dsh-context-management@0.1.0` 已发布到公共 registry(维护者 plxl)。线上 tarball 与上述审计产物逐字节一致,SHA-256 同为 `81640a3426be8c84bf32497c2464ed4e507d46dec30bca0347951730af31b543`;发布流程中的 `prepack` 检查重新执行并再生了 [SIGKILL 恢复证据](evidence/recovery/sigkill.json) 的时间戳,结果不变。该发布动作发生在发行清单生成之后,清单中的 `publicNpmPublished: false` 只反映生成时点的状态。package.json 尚无 repository 字段,后续补丁版本补充。旧包废弃仍不在范围内。安装和故障处理见 [README](../README.md)。
