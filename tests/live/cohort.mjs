@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 // Declared samples remain in the manifest even if a process fails.
 import { spawn } from 'node:child_process'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'

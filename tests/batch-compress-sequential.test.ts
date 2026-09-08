@@ -1,20 +1,7 @@
 /**
- * RQ2 batch protected-zone fix — sequential per-range application regression
- * tests (docs/TASK-rq2-followups.md §2.3). handleCompress now applies each
- * range through its own kernel call and lands the durable transaction before
- * the next range's protected-zone computation, with three kernel batch
- * semantics preserved ARC-side:
- *   - the minCompressRange gate stays a cross-range SUM (pre-checked),
- *   - overlap between batch ranges still skips the later range with a warning,
- *   - a failing range is reported honestly beside the ranges that DID land.
- *
- * The fixture test replays the exported live failure session
- * (research/fixtures/rq2-batch-live-session.json): before the fix the exact
- * three-range call was rejected wholesale ("Range is entirely within the
- * protected zone" for m00007/m00008 — the preserveRecentTokens tail walk
- * reaches two ranges deep when the trailing messages are tiny); after the fix
- * each segment's landed checkpoint feeds the next segment's tail walk, which
- * is exactly what made the same ranges succeed one-per-turn live.
+ * Sequential batch compression preserves the aggregate minimum-size gate,
+ * overlap detection and partial-success reporting. The legacy fixture pins
+ * the protected-tail behavior against an actual recorded boundary case.
  */
 
 import test from 'node:test'

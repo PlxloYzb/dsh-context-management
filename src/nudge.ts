@@ -169,7 +169,7 @@ export function buildNudge(
  * context breakdown, HOW_TO_COMPRESS_RULES, tier rules, and the batch tip all
  * come from acp-kernel verbatim (the kernel-alignment principle). Only the
  * ref-ID-oriented segments are replaced with our seq-based equivalents,
- * because DSH has no `<arc>` ref tags — see docs/dsh-porting-verification.md:
+ * because DSH has no `<arc>` ref tags:
  * - `rangesStr` (mNNNNN refs) → the surface-seq range table;
  * - the emergency JSON example (startId/endId) → a seq example;
  * - the tier trigger block (block ids bN) → our tier line with surface seqs.

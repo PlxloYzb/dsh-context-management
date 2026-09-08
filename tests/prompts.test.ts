@@ -4,7 +4,6 @@ import { testContext } from './host-helpers.ts'
  * and byte-identical default snapshots (the anti-regression anchor for the
  * template migration — literals below were captured from the PRE-change
  * implementation, so they are independent of the new rendering code).
- * Design: docs/configurable-prompts-design.md (v4).
  */
 
 import { test } from 'node:test'

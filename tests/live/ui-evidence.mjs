@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 // Read-only evidence capture after the native browser interactions.
 import { webClient } from './client.mjs'
 import { writeFile, mkdir } from 'node:fs/promises'

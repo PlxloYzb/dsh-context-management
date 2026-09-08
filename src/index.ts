@@ -17,7 +17,7 @@ import { governorCapacity } from './governor.ts'
  *  - the original events stay in the append-only session log, so `decompress`,
  *    `search_context`, and replay always work;
  *  - refs are surface seqs carried by the injected nudge's range table (DSH
- *    has no in-memory message rewrite hook — see docs/dsh-porting-verification.md);
+ *    has no in-memory message rewrite hook);
  *  - automatic policy never summarizes by itself: it nudges the model.
  *
  * Mount it wherever a compaction backend is expected:
@@ -234,7 +234,7 @@ export interface ArcConfig {
   readonly autoCommand: boolean
   /** Inject the nudge into `agent/pre-step` when the kernel recommends it. Default true. */
   readonly autoNudge: boolean
-  /** Per-stage prompt template overrides (nudge / range table / system prompt / tool descriptions). See docs/configurable-prompts-design.md. */
+  /** Per-stage prompt template overrides (nudge / range table / system prompt / tool descriptions). */
   readonly prompts?: ArcPrompts
   /**
    * Optional output-reserve-aware governor. It caps excessive completion

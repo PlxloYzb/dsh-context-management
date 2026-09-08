@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 // Real installed-package lifecycle in a new, explicitly isolated DSH profile.
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'

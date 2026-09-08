@@ -34,10 +34,10 @@
     "dist",
     "cordis.patch.yml",
     "README.md",
+    "README.en.md",
     "CHANGELOG.md",
     "LICENSE",
     "NOTICE.md",
-    "SOURCE_REUSE.md",
     "THIRD_PARTY_LICENSES.md"
   ],
   "sideEffects": false,
@@ -60,7 +60,8 @@
     "test:integration": "node --import tsx --test tests/integration/*.test.ts",
     "test:live": "node tests/live/run.mjs",
     "test:performance": "node --max-old-space-size=512 --expose-gc --import tsx tests/performance/scale.ts",
-    "test:release": "node tests/release/audit.mjs"
+    "test:release": "node tests/release/audit.mjs",
+    "test:install": "node tests/release/package-name.mjs"
   },
   "dependencies": {
     "acp-kernel": "0.0.24"
@@ -115,5 +116,13 @@
   },
   "bin": {
     "dsh-ctx-presets": "dist/preset-cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PlxloYzb/dsh-context-management.git"
+  },
+  "homepage": "https://github.com/PlxloYzb/dsh-context-management#readme",
+  "bugs": {
+    "url": "https://github.com/PlxloYzb/dsh-context-management/issues"
   }
 }

@@ -3,7 +3,6 @@
  * (nudge frames, range table, system prompt, tool descriptions) rendered from
  * `config.prompts` templates with named placeholders.
  *
- * Design: docs/configurable-prompts-design.md (v4).
  * - placeholders are `{identifier}` only; literal braces like
  *   `compress({ content: [...] })` are left untouched (spaces/commas break the
  *   identifier rule);

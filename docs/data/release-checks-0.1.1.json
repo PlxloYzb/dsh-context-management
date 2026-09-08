@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.1",
+  "hostVersion": "0.1.2-rc.1",
+  "checkedAt": "2026-09-08T06:50:14.326493+00:00",
+  "packageNameTest": {
+    "pluginVersion": "0.1.1",
+    "hostVersion": "0.1.2-rc.1",
+    "startedAt": "2026-09-08T06:48:12.222Z",
+    "registry": "isolated loopback candidate registry; public npm publication not performed",
+    "commands": [
+      "dsh plugin --profile web add dsh-context-management",
+      "dsh plugin --profile web remove dsh-context-management"
+    ],
+    "completed": true,
+    "failures": [],
+    "tests": [
+      184,
+      50
+    ],
+    "prepackPassed": true,
+    "tarballHash": "261f83bbd164ec520ce514c5dfeb27eb1da9a1fd98f606ce5feb7ef4c72855ed",
+    "installed": {
+      "resolvedVersion": "0.1.1",
+      "bundleEnabled": true,
+      "nativeContextCommand": true,
+      "nativeCompactAvailable": true
+    },
+    "removed": {
+      "dependencyRemoved": true,
+      "bundleRemoved": true,
+      "nativeCompactRestored": true
+    },
+    "finishedAt": "2026-09-08T06:48:45.484Z"
+  },
+  "packageAudit": {
+    "completed": true,
+    "fileCount": 40,
+    "unpackedSize": 971599
+  },
+  "sourceRuntimeComparison": {
+    "sourceFiles": 22,
+    "comparison": "esbuild TypeScript transform; minified ESM, no source maps or legal comments",
+    "baseCommit": "e5a47a521d180d87cff1e1431381009b083f5966",
+    "changed": []
+  },
+  "publishedNpmTarball": {
+    "url": "https://registry.npmjs.org/dsh-context-management/-/dsh-context-management-0.1.1.tgz",
+    "sha256": "1f527e7e66ded7798a99888df240e8977dc8f8d63e17339add9b9ed8a6cd4bf4",
+    "bytes": 259773,
+    "matchesPreviouslyTestedPackage": true
+  },
+  "runtimeIdentity": {
+    "comparedFiles": 33,
+    "changedFiles": [],
+    "configurationAndRuntimeDependenciesIdentical": true,
+    "scope": "All dist files and cordis.patch.yml compared byte-for-byte against published npm tarball. GitHub-only differences include bilingual documentation and repository/package metadata. No npm republishing performed."
+  },
+  "historicalModelCohortRerun": false,
+  "historicalPresetMatrixRerun": false,
+  "limitations": [
+    "Model, preset, and scale measurements are historical; see results-0.1.1.json and bilingual testing documentation.",
+    "Physical provider overflow was not exercised."
+  ],
+  "retainedDiagnostic": "Initial package audit rejected newly included README.en.md; explicit package allowlist and clean-build inputs were updated. Final audit passes."
+}

@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, readdir, copyFile, writeFile } from 'node:fs/promises'

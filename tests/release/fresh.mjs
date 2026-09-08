@@ -1,12 +1,12 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 import { mkdtemp, cp, readFile, writeFile, mkdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 const root=await mkdtemp(join(tmpdir(),'dsh-context-release-ci-'))
-for(const path of ['src','tests','package.json','package-lock.json','tsconfig.json','tsup.config.ts','README.md','CHANGELOG.md','LICENSE','NOTICE.md','SOURCE_REUSE.md','THIRD_PARTY_LICENSES.md','cordis.patch.yml'])await cp(path,join(root,path),{recursive:true})
+for(const path of ['src','tests','package.json','package-lock.json','tsconfig.json','tsup.config.ts','README.md','README.en.md','CHANGELOG.md','LICENSE','NOTICE.md','THIRD_PARTY_LICENSES.md','cordis.patch.yml'])await cp(path,join(root,path),{recursive:true})
 const report={schemaVersion:1,pluginVersion:releaseVersion,pluginCommit:null,hostVersion:'0.1.2-rc.1',startedAt:new Date().toISOString(),node:process.version,lockHash:createHash('sha256').update(await readFile('package-lock.json')).digest('hex'),steps:[],completed:false,failures:[]}
 await mkdir('.test-runtime',{recursive:true});await mkdir(`${evidenceRoot}/release`,{recursive:true})
 for(const args of [['ci'],['run','check'],['run','test:release'],['audit','--json']]){

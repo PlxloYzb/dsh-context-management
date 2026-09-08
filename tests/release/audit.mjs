@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 import assert from 'node:assert/strict'
 import { isBuiltin } from 'node:module'
 import { execFileSync } from 'node:child_process'
@@ -10,8 +10,8 @@ const hash = value => createHash('sha256').update(value).digest('hex')
 const pkg = JSON.parse(await readFile('package.json','utf8'))
 const packing = JSON.parse(execFileSync('npm',['pack','--dry-run','--ignore-scripts','--json'],{encoding:'utf8'}))[0]
 const paths=packing.files.map(file=>file.path)
-for(const required of ['package.json','README.md','CHANGELOG.md','LICENSE','NOTICE.md','SOURCE_REUSE.md','THIRD_PARTY_LICENSES.md','cordis.patch.yml','dist/index.js','dist/index.d.ts','dist/bridge.js','dist/bridge.d.ts']) assert.ok(paths.includes(required),required)
-assert.ok(paths.every(path=>/^(dist\/|package\.json$|README\.md$|CHANGELOG\.md$|LICENSE$|NOTICE\.md$|SOURCE_REUSE\.md$|THIRD_PARTY_LICENSES\.md$|cordis\.patch\.yml$)/.test(path)))
+for(const required of ['package.json','README.md','README.en.md','CHANGELOG.md','LICENSE','NOTICE.md','THIRD_PARTY_LICENSES.md','cordis.patch.yml','dist/index.js','dist/index.d.ts','dist/bridge.js','dist/bridge.d.ts']) assert.ok(paths.includes(required),required)
+assert.ok(paths.every(path=>/^(dist\/|package\.json$|README(?:\.en)?\.md$|CHANGELOG\.md$|LICENSE$|NOTICE\.md$|THIRD_PARTY_LICENSES\.md$|cordis\.patch\.yml$)/.test(path)))
 const imports = new Set(), inventory=[]
 for(const path of paths){
  const bytes=await readFile(path);inventory.push({path,bytes:bytes.length,sha256:hash(bytes)})

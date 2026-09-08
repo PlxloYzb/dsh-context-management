@@ -1,0 +1,2167 @@
+{
+  "schemaVersion": 1,
+  "release": "0.1.1",
+  "host": "0.1.2-rc.1",
+  "historicalEvidenceDate": "2026-09-08",
+  "scope": "Curated historical measurements, not a rerun on the GitHub documentation commit. See TESTING.en.md for limitations.",
+  "modelCohort": {
+    "schemaVersion": 1,
+    "pluginVersion": "0.1.1",
+    "pluginCommit": null,
+    "hostVersion": "0.1.2-rc.1",
+    "checkedAt": "2026-09-08T04:43:55.758Z",
+    "arms": [
+      {
+        "arm": "A",
+        "samples": 9,
+        "completed": 9,
+        "blindCorrect": 108,
+        "blindTotal": 108,
+        "restartCorrect": 108,
+        "restartTotal": 108,
+        "sourceVerified": 9,
+        "minimumWindows": 0,
+        "latestCorrections": 9,
+        "routeVerified": 9,
+        "restartVerified": 9,
+        "failures": [],
+        "usage": {
+          "inputTokens": 1201655,
+          "cacheReadTokens": 1544320,
+          "cacheWriteTokens": 0,
+          "outputTokens": 15970
+        },
+        "usageMissingFields": {
+          "inputTokens": 0,
+          "cacheReadTokens": 7,
+          "cacheWriteTokens": 173,
+          "outputTokens": 0
+        },
+        "usageCalls": 173,
+        "elapsedMs": 1147738,
+        "fixtureHashes": [
+          {
+            "seed": 1701,
+            "run": 1,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 2,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 3,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 2903,
+            "run": 1,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 2,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 3,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 4307,
+            "run": 1,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 2,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 3,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          }
+        ],
+        "tarballHashes": []
+      },
+      {
+        "arm": "B",
+        "samples": 9,
+        "completed": 9,
+        "blindCorrect": 108,
+        "blindTotal": 108,
+        "restartCorrect": 98,
+        "restartTotal": 108,
+        "sourceVerified": 9,
+        "minimumWindows": 0,
+        "latestCorrections": 4,
+        "routeVerified": 9,
+        "restartVerified": 9,
+        "failures": [],
+        "usage": {
+          "inputTokens": 2067107,
+          "cacheReadTokens": 3020544,
+          "cacheWriteTokens": 0,
+          "outputTokens": 21525
+        },
+        "usageMissingFields": {
+          "inputTokens": 0,
+          "cacheReadTokens": 4,
+          "cacheWriteTokens": 317,
+          "outputTokens": 0
+        },
+        "usageCalls": 317,
+        "elapsedMs": 1556794,
+        "fixtureHashes": [
+          {
+            "seed": 1701,
+            "run": 1,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 2,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 3,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 2903,
+            "run": 1,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 2,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 3,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 4307,
+            "run": 1,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 2,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 3,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          }
+        ],
+        "tarballHashes": [
+          "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c"
+        ]
+      },
+      {
+        "arm": "C",
+        "samples": 9,
+        "completed": 9,
+        "blindCorrect": 108,
+        "blindTotal": 108,
+        "restartCorrect": 108,
+        "restartTotal": 108,
+        "sourceVerified": 9,
+        "minimumWindows": 3,
+        "latestCorrections": 9,
+        "routeVerified": 9,
+        "restartVerified": 9,
+        "failures": [],
+        "usage": {
+          "inputTokens": 1801508,
+          "cacheReadTokens": 2874624,
+          "cacheWriteTokens": 0,
+          "outputTokens": 23736
+        },
+        "usageMissingFields": {
+          "inputTokens": 0,
+          "cacheReadTokens": 2,
+          "cacheWriteTokens": 288,
+          "outputTokens": 0
+        },
+        "usageCalls": 288,
+        "elapsedMs": 1507303,
+        "fixtureHashes": [
+          {
+            "seed": 1701,
+            "run": 1,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 2,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 1701,
+            "run": 3,
+            "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+          },
+          {
+            "seed": 2903,
+            "run": 1,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 2,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 2903,
+            "run": 3,
+            "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+          },
+          {
+            "seed": 4307,
+            "run": 1,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 2,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          },
+          {
+            "seed": 4307,
+            "run": 3,
+            "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+          }
+        ],
+        "tarballHashes": [
+          "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c"
+        ]
+      }
+    ],
+    "checks": {
+      "sampleCount": true,
+      "sameFixtures": true,
+      "route": true,
+      "sourceText": true,
+      "journey": true,
+      "corrections": true,
+      "blindQuality": true
+    },
+    "completed": true,
+    "limitations": [
+      "Basic uses its native physical-capacity threshold; budgets are not directly comparable. No cost superiority claim.",
+      "In-place safe-budget stops remain failed comparator samples.",
+      "Only 27 fixed synthetic samples; no general accuracy guarantee.",
+      "Physical provider overflow: NOT EXERCISED."
+    ],
+    "source": {
+      "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+      "path": "docs/evidence/v011/release/cohort-gates.json",
+      "sha256": "8f8d84c5df0758c8ffd7fccdc103e4efa2b15824f73bd607df9044c1263da2b7"
+    },
+    "samples": [
+      {
+        "arm": "A",
+        "seed": 1701,
+        "run": 1,
+        "startedAt": "2026-09-08T04:20:51.672Z",
+        "updatedAt": "2026-09-08T04:27:30.842Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 2,
+        "sourceVerification": {
+          "archiveCount": 2,
+          "recoveredTextSources": 31,
+          "recoveredTextBytes": 186743,
+          "pages": 53,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-1701-1-1788841251672.json",
+          "sha256": "3952ba429fe3af11cf1c858053fbc6f322f11d1ebb71cd466e9400425d971198"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 1701,
+        "run": 2,
+        "startedAt": "2026-09-08T04:20:51.669Z",
+        "updatedAt": "2026-09-08T04:27:35.755Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67180,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-1701-2-1788841251669.json",
+          "sha256": "a5e264e295e68506c6095cc30de7d9a7b9e27542adfb0ae638ddeba3d2eac915"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 1701,
+        "run": 3,
+        "startedAt": "2026-09-08T04:20:51.672Z",
+        "updatedAt": "2026-09-08T04:27:35.594Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67070,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-1701-3-1788841251672.json",
+          "sha256": "167960768e5c5b0a7c2d1b3e164273676b4d9a96e7ed7d504286f4c7a5ffc226"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 2903,
+        "run": 1,
+        "startedAt": "2026-09-08T04:22:33.364Z",
+        "updatedAt": "2026-09-08T04:27:53.966Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67044,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-2903-1-1788841353365.json",
+          "sha256": "d659fe5d89005d2980bed7e05677088f07c0c428f8494249533e99a037a611c5"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 2903,
+        "run": 2,
+        "startedAt": "2026-09-08T04:22:46.788Z",
+        "updatedAt": "2026-09-08T04:27:40.842Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67180,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-2903-2-1788841366789.json",
+          "sha256": "8fca3b0b9896584c4589bd2d73798c81f1c95a8c899f7097ca48eb2363d63cd6"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 2903,
+        "run": 3,
+        "startedAt": "2026-09-08T04:23:10.885Z",
+        "updatedAt": "2026-09-08T04:27:41.069Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67044,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-2903-3-1788841390886.json",
+          "sha256": "1f79627088b6e363e1aa801067e5fa1fc8cec5ea873e226ccccdef35496257c2"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 4307,
+        "run": 1,
+        "startedAt": "2026-09-08T04:24:15.462Z",
+        "updatedAt": "2026-09-08T04:27:46.036Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67044,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-4307-1-1788841455463.json",
+          "sha256": "916b59fb898e05207a5d5be5266054267b07b1b1a13a4aa1ffd1d5de7d99e5f2"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 4307,
+        "run": 2,
+        "startedAt": "2026-09-08T04:24:21.482Z",
+        "updatedAt": "2026-09-08T04:27:46.297Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 1,
+        "sourceVerification": {
+          "archiveCount": 1,
+          "recoveredTextSources": 12,
+          "recoveredTextBytes": 67180,
+          "pages": 19,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 3,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-4307-2-1788841461483.json",
+          "sha256": "decddb958501664c2eca3ba04a1f2e19abfdf32348e6894e21d2a736a82d7eae"
+        }
+      },
+      {
+        "arm": "A",
+        "seed": 4307,
+        "run": 3,
+        "startedAt": "2026-09-08T04:24:30.618Z",
+        "updatedAt": "2026-09-08T04:27:59.426Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "Basic",
+          "thresholdRatio": 0.018432,
+          "retainTokens": 4096,
+          "maxTokens": 8192,
+          "budgetComparable": false
+        },
+        "tarballHash": null,
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 2,
+        "sourceVerification": {
+          "archiveCount": 2,
+          "recoveredTextSources": 31,
+          "recoveredTextBytes": 186743,
+          "pages": 53,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 8,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/A-4307-3-1788841470619.json",
+          "sha256": "d50ed91890fedbcde63362b365a76967ce3c7270548f1d16a620892de4f02a71"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 1701,
+        "run": 1,
+        "startedAt": "2026-09-08T04:33:30.210Z",
+        "updatedAt": "2026-09-08T04:42:25.549Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": false,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 10,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 8,
+        "sourceVerification": {
+          "archiveCount": 8,
+          "recoveredTextSources": 152,
+          "recoveredTextBytes": 889964,
+          "pages": 251,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 11,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-1701-1-1788842010211.json",
+          "sha256": "9f26fa0bc3c5b9c1556fa6fbb549e862dcf4f34e8e7cee7586b5da59d152821a"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 1701,
+        "run": 2,
+        "startedAt": "2026-09-08T04:33:30.211Z",
+        "updatedAt": "2026-09-08T04:42:35.389Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 7,
+        "sourceVerification": {
+          "archiveCount": 7,
+          "recoveredTextSources": 145,
+          "recoveredTextBytes": 869513,
+          "pages": 244,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-1701-2-1788842010212.json",
+          "sha256": "c961fe2a474ead8d24b36e0dc9127fc78af5e011e8b315b5c99425251127cb90"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 1701,
+        "run": 3,
+        "startedAt": "2026-09-08T04:33:30.212Z",
+        "updatedAt": "2026-09-08T04:43:52.971Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 9,
+        "sourceVerification": {
+          "archiveCount": 9,
+          "recoveredTextSources": 217,
+          "recoveredTextBytes": 1135330,
+          "pages": 320,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 12,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-1701-3-1788842010212.json",
+          "sha256": "3ab57e4bae5923e29f95b6ccb85a70d1f262b3c361127e84129a57a83cc9a9c0"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 2903,
+        "run": 1,
+        "startedAt": "2026-09-08T04:35:47.395Z",
+        "updatedAt": "2026-09-08T04:43:28.860Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 8,
+        "sourceVerification": {
+          "archiveCount": 8,
+          "recoveredTextSources": 203,
+          "recoveredTextBytes": 1182367,
+          "pages": 331,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 11,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-2903-1-1788842147396.json",
+          "sha256": "9326693c2e411434d37dee2a57b84121405b2e14f71061beb629ef9c4af6e4b6"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 2903,
+        "run": 2,
+        "startedAt": "2026-09-08T04:36:00.869Z",
+        "updatedAt": "2026-09-08T04:42:47.540Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": false,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 10,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 7,
+        "sourceVerification": {
+          "archiveCount": 7,
+          "recoveredTextSources": 144,
+          "recoveredTextBytes": 871672,
+          "pages": 244,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-2903-2-1788842160869.json",
+          "sha256": "1375f9c66de28e202458e81763fefd377ee40ef5e564f0127b18f1ce80530b1e"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 2903,
+        "run": 3,
+        "startedAt": "2026-09-08T04:37:26.499Z",
+        "updatedAt": "2026-09-08T04:43:02.530Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": false,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 10,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 9,
+        "sourceVerification": {
+          "archiveCount": 9,
+          "recoveredTextSources": 209,
+          "recoveredTextBytes": 1139739,
+          "pages": 321,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 12,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-2903-3-1788842246500.json",
+          "sha256": "07bb6f2dbee9857922eab8dbb816316316884c178b0d7c7aa6d5fbd5fa9e4f4e"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 4307,
+        "run": 1,
+        "startedAt": "2026-09-08T04:37:50.421Z",
+        "updatedAt": "2026-09-08T04:43:24.077Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": false,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 10,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 7,
+        "sourceVerification": {
+          "archiveCount": 7,
+          "recoveredTextSources": 146,
+          "recoveredTextBytes": 869888,
+          "pages": 244,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-4307-1-1788842270422.json",
+          "sha256": "a0efd2d85ec613f8357bed49834330592fe1163f52b29c7bfe5b1679de455f7a"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 4307,
+        "run": 2,
+        "startedAt": "2026-09-08T04:37:52.072Z",
+        "updatedAt": "2026-09-08T04:43:29.269Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": false,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 10,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 7,
+        "sourceVerification": {
+          "archiveCount": 7,
+          "recoveredTextSources": 144,
+          "recoveredTextBytes": 871488,
+          "pages": 244,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-4307-2-1788842272072.json",
+          "sha256": "1ad33e06086fd71de92327579e5d466e76109be8773f2addca84c68d3b952294"
+        }
+      },
+      {
+        "arm": "B",
+        "seed": 4307,
+        "run": 3,
+        "startedAt": "2026-09-08T04:39:37.839Z",
+        "updatedAt": "2026-09-08T04:43:53.906Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "in-place",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 0,
+        "compactions": 7,
+        "sourceVerification": {
+          "archiveCount": 7,
+          "recoveredTextSources": 144,
+          "recoveredTextBytes": 870956,
+          "pages": 244,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/B-4307-3-1788842377840.json",
+          "sha256": "a620948c6cd861b9e7fab31caf7ae51d189b7528a2f340b0187335da537ed2a6"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 1701,
+        "run": 1,
+        "startedAt": "2026-09-08T04:33:30.212Z",
+        "updatedAt": "2026-09-08T04:41:16.292Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 3,
+        "compactions": 5,
+        "sourceVerification": {
+          "archiveCount": 5,
+          "recoveredTextSources": 94,
+          "recoveredTextBytes": 467084,
+          "pages": 133,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 11,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-1701-1-1788842010213.json",
+          "sha256": "5d28d87303294e65fe79191f5a661e8e9406c37d4aae31e2b402cedf8c7d0756"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 1701,
+        "run": 2,
+        "startedAt": "2026-09-08T04:33:30.211Z",
+        "updatedAt": "2026-09-08T04:41:08.028Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 8,
+        "compactions": 8,
+        "sourceVerification": {
+          "archiveCount": 8,
+          "recoveredTextSources": 218,
+          "recoveredTextBytes": 1113883,
+          "pages": 313,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 16,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-1701-2-1788842010211.json",
+          "sha256": "c9907c47de43ebb2d4c51df87d7b3aa0b4d3b1ece046554ab2e6c415b0edb00b"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 1701,
+        "run": 3,
+        "startedAt": "2026-09-08T04:33:30.210Z",
+        "updatedAt": "2026-09-08T04:41:45.984Z",
+        "fixtureHash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 3,
+        "compactions": 3,
+        "sourceVerification": {
+          "archiveCount": 3,
+          "recoveredTextSources": 82,
+          "recoveredTextBytes": 422741,
+          "pages": 119,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-1701-3-1788842010211.json",
+          "sha256": "feb0f13643125bc6c873cbe9d59bd2df337fcf4389184c5be406edcce9e34f60"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 2903,
+        "run": 1,
+        "startedAt": "2026-09-08T04:35:45.283Z",
+        "updatedAt": "2026-09-08T04:41:46.150Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 3,
+        "compactions": 3,
+        "sourceVerification": {
+          "archiveCount": 3,
+          "recoveredTextSources": 84,
+          "recoveredTextBytes": 423145,
+          "pages": 119,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 10,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-2903-1-1788842145284.json",
+          "sha256": "efae623455b05a268456b99f8e13717c0d802ec95d64fbc957387c345687e48a"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 2903,
+        "run": 2,
+        "startedAt": "2026-09-08T04:35:50.092Z",
+        "updatedAt": "2026-09-08T04:41:54.959Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 8,
+        "compactions": 8,
+        "sourceVerification": {
+          "archiveCount": 8,
+          "recoveredTextSources": 218,
+          "recoveredTextBytes": 1114046,
+          "pages": 313,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 16,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-2903-2-1788842150093.json",
+          "sha256": "41ea901d66d91f43e3a839c6e892246162d63df9f564418bbfe9a78d92113c51"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 2903,
+        "run": 3,
+        "startedAt": "2026-09-08T04:36:19.229Z",
+        "updatedAt": "2026-09-08T04:42:17.988Z",
+        "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 3,
+        "compactions": 4,
+        "sourceVerification": {
+          "archiveCount": 4,
+          "recoveredTextSources": 82,
+          "recoveredTextBytes": 462535,
+          "pages": 131,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 11,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-2903-3-1788842179230.json",
+          "sha256": "0e9cd39de9390161a0cb1cfb61d66856bdaea0752c29617a687b49ede19b85bb"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 4307,
+        "run": 1,
+        "startedAt": "2026-09-08T04:38:13.516Z",
+        "updatedAt": "2026-09-08T04:42:13.086Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 3,
+        "compactions": 3,
+        "sourceVerification": {
+          "archiveCount": 3,
+          "recoveredTextSources": 82,
+          "recoveredTextBytes": 425518,
+          "pages": 120,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 9,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-4307-1-1788842293517.json",
+          "sha256": "c93dbe052ec3641cb9f683fe09f2728ad97b1362650b5e9bea09ab21a1603aee"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 4307,
+        "run": 2,
+        "startedAt": "2026-09-08T04:38:13.927Z",
+        "updatedAt": "2026-09-08T04:42:13.437Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 8,
+        "compactions": 8,
+        "sourceVerification": {
+          "archiveCount": 8,
+          "recoveredTextSources": 218,
+          "recoveredTextBytes": 1114196,
+          "pages": 313,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 16,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-4307-2-1788842293927.json",
+          "sha256": "7fe567f4c6748dcf3b14753bca0ac22119a3592c15e5455f42108fba37d7e6bd"
+        }
+      },
+      {
+        "arm": "C",
+        "seed": 4307,
+        "run": 3,
+        "startedAt": "2026-09-08T04:38:20.861Z",
+        "updatedAt": "2026-09-08T04:43:05.056Z",
+        "fixtureHash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89",
+        "requestedRoute": {
+          "provider": "opencode-go",
+          "model": "glm-5.3-flash"
+        },
+        "config": {
+          "strategy": "windowed",
+          "windowBudgetTokens": 32768,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096
+        },
+        "tarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+        "completed": true,
+        "routeVerified": true,
+        "restartVerified": true,
+        "latestCorrectionsKept": true,
+        "physicalOverflow": "NOT EXERCISED",
+        "failures": [],
+        "incomplete": [],
+        "blindScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "restartScore": {
+          "correct": 12,
+          "total": 12
+        },
+        "windows": 4,
+        "compactions": 4,
+        "sourceVerification": {
+          "archiveCount": 4,
+          "recoveredTextSources": 126,
+          "recoveredTextBytes": 630958,
+          "pages": 178,
+          "pairingBalanced": true,
+          "sourceTextComplete": true,
+          "cursorScopeChecks": 4,
+          "requestPairingChecked": 11,
+          "integrity": {
+            "incomplete": false,
+            "orphanSummaries": 0,
+            "appliedUnclosed": 0,
+            "unsupportedSchema": 0,
+            "corruptMetadata": 0
+          }
+        },
+        "source": {
+          "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+          "path": "docs/evidence/v011/live/C-4307-3-1788842300861.json",
+          "sha256": "218bc524efb31778b63328b9c2fdc7e2b915a35b6176f7de00ea76906f6681c8"
+        }
+      }
+    ]
+  },
+  "presetLifecycle": {
+    "pluginVersion": "0.1.1",
+    "hostVersion": "0.1.2-rc.1",
+    "tarballHash": "fa96ed73af548487f9b151b8b8b4a59079c035768410e6b72fb955e6c1004c68",
+    "startedAt": "2026-09-08T05:59:44.308Z",
+    "completed": true,
+    "failures": [],
+    "cases": [
+      {
+        "preset": "custom-switched",
+        "stage": "switched-before-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-nested",
+        "stage": "concurrent-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "minimal",
+        "stage": "concurrent-first-request",
+        "backend": null,
+        "requests": 1,
+        "compactAvailable": false,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "standard",
+        "stage": "concurrent-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-renamed",
+        "stage": "concurrent-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "cordis",
+        "stage": "concurrent-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "ptc",
+        "stage": "concurrent-first-request",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-late",
+        "stage": "added-after-startup",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "standard",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "ptc",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "cordis",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "minimal",
+        "stage": "restart",
+        "backend": null,
+        "requests": 1,
+        "compactAvailable": false,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-renamed",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-nested",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-switched",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-late",
+        "stage": "restart",
+        "backend": "ArcCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "standard",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "ptc",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "cordis",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "minimal",
+        "stage": "uninstalled",
+        "backend": null,
+        "requests": 1,
+        "compactAvailable": false,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-renamed",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-nested",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-switched",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      },
+      {
+        "preset": "custom-late",
+        "stage": "uninstalled",
+        "backend": "BasicCompactionEngine",
+        "requests": 1,
+        "compactAvailable": true,
+        "end": {
+          "kind": "completed"
+        }
+      }
+    ],
+    "source": {
+      "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+      "path": "docs/evidence/v011/live/preset-coverage-fa96ed73af54.json",
+      "sha256": "7082d27ecf519cfc8aa360e6577716e35f43efe2e37d645a26dcd51db9455971"
+    }
+  },
+  "scale": {
+    "schemaVersion": 1,
+    "pluginVersion": "0.1.1",
+    "pluginCommit": null,
+    "hostVersion": "0.1.2-rc.1",
+    "seed": 7331,
+    "fixtureHash": "8ded193c177258fb74f04f788bf707ceb75dc433e5cd7302a9b7def9fe580eba",
+    "lockHash": "56255b78b2b348a4fe4fbdd7230ec688b35379987b494b3acad975c8b13b6a51",
+    "measuredAt": "2026-09-08T04:19:57.313Z",
+    "machine": {
+      "cpu": "Apple M4 Pro",
+      "logicalCpus": 14,
+      "totalMemory": 25769803776,
+      "platform": "darwin",
+      "release": "25.4.0",
+      "node": "v22.23.1"
+    },
+    "events": 100001,
+    "archives": 1100,
+    "windows": 100,
+    "inputBytes": 24525373,
+    "heapLimitMiB": 512,
+    "memory": {
+      "rss": 303677440,
+      "heapTotal": 143228928,
+      "heapUsed": 120480592,
+      "external": 3692359,
+      "arrayBuffers": 1209012
+    },
+    "coldMs": 440.1223749999999,
+    "searchP95Ms": 17.102000000000317,
+    "searchMaxMs": 22.66720899999973,
+    "hotNoChangeMs": 0.00022084000000177184,
+    "cancelMs": 0.1457909999999174,
+    "cancellationMode": "pre-aborted signal; each synchronous search is bounded by scan/visit caps",
+    "completed": true,
+    "failures": [],
+    "source": {
+      "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+      "path": "docs/evidence/v011/performance/scale-7331.json",
+      "sha256": "5fbe5fedb78fb42a3062f34a9394c76bfd9b3a55fb70adfa20f8c0b182b39057"
+    }
+  },
+  "engineReuse": {
+    "tarballHash": "fa96ed73af548487f9b151b8b8b4a59079c035768410e6b72fb955e6c1004c68",
+    "modelGateTarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+    "changedFiles": [
+      "CHANGELOG.md",
+      "README.md",
+      "cordis.patch.yml",
+      "dist/bridge.d.ts",
+      "dist/bridge.js",
+      "dist/bridge.js.map"
+    ],
+    "engineRuntimeAndDependenciesByteIdentical": true,
+    "bundleConfigurationIdenticalIgnoringComments": true,
+    "scope": "Reused 27-sample model, recovery, scale and UI engine evidence applies to byte-identical engine/runtime/type/dependency files. Bridge changes were retested on the final tarball via concurrent presets, native commands, preset selection, restart, uninstall and failure injection. Whole-package runtime identity is NOT claimed.",
+    "source": {
+      "commit": "e5a47a521d180d87cff1e1431381009b083f5966",
+      "path": "docs/evidence/v011/release/profile-engine-identity.json",
+      "sha256": "5e43a5124a00a5acdbeb2048b1ce9a56e5c5e3c26ac2161c1ae1557166d638d5"
+    }
+  }
+}

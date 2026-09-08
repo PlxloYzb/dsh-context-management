@@ -8,7 +8,7 @@ import { resolve, join } from 'node:path'
 import { webClient } from './client.mjs'
 const installation = JSON.parse(await readFile(process.argv[2], 'utf8'))
 assert.equal(installation.profile, 'ctx-v011-diagnostics')
-const root = 'docs/evidence/v011/live', port = 3122, profile = installation.profile
+const root = '.test-runtime/reports/live', port = 3122, profile = installation.profile
 const patch = resolve('.test-runtime/v011-diagnostics.patch.yml'), log = resolve('.test-runtime/v011-web-diagnostics.log')
 const report = { pluginVersion: installation.pluginVersion, tarballHash: installation.tarballHash, hostVersion: '0.1.2-rc.1', startedAt: new Date().toISOString(), checks: [], completed: false, failures: [] }
 let server
@@ -17,6 +17,8 @@ async function start(config, injectRollback = false) {
   await writeFile(patch, `- id: compaction-context-management-bridge\n  config: ${JSON.stringify(config)}\n`)
   const failurePatch = resolve('.test-runtime/v011-rollback-fixture.patch.yml')
   await writeFile(failurePatch, `- insert:\n    - id: release-rollback-fixture\n      name: ${JSON.stringify(resolve('tests/live/rollback-observer.mjs'))}\n`)
+  const observerPatch = resolve('.test-runtime/observer.patch.yml')
+  await writeFile(observerPatch, `- insert:\n    - id: diagnostics-observer\n      name: ${JSON.stringify(resolve('tests/live/observer.mjs'))}\n      config:\n        output: ${JSON.stringify(resolve('.test-runtime/observed'))}\n        arm: diagnostics\n`)
   await writeFile(log, '')
   server = spawn('dsh', ['--profile', profile, ...(injectRollback ? ['--patch', failurePatch] : []), '--patch', patch, '--patch', '.test-runtime/observer.patch.yml', '--host', '127.0.0.1', '--port', String(port), '--no-open'], { stdio: ['ignore', 'pipe', 'pipe'] })
   server.stdout.on('data', data => appendFileSync(log, data)); server.stderr.on('data', data => appendFileSync(log, data))

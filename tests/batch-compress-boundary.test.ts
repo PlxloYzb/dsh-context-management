@@ -1,23 +1,7 @@
 /**
- * RQ2 engine finding — batch multi-range compression at the protected-zone
- * boundary. Observed live (twice, deterministic): a single compress call
- * with three disjoint ranges — each valid alone against the original
- * surface, together covering the compressible span up to the protected
- * zone — was rejected wholesale with "Range is entirely within the
- * protected zone" naming the LAST entry's messages, while the same three
- * ranges compressed one-per-turn all succeeded. Root cause (located offline
- * via research/scripts/debug-rq2-batch-replay.mts against the exported live
- * fixture): the kernel's preserveRecentTokens tail walk over a tail of tiny
- * acknowledgments reached two ranges deep, and a batch call freezes the
- * tail at call time. Fixed in 0.2.0-beta.5: handleCompress applies ranges
- * sequentially, landing each durable checkpoint before the next range's
- * protected-zone computation (see tests/batch-compress-sequential.test.ts
- * for the fixture replay and the preserved batch semantics).
- *
- * This test pins the offline boundary contract after the fix: a batch whose
- * last range only PARTIALLY intersects the protected zone still lands every
- * range (the kernel excludes the protected messages with a warning instead
- * of rejecting), matching the one-per-turn outcome.
+ * Batch compression must preserve the protected recent tail. A range that
+ * partially intersects it may compress eligible messages; sequential ranges
+ * must observe each earlier committed checkpoint.
  */
 
 import test from 'node:test'

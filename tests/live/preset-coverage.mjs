@@ -115,7 +115,7 @@ try {
 } catch (error) { report.failures.push(error.message); process.exitCode = 1 }
 finally {
   await stop(); report.finishedAt = new Date().toISOString()
-  const directory = 'docs/evidence/v011/live'; await mkdir(directory, { recursive: true })
+  const directory = '.test-runtime/reports/live'; await mkdir(directory, { recursive: true })
   await writeFile(`${directory}/preset-coverage-${installation.tarballHash.slice(0, 12)}.json`, JSON.stringify(report, null, 2) + '\n')
   console.log(JSON.stringify({ completed: report.completed, cases: report.cases.length, failures: report.failures }))
 }

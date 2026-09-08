@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 // Explicit real-model gate. No route substitution or silent retry of failed samples.
 import { createHash } from 'node:crypto'
 import { readFile, writeFile, mkdir, mkdtemp } from 'node:fs/promises'

@@ -1,7 +1,8 @@
 node_modules/
 dist/
-.DS_Store
-artifacts/private/
-*.tgz
 .test-runtime/
+artifacts/
 coverage/
+*.tgz
+*.log
+.DS_Store

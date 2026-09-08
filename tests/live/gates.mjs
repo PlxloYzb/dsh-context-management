@@ -2,10 +2,15 @@
 import { spawn } from 'node:child_process'
 import { mkdir, readFile, writeFile, readdir } from 'node:fs/promises'
 import { appendFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { resolve, join } from 'node:path'
+import { homedir } from 'node:os'
 import { webClient } from './client.mjs'
 const version = JSON.parse(await readFile('package.json', 'utf8')).version
-const root = `docs/evidence/v${version.replaceAll('.', '')}`
+const root = '.test-runtime/reports'
+if (process.argv.includes('--help')) {
+  console.log('Usage: node tests/live/gates.mjs [run-name] [existing-basic-manifest]')
+  process.exit(0)
+}
 const suffix = process.argv[2] ?? String(Date.now())
 if (!/^[a-z0-9-]+$/.test(suffix)) throw new Error('Invalid cohort suffix')
 const children = new Set()
@@ -46,9 +51,23 @@ async function arm(name, profile, port, patch, observer) {
   return manifest
 }
 await mkdir(`${root}/live`, { recursive: true })
+// Create all fixture profiles and overlays explicitly; no old development files are required.
+const profileNames = Object.fromEntries(['A', 'B', 'C'].map(arm => [arm, `ctx-v011-${arm.toLowerCase()}-${suffix}`]))
+for (const name of ['A', 'B', 'C']) {
+  if (name === 'A' && process.argv[3]) continue
+  const profileRoot = join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'profiles', profileNames[name])
+  await mkdir(profileRoot, { recursive: false })
+  await writeFile(join(profileRoot, 'package.json'), JSON.stringify({ name: `dsh-profile-${profileNames[name]}`, private: true, dependencies: {}, dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'], patchReload: 'live' } } }))
+  if (name !== 'A') {
+    const code = await run('tests/live/install-candidate.mjs', [profileNames[name]], resolve(`.test-runtime/install-${name}-${suffix}.log`))
+    if (code !== 0) throw new Error(`Candidate installation failed for arm ${name}`)
+  }
+  await writeFile(`.test-runtime/observer-${name}.patch.yml`, `- insert:\n    - id: model-observer\n      name: ${JSON.stringify(resolve('tests/live/model-observer.mjs'))}\n      config:\n        output: ${JSON.stringify(resolve('.test-runtime/observed'))}\n        arm: ${name}\n`)
+  if (name !== 'A') await writeFile(`.test-runtime/installed-${name}.patch.yml`, `- id: compaction-context-management-bridge\n  config:\n    adaptiveGovernor:\n      enabled: true\n      strategy: ${name === 'B' ? 'in-place' : 'windowed'}\n      windowBudgetTokens: 32768\n      maxOutputTokens: 8192\n      safetyMarginTokens: 4096\n`)
+}
 const manifests = await Promise.all([
-  process.argv[3] ?? arm('A', 'ctx-v011-basic', 3117, null, '.test-runtime/observer-A.patch.yml'),
-  arm('B', 'ctx-v011-inplace', 3118, '.test-runtime/installed-B.patch.yml', '.test-runtime/observer-B.patch.yml'),
-  arm('C', 'ctx-v011-test', 3119, '.test-runtime/installed.patch.yml', '.test-runtime/observer.patch.yml'),
+  process.argv[3] ?? arm('A', profileNames.A, 3117, null, '.test-runtime/observer-A.patch.yml'),
+  arm('B', profileNames.B, 3118, '.test-runtime/installed-B.patch.yml', '.test-runtime/observer-B.patch.yml'),
+  arm('C', profileNames.C, 3119, '.test-runtime/installed-C.patch.yml', '.test-runtime/observer-C.patch.yml'),
 ])
 process.exitCode = await run('tests/release/summarize.mjs', manifests, resolve(`.test-runtime/v011-gate-summary-${suffix}.log`))

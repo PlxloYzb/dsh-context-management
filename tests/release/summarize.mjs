@@ -1,5 +1,5 @@
 const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
-const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 // Recompute the accepted cohort gates; per-run completed does not imply recall quality.
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { basename } from 'node:path'

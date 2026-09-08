@@ -7,7 +7,7 @@
  *
  * The text is DEFAULT_PROMPTS.systemPromptTemplate rendered with the kernel's
  * COMPRESS_PHILOSOPHY and HOW_TO_COMPRESS_RULES; hosts can override the whole
- * section via `config.prompts.systemPrompt` (see docs/configurable-prompts-design.md).
+ * section via `config.prompts.systemPrompt`.
  * @module dsh-context-management/system-prompt
  */
 

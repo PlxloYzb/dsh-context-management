@@ -1,5 +1,5 @@
 import { PACKAGE_VERSION } from '../../src/version.ts'
-const evidenceRoot = `docs/evidence/v${PACKAGE_VERSION.replaceAll('.', '')}`
+const evidenceRoot = '.test-runtime/reports'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
