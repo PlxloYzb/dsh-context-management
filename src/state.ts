@@ -97,27 +97,26 @@ function nextBlockIdAfter(events: readonly SessionEvent[]): number {
 }
 
 export class ArcStateStore {
-  private readonly states = new Map<string, CompressionState>()
+  private readonly states = new WeakMap<Session, CompressionState>()
 
   /** Kernel state for one session, initialised on first access. */
   stateFor(session: Session): CompressionState {
-    const id = session.id
-    const existing = this.states.get(id)
+    const existing = this.states.get(session)
     if (existing !== undefined) return existing
     const state = createInitialState()
     if (session.snapshotEvents().some((event) => event.type === 'compaction/summary')) {
       state.blocks = rebuildKernelBlocks(session.snapshotEvents())
       state.nextBlockId = nextBlockIdAfter(session.snapshotEvents())
     }
-    this.states.set(id, state)
+    this.states.set(session, state)
     return state
   }
 
   set(session: Session, state: CompressionState): void {
-    this.states.set(session.id, state)
+    this.states.set(session, state)
   }
 
   delete(session: Session): void {
-    this.states.delete(session.id)
+    this.states.delete(session)
   }
 }

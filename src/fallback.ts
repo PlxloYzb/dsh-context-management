@@ -1,4 +1,5 @@
 import { validateExactRange } from './region.ts'
+import { resolveSources } from './archive.ts'
 import { SessionSeq } from '@deepseek-ai/dsh-session'
 /**
  * Deterministic emergency fallback for the Adaptive Context Governor.
@@ -17,6 +18,7 @@ import { defaultCountTokens } from 'acp-kernel'
 import { extractEventText, projectEvent } from './messages.ts'
 import {
   buildCompressibleSeqRanges,
+  rebuildBlockLedger,
   resolveSurfaceRange,
   runCompactionTransaction,
   shadowedSeqsOf,
@@ -449,16 +451,22 @@ export function runLocalCompactionRegion(
 /** Move one largest safe old range into reversible cold-storage without an API call. */
 export function runEmergencyFallback(
   agent: CompactionAgentContext,
-  options: { incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; maxSummaryBytes?: number } = {},
+  options: { incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; maxSummaryBytes?: number; includeCheckpoints?: boolean } = {},
 ): CompactionResult | null {
   const range = buildCompressibleSeqRanges(agent.session, {
     preserveRecent: options.incomingUser ? 0 : PRESERVE_RECENT_SURFACE_NODES,
+    includeCheckpoints: options.includeCheckpoints,
     ...(options.incomingUser ? { incomingUser: options.incomingUser } : {}),
   })[0]
   if (range === undefined) return null
   const shadowedSeqs = shadowedSeqsOf(agent.session, range.start, range.end)
   if (shadowedSeqs.length === 0) return null
-  const body = buildEmergencyFallbackSummary(agent, shadowedSeqs)
+  // In-place histories can fill with checkpoints even when no raw range
+  // remains. Fold a safe range using original sources, never recursively
+  // shorten old checkpoint text; provenance stays in the durable transaction.
+  const parentBlocks = options.includeCheckpoints ? rebuildBlockLedger(agent.session.snapshotEvents()).filter(block => block.summarySeq !== undefined && shadowedSeqs.includes(block.summarySeq)) : []
+  const sourceSeqs = parentBlocks.length ? resolveSources(agent.session, shadowedSeqs).seqs : shadowedSeqs
+  const body = buildEmergencyFallbackSummary(agent, sourceSeqs)
   let summaryText = ''
   const cap = options.maxSummaryBytes ?? Number.MAX_SAFE_INTEGER
   for (const point of body) {
@@ -477,6 +485,7 @@ export function runEmergencyFallback(
     shadowedTokenCount,
     provider: 'local',
     model: 'adaptive-governor-extractive-v1',
+    ...(parentBlocks.length ? { parentBlockIds: parentBlocks.map(block => block.blockId) } : {}),
     ...(options.incomingUser ? { incomingUser: options.incomingUser } : {}),
   })
   return {

@@ -1,4 +1,4 @@
-# Replaces standard preset Basic compaction through an effect-owned runtime bridge.
+# Replaces native Basic compaction in every target-profile preset through an effect-owned runtime bridge.
 - insert:
     - id: compaction-context-management-bridge
       name: dsh-context-management/bridge

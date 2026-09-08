@@ -18,6 +18,7 @@ import { SystemPrompt } from '@deepseek-ai/dsh-system-prompt'
 import { WindowController, resolveArchiveConfig, windowIdentity } from '../../src/window-controller.ts'
 import { assertNoActiveCompaction, rebuildBlockLedger } from '../../src/region.ts'
 import { archiveHealth } from '../../src/archive-health.ts'
+import { PACKAGE_VERSION } from '../../src/version.ts'
 
 test('L03: SIGKILL at transaction boundaries preserves the durable prefix; official resume never duplicates an applied window', async () => {
   const results = []
@@ -55,7 +56,8 @@ test('L03: SIGKILL at transaction boundaries preserves the durable prefix; offic
       await handle.dispose()
     } finally { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) }
   }
-  await mkdir('docs/evidence/recovery', { recursive: true })
-  await writeFile('docs/evidence/recovery/sigkill.json', JSON.stringify({ schemaVersion: 1, pluginVersion: '0.1.0', pluginCommit: null, hostVersion: '0.1.2-rc.1',
+  const evidenceDirectory = process.env.CONTEXT_TEST_EVIDENCE_DIR ?? '.test-runtime/recovery'
+  await mkdir(evidenceDirectory, { recursive: true })
+  await writeFile(join(evidenceDirectory, 'sigkill.json'), JSON.stringify({ schemaVersion: 1, pluginVersion: PACKAGE_VERSION, pluginCommit: null, hostVersion: '0.1.2-rc.1',
     lockHash: createHash('sha256').update(await readFile('package-lock.json')).digest('hex'), testedAt: new Date().toISOString(), completed: true, results }, null, 2) + '\n')
 })

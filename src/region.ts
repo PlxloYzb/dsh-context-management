@@ -40,7 +40,7 @@ export interface WindowMetadata {
   readonly generationAfter: number
   readonly parentBlockIds: readonly string[]
   readonly route: { readonly provider: string; readonly model: string }
-  readonly seed: { readonly incomplete: boolean; readonly formatVersion: 1 }
+  readonly seed: { readonly incomplete: boolean; readonly formatVersion: 1; readonly mode?: 'extractive' | 'model-assisted' }
 }
 
 /** One durable ARC block as rebuilt from the session log. */
@@ -227,6 +227,10 @@ export function resolveSurfaceRange(
   let requestedEndIdx = nodes.indexOf(SessionSeq(end))
   let recovered = false
   if (requestedStartIdx < 0 || requestedEndIdx < 0) {
+    for (const edge of [start, end]) {
+      const event = session.eventAt(SessionSeq(edge))
+      if (start === end && event && !('surfaceOp' in event)) throw new Error(`dsh-context-management: seq ${edge} is not a surface node; use message seqs from arc_status`)
+    }
     const stale = recoverStaleRange(session, start, end)
     if (stale.kind === 'unresolvable') {
       throw new Error(
@@ -666,6 +670,19 @@ function ledgerEntry(events: readonly SessionEvent[], event: SessionEvent, summa
     }
 }
 
+/** Shared admission check for ledger and integrity diagnostics. */
+export function validCompactionReplacement(summary: SessionEvent, event: SessionEvent): boolean {
+  if (summary.type !== 'compaction/summary' || event.type !== 'user/message'
+    || typeof event.surfaceOp !== 'object' || event.surfaceOp.op !== 'replace' || summary.seq >= event.seq) return false
+  const data = readCompactionSummary(summary)
+  const source = event.data.source as { plugin?: string; compactionId?: string }
+  if (source.plugin !== 'compact' || source.compactionId !== data.compactionId) return false
+  if (data.contextManagement === undefined) return true // legacy ARC protocol
+  const sources = new Set(event.sourceEventSeqs ?? [])
+  return event.seq === summary.seq + 1 && event.surfaceOp.start === data.shadowedRange.start && event.surfaceOp.end === data.shadowedRange.end
+    && sources.has(summary.seq) && data.shadowedSeqs.every(seq => sources.has(SessionSeq(seq)))
+}
+
 /** Per-owner append index. New events are consumed once; no source text is cached. */
 export class BlockLedgerIndex {
   private offset = 0
@@ -686,14 +703,7 @@ export class BlockLedgerIndex {
       const source = event.data.source as { plugin?: string; compactionId?: string }
       if (source.plugin !== 'compact' || !source.compactionId || this.applied.has(source.compactionId)) continue
       const summary = this.summaries.get(source.compactionId)
-      if (!summary || summary.seq >= event.seq) continue
-      const data = readCompactionSummary(summary)
-      const sources = new Set(event.sourceEventSeqs ?? [])
-      if (data.contextManagement !== undefined && (
-        event.seq !== summary.seq + 1 || event.surfaceOp.start !== data.shadowedRange.start || event.surfaceOp.end !== data.shadowedRange.end
-        || !sources.has(summary.seq)
-        || !data.shadowedSeqs.every(seq => sources.has(SessionSeq(seq)))
-      )) continue
+      if (!summary || !validCompactionReplacement(summary, event)) continue
       this.applied.add(source.compactionId)
       this.entries = [...this.entries, ledgerEntry(events, summary, event.seq)]
     }
@@ -744,7 +754,7 @@ function isCheckpointNode(event: SessionEvent): boolean {
  */
 export function buildCompressibleSeqRanges(
   session: Session,
-  opts: { preserveRecent?: number; incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage } = {},
+  opts: { preserveRecent?: number; incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; includeCheckpoints?: boolean } = {},
 ): SeqCompressibleRange[] {
   const nodes = session.surface.nodes
   const preserve = opts.preserveRecent ?? 5
@@ -767,7 +777,7 @@ export function buildCompressibleSeqRanges(
   }
   for (const seq of nodes) {
     const event = session.snapshotEvents()[seq]
-    if (event === undefined || protectedSeqs.has(seq) || isCheckpointNode(event)) {
+    if (event === undefined || protectedSeqs.has(seq) || (!opts.includeCheckpoints && isCheckpointNode(event))) {
       flush()
       continue
     }
@@ -775,7 +785,7 @@ export function buildCompressibleSeqRanges(
     // long sessions; a node with a SMALLER seq than the running segment would
     // produce a reversed range (e.g. 110295..106762). Break the segment so
     // ranges always stay start <= end.
-    if (cur !== null && seq < cur.start) {
+    if (!opts.includeCheckpoints && cur !== null && seq < cur.start) {
       flush()
       cur = null
     }

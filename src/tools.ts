@@ -1,4 +1,5 @@
 import { ArchiveReader } from './archive.ts'
+import { ContextManagementError } from './errors.ts'
 import type { ArchiveConfig } from './window-controller.ts'
 /**
  * M3 — the four model tools: compress / decompress / search_context /
@@ -13,6 +14,7 @@ import type { ArchiveConfig } from './window-controller.ts'
  */
 
 import { defineTool, type ToolDefinition, type ToolRunContext } from '@deepseek-ai/dsh-tools'
+import { HarnessError } from '@deepseek-ai/dsh-llm'
 import type { CompressionCore } from 'acp-kernel'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import type { CompactionAgentContext } from '@deepseek-ai/dsh-compaction'
@@ -139,8 +141,8 @@ const compressParameters = {
 function parseSeq(value: number | string): number {
   const text = String(value).split('#')[0]!.trim()
   const seq = Number(text)
-  if (!Number.isInteger(seq) || seq < 0) {
-    throw new Error(`dsh-context-management: invalid seq "${String(value)}" — use a surface seq like 295`)
+  if (!/^(0|[1-9]\d*)$/.test(text) || !Number.isSafeInteger(seq) || seq < 0 || Object.is(value, -0)) {
+    throw new ContextManagementError('invalid-seq', 'dsh-context-management: invalid seq — use a non-negative safe decimal surface seq like 295')
   }
   return seq
 }
@@ -267,6 +269,7 @@ async function handleCompress(env: ToolEnvironment, args: CompressArgs, exec: To
   let position = 0
   for (const range of args.content!) {
     position += 1
+    if (typeof range.summary === 'string' && range.summary.length > MAX_SUMMARY_CHARS) throw new ContextManagementError('summary-too-long', `Summary exceeds ${MAX_SUMMARY_CHARS} characters; shorten it before compressing.`)
     const startSeq = parseSeq(range.startSeq)
     const endSeq = parseSeq(range.endSeq)
     let resolved: ResolvedSurfaceRange
@@ -475,7 +478,7 @@ async function handleCompress(env: ToolEnvironment, args: CompressArgs, exec: To
     const indexSourceSeqs = effective ? expandEffectiveSourceSeqs(session, shadowed) : shadowed
     // Keep the model-written summary first; the appendix is the truncation
     // target. A malformed over-budget model summary is capped as a last resort.
-    const summary = range.summary.slice(0, MAX_SUMMARY_CHARS)
+    const summary = range.summary
     const remainingIndexChars = Math.max(0, MAX_SUMMARY_CHARS - summary.length - 2)
     const safetyIndex = buildModelSummarySafetyIndex(compactionAgent, indexSourceSeqs, remainingIndexChars, (env.safetyIndexRanking === 'chronological' ? 'chronological' : 'value'))
     let durableSummary = safetyIndex === '' ? summary : `${summary}\n\n${safetyIndex}`
@@ -642,7 +645,7 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
     reservation.remaining -= Buffer.byteLength(text) + 128
     return { text }
   }
-  return [
+  const tools: ToolDefinition[] = [
     ...(env.newContext ? [defineTool({
       name: 'new_context', description: 'Request a fresh window with an optional handoff. Returns accepted; commits at the next safe pre-step.',
       parameters: { handoff: { type: 'string' as const, description: 'Goals, constraints, facts and next actions; at most 8000 Unicode code points.' } },
@@ -697,4 +700,13 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
       },
     }),
   ]
+  return tools.map(tool => ({ ...tool, async execute(args, exec) {
+    try { return await tool.execute(args, exec) }
+    catch (error) {
+      exec.signal.throwIfAborted()
+      if (!exec.agent) throw error
+      const code = error instanceof HarnessError ? error.code : 'context-operation-failed'
+      return { text: JSON.stringify({ status: 'error', code, message: error instanceof Error ? error.message : 'Context operation failed' }) }
+    }
+  } }))
 }

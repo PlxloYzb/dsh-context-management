@@ -1,14 +1,16 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 import { mkdtemp, writeFile, mkdir, readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { webClient, responseText } from './client.mjs'
 import { corpus, score } from './fixture.mjs'
-const client=await webClient('.test-runtime/web-capacity.log',3100), fixture=corpus(2903)
+const client=await webClient(process.argv[3] ?? '.test-runtime/web-capacity.log', Number(process.argv[4] ?? 3100)), fixture=corpus(2903)
 const cwd=await mkdtemp(join(tmpdir(),'dsh-context-corpus-capacity-'))
 for(let i=0;i<fixture.pages.length;i++)await writeFile(join(cwd,`page-${i+1}.txt`),fixture.pages[i])
 const {sessionId}=await client.call('session/create',{cwd,agentPreset:'standard'})
 await client.call('session/selectModel',{sessionId,provider:'opencode-go',model:'glm-5.3-flash'})
-const report={schemaVersion:1,pluginVersion:'0.1.0',hostVersion:'0.1.2-rc.1',startedAt:new Date().toISOString(),sessionId,fixtureHash:fixture.hash,config:{strategy:'windowed',windowBudgetTokens:null,maxOutputTokens:8192,safetyMarginTokens:4096},turns:[],physicalOverflow:'NOT EXERCISED',completed:false,failures:[]}
+const report={schemaVersion:1,pluginVersion:releaseVersion,hostVersion:'0.1.2-rc.1',startedAt:new Date().toISOString(),sessionId,fixtureHash:fixture.hash,config:{strategy:'windowed',windowBudgetTokens:null,maxOutputTokens:8192,safetyMarginTokens:4096},turns:[],physicalOverflow:'NOT EXERCISED',completed:false,failures:[]}
 if(process.argv[2]){const installation=JSON.parse(await readFile(process.argv[2],'utf8'));report.tarballHash=installation.tarballHash;report.installEvidence=process.argv[2]}
 let events=[]
 try{
@@ -27,4 +29,4 @@ report.requestContexts=events.filter(e=>e.type==='request/context').map(e=>({seq
 report.usage=events.filter(e=>e.type==='assistant/message'&&e.data.usage).map(e=>({seq:e.seq,...e.data.usage}))
 report.windows=events.filter(e=>e.type==='compaction/summary'&&e.data.contextManagement).map(e=>({seq:e.seq,...e.data.contextManagement}))
 report.routeVerified=report.actualRoute.every(r=>r.provider==='opencode-go'&&r.model==='glm-5.3-flash')
-report.finishedAt=new Date().toISOString();await mkdir('docs/evidence/live',{recursive:true});await writeFile(`docs/evidence/live/physical-capacity-${sessionId}.json`,JSON.stringify(report,null,2)+'\n');await writeFile('docs/evidence/live/physical-capacity.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({sessionId,completed:report.completed,failures:report.failures,score:report.score?.correct}))
+report.finishedAt=new Date().toISOString();await mkdir(`${evidenceRoot}/live`,{recursive:true});await writeFile(`${evidenceRoot}/live/physical-capacity-${sessionId}.json`,JSON.stringify(report,null,2)+'\n');await writeFile(`${evidenceRoot}/live/physical-capacity.json`,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({sessionId,completed:report.completed,failures:report.failures,score:report.score?.correct}))

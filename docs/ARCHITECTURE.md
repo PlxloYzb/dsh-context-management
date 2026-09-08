@@ -176,3 +176,25 @@ TypeScript strict、无 as any/@ts-ignore；用 Zod/Schemastery 等实际宿主�
 - 压缩的净输入收益扣除被选中、随后会由宿主重建的最新 `skill-catalog` 与插件 `form:snapshot`，并预留包装开销；持久 shadow 仍独立使用原节点 `heuristicTokens`，不能混用两种价格。模型摘要、窗口交接与本地兜底共用收益计算。
 - 批量 `compress` 对每段在修改 kernel 状态和追加事件前校验精确范围。后段触及最新用户或不满足工具配对时返回该段拒绝；前段已提交结果保留并 flush，不将普通参数拒绝升级为整会话恢复失败。
 - 跨父档案的全文搜索将同一个原始 seq 归属到最早档案，分页沿用此归属；不同 seq 即使文本相同仍是不同来源。会话内归属表有上限，超过上限允许重复命中，不丢弃来源。
+
+
+## 0.1.1 行为细化（对应两轮测试与设计评审）
+
+配置中静态可判定的预算、archive 上限和模板在 bridge apply/engine 构造前验证。真实路由及 assembled 信封在请求前校验，宿主 estimated measurement 的 `totalTokens - surfaceTokens` 仅用于辨别不可缩减信封；usage 锚点下不据此推断固定信封。不改变 host projectedTokens，也不扣减档案账本。
+
+接管失败必须先验证回滚后后端与原 Basic 原型一致，方可继续请求并告警；失败 Promise 不再永久阻塞已确认回退的 mount。回滚失败或后端不明仍阻断。每 agent 屏障监听随 agent/disposed 移除，session 派生缓存使用 WeakMap<Session, …>，取消等待不取消其他 agent 共享的 mount 更新。
+
+DSH 0.1.2-rc.1 的外层 loop 仅序列化 LlmError.failure。插件错误继承该公开 HarnessError 子类；安装环境可能存在第二个 external 模块实例，因此 runtime 错误经宿主公开 Loader.import 解析同一模块域的 LlmError，保留 Web/turn-end 机器码。使用 CONTEXT_* 或工具专用代码，不伪装为 CONTEXT_WINDOW_EXCEEDED，不自动触发 provider 重试。pre-step/request 构建失败不属于 agent/request-error；后者仍只处理 provider 物理溢出。宿主 pre-step 前已 claim 的输入若尚未写日志，异常不保证重排队；修复配置后须检查并重提缺失输入。
+
+in-place 的“无法安全压缩则 no-op”仅描述压缩事务不写事件，不代表允许下一次超预算请求。允许合并满足配对、最新用户保护和净收益条件的旧 checkpoint，并记录父档案以恢复原始来源。无安全缩减且请求超 B 时以 CONTEXT_BUDGET_EXHAUSTED 停止。
+
+accepted new_context 最终 no-op 时，下一 admitted request 记录一次包含 requestId 的插件消息；空白 handoff 等价于未提供。seed.mode 和 seed.incomplete 分别表达提取方式与实际信息截断/缺失。多次搜索可访问同一文本全部命中；游标最近使用更新 LRU，失效需重新读取。EOF 空页同样计入包装预算。归档 health 与账本共用相邻 replacement 校验。摘要超 24K 字符在 kernel/持久化前拒绝，不截断已承诺正文。
+
+此补丁保留运行时 bridge 与准确 peer 版本范围。静态 preset 复制方案、sessionProjections 迁移、invariants 注册属于后续架构工作，未宣称新增支持。
+
+
+### 0.1.1 目标 profile 接管定位补充
+
+bridge 通过 host-owned Loader.import 获取公开 standingMountFor，解决安装后 peer 模块副本的 registry 不同，也能定位无 compaction 的 preset。接管前读实际服务 provider 的 Loader entry；以其 parent.tree 定位 Include patch namespace、parent group 定位插入位置，以实际 Basic row ID 加官方包名 guard 停用。ARC 新 ID 避开已有行，沿用该行的服务域选项；不移动原有 realm。仍以两阶段 Include update 接管和逆序回滚，文件保持原样。
+
+创建 agent 时启动接管；preset selection 事件也启动当前 mount 的接管；system-prompt/assemble 与 pre-step 每次重新解析当前 mount，防止同一个空会话 Agent 切换 preset 后仍等待旧 mount。首次使用一个 mount 的 assembly 在接管后重组一次，避免首请求遗漏工具。操作按 mount 去重，状态仍按 Session 弱键隔离。无 backend 的 preset 是 no-basic-row，无接管成功声明。多 preset 同进程验证见 PROFILE-COVERAGE-0.1.1.md。

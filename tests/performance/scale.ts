@@ -1,3 +1,5 @@
+import { PACKAGE_VERSION } from '../../src/version.ts'
+const evidenceRoot = `docs/evidence/v${PACKAGE_VERSION.replaceAll('.', '')}`
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
@@ -72,7 +74,7 @@ assert.throws(() => reader.search(session, { query: 'no-such-needle' }, 4096, ca
 const cancelMs = performance.now() - cancelStart
 latencies.sort((a, b) => a - b)
 const p95 = latencies[Math.ceil(latencies.length * 0.95) - 1]!
-const report = { schemaVersion: 1, pluginVersion: '0.1.0', pluginCommit: null, hostVersion: '0.1.2-rc.1', seed: 7331,
+const report = { schemaVersion: 1, pluginVersion: PACKAGE_VERSION, pluginCommit: null, hostVersion: '0.1.2-rc.1', seed: 7331,
   fixtureHash: createHash('sha256').update(serialized).digest('hex'), lockHash: createHash('sha256').update(await readFile('package-lock.json')).digest('hex'),
   measuredAt: new Date().toISOString(), machine: { cpu: cpus()[0]?.model, logicalCpus: cpus().length, totalMemory: totalmem(), platform: platform(), release: release(), node: process.version },
   events: session.seq, archives: ledger.length, windows: identity.generation, inputBytes: Buffer.byteLength(serialized),
@@ -82,7 +84,7 @@ const report = { schemaVersion: 1, pluginVersion: '0.1.0', pluginCommit: null, h
 if (coldMs >= 10000) report.failures.push('cold rebuild >= 10s')
 if (p95 >= 250) report.failures.push('search p95 >= 250ms')
 if (cancelMs >= 1000) report.failures.push('cancel >= 1s')
-await mkdir('docs/evidence/performance', { recursive: true })
-await writeFile('docs/evidence/performance/scale-7331.json', JSON.stringify(report, null, 2) + '\n')
+await mkdir(`${evidenceRoot}/performance`, { recursive: true })
+await writeFile(`${evidenceRoot}/performance/scale-7331.json`, JSON.stringify(report, null, 2) + '\n')
 console.log(JSON.stringify(report, null, 2))
 if (!report.completed) process.exitCode = 1

@@ -15,17 +15,18 @@ export async function webClient(logPath, port) {
   const cookie = auth.headers.getSetCookie().map(s => s.split(';')[0]).join('; ')
   if (!cookie) throw new Error('Web authentication exchange failed')
   let rpc = 0
-  async function call(method, request) {
+  async function callArgs(method, args) {
     const res = await fetch(`${base}/api/${method}`, { method: 'POST',
       headers: { 'content-type': 'application/json', cookie, origin: base },
       body: JSON.stringify({ type: 'client-request', rpcId: `context-test-${++rpc}`, method,
-        payload: { args: { [method === 'session/list' ? '_request' : 'request']: request } } }),
+        payload: { args } }),
       signal: AbortSignal.timeout(30000) })
     if (!res.ok) throw new Error(`${method}: HTTP ${res.status}`)
     const body = await res.json()
     if (!body.result?.ok) throw new Error(`${method}: ${body.result?.error?.code ?? 'remote-error'} ${body.result?.error?.message ?? ''}`)
     return body.result.value
   }
+  const call = (method, request) => callArgs(method, { [method === 'session/list' ? '_request' : 'request']: request })
   async function history(sessionId) {
     const list = await call('session/list', {})
     const row = list.items.find(r => r.sessionId === sessionId)
@@ -56,7 +57,7 @@ export async function webClient(logPath, port) {
     try { await call('session/cancel', { sessionId }) } catch { /* retain timeout as primary failure */ }
     throw new Error('model turn timeout (240 seconds)')
   }
-  return { call, history, prompt }
+  return { call, callArgs, history, prompt }
 }
 
 export function responseText(events) {

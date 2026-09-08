@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.1",
+  "hostVersion": "0.1.2-rc.1",
+  "tarballHash": "fa96ed73af548487f9b151b8b8b4a59079c035768410e6b72fb955e6c1004c68",
+  "checkedAt": "2026-09-08T06:02:27.727Z",
+  "compilerOptions": [
+    "--noEmit",
+    "--strict",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--target",
+    "ES2022",
+    "--lib",
+    "ESNext",
+    "--types",
+    "node",
+    "--typeRoots",
+    "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/node_modules/@types",
+    "--skipLibCheck",
+    "false"
+  ],
+  "notes": [
+    "Node project with ESNext.Disposable (included by ESNext), required by the DSH public Session API."
+  ],
+  "completed": true,
+  "failures": []
+}

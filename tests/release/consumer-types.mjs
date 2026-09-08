@@ -1,3 +1,5 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 import { mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
@@ -10,5 +12,5 @@ let completed=true,output=''
 try{output=execFileSync(resolve('node_modules/.bin/tsc'),args,{cwd:dir,encoding:'utf8',stdio:['ignore','pipe','pipe']})}
 catch(error){completed=false;output=String(error.stdout)+String(error.stderr)}
 await writeFile('.test-runtime/consumer-types.log',output)
-await writeFile('docs/evidence/release/consumer-types.json',JSON.stringify({schemaVersion:1,pluginVersion:'0.1.0',hostVersion:'0.1.2-rc.1',tarballHash:installation.tarballHash,checkedAt:new Date().toISOString(),compilerOptions:args.slice(0,-1),notes:['Node project with ESNext.Disposable (included by ESNext), required by the DSH public Session API.'],completed,failures:completed?[]:[output]},null,2)+'\n')
+await writeFile(`${evidenceRoot}/release/consumer-types.json`,JSON.stringify({schemaVersion:1,pluginVersion:releaseVersion,hostVersion:'0.1.2-rc.1',tarballHash:installation.tarballHash,checkedAt:new Date().toISOString(),compilerOptions:args.slice(0,-1),notes:['Node project with ESNext.Disposable (included by ESNext), required by the DSH public Session API.'],completed,failures:completed?[]:[output]},null,2)+'\n')
 console.log(JSON.stringify({consumerTypes:completed}));if(!completed)process.exitCode=1

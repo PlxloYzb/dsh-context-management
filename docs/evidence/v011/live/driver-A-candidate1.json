@@ -1,0 +1,21 @@
+{
+  "arm": "A",
+  "profile": "ctx-v011-basic",
+  "port": 3117,
+  "manifest": "docs/evidence/v011/live/cohort-A-candidate1.json",
+  "stages": [
+    {
+      "stage": "initial",
+      "code": 0
+    },
+    {
+      "stage": "restart",
+      "code": 0
+    },
+    {
+      "stage": "sources",
+      "code": 0
+    }
+  ],
+  "failures": []
+}

@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.1",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "checkedAt": "2026-09-08T04:32:39.420Z",
+  "arms": [
+    {
+      "arm": "A",
+      "manifest": "docs/evidence/v011/live/cohort-A-candidate1.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "blindTotal": 108,
+      "restartCorrect": 108,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 9,
+      "routeVerified": 9,
+      "restartVerified": 9,
+      "failures": [],
+      "usage": {
+        "inputTokens": 1201655,
+        "cacheReadTokens": 1544320,
+        "cacheWriteTokens": 0,
+        "outputTokens": 15970
+      },
+      "usageMissingFields": {
+        "inputTokens": 0,
+        "cacheReadTokens": 7,
+        "cacheWriteTokens": 173,
+        "outputTokens": 0
+      },
+      "usageCalls": 173,
+      "elapsedMs": 1147738,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": []
+    },
+    {
+      "arm": "B",
+      "manifest": "docs/evidence/v011/live/cohort-B-candidate1.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 94,
+      "blindTotal": 108,
+      "restartCorrect": 92,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 5,
+      "routeVerified": 9,
+      "restartVerified": 9,
+      "failures": [],
+      "usage": {
+        "inputTokens": 2208435,
+        "cacheReadTokens": 3100800,
+        "cacheWriteTokens": 0,
+        "outputTokens": 23187
+      },
+      "usageMissingFields": {
+        "inputTokens": 0,
+        "cacheReadTokens": 7,
+        "cacheWriteTokens": 329,
+        "outputTokens": 0
+      },
+      "usageCalls": 329,
+      "elapsedMs": 1913328,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": [
+        "7c81fa697fa006409ecc691e4f4a3537e621f4eedf2adb37612e16f45e334b7d"
+      ]
+    },
+    {
+      "arm": "C",
+      "manifest": "docs/evidence/v011/live/cohort-C-candidate1.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "blindTotal": 108,
+      "restartCorrect": 108,
+      "restartTotal": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 2,
+      "latestCorrections": 9,
+      "routeVerified": 9,
+      "restartVerified": 9,
+      "failures": [],
+      "usage": {
+        "inputTokens": 1932927,
+        "cacheReadTokens": 2762752,
+        "cacheWriteTokens": 0,
+        "outputTokens": 22445
+      },
+      "usageMissingFields": {
+        "inputTokens": 0,
+        "cacheReadTokens": 7,
+        "cacheWriteTokens": 288,
+        "outputTokens": 0
+      },
+      "usageCalls": 288,
+      "elapsedMs": 1604151,
+      "fixtureHashes": [
+        {
+          "seed": 1701,
+          "run": 1,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 2,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 1701,
+          "run": 3,
+          "hash": "c73129157c7163903871db73f0954d9bca8b9969a523599e5a57fa9e6615bb1b"
+        },
+        {
+          "seed": 2903,
+          "run": 1,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 2,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 2903,
+          "run": 3,
+          "hash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5"
+        },
+        {
+          "seed": 4307,
+          "run": 1,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 2,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        },
+        {
+          "seed": 4307,
+          "run": 3,
+          "hash": "19105a5455cdb5bfdb0498f8ae531751c48407ca4edf75f44967567e2a3e9c89"
+        }
+      ],
+      "tarballHashes": [
+        "7c81fa697fa006409ecc691e4f4a3537e621f4eedf2adb37612e16f45e334b7d"
+      ]
+    }
+  ],
+  "checks": {
+    "sampleCount": true,
+    "sameFixtures": true,
+    "route": true,
+    "sourceText": true,
+    "journey": true,
+    "corrections": true,
+    "blindQuality": true
+  },
+  "completed": true,
+  "limitations": [
+    "Basic uses its native physical-capacity threshold; budgets are not directly comparable. No cost superiority claim.",
+    "In-place safe-budget stops remain failed comparator samples.",
+    "Only 27 fixed synthetic samples; no general accuracy guarantee.",
+    "Physical provider overflow: NOT EXERCISED."
+  ]
+}

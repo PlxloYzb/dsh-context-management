@@ -1,5 +1,5 @@
 import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { readCompactionSummary, type WindowMetadata } from './region.ts'
+import { readCompactionSummary, validCompactionReplacement, type WindowMetadata } from './region.ts'
 
 export function validWindowMetadata(value: unknown, operationId: string): value is WindowMetadata {
   if (!value || typeof value !== 'object') return false
@@ -30,7 +30,11 @@ export function archiveHealth(events: readonly SessionEvent[]): { incomplete: bo
       }
     } else if (event.type === 'user/message') {
       const source = event.data.source as { plugin?: string; compactionId?: string }
-      if (typeof event.surfaceOp === 'object' && source.plugin === 'compact' && source.compactionId) replacements.add(source.compactionId)
+      if (typeof event.surfaceOp === 'object' && source.plugin === 'compact' && source.compactionId) {
+        const summary = summaries.get(source.compactionId)
+        if (!summary || !validCompactionReplacement(summary, event) || replacements.has(source.compactionId)) corruptMetadata++
+        else replacements.add(source.compactionId)
+      }
     } else if (event.type === 'compaction/end' && event.data.error === undefined) closed.add(event.data.compactionId)
   }
   let orphanSummaries = 0, appliedUnclosed = 0

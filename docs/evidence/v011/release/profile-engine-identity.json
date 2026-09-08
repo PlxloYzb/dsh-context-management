@@ -1,0 +1,165 @@
+{
+  "pluginVersion": "0.1.1",
+  "hostVersion": "0.1.2-rc.1",
+  "checkedAt": "2026-09-08T06:04:21.269696+00:00",
+  "tarballHash": "fa96ed73af548487f9b151b8b8b4a59079c035768410e6b72fb955e6c1004c68",
+  "modelGateTarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+  "changedFiles": [
+    "CHANGELOG.md",
+    "README.md",
+    "cordis.patch.yml",
+    "dist/bridge.d.ts",
+    "dist/bridge.js",
+    "dist/bridge.js.map"
+  ],
+  "bundleConfigurationIdenticalIgnoringComments": true,
+  "engineRuntimeAndDependenciesByteIdentical": true,
+  "identicalFiles": [
+    {
+      "path": "LICENSE",
+      "sha256": "40ec43c0510a1fe6287ad16ea23f62f361da7d8f55e7b5123020232947ba5bda"
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "67280b88aa15b2e516dd5df24de13f1bfbd659d954b18989c1a87c2a41682073"
+    },
+    {
+      "path": "SOURCE_REUSE.md",
+      "sha256": "5fd6c34c77c630f8572cf2302a419a0312d689a514e9ced106c837d3aa72f64d"
+    },
+    {
+      "path": "THIRD_PARTY_LICENSES.md",
+      "sha256": "d1520787368aa69730e00882ead06998271bbe1502ba8e32468eb77df6003458"
+    },
+    {
+      "path": "dist/archive-health.d.ts",
+      "sha256": "0dc30d07a2b91b4401a7445cd360673c09a608749a6db9e8d032ea57c2dc8e62"
+    },
+    {
+      "path": "dist/archive.d.ts",
+      "sha256": "2f8f90f694981f6040c1978cd36f688c11746ef9d729e3e07f610f2a79a05cfc"
+    },
+    {
+      "path": "dist/chunk-LRS4EZTD.js",
+      "sha256": "f2437f38faed8224453e91bfbf8a19d8cb40fbe2d4de17c628684d207e985937"
+    },
+    {
+      "path": "dist/chunk-LRS4EZTD.js.map",
+      "sha256": "cc9f19af6ee5a30c4be5f66f8ea0c49ed0cbd01eab48c703e041c948caa249ea"
+    },
+    {
+      "path": "dist/chunk-PFQE6OF3.js",
+      "sha256": "e2a9b08f64402700824a3840e4392d0ff74820a623251f3457f36961c0ca84ad"
+    },
+    {
+      "path": "dist/chunk-PFQE6OF3.js.map",
+      "sha256": "aff63eed7681fc109e7817e52d48fa9c8c059aa91a8dfb309dcc3acfa31d9f4a"
+    },
+    {
+      "path": "dist/commands.d.ts",
+      "sha256": "f5939774f579b679b78c31a8fdbe7852922973044d77a2063fe0d5739e1da002"
+    },
+    {
+      "path": "dist/config.d.ts",
+      "sha256": "2db1443d2510219c39badda7d1ec2073b7293ff10eef3d18abd88d51ae4f931f"
+    },
+    {
+      "path": "dist/errors.d.ts",
+      "sha256": "64cf589383b0a504564b177bf7fd682f91e10864a1fe63e9dabda1cbd2ae2c07"
+    },
+    {
+      "path": "dist/fallback.d.ts",
+      "sha256": "4b15ec7f57378142e2487f56f62508d86c301f1628855ff030a6ddc4d2c48896"
+    },
+    {
+      "path": "dist/governor.d.ts",
+      "sha256": "370b1fd89a7423bbcc087f86f5775ae8280a6d610f5d05a9a87cb522c3de608d"
+    },
+    {
+      "path": "dist/host-budget.d.ts",
+      "sha256": "005fca2ab9d2cc5d9eedcb989f3081358ca8527a413c4bd1b4186908f26ed2f5"
+    },
+    {
+      "path": "dist/index.d.ts",
+      "sha256": "8ce5ba119ac1a3b917a8b7dc3095615d92e91b0b0d644c00d4583680dc04036f"
+    },
+    {
+      "path": "dist/index.js",
+      "sha256": "316f6d03692c57b95ef933ed3811995cc7743e7dd710525749b7224f9e6ca035"
+    },
+    {
+      "path": "dist/index.js.map",
+      "sha256": "cba81f7ad4d5b1b629bf43823f1082e73a10d0c3114c937515e7f8c1047629b3"
+    },
+    {
+      "path": "dist/messages.d.ts",
+      "sha256": "219df2f998a091e26e8edaa78a62a909f9244982c62790e47e42bbcaac597344"
+    },
+    {
+      "path": "dist/nudge.d.ts",
+      "sha256": "befbe234950343aec482882ee508652b37acc1a14da0c263b17f6402a97cd843"
+    },
+    {
+      "path": "dist/preset-cli.d.ts",
+      "sha256": "5768b9a0c2b1cbd0e628edb15112c7c23f19ba953aadfc41ce1ca1148e89ad73"
+    },
+    {
+      "path": "dist/preset-cli.js",
+      "sha256": "f9e3ffcb9479e1927b7adad26de9d199c084b984c4b0caa1d64cae38db5863a6"
+    },
+    {
+      "path": "dist/preset-cli.js.map",
+      "sha256": "034a400b083c1a64b8ca5eb90c78a64a79cc53d64dfc3e1a91ec6d048d725e34"
+    },
+    {
+      "path": "dist/preset-compat.d.ts",
+      "sha256": "31f0708864c32e6349fff75390b4f7807aaca5ed476f12bd29f8aba6dddb1896"
+    },
+    {
+      "path": "dist/prompts.d.ts",
+      "sha256": "f46272b27da2e8a9851204cfec9098767d1353cb1cd571183ddda126065f5ff8"
+    },
+    {
+      "path": "dist/region.d.ts",
+      "sha256": "45d7a7dbe7b48c789920150857b95ee2271d224afc673024e722f84de24def45"
+    },
+    {
+      "path": "dist/state.d.ts",
+      "sha256": "5979b7dad7f218335af729c2e11ba93a5fc790d4c67c47c6c8a2fc6284e9c4a4"
+    },
+    {
+      "path": "dist/system-prompt.d.ts",
+      "sha256": "fa47288c27a4111dfa9742edbbda96f632b19938bdc1948a0b3ac4c11fc776e4"
+    },
+    {
+      "path": "dist/tools.d.ts",
+      "sha256": "aed9cbd94b24cbaee563a8f849e5176449747e031f34cf17045274d830668dda"
+    },
+    {
+      "path": "dist/version.d.ts",
+      "sha256": "410e42ce27325f0812be00994ca06dc5a4b84387459bdf696d390d7f0fd8f1a4"
+    },
+    {
+      "path": "dist/window-controller.d.ts",
+      "sha256": "4c90ec8a2d8c1f095cda12c602b1b3b407456df4ebba4289658ffd9b77fbf833"
+    },
+    {
+      "path": "dist/window.d.ts",
+      "sha256": "d6029b2b87995a03c87ba859f37172c013238875a0f89622e9ac0a0e8995296a"
+    },
+    {
+      "path": "package.json",
+      "sha256": "ad9bb7ba7bca5a713b6c28a60ac83581ae1195bc68d86cf951c82365ed5c8116"
+    }
+  ],
+  "validation": {
+    "unitTests": 184,
+    "integrationTests": 50,
+    "normalPrepack": true,
+    "presetLifecycleCases": 24,
+    "webFailureChecks": 6,
+    "consumerTypes": true
+  },
+  "scope": "Reused 27-sample model, recovery, scale and UI engine evidence applies to byte-identical engine/runtime/type/dependency files. Bridge changes were retested on the final tarball via concurrent presets, native commands, preset selection, restart, uninstall and failure injection. Whole-package runtime identity is NOT claimed.",
+  "completed": true
+}

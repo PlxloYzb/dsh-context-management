@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.1
+
+- Profile-wide native Basic takeover: discover actual row IDs, group and Include ownership; handle preset changes before the first request, including presets added after startup. Presets with no compaction (official minimal) remain without one.
+
+
+- Validate budget geometry, archive limits and prompt templates before taking over Basic; distinguish an oversized fixed request envelope from retained-input exhaustion.
+- Allow requests after a verified Basic rollback; bound agent listener ownership and bind cached state to Session instances.
+- Report deferred no-op window requests once to the model; normalize empty handoffs and report actual seed incompleteness.
+- Enumerate every search occurrence, share archive adjacency validation, maintain cursor LRU and return explicit EOF pages.
+- Fold eligible old in-place checkpoints while retaining original archive sources; enforce summary limits before commit and return structured tool errors.
+- Keep patch release evidence separate from 0.1.0 and derive runtime/report versions from the package manifest.
+
 ## 0.1.0
 
 - 新建独立的 `dsh-context-management` 包，适配 DSH 0.1.2-rc.1。

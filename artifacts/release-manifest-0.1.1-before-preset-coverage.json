@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.1",
+  "pluginCommit": null,
+  "baseCommit": "89fe675b8ab08faa8e2ee0c316a76968b73e2a0c",
+  "hostVersion": "0.1.2-rc.1",
+  "finishedAt": "2026-09-08T04:47:28.062425+00:00",
+  "artifact": "artifacts/dsh-context-management-0.1.1.tgz",
+  "bytes": 263291,
+  "sha256": "3b7b56b1db924e2983db049ee43c91fd82cd64ed7d6a1efe919f3b71b722c359",
+  "lockHash": "56255b78b2b348a4fe4fbdd7230ec688b35379987b494b3acad975c8b13b6a51",
+  "completed": true,
+  "publicNpmPublished": false,
+  "gates": {
+    "G1": {
+      "status": "PASS",
+      "evidence": [
+        "docs/evidence/v011/release/fresh-install.json",
+        "docs/evidence/v011/release/lifecycle.json",
+        "docs/evidence/v011/live/patch-smoke.json"
+      ]
+    },
+    "G2": {
+      "status": "PASS",
+      "unitTests": 181,
+      "hostIntegrationTests": 50,
+      "evidence": [
+        "docs/evidence/v011/release/runtime-identity.json",
+        "docs/evidence/v011/release/fresh-install.json"
+      ]
+    },
+    "G3": {
+      "status": "PASS",
+      "evidence": [
+        "docs/evidence/v011/release/cohort-gates.json",
+        "docs/evidence/v011/live/cohort-C-candidate2.json"
+      ]
+    },
+    "G4": {
+      "status": "PASS",
+      "physicalOverflow": "NOT EXERCISED",
+      "evidence": [
+        "docs/evidence/v011/live/physical-capacity.json",
+        "docs/evidence/v011/live/patch-smoke.json",
+        "docs/evidence/v011/release/runtime-identity.json"
+      ]
+    },
+    "G5": {
+      "status": "PASS",
+      "evidence": [
+        "docs/evidence/v011/recovery/sigkill.json",
+        "docs/evidence/v011/performance/scale-7331.json",
+        "docs/evidence/v011/release/cohort-gates.json"
+      ]
+    },
+    "G6": {
+      "status": "PASS",
+      "evidence": [
+        "docs/evidence/v011/release/cohort-gates.json",
+        "docs/evidence/v011/live/ui-journey.json"
+      ]
+    },
+    "G7": {
+      "status": "PASS",
+      "evidence": [
+        "docs/evidence/v011/release/runtime-identity.json",
+        "docs/evidence/v011/release/fresh-install.json",
+        "docs/evidence/v011/release/lifecycle.json",
+        "docs/evidence/v011/release/package-audit.json",
+        "docs/evidence/v011/release/consumer-types.json",
+        "docs/evidence/v011/release/reference-integrity.json"
+      ]
+    }
+  },
+  "modelGateTarballHash": "cf655cc8c081970fab0749a812c53d7839523451c62288f6877767336128371c",
+  "runtimeIdentityEvidence": "docs/evidence/v011/release/runtime-identity.json",
+  "arms": [
+    {
+      "arm": "A",
+      "manifest": "docs/evidence/v011/live/cohort-A-candidate1.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "restartCorrect": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 9
+    },
+    {
+      "arm": "B",
+      "manifest": "docs/evidence/v011/live/cohort-B-candidate2.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "restartCorrect": 98,
+      "sourceVerified": 9,
+      "minimumWindows": 0,
+      "latestCorrections": 4
+    },
+    {
+      "arm": "C",
+      "manifest": "docs/evidence/v011/live/cohort-C-candidate2.json",
+      "samples": 9,
+      "completed": 9,
+      "blindCorrect": 108,
+      "restartCorrect": 108,
+      "sourceVerified": 9,
+      "minimumWindows": 3,
+      "latestCorrections": 9
+    }
+  ],
+  "failures": [],
+  "retainedDiagnostics": [
+    "docs/evidence/v011/live/patch-smoke-invalid-startup-expectation.json",
+    "docs/evidence/v011/live/patch-smoke-foreign-error-identity.json",
+    "docs/evidence/v011/release/consumer-types-declaration-path-error.json"
+  ],
+  "limitations": [
+    "In-place completed 9/9 journeys, but restart recall was 98/108 and later corrections were retained in 4/9 answers; originals remained fully recoverable in all 9. Default windowed achieved 108/108 before and after restart.",
+    "Basic uses a native threshold instead of identical logical budgets; no cost superiority claim.",
+    "Final tarball differs from the model-tested candidate only in README error field names; all runtime/type/config/dependency files are byte-identical. Final artifact installation/restart/uninstall and consumer type tests passed.",
+    "Real physical provider overflow: NOT EXERCISED; normalized overflow is covered by controlled real-loop tests.",
+    "One low-severity development dependency audit finding, with original nonzero audit exit retained.",
+    "Static invalid configuration stops host startup; correct or remove it before restarting.",
+    "Host pre-step failure does not guarantee automatic requeue of input already claimed but not logged.",
+    "Full Unicode case folding, unlimited nested traversal, static-preset installation, projection migration, HMR reload, and concurrent multi-preset support are not newly claimed."
+  ]
+}

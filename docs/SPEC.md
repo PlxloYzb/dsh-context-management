@@ -127,3 +127,25 @@ handoff 建议含目标、用户限制、已完成事实、待办、文件/测�
 本地 window seed 先保留原始用户消息的有界引用，再保留原始工具来源中的有界结构化标量记录（例如 JSON 配置值），最后按需要回退到本地摘录索引。模型提供的 handoff 仍受相同总预算限制。所有摘录都是历史数据；最新用户要求仍有优先级。截断、未被索引的自然语言和附件不声称完整语义保存，可从档案恢复。
 
 检索使用 reader/session 所有的有界游标缓存（每会话最多 256 个，reader 重启或游标被淘汰后重新开始读取）。游标不携带原文。search 返回原始 sourceSeq、textBlockPath 和 UTF-16 标量边界 offset；decompress 可直接从命中位置开始，续页只传 cursor。每页按完整 JSON 的 UTF-8 字节数保守计量，包含元数据和游标，避免转义文本突破上限。游标是可选的进一步证据入口，不能据此要求模型读完整个档案。
+
+
+## 0.1.1 行为细化（对应两轮测试与设计评审）
+
+配置中静态可判定的预算、archive 上限和模板在 bridge apply/engine 构造前验证。真实路由及 assembled 信封在请求前校验，宿主 estimated measurement 的 `totalTokens - surfaceTokens` 仅用于辨别不可缩减信封；usage 锚点下不据此推断固定信封。不改变 host projectedTokens，也不扣减档案账本。
+
+接管失败必须先验证回滚后后端与原 Basic 原型一致，方可继续请求并告警；失败 Promise 不再永久阻塞已确认回退的 mount。回滚失败或后端不明仍阻断。每 agent 屏障监听随 agent/disposed 移除，session 派生缓存使用 WeakMap<Session, …>，取消等待不取消其他 agent 共享的 mount 更新。
+
+DSH 0.1.2-rc.1 的外层 loop 仅序列化 LlmError.failure。插件错误继承该公开 HarnessError 子类；安装环境可能存在第二个 external 模块实例，因此 runtime 错误经宿主公开 Loader.import 解析同一模块域的 LlmError，保留 Web/turn-end 机器码。使用 CONTEXT_* 或工具专用代码，不伪装为 CONTEXT_WINDOW_EXCEEDED，不自动触发 provider 重试。pre-step/request 构建失败不属于 agent/request-error；后者仍只处理 provider 物理溢出。宿主 pre-step 前已 claim 的输入若尚未写日志，异常不保证重排队；修复配置后须检查并重提缺失输入。
+
+in-place 的“无法安全压缩则 no-op”仅描述压缩事务不写事件，不代表允许下一次超预算请求。允许合并满足配对、最新用户保护和净收益条件的旧 checkpoint，并记录父档案以恢复原始来源。无安全缩减且请求超 B 时以 CONTEXT_BUDGET_EXHAUSTED 停止。
+
+accepted new_context 最终 no-op 时，下一 admitted request 记录一次包含 requestId 的插件消息；空白 handoff 等价于未提供。seed.mode 和 seed.incomplete 分别表达提取方式与实际信息截断/缺失。多次搜索可访问同一文本全部命中；游标最近使用更新 LRU，失效需重新读取。EOF 空页同样计入包装预算。归档 health 与账本共用相邻 replacement 校验。摘要超 24K 字符在 kernel/持久化前拒绝，不截断已承诺正文。
+
+此补丁保留运行时 bridge 与准确 peer 版本范围。静态 preset 复制方案、sessionProjections 迁移、invariants 注册属于后续架构工作，未宣称新增支持。
+
+
+### 0.1.1 目标 profile 接管范围补充
+
+安装并启用 bundle 到指定 profile 后，该 profile 内所有 preset 的原生 Basic compaction 都是接管目标，按实际运行的包名与服务域定位，不再依赖固定 preset 名、行 ID 或 group ID。含嵌套 group/Include 的自定义 preset、新增后首次使用的 preset，以及空会话切换后的 preset 均适用。接管自动 pressure、原生 context-overflow 恢复和使用同一后端的 `/compact`；原生 pruner 保留并由新后端按既定策略调用。
+
+以 DSH 0.1.2-rc.1 为准，minimal 不加载 compaction；Web 组合也停用 host-plane Basic。因此 minimal 没有原生后端可替换，保持其两工具与固定提示行为，不能把这一场景报告成 ARC active。第三方后端不属于原生 Basic 接管目标。启用范围由 profile 的 bundle 决定，单纯 npm 下载包不代表该 profile 已启用插件；使用 `dsh plugin --profile <name> add <package-or-tarball>` 完成安装与启用。

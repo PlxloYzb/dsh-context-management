@@ -1,3 +1,5 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 import assert from 'node:assert/strict'
 import { isBuiltin } from 'node:module'
 import { execFileSync } from 'node:child_process'
@@ -26,5 +28,5 @@ for(const path of paths){
 }
 assert.equal(pkg.dependencies['acp-kernel'],'0.0.24')
 const report={schemaVersion:1,pluginVersion:pkg.version,pluginCommit:null,hostVersion:'0.1.2-rc.1',checkedAt:new Date().toISOString(),lockHash:hash(await readFile('package-lock.json')),inventory,imports:[...imports].sort(),files:paths.length,unpackedSize:packing.unpackedSize,completed:true,failures:[]}
-await mkdir('docs/evidence/release',{recursive:true});await writeFile('docs/evidence/release/package-audit.json',JSON.stringify(report,null,2)+'\n')
+await mkdir(`${evidenceRoot}/release`,{recursive:true});await writeFile(`${evidenceRoot}/release/package-audit.json`,JSON.stringify(report,null,2)+'\n')
 console.log(JSON.stringify({files:report.files,imports:report.imports,completed:true}))

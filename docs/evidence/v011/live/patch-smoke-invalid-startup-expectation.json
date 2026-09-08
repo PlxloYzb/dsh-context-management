@@ -1,0 +1,12 @@
+{
+  "pluginVersion": "0.1.1",
+  "tarballHash": "7c81fa697fa006409ecc691e4f4a3537e621f4eedf2adb37612e16f45e334b7d",
+  "hostVersion": "0.1.2-rc.1",
+  "startedAt": "2026-09-08T04:23:47.384Z",
+  "checks": [],
+  "completed": false,
+  "failures": [
+    "loopback Web launch URL unavailable"
+  ],
+  "finishedAt": "2026-09-08T04:24:17.529Z"
+}

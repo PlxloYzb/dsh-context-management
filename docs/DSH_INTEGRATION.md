@@ -1,12 +1,12 @@
 # DSH 集成、安装与卸载契约
 
-状态：设计与安装基线核验。新插件尚不存在，下面涉及新包的命令须在产物构建后执行。本次已实际运行的命令见 [VALIDATION.md](VALIDATION.md)。
+状态：保留首发集成设计；0.1.1 已实现并验证的失败回退、错误序列化与安装包证据见 [RELEASE-0.1.1.md](RELEASE-0.1.1.md)。下方最小 manifest 示例是原始设计片段，完整依赖以当前 package.json 为准。
 
 ## 1. 官方依据与边界
 
 插件入口、依赖声明与 effect 生命周期遵循 [第一个插件](https://deepseek-harness.github.io/deepseek-harness/develop/basic/)；包的 bundle manifest 与安装遵循 [打包与安装](https://deepseek-harness.github.io/deepseek-harness/develop/basic/publish)。旧文档遗漏了官方参考层，当前存在 [Compaction 专页](https://deepseek-harness.github.io/deepseek-harness/reference/subsystems/compaction)，不能再把整个压缩接口写成“未文档化”。
 
-官方支持的是 CompactionEngine seam、事件协议与 Cordis 组合机制；**自动扫描任意 preset 并通过 bridge 接管不是官方对本插件的兼容保证**，须在每个支持的宿主线实测。当前声明目标限定 standard。
+官方支持的是 CompactionEngine seam、事件协议与 Cordis 组合机制；**自动扫描任意 preset 并通过 bridge 接管不是官方对本插件的兼容保证**，须在每个支持的宿主线实测。0.1.1 增补覆盖目标 profile 所有已有原生 Basic 的 preset；官方 minimal 原本无 compaction。具体矩阵见 [PROFILE-COVERAGE-0.1.1.md](PROFILE-COVERAGE-0.1.1.md)。
 
 ## 2. 包形态
 
@@ -50,7 +50,7 @@
 
 接管步骤：
 
-1. 解析 agent 的 standing mount，确认官方 Basic 行的 ID **与包名**，定位其 compaction isolate 域；没有目标/第三方后端时返回明确 unsupported。
+1. 解析 agent 的 standing mount，通过实际服务 provider 定位 Basic 行的实际 ID **与官方包名**，再定位其 parent Include 和 compaction isolate 域；没有目标/第三方后端时返回明确 unsupported。
 2. 持有 mount 操作队列与生命周期标记；把 engine 注册进 effect-owned builtin 键，保留旧值，禁止覆盖其他 owner。
 3. 第一阶段仅停用 Basic，await reconcile 完成；第二阶段插入新 engine，await 完成。复用 Include 正式 patch 机制，保持原 config 对象 identity，不编辑 preset 文件。
 4. 在实际 agent resolver 中验证同域唯一 provider 确实是新 engine，记录 active；不能只检查全局类名或成功注册某个 symbol。

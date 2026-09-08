@@ -1,3 +1,5 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 // Explicit real-model gate. No route substitution or silent retry of failed samples.
 import { createHash } from 'node:crypto'
 import { readFile, writeFile, mkdir, mkdtemp } from 'node:fs/promises'
@@ -14,7 +16,7 @@ if (!args.arm || !args.log || !args.port) {
 const arm = args.arm, seed = Number(args.seed ?? 1701), run = Number(args.run ?? 1)
 if (!['A', 'B', 'C'].includes(arm)) throw new Error('Unknown arm')
 const fixture = corpus(seed), client = await webClient(resolve(args.log), Number(args.port))
-const outputDir = resolve('docs/evidence/live'), privateDir = resolve('.test-runtime/live')
+const outputDir = resolve(`${evidenceRoot}/live`), privateDir = resolve('.test-runtime/live')
 await mkdir(outputDir, { recursive: true }); await mkdir(privateDir, { recursive: true })
 const packageInfo = JSON.parse(await readFile('package.json', 'utf8'))
 const requestedRoute = { provider: 'opencode-go', model: 'glm-5.3-flash' }

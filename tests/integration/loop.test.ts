@@ -205,3 +205,35 @@ test('S02: real registry fork inherits only the completed prefix and owns subseq
   assert.equal(toolPairingBalancedAfter(child.agent.session, child.agent.session.surface.nodes.at(-1)!), true)
   await child.dispose(); await parent.dispose()
 })
+
+
+test('F01: an oversized assembled envelope reports its own error before any provider call', async t => {
+  const adapter = new ControlledAdapter(async function* () { yield* response([{ type: 'text', text: 'must not run' }]) })
+  const h = await runtime(adapter, { windowBudgetTokens: 32768 }); t.after(h.close)
+  h.ctx.tools.register(defineTool({ name: 'large_fixture', description: 'X'.repeat(120000), parameters: {},
+    output: { schema: { type: 'object', properties: {}, additionalProperties: false }, render: () => [] }, async execute() { return {} },
+  }))
+  const handle = await h.ctx.agents.create({ sessionId: SessionId('fixed-envelope'), agentOptions: { provider: 'controlled-test', model: 'fixture' } })
+  handle.agent.followup(prompt('Short current request'))
+  await handle.agent.whenIdle()
+  assert.equal(adapter.calls.length, 0)
+  assert.match(JSON.stringify(handle.agent.session.snapshotEvents().filter(event => event.type === 'turn/end')), /CONTEXT_ENVELOPE_TOO_LARGE/)
+  await handle.dispose()
+})
+
+test('F04: pending no-op is delivered once in the next real request and pairing remains balanced', async t => {
+  const adapter = new ControlledAdapter(async function* (_request, index) {
+    yield* response(index === 1 ? [{ type: 'tool-call', id: 'no-safe-prefix' as never, name: 'new_context', arguments: '{}' }] : [{ type: 'text', text: 'completed' }])
+  })
+  const h = await runtime(adapter); t.after(h.close)
+  const handle = await h.ctx.agents.create({ sessionId: SessionId('pending-noop'), agentOptions: { provider: 'controlled-test', model: 'fixture' } })
+  handle.agent.followup(prompt('Only current input'))
+  await handle.agent.whenIdle()
+  assert.equal(adapter.calls.length, 2)
+  assert.match(JSON.stringify(adapter.calls[1]!.messages), /no-safe-range/)
+  const notices = handle.agent.session.snapshotEvents().filter(event => event.type === 'user/message' && JSON.stringify(event.data).includes('no-safe-range'))
+  assert.equal(notices.length, 1)
+  assert.equal(windowIdentity(handle.agent.session).generation, 0)
+  assert.equal(toolPairingBalancedAfter(handle.agent.session, handle.agent.session.surface.nodes.at(-1)!), true)
+  await handle.dispose()
+})

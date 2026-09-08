@@ -18,6 +18,8 @@ import { Context, Service, type Fiber } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Group from '@deepseek-ai/cordis-plugin-group'
+import type { Agent } from '@deepseek-ai/dsh-agent'
+import { Session } from '@deepseek-ai/dsh-session'
 import { ArcCompactionEngine, isArcBackend } from '../src/index.ts'
 import { apply as applyBridge, buildTakeoverPatches, rollbackMount, takeoverMount } from '../src/bridge.ts'
 
@@ -334,4 +336,120 @@ test('I02/I05: two agents share one takeover; disposal waits for the pending upd
   assert.ok(latestConsumer().resolved instanceof FakeBasic)
   assert.equal('dsh-context-management' in preset.ctx.loader.builtins, false)
   assert.equal(await readFile(preset.path, 'utf8'), PRESET_YAML)
+})
+
+function announce(ctx: Context, name: 'agent/created' | 'agent/disposed', agent: Agent): void {
+  const args: unknown[] = [agent.ctx, name, { agent }]
+  for (const callback of ctx.events.dispatch('emit', args)) callback(...args)
+}
+
+async function enableTestBridge(preset: MountedPreset) {
+  class HostPresets extends Service {
+    constructor(ctx: Context) { super(ctx, 'agentPresets') }
+    composedPreset() { return 'standard' }
+    serviceFor() { return latestConsumer().resolved }
+  }
+  await preset.ctx.plugin(HostPresets)
+  delete preset.ctx.loader.builtins['dsh-context-management']
+  return preset.ctx.plugin((ctx: Context) => applyBridge(ctx, {}))
+}
+
+test('F12: the first request and subsequent agents use the restored backend after takeover fails', async t => {
+  const preset = await mountPreset(PRESET_YAML); t.after(preset.cleanup)
+  await enableTestBridge(preset)
+  const prototype = Object.getPrototypeOf(preset.fiber) as { update: Fiber['update'] }, original = prototype.update
+  t.after(() => { prototype.update = original })
+  let updates = 0
+  prototype.update = async function (...args) {
+    if (this.uid === preset.fiber.uid && ++updates === 2) throw new Error('injected engine activation failure')
+    return original.apply(this, args)
+  }
+  for (let i = 0; i < 2; i++) {
+    const agent = { ctx: preset.fiber.ctx, session: Session.create('bridge-test'), options: {} } as unknown as Agent
+    announce(preset.ctx, 'agent/created', agent)
+    const decision = await agent.ctx.waterfall('agent/pre-step', { agent, signal: new AbortController().signal, turn: 1, step: 1 }, async () => ({ kind: 'enter' as const, messages: [] }))
+    assert.equal(decision.kind, 'enter')
+    assert.ok(latestConsumer().resolved instanceof FakeBasic)
+    announce(preset.ctx, 'agent/disposed', agent)
+  }
+  assert.equal(updates, 4, 'a failed mount is not retried for every new agent')
+})
+
+test('F12: an uncertain rollback still blocks requests with a stable error code', async t => {
+  const preset = await mountPreset(PRESET_YAML); t.after(preset.cleanup)
+  await enableTestBridge(preset)
+  const prototype = Object.getPrototypeOf(preset.fiber) as { update: Fiber['update'] }, original = prototype.update
+  t.after(() => { prototype.update = original })
+  let updates = 0
+  prototype.update = async function (...args) {
+    if (this.uid === preset.fiber.uid && [2, 4].includes(++updates)) throw new Error('injected activation/rollback failure')
+    return original.apply(this, args)
+  }
+  const agent = { ctx: preset.fiber.ctx, session: Session.create('bridge-test'), options: {} } as unknown as Agent
+  announce(preset.ctx, 'agent/created', agent)
+  await assert.rejects(agent.ctx.waterfall('agent/pre-step', { agent, signal: new AbortController().signal, turn: 1, step: 1 }, async () => ({ kind: 'enter' as const, messages: [] })), (error: unknown) => error instanceof Error && 'code' in error && error.code === 'CONTEXT_BACKEND_UNAVAILABLE')
+  announce(preset.ctx, 'agent/disposed', agent)
+})
+
+test('F14: per-agent readiness listeners are removed at agent disposal', async t => {
+  const preset = await mountPreset(PRESET_YAML); t.after(preset.cleanup)
+  await enableTestBridge(preset)
+  const listeners = () => [...preset.ctx.events.dispatch('emit', [preset.fiber.ctx, 'agent/pre-step', {}])].length
+  const baseline = listeners()
+  for (let i = 0; i < 20; i++) {
+    const agent = { ctx: preset.fiber.ctx, session: Session.create('bridge-test'), options: {} } as unknown as Agent
+    announce(preset.ctx, 'agent/created', agent)
+    await agent.ctx.waterfall('agent/pre-step', { agent, signal: new AbortController().signal, turn: 1, step: 1 }, async () => ({ kind: 'reject' as const }))
+    const active = listeners()
+    announce(preset.ctx, 'agent/disposed', agent)
+    assert.equal(listeners(), active - 1, 'the readiness closure no longer retains this agent')
+    if (i > 0) assert.equal(listeners(), baseline + 2, 'only the two engine policy/nudge listeners remain')
+  }
+})
+
+
+test('profile coverage: renamed rows, nested groups and occupied ARC IDs use the actual Basic realm', async t => {
+  for (const yaml of [
+    PRESET_YAML.replaceAll('compaction-basic', 'custom-basic-id').replace("@deepseek-ai/dsh-custom-basic-id", '@deepseek-ai/dsh-compaction-basic').replace('id: compaction\n', 'id: custom-context\n'),
+    '- id: outer\n  name: cordis:group\n  group: true\n  config:\n' + PRESET_YAML.split('\n').map(line => '    ' + line).join('\n'),
+    PRESET_YAML.replace('    - id: command-compact', '    - id: compaction-arc'),
+  ]) {
+    const preset = await mountPreset(yaml)
+    try {
+      const tracked = new Map()
+      assert.equal(await takeoverMount(preset.ctx, {}, { presetId: 'custom', fiber: preset.fiber }, tracked), 'taken-over')
+      assert.ok(isArcBackend(latestConsumer().resolved))
+      await rollbackMount(preset.fiber, tracked)
+      assert.ok(latestConsumer().resolved instanceof FakeBasic)
+      assert.equal(await readFile(preset.path, 'utf8'), yaml)
+    } finally { await preset.cleanup() }
+  }
+})
+
+test('profile coverage: a Basic row in a nested Include is patched in that Include namespace', async () => {
+  const preset = await mountPreset('[]')
+  try {
+    const childPath = join(preset.path, '..', 'child.yml')
+    await writeFile(childPath, PRESET_YAML)
+    const include = preset.fiber.config as { path: string; patches?: unknown[] }
+    include.patches = [{ insert: [{ id: 'child', name: 'cordis:include', config: { path: pathToFileURL(childPath).href } }] }]
+    await preset.fiber.update(include, true)
+    const tracked = new Map()
+    assert.equal(await takeoverMount(preset.ctx, {}, { presetId: 'nested-include', fiber: preset.fiber }, tracked), 'taken-over')
+    assert.ok(isArcBackend(latestConsumer().resolved))
+    assert.equal(tracked.size, 1)
+    for (const fiber of tracked.keys()) await rollbackMount(fiber, tracked)
+    assert.ok(latestConsumer().resolved instanceof FakeBasic)
+    assert.equal(await readFile(childPath, 'utf8'), PRESET_YAML)
+  } finally { await preset.cleanup() }
+})
+
+test('profile coverage: no-compaction presets have no native backend to replace', async () => {
+  const preset = await mountPreset('[]')
+  try {
+    const tracked = new Map()
+    assert.equal(await takeoverMount(preset.ctx, {}, { presetId: 'minimal', fiber: preset.fiber }, tracked), 'no-basic-row')
+    assert.equal(tracked.size, 0)
+    assert.equal('patches' in (preset.fiber.config as object), false)
+  } finally { await preset.cleanup() }
 })

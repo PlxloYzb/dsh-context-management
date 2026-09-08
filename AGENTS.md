@@ -1,6 +1,6 @@
 # Development contract
 
-- Product: dsh-context-management 0.1.0, targeting DSH 0.1.2-rc.1. The accepted docs/SPEC.md and docs/ARCHITECTURE.md define behavior; record justified refinements with implementation and tests.
+- Product: dsh-context-management 0.1.1, targeting DSH 0.1.2-rc.1. The accepted docs/SPEC.md and docs/ARCHITECTURE.md define behavior; record justified refinements with implementation and tests.
 - Reference repositories dsh-arc-context and codex-main are read-only. This repository owns all changes and release artifacts. Do not import runtime code through absolute reference or host installation paths.
 - TypeScript strict, ESM. No as any, @ts-ignore or hidden global singleton session state. Host packages remain external; acp-kernel stays exactly pinned.
 - Session changes are append-only and pass through the shared transaction implementation. Adjacent summary/replacement shadow pricing uses host heuristicTokens. Never subtract the archive ledger from the host projectedTokens.

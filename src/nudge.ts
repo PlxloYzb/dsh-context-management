@@ -46,9 +46,8 @@ export interface NudgeOutcome {
  * Priority chain:
  * 1. `sessionProjections.contextPressure.projectedTokens` — matches the UI's
  *    context-occupancy display (includes fixed overhead: system prompt, tool
- *    definitions, AGENTS.md, etc.). ARC subtracts the durable ledger's
- *    shadowed-token claims so this provider-anchored reading reacts to
- *    compaction even when the host projection does not.
+ *    definitions, AGENTS.md, etc.). The host already accounts for adjacent
+ *    summary/replacement shadow prices; never subtract the archive ledger.
  * 2. `tokenMeter.measure(session).surfaceTokens` — heuristic surface-only
  *    estimate (pure conversation messages, no fixed overhead). Falls back
  *    when sessionProjections is unavailable or has no provider anchor yet.
@@ -133,7 +132,7 @@ function measuredTokenCount(agent: Agent, coreMessages: CoreMessage[]): number {
 export function buildNudge(
   agent: Agent,
   env: NudgeEnvironment,
-  lastNudgeTurn: Map<string, number>,
+  lastNudgeTurn: Map<string, number> | WeakMap<import('@deepseek-ai/dsh-session').Session, number>,
 ): NudgeOutcome | null {
   const session = agent.session
   const state = env.store.stateFor(session)
@@ -151,9 +150,10 @@ export function buildNudge(
   const emergency = nudge.breakdown?.emergencyOverride === 1
 
   const turnNumber = findOpenTurn(session.snapshotEvents()) ?? 0
-  const alreadyShown = !emergency && lastNudgeTurn.get(session.id) === turnNumber
+  const alreadyShown = !emergency && (lastNudgeTurn instanceof WeakMap ? lastNudgeTurn.get(session) : lastNudgeTurn.get(session.id)) === turnNumber
   if (alreadyShown) return null
-  lastNudgeTurn.set(session.id, turnNumber)
+  if (lastNudgeTurn instanceof WeakMap) lastNudgeTurn.set(session, turnNumber)
+  else lastNudgeTurn.set(session.id, turnNumber)
 
   const text = buildNudgeText(nudge, emergency, session, env.prompts)
   const message = createUserMessage({

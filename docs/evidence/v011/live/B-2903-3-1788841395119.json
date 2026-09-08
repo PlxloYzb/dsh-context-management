@@ -1,0 +1,1378 @@
+{
+  "schemaVersion": 1,
+  "pluginVersion": "0.1.1",
+  "pluginCommit": null,
+  "hostVersion": "0.1.2-rc.1",
+  "lockHash": "56255b78b2b348a4fe4fbdd7230ec688b35379987b494b3acad975c8b13b6a51",
+  "fixtureHash": "cc63f0aa00c5fd62b8fefd6f053d9d3e9dfd178f9c05beaecdb7c95d7c755fc5",
+  "seed": 2903,
+  "arm": "B",
+  "run": 3,
+  "requestedRoute": {
+    "provider": "opencode-go",
+    "model": "glm-5.3-flash"
+  },
+  "startedAt": "2026-09-08T04:23:15.119Z",
+  "turns": [
+    {
+      "stage": "read-1",
+      "elapsedMs": 3226,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-1-OK",
+      "throughSeq": 35
+    },
+    {
+      "stage": "read-2",
+      "elapsedMs": 8042,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-2-OK",
+      "throughSeq": 65
+    },
+    {
+      "stage": "read-3",
+      "elapsedMs": 6462,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-3-OK",
+      "throughSeq": 126
+    },
+    {
+      "stage": "read-4",
+      "elapsedMs": 38807,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-4-OK",
+      "throughSeq": 164
+    },
+    {
+      "stage": "read-5",
+      "elapsedMs": 4888,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-5-OK",
+      "throughSeq": 196
+    },
+    {
+      "stage": "read-6",
+      "elapsedMs": 4975,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-6-OK",
+      "throughSeq": 237
+    },
+    {
+      "stage": "read-7",
+      "elapsedMs": 14584,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-7-OK",
+      "throughSeq": 269
+    },
+    {
+      "stage": "read-8",
+      "elapsedMs": 4883,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "READ-8-OK",
+      "throughSeq": 303
+    },
+    {
+      "stage": "blind-recall",
+      "elapsedMs": 137930,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "```json\n{\n  \"F01\": \"/srv/project-6e0bd5f3/config.yaml\",\n  \"F02\": \"value-7962af7e\",\n  \"F03\": \"revised-2903-green\",\n  \"F04\": \"发布-e3d04d44-华东\",\n  \"F05\": \"value-a822d408\",\n  \"F06\": \"value-671111fa\",\n  \"F07\": \"value-ae6639e0\",\n  \"F08\": \"2940ms\",\n  \"F09\": \"latest-2903-港口\",\n  \"F10\": \"value-2e6efe38\",\n  \"F11\": \"value-38042086\",\n  \"F12\": \"value-6defeb50\"\n}\n```",
+      "throughSeq": 1213
+    },
+    {
+      "stage": "archive-pagination",
+      "elapsedMs": 72757,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "F01 recovered and confirmed independently at two archive locations, so I can ground the continuation step in that source now.\nThe stored continuation cursor was stale, so the archive response was already bounded to a single page. I'll fall back to one full-budget page, then capture status.\nVerified via archive tools only — no file reads or shell commands.\n\n- **F01 recovery**: `search_context(\"F01\")` hit **seq 24** (block `bfa80c58-98ff-4cf5-92fd-3770b9ad1f6e`) with the source value `\"F01\": \"/srv/project-6e0bd5f3/config.yaml\"`, independently confirmed at **seq 368** (block `60d5160a-ab4e-40c4-8ef5-78bb8ea4a6f7`) — consistent across both archive locations, unmodified by any later correction.\n- **Page budget**: continuation cursor `7Z0Ch3ljd4vozCrm.bhNzdGtsYfD3Js5Uw7mDcziVQybLGMw5WpChIlNAyhs` was rejected (`invalid-cursor` — session-scoped, invalidated), so I issued a fresh decompress at the maximum allowed budget (`maxTokens: 4096`) on block `bfa80c58`. It completed bounded: `incomplete: false`, two segments, with a new cursor available for continuation.\n- **arc_status**: active backend **`dsh-context-management`** (package `dsh-context-management` v0.1.1, strategy in-place), **generation 0**, window `session:session-d7fd119b-00af-4348-8504-ac2f7199e604/window:0`, 9 archives, integrity clean (`orphanSummaries: 0, appliedUnclosed: 0, unsupportedSchema: 0, corruptMetadata: 0`).\n- **Bounded?** Yes — the archive response was bounded to one page (`scanBudgetReached: false`, `scanBudgetReached` false on search; `pressureAfter: 14753` vs `inputBudget: 20480`, `degradation: retained-tail-above-target`), and the original continuation cursor had expired, requiring a fresh bounded page.",
+      "throughSeq": 1577
+    },
+    {
+      "stage": "restart-recall",
+      "elapsedMs": 36119,
+      "end": {
+        "kind": "completed"
+      },
+      "response": "Base values recovered. Now I need the later user corrections for F03 and F09 noted earlier.\nCorrections recovered. Let me check for any additional correction rounds beyond this one.\n```json\n{\n  \"F01\": \"/srv/project-6e0bd5f3/config.yaml\",\n  \"F02\": \"value-7962af7e\",\n  \"F03\": \"revised-2903-green\",\n  \"F04\": \"发布-e3d04d44-华东\",\n  \"F05\": \"value-a822d408\",\n  \"F06\": \"value-671111fa\",\n  \"F07\": \"value-ae6639e0\",\n  \"F08\": \"2940ms\",\n  \"F09\": \"latest-2903-港口\",\n  \"F10\": \"value-2e6efe38\",\n  \"F11\": \"value-38042086\",\n  \"F12\": \"value-6defeb50\"\n}\n```\n\nRecovered entirely via archive tools (no file reads, no shell). Base mapping from block `bfa80c58…`/seq 24 (page-1.txt content); later corrections from seq 40: `{\"F03\":\"revised-2903-green\",\"F09\":\"latest-2903-港口\"}` — the only correction record found in the archive, so all other base values stand.",
+      "throughSeq": 1829
+    }
+  ],
+  "failures": [],
+  "incomplete": [],
+  "config": {
+    "strategy": "in-place",
+    "windowBudgetTokens": 32768,
+    "maxOutputTokens": 8192,
+    "safetyMarginTokens": 4096
+  },
+  "physicalOverflow": "NOT EXERCISED",
+  "completed": true,
+  "installEvidence": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/docs/evidence/v011/install/ctx-v011-inplace-7c81fa697fa0.json",
+  "tarballHash": "7c81fa697fa006409ecc691e4f4a3537e621f4eedf2adb37612e16f45e334b7d",
+  "installedFilesVerified": true,
+  "configHash": "7353a93e30353267787b8f2d0adf1a20fd4d79f546fe848f9c51b4e27883abdc",
+  "cwd": "/var/folders/fz/d5zdnj3d16s8dx6586w9nvbc0000gn/T/dsh-context-corpus-2903-aKo9k5",
+  "sessionId": "session-d7fd119b-00af-4348-8504-ac2f7199e604",
+  "updatedAt": "2026-09-08T04:31:58.718Z",
+  "blindScore": {
+    "scorerVersion": 2,
+    "correct": 12,
+    "total": 12,
+    "matched": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12"
+    ],
+    "values": {
+      "F01": "/srv/project-6e0bd5f3/config.yaml",
+      "F02": "value-7962af7e",
+      "F03": "revised-2903-green",
+      "F04": "发布-e3d04d44-华东",
+      "F05": "value-a822d408",
+      "F06": "value-671111fa",
+      "F07": "value-ae6639e0",
+      "F08": "2940ms",
+      "F09": "latest-2903-港口",
+      "F10": "value-2e6efe38",
+      "F11": "value-38042086",
+      "F12": "value-6defeb50"
+    }
+  },
+  "actualRoute": [
+    {
+      "seq": 12,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 57,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 90,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 152,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 188,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 222,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 261,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 295,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 598,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 796,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 1007,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 1405,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    },
+    {
+      "seq": 1585,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "maxTokens": 8192,
+      "tools": [
+        "arc_status",
+        "ask_user_question",
+        "bash",
+        "compress",
+        "create_goal",
+        "decompress",
+        "edit",
+        "exit_plan_mode",
+        "get_goal",
+        "glob",
+        "grep",
+        "interrupt_agent",
+        "job_kill",
+        "job_list",
+        "job_output",
+        "list_agents",
+        "ralph",
+        "read",
+        "read_image",
+        "search_context",
+        "send_message",
+        "skill",
+        "subagent",
+        "subagent_fork",
+        "todo_write",
+        "update_goal",
+        "web_fetch",
+        "web_search",
+        "workflow",
+        "write"
+      ]
+    }
+  ],
+  "requestContexts": [
+    {
+      "seq": 13,
+      "provider": "opencode-go",
+      "model": "glm-5.3-flash",
+      "contextWindow": 1000000
+    }
+  ],
+  "usage": [
+    {
+      "seq": 22,
+      "kind": "agent",
+      "inputTokens": 7898,
+      "outputTokens": 15,
+      "totalTokens": 12777,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 33,
+      "kind": "agent",
+      "inputTokens": 7089,
+      "outputTokens": 7,
+      "totalTokens": 16824,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 48,
+      "kind": "agent",
+      "inputTokens": 12078,
+      "outputTokens": 15,
+      "totalTokens": 16957,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 63,
+      "kind": "agent",
+      "inputTokens": 8097,
+      "outputTokens": 7,
+      "totalTokens": 15400,
+      "cacheReadTokens": 7296
+    },
+    {
+      "seq": 78,
+      "kind": "agent",
+      "inputTokens": 5761,
+      "outputTokens": 15,
+      "totalTokens": 15504,
+      "cacheReadTokens": 9728
+    },
+    {
+      "seq": 124,
+      "kind": "agent",
+      "inputTokens": 11073,
+      "outputTokens": 64,
+      "totalTokens": 16001,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 140,
+      "kind": "agent",
+      "inputTokens": 4052,
+      "outputTokens": 15,
+      "totalTokens": 16227,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 162,
+      "kind": "agent",
+      "inputTokens": 10056,
+      "outputTokens": 14,
+      "totalTokens": 14934,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 177,
+      "kind": "agent",
+      "inputTokens": 10159,
+      "outputTokens": 15,
+      "totalTokens": 15038,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 194,
+      "kind": "agent",
+      "inputTokens": 9884,
+      "outputTokens": 7,
+      "totalTokens": 14755,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 210,
+      "kind": "agent",
+      "inputTokens": 2806,
+      "outputTokens": 15,
+      "totalTokens": 14981,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 235,
+      "kind": "agent",
+      "inputTokens": 9999,
+      "outputTokens": 11,
+      "totalTokens": 14874,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 250,
+      "kind": "agent",
+      "inputTokens": 10099,
+      "outputTokens": 15,
+      "totalTokens": 14978,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 267,
+      "kind": "agent",
+      "inputTokens": 9881,
+      "outputTokens": 7,
+      "totalTokens": 14752,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 283,
+      "kind": "agent",
+      "inputTokens": 10099,
+      "outputTokens": 15,
+      "totalTokens": 14978,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 301,
+      "kind": "agent",
+      "inputTokens": 10000,
+      "outputTokens": 7,
+      "totalTokens": 14871,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 344,
+      "kind": "agent",
+      "inputTokens": 10070,
+      "outputTokens": 76,
+      "totalTokens": 15010,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 366,
+      "kind": "agent",
+      "inputTokens": 3368,
+      "outputTokens": 73,
+      "totalTokens": 15601,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 396,
+      "kind": "agent",
+      "inputTokens": 4507,
+      "outputTokens": 47,
+      "totalTokens": 16714,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 418,
+      "kind": "agent",
+      "inputTokens": 5050,
+      "outputTokens": 69,
+      "totalTokens": 17279,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 450,
+      "kind": "agent",
+      "inputTokens": 5339,
+      "outputTokens": 59,
+      "totalTokens": 17558,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 466,
+      "kind": "agent",
+      "inputTokens": 3210,
+      "outputTokens": 19,
+      "totalTokens": 17821,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 512,
+      "kind": "agent",
+      "inputTokens": 3412,
+      "outputTokens": 88,
+      "totalTokens": 18092,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 527,
+      "kind": "agent",
+      "inputTokens": 3682,
+      "outputTokens": 20,
+      "totalTokens": 18294,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 588,
+      "kind": "agent",
+      "inputTokens": 3858,
+      "outputTokens": 119,
+      "totalTokens": 18569,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 622,
+      "kind": "agent",
+      "inputTokens": 12299,
+      "outputTokens": 58,
+      "totalTokens": 17221,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 655,
+      "kind": "agent",
+      "inputTokens": 2870,
+      "outputTokens": 67,
+      "totalTokens": 17529,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 668,
+      "kind": "agent",
+      "inputTokens": 3065,
+      "outputTokens": 22,
+      "totalTokens": 17679,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 687,
+      "kind": "agent",
+      "inputTokens": 12964,
+      "outputTokens": 67,
+      "totalTokens": 17895,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 786,
+      "kind": "agent",
+      "inputTokens": 3762,
+      "outputTokens": 202,
+      "totalTokens": 18556,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 869,
+      "kind": "agent",
+      "inputTokens": 9108,
+      "outputTokens": 230,
+      "totalTokens": 16634,
+      "cacheReadTokens": 7296
+    },
+    {
+      "seq": 901,
+      "kind": "agent",
+      "inputTokens": 5462,
+      "outputTokens": 64,
+      "totalTokens": 17686,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 915,
+      "kind": "agent",
+      "inputTokens": 3136,
+      "outputTokens": 20,
+      "totalTokens": 17748,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 934,
+      "kind": "agent",
+      "inputTokens": 10615,
+      "outputTokens": 69,
+      "totalTokens": 17980,
+      "cacheReadTokens": 7296
+    },
+    {
+      "seq": 955,
+      "kind": "agent",
+      "inputTokens": 3608,
+      "outputTokens": 33,
+      "totalTokens": 18233,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 997,
+      "kind": "agent",
+      "inputTokens": 3796,
+      "outputTokens": 83,
+      "totalTokens": 18471,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1157,
+      "kind": "agent",
+      "inputTokens": 8769,
+      "outputTokens": 422,
+      "totalTokens": 16487,
+      "cacheReadTokens": 7296
+    },
+    {
+      "seq": 1211,
+      "kind": "agent",
+      "inputTokens": 9943,
+      "outputTokens": 193,
+      "totalTokens": 17432,
+      "cacheReadTokens": 7296
+    },
+    {
+      "seq": 1225,
+      "kind": "agent",
+      "inputTokens": 5342,
+      "outputTokens": 13,
+      "totalTokens": 17515,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 1327,
+      "kind": "agent",
+      "inputTokens": 3216,
+      "outputTokens": 255,
+      "totalTokens": 18063,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1393,
+      "kind": "agent",
+      "inputTokens": 3511,
+      "outputTokens": 132,
+      "totalTokens": 18235,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1575,
+      "kind": "agent",
+      "inputTokens": 9997,
+      "outputTokens": 541,
+      "totalTokens": 15402,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 1621,
+      "kind": "agent",
+      "inputTokens": 10732,
+      "outputTokens": 114,
+      "totalTokens": 15710,
+      "cacheReadTokens": 4864
+    },
+    {
+      "seq": 1662,
+      "kind": "agent",
+      "inputTokens": 4877,
+      "outputTokens": 85,
+      "totalTokens": 17122,
+      "cacheReadTokens": 12160
+    },
+    {
+      "seq": 1678,
+      "kind": "agent",
+      "inputTokens": 2954,
+      "outputTokens": 54,
+      "totalTokens": 17600,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1712,
+      "kind": "agent",
+      "inputTokens": 3228,
+      "outputTokens": 82,
+      "totalTokens": 17902,
+      "cacheReadTokens": 14592
+    },
+    {
+      "seq": 1827,
+      "kind": "agent",
+      "inputTokens": 5908,
+      "outputTokens": 363,
+      "totalTokens": 18431,
+      "cacheReadTokens": 12160
+    }
+  ],
+  "windows": [],
+  "compactions": [
+    {
+      "seq": 85,
+      "operationId": "bfa80c58-98ff-4cf5-92fd-3770b9ad1f6e",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 147,
+      "operationId": "82076515-3928-4992-a103-a9dc1166e9ff",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 184,
+      "operationId": "f4afe448-4ee4-47a0-9191-e90a37efad07",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 217,
+      "operationId": "4f6663f0-dd0c-4853-9ccd-f83d232ff42c",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 257,
+      "operationId": "1b628fd4-154f-451a-84c0-d78395b0edf7",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 290,
+      "operationId": "558762c7-edaf-4b5e-8135-9f2c2a2dfd00",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 593,
+      "operationId": "8b6dc4db-a86b-4043-b080-e81b1609e304",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 791,
+      "operationId": "60d5160a-ab4e-40c4-8ef5-78bb8ea4a6f7",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 1002,
+      "operationId": "119c5881-c696-4d6e-a28d-c36eae12429c",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    },
+    {
+      "seq": 1400,
+      "operationId": "ff08a032-32b7-42be-b157-557f7cd8a689",
+      "provider": "local",
+      "model": "adaptive-governor-extractive-v1"
+    }
+  ],
+  "toolCalls": [
+    {
+      "seq": 22,
+      "name": "read",
+      "callId": "chatcmpl-tool-9fa2cb11ce1d6921"
+    },
+    {
+      "seq": 48,
+      "name": "read",
+      "callId": "chatcmpl-tool-94de19fc62a3b540"
+    },
+    {
+      "seq": 78,
+      "name": "read",
+      "callId": "chatcmpl-tool-ba23e48d0e9a8000"
+    },
+    {
+      "seq": 140,
+      "name": "read",
+      "callId": "chatcmpl-tool-910771bf2a456ec9"
+    },
+    {
+      "seq": 177,
+      "name": "read",
+      "callId": "chatcmpl-tool-b892ee6a1de9035b"
+    },
+    {
+      "seq": 210,
+      "name": "read",
+      "callId": "chatcmpl-tool-bf8f02c4bd3c550e"
+    },
+    {
+      "seq": 250,
+      "name": "read",
+      "callId": "chatcmpl-tool-923cece034ecba53"
+    },
+    {
+      "seq": 283,
+      "name": "read",
+      "callId": "chatcmpl-tool-87474b2a8688273d"
+    },
+    {
+      "seq": 344,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-ad30ef2d3bbc1111"
+    },
+    {
+      "seq": 344,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-a41155bd93f06331"
+    },
+    {
+      "seq": 366,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-ba7c77f827b3c9e6"
+    },
+    {
+      "seq": 396,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-bbf29a64bc41dd65"
+    },
+    {
+      "seq": 396,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-b4dd457f916bd6f4"
+    },
+    {
+      "seq": 418,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-bb8525559e89f85c"
+    },
+    {
+      "seq": 450,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-966d07446f3b9fb1"
+    },
+    {
+      "seq": 450,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-81f745fc5c98d806"
+    },
+    {
+      "seq": 466,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-9b6df7fc1e34b640"
+    },
+    {
+      "seq": 512,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-a026119c7506d670"
+    },
+    {
+      "seq": 512,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-a1086e364b28573e"
+    },
+    {
+      "seq": 527,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-aed2aa9cab9e8551"
+    },
+    {
+      "seq": 588,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-9996f1aa54cb97af"
+    },
+    {
+      "seq": 622,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-9523fb03e862d4ad"
+    },
+    {
+      "seq": 655,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-b6d6123e8f24e5dc"
+    },
+    {
+      "seq": 668,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-8ff4ac086720cfd5"
+    },
+    {
+      "seq": 687,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-8f6474ed8923a30c"
+    },
+    {
+      "seq": 786,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-a4afcea884adb9d5"
+    },
+    {
+      "seq": 869,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-85e4c6b0b3e297ea"
+    },
+    {
+      "seq": 901,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-90b8545690994435"
+    },
+    {
+      "seq": 915,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-b55a71ed12832d6a"
+    },
+    {
+      "seq": 934,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-ac22c7270636b557"
+    },
+    {
+      "seq": 955,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-8bb02b58684cfcd2"
+    },
+    {
+      "seq": 997,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-8774f307927d2220"
+    },
+    {
+      "seq": 1157,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-961271ba9f5b333b"
+    },
+    {
+      "seq": 1225,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-91ae8800718181d3"
+    },
+    {
+      "seq": 1327,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-a8aa27985f22ce6f"
+    },
+    {
+      "seq": 1393,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-a09fa91092db7f58"
+    },
+    {
+      "seq": 1393,
+      "name": "arc_status",
+      "callId": "chatcmpl-tool-a9466518bea14980"
+    },
+    {
+      "seq": 1621,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-962439b0caff8bfb"
+    },
+    {
+      "seq": 1662,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-9c4b045f145dbb11"
+    },
+    {
+      "seq": 1662,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-9b4e1c31a0bb4288"
+    },
+    {
+      "seq": 1678,
+      "name": "decompress",
+      "callId": "chatcmpl-tool-bfe78a367db26424"
+    },
+    {
+      "seq": 1712,
+      "name": "search_context",
+      "callId": "chatcmpl-tool-ada016e7382b4345"
+    }
+  ],
+  "routeVerified": true,
+  "latestCorrectionsKept": true,
+  "awaitingRestart": false,
+  "restartScore": {
+    "scorerVersion": 2,
+    "correct": 12,
+    "total": 12,
+    "matched": [
+      "F01",
+      "F02",
+      "F03",
+      "F04",
+      "F05",
+      "F06",
+      "F07",
+      "F08",
+      "F09",
+      "F10",
+      "F11",
+      "F12"
+    ],
+    "values": {
+      "F01": "/srv/project-6e0bd5f3/config.yaml",
+      "F02": "value-7962af7e",
+      "F03": "revised-2903-green",
+      "F04": "发布-e3d04d44-华东",
+      "F05": "value-a822d408",
+      "F06": "value-671111fa",
+      "F07": "value-ae6639e0",
+      "F08": "2940ms",
+      "F09": "latest-2903-港口",
+      "F10": "value-2e6efe38",
+      "F11": "value-38042086",
+      "F12": "value-6defeb50"
+    }
+  },
+  "restartVerified": true,
+  "sourceVerification": {
+    "archiveCount": 10,
+    "recoveredTextSources": 238,
+    "recoveredTextBytes": 1189173,
+    "pages": 336,
+    "pairingBalanced": true,
+    "sourceTextComplete": true,
+    "cursorScopeChecks": 4,
+    "requestPairingChecked": 13,
+    "integrity": {
+      "incomplete": false,
+      "orphanSummaries": 0,
+      "appliedUnclosed": 0,
+      "unsupportedSchema": 0,
+      "corruptMetadata": 0
+    }
+  }
+}

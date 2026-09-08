@@ -1,3 +1,4 @@
+import { ContextManagementError } from './errors.ts'
 /**
  * Adaptive Context Governor — output-reserve-aware pressure policy for ARC.
  *
@@ -103,6 +104,9 @@ export function resolveAdaptiveGovernor(
       + 'must be greater than nudgeAtEffectiveCapacityPct',
     )
   }
+  if (resolved.enabled && resolved.windowBudgetTokens !== undefined) {
+    governorCapacity(resolved.windowBudgetTokens, resolved, governedMaxTokens(undefined, resolved, resolved.windowBudgetTokens))
+  }
   return resolved
 }
 
@@ -173,7 +177,7 @@ export function governorCapacity(
   positiveInteger(outputReserve, 'maxOutputTokens')
   const effectiveInputLimit = contextWindow - outputReserve - config.safetyMarginTokens
   if (effectiveInputLimit <= 0) {
-    throw new Error(
+    throw new ContextManagementError('CONTEXT_INVALID_CONFIG',
       'dsh-context-management: adaptiveGovernor output reserve + safety margin '
       + `(${outputReserve + config.safetyMarginTokens}) must be below context window (${contextWindow})`,
     )

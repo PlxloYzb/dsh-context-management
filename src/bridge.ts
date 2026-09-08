@@ -8,12 +8,12 @@
  *  1. the bridge row (inserted by this package's `cordis.patch.yml` bundle
  *     layer) registers the engine class in the Loader's public builtin
  *     registry, the same registry app-boot itself uses for `cordis:group`;
- *  2. on every `agent/created`, the standing preset mount of the agent's
+ *  2. on agent creation, preset selection and request boundaries, the agent's
  *     scope is located through the public `standingMountFor()` export of
  *     `@deepseek-ai/dsh-agent-presets`;
  *  3. the mount's Include config gains runtime patches — disable the
- *     `compaction-basic` row (guarded by its official package name) and
- *     insert the ARC engine row into the unchanged `compaction` isolate
+ *     actual Basic row (guarded by its official package name) and
+ *     insert the ARC engine row into its unchanged parent/isolate
  *     group — then `fiber.update(config, true)` re-reads the composition,
  *     re-applies the patches, and reconciles the tree transactionally;
  *  4. the group keeps its `isolate: { compaction: true }` realm, so the ARC
@@ -32,8 +32,10 @@
 
 import { standingMountFor } from '@deepseek-ai/dsh-agent-presets'
 import { symbols, type Context, type Fiber } from '@deepseek-ai/cordis'
+import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
 import type { Agent } from '@deepseek-ai/dsh-agent'
-import ArcCompactionEngine, { Config, isArcBackend, type Config as ArcConfig } from './index.ts'
+import ArcCompactionEngine, { Config, isArcBackend, validateContextConfig, type Config as ArcConfig } from './index.ts'
+import { ContextManagementError, contextBoundary, waitForContext } from './errors.ts'
 
 /** Loader builtin key the engine class is published under. */
 const BUILTIN_KEY = 'dsh-context-management'
@@ -48,7 +50,7 @@ const ARC_ROW_ID = 'compaction-arc'
 
 /** Structural loader patch shape (`PatchOptions` without the type-only dependency). */
 interface EntryPatch {
-  readonly id: string
+  readonly id?: string
   readonly name?: string
   readonly disabled?: boolean
   readonly insert?: ReadonlyArray<Record<string, unknown>>
@@ -89,12 +91,17 @@ export type TakeoverStatus =
  * @param config - ARC engine config applied to the inserted row.
  * @returns the patch list to append to the mount's Include config.
  */
-export function buildTakeoverPatches(config: ArcConfig): [EntryPatch, EntryPatch] {
+export function buildTakeoverPatches(
+  config: ArcConfig,
+  target: { basicId: string; groupId?: string; arcId: string; row?: Record<string, unknown> } = {
+    basicId: BASIC_ROW_ID, groupId: COMPACTION_GROUP_ID, arcId: ARC_ROW_ID,
+  },
+): [EntryPatch, EntryPatch] {
   return [
-    { id: BASIC_ROW_ID, name: BASIC_ROW_NAME, disabled: true },
+    { id: target.basicId, name: BASIC_ROW_NAME, disabled: true },
     {
-      id: COMPACTION_GROUP_ID,
-      insert: [{ id: ARC_ROW_ID, name: BUILTIN_ROW_NAME, config: config as Record<string, unknown> }],
+      ...(target.groupId ? { id: target.groupId } : {}),
+      insert: [{ ...target.row, id: target.arcId, name: BUILTIN_ROW_NAME, config: config as Record<string, unknown> }],
     },
   ]
 }
@@ -172,23 +179,37 @@ export async function takeoverMount(
 ): Promise<TakeoverStatus> {
   if (tracked.has(mount.fiber)) return 'taken-over'
   if (isArcBackend(serviceWithin(ctx, mount, 'compaction'))) return 'already-arc'
-  const include = mount.fiber.config as PresetIncludeConfig | undefined
+  if (typeof (mount.fiber.config as { path?: unknown } | undefined)?.path !== 'string') return 'unrecognized-carrier'
+  const backend = serviceWithin(ctx, mount, 'compaction') as { ctx?: Context } | undefined
+  const entry: Entry | undefined = backend?.ctx?.fiber.entry
+  if (!entry || entry.options.name !== BASIC_ROW_NAME) return 'no-basic-row'
+  // Discover the actual row and its owning Include. IDs and group nesting are
+  // user-defined; a nested Include has its own patch namespace.
+  const treeFiber = entry.parent.tree.ctx.fiber
+  const carrier = treeFiber.uid === mount.fiber.uid ? mount.fiber : treeFiber
+  const include = carrier.config as PresetIncludeConfig | undefined
   if (typeof include?.path !== 'string') return 'unrecognized-carrier'
-
+  const groupId = entry.parent === entry.parent.tree.root ? undefined : entry.parent.ctx.fiber.entry?.options.id
+  if (entry.parent !== entry.parent.tree.root && !groupId) return 'unrecognized-carrier'
+  const occupied = new Set([...entry.parent.tree.entries()].map(row => row.options.id))
+  let arcId = ARC_ROW_ID
+  for (let suffix = 1; occupied.has(arcId); suffix++) arcId = `${ARC_ROW_ID}-${suffix}`
   const hadPatches = Object.hasOwn(include, 'patches')
   const originalPatches = include.patches
   const base = Array.isArray(originalPatches) ? originalPatches : []
-  const [retireBasic, mountArc] = buildTakeoverPatches(config)
+  const [retireBasic, mountArc] = buildTakeoverPatches(config, {
+    basicId: entry.options.id, groupId, arcId, row: { ...entry.options },
+  })
   // Reverse of the takeover, same two-phase ordering: withdraw the engine row
   // first (Basic stays disabled), then re-enable Basic in the vacated realm.
   const revert = async (): Promise<void> => {
-    await rollbackMount(mount.fiber, tracked)
+    await rollbackMount(carrier, tracked)
   }
 
   include.patches = [...base, retireBasic]
-  tracked.set(mount.fiber, { config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
+  tracked.set(carrier, { config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
   try {
-    await mount.fiber.update(include, true)
+    await carrier.update(include, true)
     // The name guard did not match: a foreign backend still owns the realm,
     // and inserting ARC beside it would collide. Leave the preset untouched.
     const serving = serviceWithin(ctx, mount, 'compaction')
@@ -197,15 +218,14 @@ export async function takeoverMount(
       return 'no-basic-row'
     }
     include.patches = [...(include.patches ?? []), mountArc]
-    await mount.fiber.update(include, true)
+    await carrier.update(include, true)
   } catch (error) {
     try { await revert() } catch (rollbackError) { throw new AggregateError([error, rollbackError], 'context takeover and rollback failed') }
     throw error
   }
   if (isArcBackend(serviceWithin(ctx, mount, 'compaction'))) return 'taken-over'
 
-  // The guards no-op'd: the composition does not carry the official rows (a
-  // custom backend or a foreign layout). Undo both phases and report.
+  // The updated composition did not publish ARC. Undo both phases and report.
   await revert()
   return 'no-basic-row'
 }
@@ -257,9 +277,19 @@ export { Config }
  * dsh-agent-presets keeps its mount registry module-local, so a peer installed
  * next to this package may expose an empty standingMountFor registry.
  */
-function hostMountFor(ctx: Context, agent: Agent): PresetMountHandle | undefined {
+async function hostMountFor(ctx: Context, agent: Agent): Promise<PresetMountHandle | undefined> {
   const direct = standingMountFor(agent.ctx)
   if (direct) return direct
+  // Resolve the host's public registry even when this installed package has a
+  // different peer-module instance. Works for presets with no backend too.
+  try {
+    const module: unknown = await ctx.loader.import('@deepseek-ai/dsh-agent-presets')
+    if (module && typeof module === 'object' && 'standingMountFor' in module && typeof module.standingMountFor === 'function') {
+      const resolve = module.standingMountFor as typeof standingMountFor
+      const mount = resolve(agent.ctx)
+      if (mount) return mount
+    }
+  } catch { /* Older embedded hosts can still expose a service-owned mount. */ }
   const presets = ctx.get('agentPresets') as {
     composedPreset(context: Context): string | undefined
     serviceFor(agent: Agent, name: 'compaction'): unknown
@@ -280,17 +310,24 @@ function hostMountFor(ctx: Context, agent: Agent): PresetMountHandle | undefined
 }
 
 export function apply(ctx: Context, config: ArcConfig): void {
+  // Validate before registering a builtin or touching a standing preset.
+  try { validateContextConfig(config) }
+  catch (error) {
+    process.stderr.write(`[dsh-context-management] CONTEXT_INVALID_CONFIG: ${String(error)}; preset backends were not changed. Fix the plugin configuration and reload.\n`)
+    throw error
+  }
   const loader = ctx.get('loader') as { builtins: Record<string, unknown> }
   if (loader.builtins[BUILTIN_KEY] !== undefined) throw new Error('conflict: context backend builtin already registered')
   loader.builtins[BUILTIN_KEY] = ArcCompactionEngine
   const tracked = new Map<Fiber, TrackedMount>()
-  const operations = new Map<Fiber, Promise<unknown>>()
-  const disposers: (() => void)[] = []
+  const operations = new WeakMap<Fiber, Promise<void>>()
+  const inFlight = new Set<Promise<void>>()
+  const agents = new Map<Agent, () => void>()
   let closing = false
   ctx.effect(() => async () => {
     closing = true
-    for (const dispose of disposers) dispose()
-    await Promise.allSettled(operations.values())
+    for (const dispose of [...agents.values()]) dispose()
+    await Promise.allSettled(inFlight)
     const errors: unknown[] = []
     for (const [fiber] of [...tracked.entries()].reverse()) {
       try { await rollbackMount(fiber, tracked) } catch (error) { errors.push(error) }
@@ -299,35 +336,67 @@ export function apply(ctx: Context, config: ArcConfig): void {
     if (loader.builtins[BUILTIN_KEY] === ArcCompactionEngine) delete loader.builtins[BUILTIN_KEY]
     if (errors.length) throw new AggregateError(errors, 'context bridge rollback failed')
   }, 'dsh-context-management.bridge')
-  ctx.on('agent/created', ({ agent }) => {
-    if (closing || ctx.get('agentPresets') === undefined) return
-    const mount = hostMountFor(ctx, agent)
-    if (!mount) { ctx.logger.warn('context takeover: unsupported, no host standing mount'); return }
+  ctx.on('agent/disposed', ({ agent }) => agents.get(agent)?.())
+  const ensure = async (agent: Agent): Promise<PresetMountHandle | undefined> => {
+    if (closing) throw new Error('context bridge is closing')
+    if (ctx.get('agentPresets') === undefined) return undefined
+    const mount = await hostMountFor(ctx, agent)
+    if (closing) throw new Error('context bridge is closing')
+    if (!mount) return undefined
     let operation = operations.get(mount.fiber)
     if (!operation) {
+      const previous = serviceWithin(ctx, mount, 'compaction')
       operation = takeoverMount(ctx, config, mount, tracked).then(status => {
         if (status !== 'taken-over' && status !== 'already-arc') ctx.logger.warn(`context takeover: ${status} for preset ${mount.presetId}`)
+      }).catch(error => {
+        const restored = serviceWithin(ctx, mount, 'compaction')
+        // A completed reverse update must also restore the actual service. A
+        // failed/uncertain rollback must never turn into an unguarded request.
+        const available = !(error instanceof AggregateError) && previous !== undefined && restored !== undefined
+          && !isArcBackend(restored) && Object.getPrototypeOf(previous) === Object.getPrototypeOf(restored)
+        if (!available) throw new ContextManagementError('CONTEXT_BACKEND_UNAVAILABLE', 'Context takeover failed and the original backend could not be verified. Fix the plugin configuration and restart the profile.', { cause: error })
+        const message = `CONTEXT_TAKEOVER_FALLBACK: context takeover failed for preset ${mount.presetId}; the original compaction backend is restored and active. Fix the plugin configuration and reload to enable dsh-context-management.`
+        ctx.logger.error(message)
+        // CLI/Web logger sinks differ; this notice must remain visible at boot.
+        process.stderr.write(`[dsh-context-management] ${message}\n`)
       })
       operations.set(mount.fiber, operation)
+      inFlight.add(operation)
+      const owned = operation
+      void owned.then(() => inFlight.delete(owned), () => inFlight.delete(owned))
     }
-    const pending = operation
-    let ready = false
-    let failed: unknown
-    void pending.then(() => { ready = true }, error => { failed = error; ready = true; ctx.logger.error(String(error)) })
-    // Providers are evaluated before the assembly waterfall. If they raced
-    // takeover, redo assembly once after the new realm has become ready.
-    disposers.push(agent.ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
-      if (closing) throw new Error('context bridge is closing')
-      if (ready) { if (failed) throw failed; return next() }
-      await pending
-      ready = true
-      context.signal?.throwIfAborted()
-      return agent.ctx.systemPrompt.assemble(context)
-    }))
-    disposers.push(agent.ctx.on('agent/pre-step', async (_payload, next) => {
-      await pending
-      if (closing) throw new Error('context bridge is closing')
+    await operation
+    return mount
+  }
+  // Selecting a preset also changes the native command catalog, even when the
+  // user invokes /compact before submitting the first model prompt.
+  ctx.on('agent-preset/selected', sessionId => {
+    if (closing) return
+    for (const agent of agents.keys()) {
+      if (agent.session.id === sessionId) void ensure(agent).catch(error => ctx.logger.error(String(error)))
+    }
+  })
+  ctx.on('agent/created', ({ agent }) => {
+    if (closing || agents.has(agent)) return
+    const listeners: (() => void)[] = []
+    const dispose = (): void => { for (const remove of listeners.splice(0)) remove(); agents.delete(agent) }
+    agents.set(agent, dispose)
+    let assembledMount: Fiber | undefined
+    // Resolve the current mount on every boundary: an empty session can switch
+    // presets without creating a new Agent or emitting agent/created again.
+    listeners.push(agent.ctx.on('system-prompt/assemble', async (_assembly, context, next) => contextBoundary(ctx, async () => {
+      const mount = await waitForContext(ensure(agent), context.signal)
+      if (mount && assembledMount !== mount.fiber) {
+        assembledMount = mount.fiber
+        context.signal?.throwIfAborted()
+        return agent.ctx.systemPrompt.assemble(context)
+      }
+      return next()
+    })))
+    listeners.push(agent.ctx.on('agent/pre-step', async (payload, next) => {
+      await contextBoundary(ctx, () => waitForContext(ensure(agent), payload.signal))
       return next()
     }))
+    void ensure(agent).catch(error => ctx.logger.error(String(error)))
   })
 }

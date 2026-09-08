@@ -750,3 +750,13 @@ test('arc_status lists live compressible ranges newest-first (matching the nudge
     assert.ok(starts[i - 1]! > starts[i]!, `arc_status ranges must be newest-first, got ${starts.join(', ')}`)
   }
 })
+
+
+test('F07: an advanced kernel override cannot silently truncate a committed model summary', async () => {
+  const session = buildTextSession(12), before = session.seq
+  const result = await toolOf({ ...makeEnv(), coreOverrides: { compress: { maxSummaryLength: 50000, minSummaryLength: 50, minCompressRange: 0 } } }, 'compress').execute({
+    content: [{ startSeq: 1, endSeq: 5, summary: 'm'.repeat(24001) }],
+  } as never, fakeExec(session))
+  assert.equal(JSON.parse(result.text).code, 'summary-too-long')
+  assert.equal(session.seq, before)
+})

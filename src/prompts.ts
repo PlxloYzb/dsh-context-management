@@ -145,6 +145,8 @@ function mergeGroup<T extends Record<keyof T, string>>(
   path: string,
 ): T {
   if (override == null) return defaults
+  if (typeof override !== 'object' || Array.isArray(override)) throw new Error(`${path} must be an object or null`)
+  for (const key of Object.keys(override)) if (!(key in defaults)) throw new Error(`${path}.${key} is not a supported prompt slot`)
   const out = {} as { [K in keyof T]: string }
   for (const key of Object.keys(defaults) as Array<keyof T>) {
     const value = override[key]
@@ -161,6 +163,8 @@ function mergeGroup<T extends Record<keyof T, string>>(
  */
 export function resolvePrompts(input?: ArcPrompts): ResolvedPrompts {
   if (input === undefined) return DEFAULT_RESOLVED
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('prompts must be an object')
+  for (const key of Object.keys(input)) if (!['nudge', 'rangeTable', 'tools', 'systemPrompt'].includes(key)) throw new Error(`prompts.${key} is not a supported prompt group`)
   return {
     nudge: mergeGroup(DEFAULT_PROMPTS.nudge, input.nudge, NUDGE_ALLOWED, 'prompts.nudge'),
     rangeTable: mergeGroup(DEFAULT_PROMPTS.rangeTable, input.rangeTable, RANGE_TABLE_ALLOWED, 'prompts.rangeTable'),

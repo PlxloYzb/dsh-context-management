@@ -1,3 +1,5 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 // Real installed-package lifecycle in a new, explicitly isolated DSH profile.
 import assert from 'node:assert/strict'
 import { execFileSync, spawn } from 'node:child_process'
@@ -8,7 +10,7 @@ import { dirname, join, resolve } from 'node:path'
 import { webClient } from '../live/client.mjs'
 
 const tarball = resolve(process.argv[2]), port = Number(process.argv[3] ?? 3101)
-const profile = `ctx-v010-release-${Date.now()}`
+const profile = `ctx-v011-release-${Date.now()}`
 const root = join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'profiles', profile)
 const privateRoot = resolve('.test-runtime', profile), observed = join(privateRoot, 'observed')
 const sha = value => createHash('sha256').update(value).digest('hex')
@@ -17,7 +19,7 @@ const presets = join(dirname(dirname(binary)), 'node_modules/@deepseek-ai/dsh-ag
 async function presetHashes() {
   return Object.fromEntries(await Promise.all(['standard','minimal','ptc','cordis'].map(async name => [name, sha(await readFile(join(presets, name, 'agent.cordis.yml')))])))
 }
-const report = { schemaVersion:1, pluginVersion:'0.1.0', pluginCommit:null, hostVersion:'0.1.2-rc.1',
+const report = { schemaVersion:1, pluginVersion:releaseVersion, pluginCommit:null, hostVersion:'0.1.2-rc.1',
   startedAt:new Date().toISOString(), profile, tarballHash:sha(await readFile(tarball)),
   lockHash:sha(await readFile('package-lock.json')), presetsBefore:await presetHashes(), stages:[], completed:false, failures:[] }
 await mkdir(root, { recursive:false }); await mkdir(observed, { recursive:true })
@@ -76,8 +78,8 @@ try {
 } catch(error) { report.failures.push(error.message);process.exitCode=1 }
 finally {
   await stop();report.finishedAt=new Date().toISOString()
-  await mkdir('docs/evidence/release',{recursive:true})
-  await writeFile(`docs/evidence/release/lifecycle-${profile}.json`,JSON.stringify(report,null,2)+'\n')
-  await writeFile('docs/evidence/release/lifecycle.json',JSON.stringify(report,null,2)+'\n')
+  await mkdir(`${evidenceRoot}/release`,{recursive:true})
+  await writeFile(`${evidenceRoot}/release/lifecycle-${profile}.json`,JSON.stringify(report,null,2)+'\n')
+  await writeFile(`${evidenceRoot}/release/lifecycle.json`,JSON.stringify(report,null,2)+'\n')
   console.log(JSON.stringify({completed:report.completed,profile,stages:report.stages.map(s=>({stage:s.stage,backend:s.backend})),failures:report.failures}))
 }

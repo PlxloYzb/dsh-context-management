@@ -1,3 +1,5 @@
+const releaseVersion = JSON.parse(await (await import('node:fs/promises')).readFile('package.json', 'utf8')).version
+const evidenceRoot = `docs/evidence/v${releaseVersion.replaceAll('.', '')}`
 // Recompute the accepted cohort gates; per-run completed does not imply recall quality.
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { basename } from 'node:path'
@@ -30,9 +32,9 @@ const checks={sampleCount:arms.every(a=>a.samples===9),sameFixtures:JSON.stringi
   route:arms.every(a=>a.routeVerified===9),sourceText:arms.every(a=>a.sourceVerified===9),
   journey:c.completed===9&&c.restartVerified===9&&c.minimumWindows>=2&&c.failures.length===0,
   corrections:c.latestCorrections===9,blindQuality:c.blindCorrect/c.blindTotal>=.9&&c.blindCorrect/c.blindTotal>=a.blindCorrect/a.blindTotal}
-const report={schemaVersion:1,pluginVersion:'0.1.0',pluginCommit:null,hostVersion:'0.1.2-rc.1',checkedAt:new Date().toISOString(),arms,checks,completed:Object.values(checks).every(Boolean),
+const report={schemaVersion:1,pluginVersion:releaseVersion,pluginCommit:null,hostVersion:'0.1.2-rc.1',checkedAt:new Date().toISOString(),arms,checks,completed:Object.values(checks).every(Boolean),
   limitations:['Basic uses its native physical-capacity threshold; budgets are not directly comparable. No cost superiority claim.','In-place safe-budget stops remain failed comparator samples.','Only 27 fixed synthetic samples; no general accuracy guarantee.','Physical provider overflow: NOT EXERCISED.']}
-await mkdir('docs/evidence/release',{recursive:true});await writeFile('docs/evidence/release/cohort-gates.json',JSON.stringify(report,null,2)+'\n')
-await writeFile(`docs/evidence/release/gates-${basename(c.manifest)}`,JSON.stringify(report,null,2)+'\n')
+await mkdir(`${evidenceRoot}/release`,{recursive:true});await writeFile(`${evidenceRoot}/release/cohort-gates.json`,JSON.stringify(report,null,2)+'\n')
+await writeFile(`${evidenceRoot}/release/gates-${basename(c.manifest)}`,JSON.stringify(report,null,2)+'\n')
 console.log(JSON.stringify({completed:report.completed,checks,arms:arms.map(({arm,completed,blindCorrect,restartCorrect,sourceVerified})=>({arm,completed,blindCorrect,restartCorrect,sourceVerified}))}))
 if(!report.completed)process.exitCode=1

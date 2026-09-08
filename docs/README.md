@@ -18,3 +18,8 @@
 阅读约定：“已验证”须有源码或结果证据；“设计/待实现”是后续实现契约；“待验证”不得写为已支持。用户本次需求优先，旧草案不再包含有效的不可重议决定。
 
 当前最重要的实现前提：新宿主projectedTokens已扣压缩量，不能再次扣全账本；shadow定价用heuristicTokens；new_context需在安全边界消费；保存summary不等于已成功换窗；检索恢复必须有预算。
+
+
+0.1.1 补丁的修复映射、最终验收与保留失败见 [RELEASE-0.1.1.md](RELEASE-0.1.1.md)。原 [RELEASE.md](RELEASE.md) 保留 0.1.0 发布记录。
+
+- [0.1.1 目标 profile 原生上下文管理覆盖](PROFILE-COVERAGE-0.1.1.md)
