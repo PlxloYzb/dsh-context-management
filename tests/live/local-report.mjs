@@ -39,13 +39,15 @@ const mechanismExercised = summary.fork ? null : summary.arm === 'C400_WINDOWED'
 const report = {
   name: summary.name, arm: summary.arm, family: summary.family, seed: summary.seed,
   hostVersion: summary.hostVersion, candidateHash: summary.candidateHash,
+  ...(summary.clientHash ? { clientHash: summary.clientHash } : {}),
   fixture: summary.fixture, geometry: summary.geometry, restart: summary.restart,
-  concise: summary.concise, probeOnly: !!summary.fork,
+  concise: summary.concise, probeOnly: !!summary.fork, probeMode: summary.probeMode ?? 'full',
   readingInstructionVersion: summary.readingInstructionVersion ?? 1,
   autoNudge: summary.autoNudge ?? (['B_IN_PLACE','C400_WINDOWED'].includes(summary.arm) ? true : null),
-  ...(summary.fork ? { inheritedFrom: summary.fork.name, inheritedPages: summary.fork.inheritedPages } : {}),
+  ...(summary.fork ? { inheritedFrom: summary.fork.name, inheritedPages: summary.fork.inheritedPages,
+    inheritedThroughSeq: summary.fork.throughSeq, inheritedQueueChecks: summary.fork.inheritedQueueChecks ?? null } : {}),
   startedAt: summary.startedAt, finishedAt: summary.finishedAt, elapsedSeconds: summary.elapsedSeconds,
-  completed: summary.completed === true, error: summary.error ?? null,
+  completed: summary.completed === true, error: summary.error?.replace(/; call [a-f0-9-]+/g, '') ?? null,
   intervention: await readFile(join(root, 'intervention.json'), 'utf8').then(JSON.parse).then(r => ({ reason: r.reason, elapsedSecondsAtDecision: r.elapsedSecondsAtDecision, pagesReadAtDecision: r.pagesReadAtDecision })).catch(error => { if (error.code === 'ENOENT') return null; throw error }),
   phases: summary.phases,
   factsScore: score ? { correct: score.factsCorrect, total: score.factsTotal,
@@ -53,6 +55,7 @@ const report = {
     deliverablePassed: score.deliverablePassed, passed: score.passed } : null,
   verbatimScore: summary.score2 ? { correct: summary.score2.verbatimCorrect, total: summary.score2.verbatimTotal } : null,
   allQualityPassed: summary.strictPassed === true && summary.score2?.verbatimCorrect === summary.score2?.verbatimTotal && !!summary.score2,
+  verbatimOnlyPassed: summary.verbatimOnlyPassed ?? null,
   mechanismCoverage: { windows, inPlaceCompactions, mechanismExercised },
   ...(summary.arm === 'A_NATIVE' ? { nativeThresholdTokens: Math.floor(summary.geometry.routeCapacity * 0.8), nativeCompactionRequired: false } : {}),
   restartVerified: summary.restartVerified ?? null,
@@ -60,6 +63,12 @@ const report = {
     distinctHostProcesses: summary.restartEvidence.beforePid !== summary.restartEvidence.afterPid,
     throughSeq: summary.restartEvidence.throughSeq, eventCount: summary.restartEvidence.eventCount,
     beforeHash: summary.restartEvidence.beforeHash, afterHash: summary.restartEvidence.afterHash,
+    ...(summary.restartEvidence.paginatedEventCount === undefined ? {} : {
+      rawEventPrefixVerified: true,
+      paginatedEventCount: summary.restartEvidence.paginatedEventCount,
+      paginatedBeforeHash: summary.restartEvidence.paginatedBeforeHash,
+      paginatedAfterHash: summary.restartEvidence.paginatedAfterHash,
+    }),
   } : null,
   retrievalsDuringP1: summary.retrievalsDuringP1 ?? null, retrievalsDuringP2: summary.retrievalsDuringP2 ?? null,
   p1ElapsedMs: summary.p1ElapsedMs ?? null, p2ElapsedMs: summary.p2ElapsedMs ?? null,
@@ -83,4 +92,4 @@ else current.runs[index] = report
 current.latestReviewedRun = report.name
 delete current.candidateRepeat
 await writeFile(output, JSON.stringify(current, null, 2) + '\n')
-console.log(JSON.stringify({ name: report.name, allQualityPassed: report.allQualityPassed, probeOnly: report.probeOnly, usageComplete: report.usageComplete }))
+console.log(JSON.stringify({ name: report.name, allQualityPassed: report.allQualityPassed, verbatimOnlyPassed: report.verbatimOnlyPassed, probeOnly: report.probeOnly, usageComplete: report.usageComplete }))

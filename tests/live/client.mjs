@@ -27,14 +27,17 @@ export async function webClient(logPath, port) {
     return body.result.value
   }
   const call = (method, request) => callArgs(method, { [method === 'session/list' ? '_request' : 'request']: request })
-  async function history(sessionId) {
-    const list = await call('session/list', {})
-    const row = list.items.find(r => r.sessionId === sessionId)
-    if (!Number.isSafeInteger(row?.projections?.asOfSeq)) throw new Error('Session history cursor unavailable')
+  async function history(sessionId, throughSeq) {
+    if (throughSeq === undefined) {
+      const list = await call('session/list', {})
+      const row = list.items.find(r => r.sessionId === sessionId)
+      throughSeq = row?.projections?.asOfSeq
+    }
+    if (!Number.isSafeInteger(throughSeq) || throughSeq < -1) throw new Error('Session history cursor unavailable')
     const events = new Map()
     let beforeSeq
     for (let pageIndex = 0; pageIndex < 1000; pageIndex++) {
-      const page = await call('session/page', { address: { kind: 'session', sessionId }, throughSeq: row.projections.asOfSeq, maxMessages: 1000, ...(beforeSeq === undefined ? {} : { beforeSeq }) })
+      const page = await call('session/page', { address: { kind: 'session', sessionId }, throughSeq, maxMessages: 1000, ...(beforeSeq === undefined ? {} : { beforeSeq }) })
       for (const record of page.records) if (record.type === 'event') events.set(record.event.seq, record.event)
       if (!page.hasMore) return [...events.values()].sort((a, b) => a.seq - b.seq)
       const minimum = Math.min(...events.keys())

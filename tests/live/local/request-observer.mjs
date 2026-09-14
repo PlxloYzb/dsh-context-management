@@ -18,6 +18,12 @@ export function apply(ctx, config) {
     return digest
   }
   const append = (name, row) => appendFileSync(join(config.output, name), JSON.stringify(row) + '\n', { mode: 0o600 })
+  const observedSessions = new Set()
+  const snapshot = session => {
+    writeFileSync(join(config.output, `${session.id}.events.json`), JSON.stringify(session.snapshotEvents()), { mode: 0o600 })
+    observedSessions.add(session.id)
+  }
+  ctx.on('session/created', session => { if (owned(session)) snapshot(session) })
   const pressure = (agent, stage, extra = {}) => {
     const measurement = ctx.tokenMeter.measure(agent.session)
     const backend = ctx.agentPresets.serviceFor(agent, 'compaction')
@@ -88,8 +94,6 @@ export function apply(ctx, config) {
   ctx.on('session/event', (session, event) => {
     if (!owned(session)) return
     append(`${session.id}.events.jsonl`, event)
-    if (event.type === 'turn/end' || event.type === 'command/done') {
-      writeFileSync(join(config.output, `${session.id}.events.json`), JSON.stringify(session.snapshotEvents()), { mode: 0o600 })
-    }
+    if (!observedSessions.has(session.id) || event.type === 'model/selection' || event.type === 'turn/end' || event.type === 'command/done') snapshot(session)
   })
 }

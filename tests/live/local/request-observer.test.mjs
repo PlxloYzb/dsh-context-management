@@ -44,3 +44,18 @@ test('local timing observer preserves a provider failure and records the interru
   assert.equal(records.filter(row => row.phase === 'finish').length, 0)
   assert.equal(records.filter(row => row.phase === 'incomplete-stream').length, 1)
 })
+
+test('first observed fork event captures the complete inherited prefix before a turn ends', async t => {
+  const output = await mkdtemp(join(tmpdir(), 'dsh-local-fork-observer-'))
+  t.after(() => rm(output, { recursive: true, force: true }))
+  const hooks = new Map()
+  const inherited = [{ seq: 0, type: 'turn/end', data: {} }, { seq: 1, type: 'session/end-seed', data: {} }]
+  const selected = { seq: 2, type: 'model/selection', data: {} }
+  const session = { id: 'synthetic-fork', header: { cwd: '/synthetic/dsh-context-experiment-fork' }, snapshotEvents: () => [...inherited, selected] }
+  apply({ on(name, hook) { hooks.set(name, hook) } }, { output })
+  hooks.get('session/event')(session, selected)
+  const snapshot = JSON.parse(await readFile(join(output, `${session.id}.events.json`), 'utf8'))
+  assert.deepEqual(snapshot, [...inherited, selected])
+  const stream = (await readFile(join(output, `${session.id}.events.jsonl`), 'utf8')).trim().split('\n').map(JSON.parse)
+  assert.deepEqual(stream, [selected])
+})

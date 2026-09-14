@@ -16,6 +16,8 @@ const args=Object.fromEntries(process.argv.slice(2).map(v=>{const i=v.indexOf('=
 const arm=args.arm??'C400_WINDOWED',family=args.family??'F3',seed=Number(args.seed??91501),pageCount=Number(args.pages??48),pressure=Number(args.pressure??48000),batch=Number(args.batch??6)
 const concise=args.concise==='true'
 const forkName=args['fork-from']
+const probeMode=args.probe??'full'
+if(!['full','verbatim'].includes(probeMode)||(probeMode==='verbatim'&&!forkName))throw new Error('Verbatim-only probes require an audited reading fork')
 const nudges=args.nudges
 if(nudges!==undefined&&!['true','false'].includes(nudges))throw new Error('nudges must be true or false')
 const restart=args.restart==='true',name=args.name,isPlugin=['C400_WINDOWED','B_IN_PLACE'].includes(arm)
@@ -70,7 +72,7 @@ try{
  for(const sub of['control','observed','budget'])await mkdir(join(root,sub))
  caffeine=spawn('/usr/bin/caffeinate',['-i','-w',String(process.pid)],{stdio:'ignore'})
  deadlineTimer=setTimeout(()=>{void abort('EXPERIMENT_WALL_TIMEOUT: 25 minutes')},maxMs)
- let parent,throughSeq,inheritedEvents
+ let parent,throughSeq,forkAtSeq,inheritedEvents,inheritedQueued=[]
  let lengthClass='short'
  if(forkName){
   const parentRoot=join(night,forkName)
@@ -98,8 +100,13 @@ try{
   const parentEvents=JSON.parse(await readFile(join(parentRoot,'observed',`${parent.sessionId}.events.json`),'utf8'))
   const boundary=parentEvents.find(e=>e.type==='turn/end'&&e.data.turn===4&&e.data.reason.kind==='completed')
   assert.ok(boundary,'Completed reading boundary missing')
-  throughSeq=boundary.seq
+  forkAtSeq=boundary.seq
+  // The pinned host includes inter-turn events up to the next turn/start.
+  const nextStart=parentEvents.find(e=>e.seq>forkAtSeq&&e.type==='turn/start')
+  throughSeq=(nextStart?.seq??parentEvents.length)-1
   inheritedEvents=parentEvents.filter(e=>e.seq<=throughSeq)
+  inheritedQueued=inheritedEvents.filter(e=>e.seq>forkAtSeq&&e.type==='agent/inbox/spliced').flatMap(e=>e.data.inserted??[])
+  assert.ok(inheritedQueued.every(m=>m.source?.kind==='user'&&m.content?.length===1&&m.content[0].type==='text'&&m.content[0].text===finalQuestion(family)),'Unexpected inherited pending input')
  }
  const profile=isPlugin?'ctx-v012-smoke-c':'ctx-v012-mini-native'
  const built=await readFile('dist/index.js'),installed=await readFile(join(homedir(),'.dsh/profiles/ctx-v012-smoke-c/node_modules/dsh-context-management/dist/index.js'))
@@ -114,7 +121,10 @@ try{
  spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port:3311,route}
  summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity:393216},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
  summary.autoNudge=isPlugin?(nudges===undefined||nudges==='true'):null
- if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,throughSeq,candidateHash:parent.candidateHash,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
+ summary.probeMode=probeMode
+ if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,requestedThroughSeq:forkAtSeq,throughSeq,candidateHash:parent.candidateHash,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
+ const clientBytes=await readFile(new URL('./client.mjs',import.meta.url));summary.clientHash=hash(clientBytes)
+ await writeFile(join(root,'client-snapshot.mjs'),clientBytes,{mode:0o600})
  await writeFile(join(root,'runner-snapshot.mjs'),await readFile(import.meta.filename),{mode:0o600})
  const helperNames=['runtime.mjs','protocol.mjs','request-client.mjs','fixtures.mjs','scoring.mjs','fixture-tools.mjs','request-observer.mjs','limits.mjs','configurator.mjs','observed-events.mjs']
  await mkdir(join(root,'helper-snapshot'))
@@ -124,14 +134,25 @@ try{
  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'running',currentRun:{name,pid:process.pid,root,startedAt:summary.startedAt},nextAction:'Inspect summary.json and progress.json; choose next run only after reviewing this result.'})
  const cwd=parent?undefined:await mkdtemp(join(tmpdir(),'dsh-context-experiment-short-'))
  host=await startHost(spec,`${name}-${Date.now()}`)
- sessionId=(parent?await host.client.call('session/fork',{sessionId:parent.sessionId,atSeq:throughSeq}):await host.client.call('session/create',{cwd,agentPreset:'standard'})).sessionId;summary.sessionId=sessionId
+ sessionId=(parent?await host.client.call('session/fork',{sessionId:parent.sessionId,atSeq:forkAtSeq}):await host.client.call('session/create',{cwd,agentPreset:'standard'})).sessionId;summary.sessionId=sessionId
  await host.client.call('session/selectModel',{sessionId,...route})
  const controlPath=join(root,'control',`${sessionId}.control.json`)
  if(parent){
   await atomicJson(join(root,'control',`${sessionId}.consumption.json`),{pages:Array.from({length:pageCount},(_,i)=>i+1),operations:[],inheritedFrom:forkName})
-  // Establish the prompt poller's inherited cursor before the first probe;
-  // the observer replaces this with the complete real child snapshot at turn end.
-  await atomicJson(join(spec.observed,`${sessionId}.events.json`),inheritedEvents)
+  const forkEvents=await observedEvents(spec.observed,sessionId)
+  assert.deepEqual(forkEvents.filter(e=>e.seq<=throughSeq),inheritedEvents,'Host fork inherited a different prefix')
+  // Remove only the known synthetic probe copied from the inter-turn queue;
+  // submit a fresh, observed probe after restart instead of duplicating it.
+  summary.fork.inheritedQueueChecks=[]
+  for(const message of inheritedQueued){
+   try{
+    await host.client.call('session/updateQueue',{sessionId,itemId:message.id,action:{kind:'remove'}})
+    summary.fork.inheritedQueueChecks.push('removed')
+   }catch(error){
+    if(!String(error.message).startsWith('session/updateQueue: session/queue-item-not-found '))throw error
+    summary.fork.inheritedQueueChecks.push('not-pending')
+   }
+  }
  }
  let first=1
  for(let phase=0;!parent&&phase<fixture.phases.length;phase++){
@@ -148,22 +169,28 @@ try{
  await atomicJson(controlPath,{phase:'probe',fixturePath,firstPage:1,lastPage:1})
  if(restart){
   summary.stage='restarting';await persist()
-  const before=await host.client.history(sessionId),beforePid=host.child.pid
+  const before=await observedEvents(spec.observed,sessionId),beforePid=host.child.pid
   assert.ok(before.length>0,'Restart requires an existing persisted history')
   const throughSeq=before.at(-1).seq
+  const beforePage=await host.client.history(sessionId,throughSeq)
   await host.stop()
   assert.ok(host.child.exitCode!==null||host.child.signalCode!==null,'Original host did not exit')
   host=await startHost(spec,`${name}-restart-${Date.now()}`)
   assert.notEqual(host.child.pid,beforePid,'Restart did not create a new host process')
-  const after=(await host.client.history(sessionId)).filter(e=>e.seq<=throughSeq)
+  const afterPage=await host.client.history(sessionId,throughSeq)
+  assert.deepEqual(afterPage,beforePage,'Restart changed paginated persisted history')
+  await host.client.call('session/selectModel',{sessionId,...route})
+  const after=(await observedEvents(spec.observed,sessionId)).filter(e=>e.seq<=throughSeq)
   assert.deepEqual(after,before,'Restart changed or lost persisted history')
-  summary.restartEvidence={beforePid,afterPid:host.child.pid,throughSeq,eventCount:before.length,beforeHash:hash(JSON.stringify(before)),afterHash:hash(JSON.stringify(after))}
+  summary.restartEvidence={beforePid,afterPid:host.child.pid,throughSeq,eventCount:before.length,beforeHash:hash(JSON.stringify(before)),afterHash:hash(JSON.stringify(after)),paginatedEventCount:beforePage.length,paginatedBeforeHash:hash(JSON.stringify(beforePage)),paginatedAfterHash:hash(JSON.stringify(afterPage))}
   summary.restartVerified=true
   await persist()
  }
- const beforeP1=await historyCalls(),p1=await prompt('facts-probe',finalQuestion(family))
- summary.score=scoreAnswer(responseText(p1.recent),fixture,{operations:(await consumption()).operations})
- summary.retrievalsDuringP1=(await historyCalls())-beforeP1;summary.p1ElapsedMs=p1.elapsedMs;await persist()
+ if(probeMode==='full'){
+  const beforeP1=await historyCalls(),p1=await prompt('facts-probe',finalQuestion(family))
+  summary.score=scoreAnswer(responseText(p1.recent),fixture,{operations:(await consumption()).operations})
+  summary.retrievalsDuringP1=(await historyCalls())-beforeP1;summary.p1ElapsedMs=p1.elapsedMs;await persist()
+ }
  const targetPages=[Math.max(1,Math.floor(pageCount*0.08)),Math.floor(pageCount*0.32),Math.floor(pageCount*0.62)]
  const truth=Object.fromEntries(targetPages.map(p=>[`PAGE-${p}`,fixture.pages[p-1].match(/checksum=([0-9a-f]+)/)?.[1]]))
  const beforeP2=await historyCalls(),p2=await prompt('verbatim-probe',`Independent blind probe: from ORIGINAL historical source pages, report the exact checksum= hexadecimal value of the FIRST observation line on ${targetPages.map(p=>`PAGE-${p}`).join(', ')}. Recover exact evidence with installed search_context/decompress if needed. Return JSON with these page IDs as keys and checksum strings as values. Unavailable values must be null.`)
@@ -193,8 +220,9 @@ try{
   summary.deniedTools=access.filter(r=>r.status==='DENIED').map(r=>({name:r.name,reason:r.reason}))
   summary.strictPassed=summary.completed===true&&!summary.evidenceError&&summary.score?.passed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
   summary.allQualityPassed=summary.strictPassed&&summary.verbatimPassed===true
-  await persist();console.log(JSON.stringify({name,completed:summary.completed??false,strictPassed:summary.strictPassed,facts:summary.score?.factsCorrect,corrections:summary.score?.correctionsCorrect,deliverable:summary.score?.deliverablePassed,verbatim:summary.score2?.verbatimCorrect,compactions:summary.compactions.length,calls:summary.calls,tokens:summary.reportedTokens,elapsedSeconds:summary.elapsedSeconds,error:summary.error??null}))
-  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,strictPassed:summary.strictPassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
+  if(probeMode==='verbatim')summary.verbatimOnlyPassed=summary.completed===true&&!summary.evidenceError&&summary.verbatimPassed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
+  await persist();console.log(JSON.stringify({name,completed:summary.completed??false,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,facts:summary.score?.factsCorrect,corrections:summary.score?.correctionsCorrect,deliverable:summary.score?.deliverablePassed,verbatim:summary.score2?.verbatimCorrect,compactions:summary.compactions.length,calls:summary.calls,tokens:summary.reportedTokens,elapsedSeconds:summary.elapsedSeconds,error:summary.error??null}))
+  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,probeMode,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
  }
  await unlink(lock).catch(()=>{})
 }

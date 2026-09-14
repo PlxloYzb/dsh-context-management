@@ -3258,9 +3258,1020 @@
       "exactPagesInRequests": 24,
       "archiveBytesVerified": true,
       "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f5-91504-32p-candidate6",
+      "arm": "C400_WINDOWED",
+      "family": "F5",
+      "seed": 91504,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "fixture": {
+        "pageCount": 32,
+        "hash": "46b16e490bd9e4ed21433d6883d5549528bf7b9e4fb15ba878ded225a8cbd098",
+        "newTextHeuristicTokens": 56000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T18:13:40.693Z",
+      "finishedAt": "2026-09-14T18:25:33.945Z",
+      "elapsedSeconds": 713,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 76638,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 60123,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 34535,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 48115,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 1,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 17,
+      "retrievalsDuringP2": 3,
+      "p1ElapsedMs": 450921,
+      "p2ElapsedMs": 40627,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 17
+          },
+          "errors": {
+            "retrieval-step-allowance-exhausted": 4
+          }
+        },
+        "6": {
+          "calls": {
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 2,
+      "calls": 24,
+      "reportedTokens": 579375,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 955,
+          "elapsedMs": 20825,
+          "outputCharacters": {
+            "reasoning": 329,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 270
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 20899,
+          "elapsedMs": 25591,
+          "outputCharacters": {
+            "reasoning": 327,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7318,
+          "elapsedMs": 24704,
+          "outputCharacters": {
+            "reasoning": 392,
+            "text": 0,
+            "arguments": 22
+          },
+          "outputTokens": 235
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1371,
+          "elapsedMs": 29913,
+          "outputCharacters": {
+            "reasoning": 1073,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 381
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 974,
+          "elapsedMs": 23722,
+          "outputCharacters": {
+            "reasoning": 346,
+            "text": 134,
+            "arguments": 71
+          },
+          "outputTokens": 308
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2733,
+          "elapsedMs": 23358,
+          "outputCharacters": {
+            "reasoning": 360,
+            "text": 65,
+            "arguments": 36
+          },
+          "outputTokens": 282
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2081,
+          "elapsedMs": 11757,
+          "outputCharacters": {
+            "reasoning": 551,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 132
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 975,
+          "elapsedMs": 21123,
+          "outputCharacters": {
+            "reasoning": 252,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 277
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2763,
+          "elapsedMs": 8959,
+          "outputCharacters": {
+            "reasoning": 59,
+            "text": 0,
+            "arguments": 24
+          },
+          "outputTokens": 86
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1563,
+          "elapsedMs": 4114,
+          "outputCharacters": {
+            "reasoning": 103,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 36
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1000,
+          "elapsedMs": 22466,
+          "outputCharacters": {
+            "reasoning": 300,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 299
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3039,
+          "elapsedMs": 7694,
+          "outputCharacters": {
+            "reasoning": 94,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 67
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4203,
+          "elapsedMs": 17310,
+          "outputCharacters": {
+            "reasoning": 442,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 189
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1077,
+          "elapsedMs": 88365,
+          "outputCharacters": {
+            "reasoning": 2155,
+            "text": 0,
+            "arguments": 168
+          },
+          "outputTokens": 1243
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 813,
+          "elapsedMs": 28686,
+          "outputCharacters": {
+            "reasoning": 440,
+            "text": 0,
+            "arguments": 145
+          },
+          "outputTokens": 383
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 624,
+          "elapsedMs": 7610,
+          "outputCharacters": {
+            "reasoning": 119,
+            "text": 0,
+            "arguments": 31
+          },
+          "outputTokens": 95
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 259,
+          "elapsedMs": 46840,
+          "outputCharacters": {
+            "reasoning": 1476,
+            "text": 0,
+            "arguments": 105
+          },
+          "outputTokens": 626
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 459,
+          "elapsedMs": 22449,
+          "outputCharacters": {
+            "reasoning": 536,
+            "text": 0,
+            "arguments": 105
+          },
+          "outputTokens": 300
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 633,
+          "elapsedMs": 16167,
+          "outputCharacters": {
+            "reasoning": 228,
+            "text": 0,
+            "arguments": 105
+          },
+          "outputTokens": 214
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 281,
+          "elapsedMs": 15574,
+          "outputCharacters": {
+            "reasoning": 223,
+            "text": 0,
+            "arguments": 105
+          },
+          "outputTokens": 208
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 407,
+          "elapsedMs": 14240,
+          "outputCharacters": {
+            "reasoning": 193,
+            "text": 0,
+            "arguments": 105
+          },
+          "outputTokens": 187
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 513,
+          "elapsedMs": 209235,
+          "outputCharacters": {
+            "reasoning": 3994,
+            "text": 1261,
+            "arguments": 0
+          },
+          "outputTokens": 2881
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1163,
+          "elapsedMs": 28225,
+          "outputCharacters": {
+            "reasoning": 352,
+            "text": 0,
+            "arguments": 265
+          },
+          "outputTokens": 396
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 480,
+          "elapsedMs": 11625,
+          "outputCharacters": {
+            "reasoning": 218,
+            "text": 96,
+            "arguments": 0
+          },
+          "outputTokens": 161
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 5,
+      "exactPagesInRequests": 32,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f6-91502-restart-candidate6-fork-r2",
+      "arm": "C400_WINDOWED",
+      "family": "F6",
+      "seed": 91502,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "0968b3a6d8e035a81e4a923e7d3a88b248b29a4dd0c3766eb3e8d956867850f8",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": true,
+      "concise": true,
+      "probeOnly": true,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "inheritedFrom": "c-f6-91502-24p-restart",
+      "inheritedPages": 24,
+      "inheritedThroughSeq": 2180,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T18:33:48.821Z",
+      "finishedAt": "2026-09-14T18:40:58.349Z",
+      "elapsedSeconds": 430,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": null
+      },
+      "restartVerified": true,
+      "restartEvidence": {
+        "distinctHostProcesses": true,
+        "throughSeq": 2182,
+        "eventCount": 2183,
+        "beforeHash": "a1ad9e2005f27656bcf3b3cd601b825af1c73e0fc0761452f8de66bc1ed094fb",
+        "afterHash": "a1ad9e2005f27656bcf3b3cd601b825af1c73e0fc0761452f8de66bc1ed094fb",
+        "rawEventPrefixVerified": true,
+        "paginatedEventCount": 242,
+        "paginatedBeforeHash": "d60beda4b2421403bb8417c404fb9a4890b9ec21b77e8a1bf7742f91c7d6518f",
+        "paginatedAfterHash": "d60beda4b2421403bb8417c404fb9a4890b9ec21b77e8a1bf7742f91c7d6518f"
+      },
+      "retrievalsDuringP1": 4,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 290003,
+      "p2ElapsedMs": 135279,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {
+            "arc_status": 1
+          },
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 2,
+            "decompress": 1,
+            "arc_status": 1,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 8,
+      "reportedTokens": 206641,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 3408,
+          "elapsedMs": 72871,
+          "outputCharacters": {
+            "reasoning": 1700,
+            "text": 0,
+            "arguments": 65
+          },
+          "outputTokens": 957
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 743,
+          "elapsedMs": 30286,
+          "outputCharacters": {
+            "reasoning": 872,
+            "text": 0,
+            "arguments": 109
+          },
+          "outputTokens": 408
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 381,
+          "elapsedMs": 73597,
+          "outputCharacters": {
+            "reasoning": 2494,
+            "text": 0,
+            "arguments": 2
+          },
+          "outputTokens": 1010
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1652,
+          "elapsedMs": 55924,
+          "outputCharacters": {
+            "reasoning": 450,
+            "text": 0,
+            "arguments": 1319
+          },
+          "outputTokens": 756
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 669,
+          "elapsedMs": 56766,
+          "outputCharacters": {
+            "reasoning": 145,
+            "text": 1444,
+            "arguments": 0
+          },
+          "outputTokens": 773
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 449,
+          "elapsedMs": 61572,
+          "outputCharacters": {
+            "reasoning": 2162,
+            "text": 170,
+            "arguments": 124
+          },
+          "outputTokens": 833
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 626,
+          "elapsedMs": 33165,
+          "outputCharacters": {
+            "reasoning": 255,
+            "text": 138,
+            "arguments": 384
+          },
+          "outputTokens": 446
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 483,
+          "elapsedMs": 39094,
+          "outputCharacters": {
+            "reasoning": 715,
+            "text": 531,
+            "arguments": 0
+          },
+          "outputTokens": 528
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f1-70101-432p-legacy-candidate6-fork",
+      "arm": "C400_WINDOWED",
+      "family": "F1",
+      "seed": 70101,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 432,
+        "hash": "15e164f2d9eee652e0d1c3e48e92f73a357d53fbda7526ac23c07a28674c23bc",
+        "newTextHeuristicTokens": 756000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 150000,
+        "effective": 166667,
+        "windowBudget": 203531,
+        "maxTokens": 32768,
+        "batch": 12,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": false,
+      "probeOnly": true,
+      "probeMode": "full",
+      "readingInstructionVersion": "legacy-mini-v11",
+      "autoNudge": true,
+      "inheritedFrom": "legacy-v11-f1-432p",
+      "inheritedPages": 432,
+      "inheritedThroughSeq": 23260,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T18:42:52.415Z",
+      "finishedAt": "2026-09-14T18:49:55.957Z",
+      "elapsedSeconds": 424,
+      "completed": false,
+      "error": "EXPERIMENT_REQUEST_TIMEOUT: 420s",
+      "intervention": null,
+      "phases": [],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "verbatimOnlyPassed": null,
+      "mechanismCoverage": {
+        "windows": 3,
+        "inPlaceCompactions": 11,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "toolActivity": {
+        "1": {
+          "calls": {
+            "compress": 1,
+            "arc_status": 1
+          },
+          "errors": {}
+        },
+        "2": {
+          "calls": {
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "3": {
+          "calls": {
+            "arc_status": 2,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 4,
+      "calls": 1,
+      "reportedTokens": 0,
+      "usageComplete": false,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 48500,
+          "elapsedMs": 420563,
+          "outputCharacters": {
+            "reasoning": 13164,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": null
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 14,
+      "exactPagesInRequests": 432,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f1-70101-432p-legacy-verbatim-final",
+      "arm": "C400_WINDOWED",
+      "family": "F1",
+      "seed": 70101,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "2c820df0dc30d91ae8009e98e7b219810b5f515776c664a567eb27352e294188",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 432,
+        "hash": "15e164f2d9eee652e0d1c3e48e92f73a357d53fbda7526ac23c07a28674c23bc",
+        "newTextHeuristicTokens": 756000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 150000,
+        "effective": 166667,
+        "windowBudget": 203531,
+        "maxTokens": 32768,
+        "batch": 12,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": false,
+      "probeOnly": true,
+      "probeMode": "verbatim",
+      "readingInstructionVersion": "legacy-mini-v11",
+      "autoNudge": true,
+      "inheritedFrom": "legacy-v11-f1-432p",
+      "inheritedPages": 432,
+      "inheritedThroughSeq": 23260,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T18:52:39.720Z",
+      "finishedAt": "2026-09-14T19:02:43.605Z",
+      "elapsedSeconds": 604,
+      "completed": false,
+      "error": "EXPERIMENT_TURN_TIMEOUT: 600s",
+      "intervention": null,
+      "phases": [],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "verbatimOnlyPassed": false,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 11,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "toolActivity": {
+        "1": {
+          "calls": {
+            "compress": 1,
+            "arc_status": 1
+          },
+          "errors": {}
+        },
+        "2": {
+          "calls": {
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "3": {
+          "calls": {
+            "arc_status": 2,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 7,
+            "decompress": 4
+          },
+          "errors": {
+            "requested-budget-too-small": 2
+          }
+        }
+      },
+      "nudgesInjected": 4,
+      "calls": 5,
+      "reportedTokens": 214277,
+      "usageComplete": false,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1869,
+          "elapsedMs": 107112,
+          "outputCharacters": {
+            "reasoning": 4694,
+            "text": 259,
+            "arguments": 155
+          },
+          "outputTokens": 1449
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1394,
+          "elapsedMs": 115335,
+          "outputCharacters": {
+            "reasoning": 3570,
+            "text": 227,
+            "arguments": 297
+          },
+          "outputTokens": 1551
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 452,
+          "elapsedMs": 120271,
+          "outputCharacters": {
+            "reasoning": 4158,
+            "text": 112,
+            "arguments": 297
+          },
+          "outputTokens": 1614
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 857,
+          "elapsedMs": 150670,
+          "outputCharacters": {
+            "reasoning": 6148,
+            "text": 263,
+            "arguments": 70
+          },
+          "outputTokens": 2042
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 798,
+          "elapsedMs": 107285,
+          "outputCharacters": {
+            "reasoning": 4844,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": null
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 15,
+      "exactPagesInRequests": 432,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f1-70101-432p-legacy-verbatim-candidate7",
+      "arm": "C400_WINDOWED",
+      "family": "F1",
+      "seed": 70101,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 432,
+        "hash": "15e164f2d9eee652e0d1c3e48e92f73a357d53fbda7526ac23c07a28674c23bc",
+        "newTextHeuristicTokens": 756000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 150000,
+        "effective": 166667,
+        "windowBudget": 203531,
+        "maxTokens": 32768,
+        "batch": 12,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": false,
+      "probeOnly": true,
+      "probeMode": "verbatim",
+      "readingInstructionVersion": "legacy-mini-v11",
+      "autoNudge": true,
+      "inheritedFrom": "legacy-v11-f1-432p",
+      "inheritedPages": 432,
+      "inheritedThroughSeq": 23260,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T19:06:48.953Z",
+      "finishedAt": "2026-09-14T19:10:58.234Z",
+      "elapsedSeconds": 249,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": null,
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": false,
+      "verbatimOnlyPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 11,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": 7,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": 246514,
+      "toolActivity": {
+        "1": {
+          "calls": {
+            "compress": 1,
+            "arc_status": 1
+          },
+          "errors": {}
+        },
+        "2": {
+          "calls": {
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "3": {
+          "calls": {
+            "arc_status": 2,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 4,
+      "calls": 4,
+      "reportedTokens": 207890,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 49499,
+          "elapsedMs": 110474,
+          "outputCharacters": {
+            "reasoning": 2337,
+            "text": 149,
+            "arguments": 128
+          },
+          "outputTokens": 881
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1873,
+          "elapsedMs": 77557,
+          "outputCharacters": {
+            "reasoning": 2099,
+            "text": 187,
+            "arguments": 374
+          },
+          "outputTokens": 1065
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 804,
+          "elapsedMs": 23989,
+          "outputCharacters": {
+            "reasoning": 388,
+            "text": 102,
+            "arguments": 130
+          },
+          "outputTokens": 323
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 650,
+          "elapsedMs": 33320,
+          "outputCharacters": {
+            "reasoning": 210,
+            "text": 743,
+            "arguments": 0
+          },
+          "outputTokens": 454
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 15,
+      "exactPagesInRequests": 432,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
     }
   ],
-  "latestReviewedRun": "a-f3-91503-24p-candidate6",
+  "latestReviewedRun": "c-f1-70101-432p-legacy-verbatim-candidate7",
   "quietConfigurationAssessment": {
     "sourceRuns": [
       "c-f3-91503-24p-candidate5",
@@ -3308,5 +4319,81 @@
       }
     ],
     "nativeComparison": "Default behavior reference; native keeps its larger window and does not compact at this fixture size."
+  },
+  "harnessFailures": [
+    {
+      "name": "c-f6-91502-restart-candidate6-fork",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "elapsedSeconds": 6,
+      "modelCalls": 0,
+      "qualityScored": false,
+      "archiveAuditPassed": false,
+      "classification": "Pre-generation harness failure: missing cold-list cursor and manually seeded fork snapshot omitted inter-turn events. Preserve raw failure, do not treat as model or plugin quality failure.",
+      "followup": "Use observed cursor, complete raw snapshots and host-accurate fork prefix; verify restart with both raw and paginated events.",
+      "zeroModelReproduction": {
+        "rawEventCount": 2185,
+        "restartExact": true
+      },
+      "driverRegressionsPassed": 8
+    }
+  ],
+  "legacyComprehensiveTimeout": {
+    "name": "c-f1-70101-432p-legacy-candidate6-fork",
+    "error": "420-second model request timeout",
+    "elapsedSeconds": 424,
+    "scored": false,
+    "completedModelCalls": 0,
+    "requests": [
+      {
+        "firstContentMs": 48500,
+        "elapsedMs": 420563,
+        "outputCharacters": {
+          "reasoning": 13164,
+          "text": 0,
+          "arguments": 0
+        },
+        "usageAvailable": false
+      }
+    ],
+    "nextDesign": "Direct three-original-checksum component probe at the same reading boundary; no repeated reading, same geometry and deadlines."
+  },
+  "legacyScanLoop": {
+    "name": "c-f1-70101-432p-legacy-verbatim-final",
+    "elapsedSeconds": 604,
+    "qualityScored": false,
+    "searchCalls": 7,
+    "cursorContinuationCalls": 0,
+    "zeroHitScanLimitedPages": 5,
+    "queryVariants": [
+      "Observation 34.0: service=",
+      "Observation 138.0: service=",
+      "Observation 267.0: service=",
+      "Observation 267.0",
+      "267.0: service=",
+      "267.0",
+      "Observation 267"
+    ],
+    "classification": "Model repeatedly restarted a bounded search instead of using the supplied continuation cursor. Source byte audit passed; retain timeout as unscored."
+  },
+  "candidate7Status": {
+    "tarballHash": "00f24d34ead8f0762e94d78f1d30925444fd185597393a6e07eb8f79f8cae425",
+    "change": "Explicit same-query/same-limit continuation guidance for zero-hit scan-limited search pages. No scan or retrieval budget increase.",
+    "regressions": [
+      187,
+      75,
+      8
+    ],
+    "modelGates": "Legacy original-text component passed 3/3 with actual continuation; short three-arm probe regressions pending."
+  },
+  "candidate7ScanGuidance": {
+    "name": "c-f1-70101-432p-legacy-verbatim-candidate7",
+    "elapsedSeconds": 249,
+    "verbatimCorrect": 3,
+    "searchCalls": 4,
+    "cursorContinuationCalls": 1,
+    "scanHintsObserved": 1,
+    "historyCalls": 7,
+    "classification": "Same audited legacy reading boundary and question. New scan-limit feedback was actually exercised, followed by cursor continuation and exact recovery. Paired engineering evidence, not a statistical model-speed claim.",
+    "sameFixtureBoundaryGeometryAndQuestion": true
   }
 }

@@ -314,7 +314,12 @@ export class ArchiveReader {
         }
       }
     }
-    const result = { status: 'success', boundary, hits, incomplete, scanBudgetReached: scanned >= 1_000_000, nextCursor: b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null }
+    const scanBudgetReached = scanned >= 1_000_000
+    const result = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor: b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null,
+      // Empty pages leave room for this fixed explanation within the minimum
+      // grant. Nonempty pages keep their existing packing and response size.
+      ...(scanBudgetReached && hits.length === 0 ? { hint: 'Scan limit reached. Continue with nextCursor using the same query and limit; zero hits on this page do not establish absence.' } : {}),
+    }
     return Buffer.byteLength(JSON.stringify(result)) <= available ? result : fail('insufficient-headroom')
   }
 }

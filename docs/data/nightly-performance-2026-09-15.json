@@ -122,12 +122,12 @@
   "regressions": {
     "unitPassed": 187,
     "integrationPassed": 74,
-    "localClientPassed": 6,
+    "localClientPassed": 8,
     "typecheck": true,
     "build": true,
     "prepack": true
   },
-  "modelGates": "Candidate6 three-arm cohort reviewed with the same fixture and six prompts: A native and B in-place passed all quality checks; C windowed scored 24/24 facts, 6/6 corrections, diagnosis passed, but 2/3 verbatim due to one source lookup omitted by the model. Every archive/exposure audit passed. This is not an all-three-arm quality pass. Broader F5 citation and final restart evidence are in progress.",
+  "modelGates": "Candidate6 three-arm cohort reviewed with the same fixture and six prompts: A native and B in-place passed all quality checks; C windowed scored 24/24 facts, 6/6 corrections, diagnosis passed, but 2/3 verbatim due to one source lookup omitted by the model. Every archive/exposure audit passed. This is not an all-three-arm quality pass. F5/91504 with 32 pages and the final-candidate F6 boundary-fork/restart passed all quality checks and audits. A bounded probe of retained 432-page legacy history is in progress.",
   "medianConvention": "For even sample counts, average the two central order statistics.",
   "queryDiscrimination": {
     "sourceRun": "c-f3-91501-48p-candidate1",
@@ -395,5 +395,159 @@
     "medianBeforeMs": 18.878228999999976,
     "medianAfterMs": 6.367561999999964,
     "classification": "Offline same-boundary full emergency transaction cost; alternating order, same host meter and requested grant. Not model task speed or a statistical effect estimate."
+  },
+  "citationSeekReplay": {
+    "classification": "Offline original-source citation seek at the same F5 probe boundary. Six bounded calls cover these three citations only; this is not a measured model-task speedup.",
+    "sourceRun": "c-f5-91504-32p-candidate6",
+    "throughSeq": 3075,
+    "fixtureHash": "46b16e490bd9e4ed21433d6883d5549528bf7b9e4fb15ba878ded225a8cbd098",
+    "archiveSourceHash": "a5ded86a18b081d5da2a2ba0d999977531147a93be2f9dda44e9ea4c7172f82f",
+    "rows": [
+      {
+        "id": "F01",
+        "sourcePage": 1,
+        "citationCorrect": true,
+        "searchBytes": 405,
+        "decompressBytes": 1024,
+        "historyCalls": 2
+      },
+      {
+        "id": "F10",
+        "sourcePage": 13,
+        "citationCorrect": true,
+        "searchBytes": 405,
+        "decompressBytes": 1024,
+        "historyCalls": 2
+      },
+      {
+        "id": "F20",
+        "sourcePage": 26,
+        "citationCorrect": true,
+        "searchBytes": 406,
+        "decompressBytes": 1024,
+        "historyCalls": 2
+      }
+    ],
+    "totalHistoryCalls": 6,
+    "totalResponseBytes": 4288
+  },
+  "scanContinuationReplay": {
+    "classification": "Offline same-boundary demonstration; zero hits on a scan-limited page does not mean absence. No model speed estimate.",
+    "sourceRun": "legacy-v11-f1-432p",
+    "throughSeq": 23259,
+    "query": "Observation 267.0: service=",
+    "first": {
+      "hits": 0,
+      "scanBudgetReached": true,
+      "hasCursor": true,
+      "bytes": 235
+    },
+    "continuation": {
+      "hits": 1,
+      "scanBudgetReached": true,
+      "hasCursor": true,
+      "bytes": 462
+    },
+    "originalChecksumRecoveredExactly": true,
+    "totalCalls": 3
+  },
+  "candidate6DeliveryPackage": {
+    "tarballHash": "4502e03ce2e9559b71a7263e868bcd702dec080b5f0acd88ceb7cc50cb131079",
+    "modelTestedTarballHash": "0ace6ea8b51588442b6ce418dafa786258d4a20caab4de156fdda7d448014876",
+    "entryHash": "2c820df0dc30d91ae8009e98e7b219810b5f515776c664a567eb27352e294188",
+    "runtimeEquivalentToModelCandidate": true,
+    "comparison": "Exact byte equality after removing sourceMappingURL comment and replacing the one content-addressed import path with its matched old path; changed shared chunk body is byte-identical. Types are byte-identical.",
+    "prepackTests": [
+      187,
+      74,
+      8
+    ],
+    "typecheck": true,
+    "build": true,
+    "packageAuditPassed": true,
+    "packageNameInstallRemovePassed": true,
+    "consumerTypesPassed": true,
+    "installedFilesVerified": 33
+  },
+  "candidate7Regressions": {
+    "unit": 187,
+    "hostIntegration": 75,
+    "driver": 8,
+    "typecheck": true,
+    "build": true,
+    "prepack": true,
+    "packageAudit": true,
+    "installedConsumerTypes": true,
+    "packageNameInstallRemove": true
+  },
+  "candidate7Verification": {
+    "baselineCommit": "ac9e2a8",
+    "candidateSourceHash": "d541d3c5e01d193b5f577e0d06dce02ae87d1c2ef2b78e3b8db3895b4e6e5876",
+    "measuredAt": "2026-09-14T19:10:03.873Z",
+    "results": [
+      {
+        "mode": "ordinary",
+        "events": 100001,
+        "archives": 1100,
+        "fixtureHash": "b4365fed813623db94574108ed3da1ee498ecd946d62ccbf5ebd08bf1064625d",
+        "measures": {
+          "before": [
+            19.928249999999935,
+            15.070917000000009,
+            14.423875000000066,
+            13.874083000000041,
+            13.542084000000045,
+            14.478000000000065,
+            13.577625000000012,
+            13.494416999999999
+          ],
+          "after": [
+            7.963792000000012,
+            5.172125000000051,
+            4.791541000000052,
+            4.584292000000005,
+            4.448792000000026,
+            4.670499999999947,
+            4.234666999999945,
+            3.864958999999999
+          ]
+        },
+        "medianBeforeMs": 14.148979000000054,
+        "medianAfterMs": 4.627395999999976,
+        "ratio": 0.3270480506049206
+      },
+      {
+        "mode": "short-original-text",
+        "events": 100001,
+        "archives": 1100,
+        "fixtureHash": "a5f63f3acb6d1920459ecf4205c8aea7fdefc74297a20526aa5a64e289b412ff",
+        "measures": {
+          "before": [
+            195.10912499999995,
+            181.80237499999998,
+            189.62424999999985,
+            178.5648329999999,
+            177.06712500000003,
+            176.27174999999988,
+            177.05250000000024,
+            180.41979200000014
+          ],
+          "after": [
+            122.32912499999998,
+            119.36354199999982,
+            121.84174999999982,
+            118.06666700000005,
+            120.40404200000012,
+            126.30833400000029,
+            117.41745899999978,
+            134.15529199999992
+          ]
+        },
+        "medianBeforeMs": 179.49231250000003,
+        "medianAfterMs": 121.12289599999997,
+        "ratio": 0.6748082651172036
+      }
+    ],
+    "comparisonNormalization": "Cursor identity and the intentional new empty-scan hint excluded from semantic equality assertion; same underlying search result and limits."
   }
 }

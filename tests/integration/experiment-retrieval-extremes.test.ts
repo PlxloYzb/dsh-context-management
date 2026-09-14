@@ -7,6 +7,33 @@ import { appendUser } from '../helpers.ts'
 
 type Page = { status: string; code?: string; nextCursor?: string | null; segments?: { text: string; offset: number }[] }
 
+test('R10: an empty scan-limited page explains continuation; the next page finds the late original within unchanged response grants', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-empty-search-page')
+  session.append('turn/start', { turn: 1 })
+  appendUser(session, 'x'.repeat(1_100_000) + '\nLATE_SOURCE = "original-value"')
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Original source is archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'empty-search-page',
+  })
+  const reader = new ArchiveReader(), query = 'LATE_SOURCE ='
+  type SearchPage = { status: string; hits: { seq: number; snippet: string }[]; nextCursor: string | null; scanBudgetReached: boolean; hint?: string }
+  const first = reader.search(session, { query, limit: 3 }, 1100) as SearchPage
+  assert.equal(first.status, 'success'); assert.deepEqual(first.hits, [])
+  assert.equal(first.scanBudgetReached, true); assert.ok(first.nextCursor)
+  assert.match(first.hint ?? '', /nextCursor/)
+  assert.match(first.hint ?? '', /same query and limit/)
+  assert.match(first.hint ?? '', /not.*absence/)
+  assert.ok(Buffer.byteLength(JSON.stringify(first)) <= 1100)
+  const next = reader.search(session, { query, limit: 3, cursor: first.nextCursor }, 1100) as SearchPage
+  assert.equal(next.status, 'success'); assert.equal(next.hits.length, 1)
+  assert.equal(next.hits[0]!.seq, source); assert.match(next.hits[0]!.snippet, /original-value/)
+  assert.equal(next.hint, undefined); assert.ok(Buffer.byteLength(JSON.stringify(next)) <= 1100)
+})
+
 test('R09 experiment: one-token and invalid retrieval budgets are explicit; cancelled pagination can resume without losing Unicode source bytes', async t => {
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'experiment-extreme-retrieval')
