@@ -136,6 +136,29 @@ test('R10d: a mid-line hit names the record it belongs to without growing the sn
   assert.ok([...longPage.hits[0]!.snippet].length <= 100)
 })
 
+test('R10e: a single-line block anchors to a bounded opening instead of spreading the whole block', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-single-line-snippet')
+  session.append('turn/start', { turn: 1 })
+  appendUser(session, `RECORD_HEAD_MARKER ${'pad '.repeat(60_000)}checksum=deadbeef01 end`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Single-line snippet fixture' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'single-line-snippet',
+  })
+  const reader = new ArchiveReader()
+  type Page = { status: string; hits: { snippet: string }[] }
+  const page = reader.search(session, { query: 'checksum=deadbeef01', limit: 3 }, 1536) as Page
+  assert.equal(page.status, 'success'); assert.equal(page.hits.length, 1)
+  // The block has no newline, so its "line opening" is the block heading; the
+  // lead must come from a bounded prefix rather than an array of the whole body.
+  assert.match(page.hits[0]!.snippet, /^RECORD_HEAD_MARKER/, 'single-line block anchors to its opening')
+  assert.ok(page.hits[0]!.snippet.includes('checksum=deadbeef01'), 'snippet keeps the matched value')
+  assert.ok([...page.hits[0]!.snippet].length <= 100)
+})
+
 test('R09 experiment: one-token and invalid retrieval budgets are explicit; cancelled pagination can resume without losing Unicode source bytes', async t => {
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'experiment-extreme-retrieval')

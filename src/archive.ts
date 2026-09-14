@@ -256,7 +256,7 @@ export class ArchiveReader {
     const scope = `search:${args.query}:${limit}`
     let offset: number[]
     try { offset = this.decode(session, scope, args.cursor, [0, 0, 0, 0]) } catch (e) { return fail((e as Error).message) }
-    const ledger = this.ledger(session), events = session.snapshotEvents(), needle = args.query.toLowerCase()
+    const ledger = this.ledger(session), events = session.snapshotEvents(), needle = args.query.toLowerCase(), queryPoints = [...args.query].length
     let owners = this.searchOwners.get(session)
     if (!owners) { owners = new Map(); this.searchOwners.set(session, owners) }
     let [b, s, p, o] = offset as [number, number, number, number]
@@ -302,7 +302,6 @@ export class ArchiveReader {
             // bytes do not grow. The match is budgeted first, so a longer query
             // shrinks the lead and back-context instead of truncating the
             // literal the caller asked for.
-            const queryPoints = [...args.query].length
             const leadPoints = Math.min(32, Math.max(0, 100 - queryPoints - 16))
             const backPoints = Math.max(0, Math.min(32, 100 - leadPoints - 1 - queryPoints - 8))
             let snippetStart = Math.max(0, at - backPoints)
@@ -310,8 +309,14 @@ export class ArchiveReader {
             const lineStart = text.lastIndexOf('\n', Math.max(0, at - 1)) + 1
             let lead = ''
             if (leadPoints > 0 && lineStart < snippetStart) {
-              const opening = [...text.slice(lineStart, snippetStart)]
-              lead = `${opening.slice(0, leadPoints).join('')}${opening.length > leadPoints ? '…' : ''}`
+              // Only ever spread a bounded prefix. A block without newlines has
+              // lineStart 0, so spreading the whole opening would allocate an
+              // array as large as the block on every hit.
+              const opening = text.slice(lineStart, snippetStart)
+              const prefix = opening.slice(0, leadPoints * 2)
+              const points = [...prefix]
+              const truncated = opening.length > prefix.length || points.length > leadPoints
+              lead = `${points.slice(0, leadPoints).join('')}${truncated ? '…' : ''}`
             }
             const hit = { blockId: block.blockId, generation: block.contextManagement?.generationAfter ?? 0, seq, textBlockPath: part.path, offset: at, snippet: [...(lead + text.slice(snippetStart, textEnd(text, snippetStart, at + args.query.length + 64 - snippetStart)))].slice(0, 100).join('') }
             const bytes = Buffer.byteLength(JSON.stringify(hit)) + (hits.length ? 1 : 0)

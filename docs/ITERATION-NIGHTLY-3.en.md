@@ -8,6 +8,8 @@ This cycle changes one retrieval packing detail: **a hit snippet names the recor
 
 Offline replay of the retained runs: of 465 hits across 175 hit pages, 264 were mid-line hits whose record name the old 32-code-point window could not reach; after the fix **264 of 264 name their record**. Packing is unchanged: across the 158 calls present in both replays the hit count is identical (336 → 336) and total response bytes grow by 173, with no call returning fewer hits; the match is budgeted first, so a long query shortens the lead and the trailing context instead of truncating the literal.
 
+The prefix only ever spreads a bounded slice: a block without newlines has the block start as its "line opening", so taking the prefix by block size would allocate a block-sized array on every hit. After bounding it, a 400k-character single-line block searches in a 0.15 ms median instead of 1.43 ms, and the model-visible response is byte-identical across 221 cursor-less retained calls and 498 hits, so the model gates below still hold for the final artifact.
+
 On the frozen artifact the three-arm full probe regression passed at 115/509/356 seconds for A/B/C with archive byte audits passing; the same candidate also produced one C-arm sample at 386 seconds with facts 23/24 (it never searched F19 and answered a value present in no page), preserved unaltered. Prepack, package audit, package-name install/remove and installed external consumer types all pass. npm publication has not been performed.
 
 ## Execution contract
@@ -43,11 +45,11 @@ The fix adds only a prefix at snippet construction: when the containing line sta
 "Observation 1.0: service=beacon;…state=retrying; previous=delta; checksum=f47f1591b3. This is diagno"
 ```
 
-## Discriminating and packing regressions
+## Discriminating, packing and allocation regressions
 
-New test R10d builds two long records (the second containing Unicode and a surrogate pair) and asserts that every hit leads with its own record name (`Observation 1.0:`, `Observation 2.0:`), still contains the queried literal and value, and stays within the 100-code-point cap; it then uses a 70-code-point query to assert the **complete literal** survives in the snippet, i.e. the lead and trailing context yield to the match. R10d fails on the pre-fix reader and passes after the fix. This cycle passes 187 unit and 78 host integration tests.
+New test R10d builds two long records (the second containing Unicode and a surrogate pair) and asserts that every hit leads with its own record name (`Observation 1.0:`, `Observation 2.0:`), still contains the queried literal and value, and stays within the 100-code-point cap; it then uses a 70-code-point query to assert the **complete literal** survives in the snippet, i.e. the lead and trailing context yield to the match. New test R10e covers a block without newlines: the block start is the line opening, and the prefix must lead with it rather than allocating by block size. Both fail on the pre-fix reader and pass after the fix. This cycle passes 187 unit and 79 host integration tests.
 
-The offline packing comparison uses candidate 8 as its baseline and only the 158 calls present in both replays: hit counts are identical, no call returns fewer hits, and total bytes grow by 173 (about one byte per call), confirming the prefix is almost entirely absorbed by the existing snippet budget.
+The offline packing comparison uses candidate 8 as its baseline and only the 158 calls present in both replays: hit counts are identical, no call returns fewer hits, and total bytes grow by 173 (about one byte per call), confirming the prefix is almost entirely absorbed by the existing snippet budget. Bounded-prefix equivalence uses the committed candidate 9 (`99f372c`) as its control and compares the model-visible payload call by call: 221 cursor-less calls and 498 hits, zero differences (the cursor string itself is a random reader-local body and is excluded), so the three-arm model gates remain valid for the fixed artifact. A same-machine paired benchmark shows the single-line 400k block search going from a 1.43 ms median to 0.15 ms with identical snippets.
 
 ## Three-arm regression (candidate 9)
 
@@ -61,11 +63,11 @@ All three arms share candidate 8's fixture, boundary and two blind questions, an
 
 ## Delivery and limitations
 
-Branch `codex/nightly-context-20260915`. The candidate 9 package is retained in the ignored directory `artifacts/nightly-candidate9-20260915/dsh-context-management-0.1.1.tgz` with SHA-256 `6d0a397d6983d5d97c50dbe596aee7af470900d91204d5385997cc14d9de2822`; its 33 build files are byte-identical to the runtime installed in `ctx-v012-smoke-c` (entry `dist/index.js` is `89a1b8bd9e9d45ed62d6aba2ad0beed6d68bf3c819df4ad0f587184baf097db7`).
+Branch `codex/nightly-context-20260915`. The candidate 9 package is retained in the ignored directory `artifacts/nightly-candidate9-20260915/dsh-context-management-0.1.1.tgz` with SHA-256 `784b27ebeec7b9f7ecdde242418bf21091af751af8054ced973d5700c5c58bda`; its 33 build files are byte-identical to the runtime installed in `ctx-v012-smoke-c` (entry `dist/index.js` is `f431724fab2755ada4e0d9a7d1bd3d64659abbb681b65446ecc0ad1c7c1cd80c`).
 
-Final checks: 187 unit, 78 host integration and 8 driver tests; strict types, build, prepack, package audit (41 files), package-name install/remove with native command restoration, and installed external consumer types all passed.
+Final checks: 187 unit, 79 host integration and 8 driver tests; strict types, build, prepack, package audit (41 files), package-name install/remove with native command restoration, and installed external consumer types all passed.
 
-Limitations: the prefix covers only the text after the previous newline within the same text block, so for a block without newlines the prefix is the block's own beginning and may not be the true record name; 379 of 465 hits already sit at the 100-code-point cap, so trailing context shrinks accordingly. The three arms are still inherited-boundary probe regressions and native keeps its larger default window, so this is not a same-physical-window comparison. The model gate is a single sample per arm and is not a statistical claim.
+Limitations: the prefix covers only the text after the previous newline within the same text block, so for a block without newlines the prefix is the block's own beginning and may not be the true record name; 379 of 465 hits already sit at the 100-code-point cap, so trailing context shrinks accordingly. Locating the line opening adds one bounded backward search per hit, about +0.1–0.3 ms across five queries on the 432-page benchmark, which is negligible against a single model call. The three arms are still inherited-boundary probe regressions and native keeps its larger default window, so this is not a same-physical-window comparison. The model gate is a single sample per arm and is not a statistical claim.
 
 ## Reproduction commands
 
@@ -79,4 +81,10 @@ npm run test:live:local -- --name=<unique-name> --arm=C400_WINDOWED --family=F3 
 # Offline: measure each hit's distance from its line start and the packing delta
 node --import tsx tests/live/local-analyze-snippet-anchor.mjs
 node --import tsx tests/live/local-replay-search-feedback.mjs <output.json>
+
+# Offline: compare the model-visible payload with a committed revision, and
+# measure the single-line block allocation cost
+node --import tsx tests/live/local-verify-snippet-equivalence.mjs
+node --import tsx tests/live/local-bench-single-line.mjs
+node --import tsx tests/live/local-bench-snippet-anchor.mjs
 ```
