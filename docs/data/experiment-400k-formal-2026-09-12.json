@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "context-400k-v1",
+  "closedAt": "2026-09-12T08:05:22.385Z",
+  "scope": {
+    "plannedSamples": 180,
+    "genuineR2": 3,
+    "quotaContaminatedR2": 177,
+    "r3Terminal": 177,
+    "operatorStopped": 0,
+    "totalTerminal": 180
+  },
+  "byArm": {
+    "A_NATIVE": {
+      "terminal": 60,
+      "pass": 21,
+      "categories": {
+        "PASS": 21,
+        "TURN_TIMEOUT": 1,
+        "PROHIBITED_TOOL": 4,
+        "QUOTA_429": 4,
+        "STRICT_GATE": 4,
+        "TRANSPORT": 2,
+        "CREDITS_401": 24
+      },
+      "meanElapsedMs": 1055566,
+      "routeMix": {
+        "zai-coding-cn": 34,
+        "opencode-go": 26
+      },
+      "passRate": 0.35
+    },
+    "B400_BASIC": {
+      "terminal": 60,
+      "pass": 23,
+      "categories": {
+        "PASS": 23,
+        "PROHIBITED_TOOL": 7,
+        "QUOTA_429": 3,
+        "STRICT_GATE": 3,
+        "CREDITS_401": 24
+      },
+      "meanElapsedMs": 913248,
+      "routeMix": {
+        "zai-coding-cn": 34,
+        "opencode-go": 26
+      },
+      "passRate": 0.383
+    },
+    "C400_WINDOWED": {
+      "terminal": 60,
+      "pass": 6,
+      "categories": {
+        "BUDGET_EXHAUSTED": 28,
+        "PASS": 6,
+        "QUOTA_429": 2,
+        "TASK_INCOMPLETE": 1,
+        "CREDITS_401": 23
+      },
+      "meanElapsedMs": 357623,
+      "routeMix": {
+        "zai-coding-cn": 34,
+        "opencode-go": 26
+      },
+      "passRate": 0.1
+    }
+  },
+  "byFamily": {
+    "F1": {
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 6
+      },
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 2
+      },
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 7
+      }
+    },
+    "F2": {
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 2
+      },
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 7
+      },
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 8
+      }
+    },
+    "F3": {
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 7
+      },
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 2
+      },
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 6
+      }
+    },
+    "F4": {
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 2
+      },
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 1
+      },
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 0
+      }
+    },
+    "F5": {
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 0
+      },
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 0
+      },
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 0
+      }
+    },
+    "F6": {
+      "A_NATIVE": {
+        "terminal": 10,
+        "pass": 0
+      },
+      "C400_WINDOWED": {
+        "terminal": 10,
+        "pass": 0
+      },
+      "B400_BASIC": {
+        "terminal": 10,
+        "pass": 0
+      }
+    }
+  },
+  "failureTaxonomy": {
+    "PASS": 50,
+    "BUDGET_EXHAUSTED": 28,
+    "TURN_TIMEOUT": 1,
+    "PROHIBITED_TOOL": 11,
+    "QUOTA_429": 9,
+    "STRICT_GATE": 7,
+    "TRANSPORT": 2,
+    "TASK_INCOMPLETE": 1,
+    "CREDITS_401": 71
+  },
+  "completePairedBlocks": 60,
+  "exploratoryPaired": {
+    "Q(C)-Q(A)": {
+      "estimate": -0.25,
+      "lower": -0.38333333333333336,
+      "upper": -0.11666666666666667,
+      "status": "ESTIMATED",
+      "resamples": 20000,
+      "seed": 904010,
+      "confidence": 0.975
+    },
+    "Q(C)-Q(B400)": {
+      "estimate": -0.2833333333333333,
+      "lower": -0.4166666666666667,
+      "upper": -0.15,
+      "status": "ESTIMATED",
+      "resamples": 20000,
+      "seed": 904010,
+      "confidence": 0.975
+    },
+    "timeRatio(C/B)": {
+      "estimate": 0.5182089569494851,
+      "lower": 0.3622260684627949,
+      "upper": 0.7155754138654333,
+      "status": "ESTIMATED",
+      "resamples": 20000,
+      "seed": 904010,
+      "confidence": 0.975
+    }
+  },
+  "sensitivityExcludingOutage": {
+    "A_NATIVE": {
+      "terminal": 30,
+      "pass": 21
+    },
+    "B400_BASIC": {
+      "terminal": 33,
+      "pass": 23
+    },
+    "C400_WINDOWED": {
+      "terminal": 35,
+      "pass": 6
+    }
+  },
+  "routeSwitch": {
+    "A_NATIVE": {
+      "zai": {
+        "terminal": 34,
+        "pass": 21
+      },
+      "opencode": {
+        "terminal": 26,
+        "pass": 0
+      }
+    },
+    "B400_BASIC": {
+      "zai": {
+        "terminal": 34,
+        "pass": 22
+      },
+      "opencode": {
+        "terminal": 26,
+        "pass": 1
+      }
+    },
+    "C400_WINDOWED": {
+      "zai": {
+        "terminal": 34,
+        "pass": 6
+      },
+      "opencode": {
+        "terminal": 26,
+        "pass": 0
+      }
+    }
+  },
+  "evidence": {
+    "privateAnalysisHash": "f80f29a352a1d4b53f193b0f81b0586443eb3cdd519fc82196d606d7ee0d7c5d"
+  },
+  "notes": [
+    "Preregistered confirmatory gates are NOT evaluable: only 108 of 180 journeys are terminal, coverage across 30 task clusters is incomplete, the cohort is mixed-entry after D10, and planning power was already 0/1000 at freeze.",
+    "All paired statistics here are exploratory and descriptive only."
+  ]
+}

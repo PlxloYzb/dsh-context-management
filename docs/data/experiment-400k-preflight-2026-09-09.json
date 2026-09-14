@@ -1,0 +1,221 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "context-400k-v1",
+  "reportedAt": "2026-09-09T01:29:59.652Z",
+  "status": "BLOCKED_ROUTE_CLARIFICATION",
+  "stage": "preflight and existing offline checks; no live generation",
+  "pluginVersion": "0.1.1",
+  "hostVersion": "0.1.2-rc.1",
+  "node": "v22.23.1",
+  "gitCommit": "03e14615c19cf88a731742af3f450d01e9061d79",
+  "workingTreeHasExperimentChanges": true,
+  "lockSha256": "56255b78b2b348a4fe4fbdd7230ec688b35379987b494b3acad975c8b13b6a51",
+  "candidateSha256": "261f83bbd164ec520ce514c5dfeb27eb1da9a1fd98f606ce5feb7ef4c72855ed",
+  "protocolSha256": "8018594dc41840465488e2a4c7e23da9d469f6f3236caa8c330714f80f2c4f6a",
+  "routeResolution": [
+    {
+      "provider": "zai-zcoding-cn",
+      "model": "glm-5.3-flash",
+      "status": "UNRESOLVED",
+      "errorType": "LlmError"
+    },
+    {
+      "provider": "zai-coding-cn",
+      "model": "glm-5.3-flash",
+      "status": "RESOLVED",
+      "metadata": {
+        "id": "glm-5.3-flash",
+        "name": "glm-5.3-flash",
+        "inputModalities": [
+          "text",
+          "image"
+        ],
+        "context": {
+          "contextWindow": 1000000
+        },
+        "defaultMaxTokens": 128000,
+        "reasoning": {
+          "efforts": [
+            {
+              "id": "low",
+              "name": "Low"
+            },
+            {
+              "id": "high",
+              "name": "High"
+            },
+            {
+              "id": "max",
+              "name": "Max"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "modelCalls": 0,
+  "pilot": {
+    "planned": 18,
+    "attempted": 0,
+    "scored": 0
+  },
+  "confirmatory": {
+    "planned": 180,
+    "attempted": 0,
+    "scored": 0
+  },
+  "checks": {
+    "runtimeRegression": {
+      "passed": 184,
+      "failed": 0,
+      "skipped": 0
+    },
+    "installedHostIntegration": {
+      "passed": 50,
+      "failed": 0,
+      "skipped": 0
+    },
+    "newProtocolTests": {
+      "passed": 2,
+      "failed": 0,
+      "initialSyntaxFailurePreserved": true
+    },
+    "typecheck": "PASS",
+    "build": "PASS",
+    "packageAudit": "PASS",
+    "packageNameInstallRemove": "PASS",
+    "freshInstallCheck": "PASS",
+    "dependencyAudit": {
+      "exitCode": 1,
+      "vulnerabilities": {
+        "info": 0,
+        "low": 1,
+        "moderate": 0,
+        "high": 0,
+        "critical": 0,
+        "total": 1
+      }
+    },
+    "scale": {
+      "status": "PASS",
+      "seed": 7331,
+      "events": 100001,
+      "archives": 1100,
+      "windows": 100,
+      "coldMs": 449.6524589999999,
+      "searchP95Ms": 17.839042000000518,
+      "searchMaxMs": 22.19775000000027,
+      "cancelMs": 0.13087499999983265,
+      "cancellationMode": "pre-aborted signal; each synchronous search is bounded by scan/visit caps",
+      "memory": {
+        "rss": 299646976,
+        "heapTotal": 146292736,
+        "heapUsed": 119329616,
+        "external": 3692359,
+        "arrayBuffers": 1209012
+      }
+    }
+  },
+  "unexercised": [
+    "Actual provider request acceptance and usage",
+    "400k live intervention and multi-window behavior",
+    "18-session pilot",
+    "180-session confirmatory quality/cost/time comparison",
+    "Extended R01-R20 matrix beyond existing tests",
+    "Real provider physical overflow",
+    "Full multi-seed/concurrency performance matrix"
+  ],
+  "limitations": [
+    "Existing passing tests are not completion of the new protocol",
+    "1M is adapter-resolved capacity metadata, not a live physical-limit measurement",
+    "Legacy model runner remains unsuitable for new protocol; implementation is not complete",
+    "No superiority, cost, recall or live recovery claims can be made from these checks"
+  ],
+  "evidence": [
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/frozen-plan-at-preflight.json",
+      "sha256": "8018594dc41840465488e2a4c7e23da9d469f6f3236caa8c330714f80f2c4f6a",
+      "bytes": 12639
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/sample-manifest-preflight.json",
+      "sha256": "d3c9f2ddddba177909bd1121b2b9ee4dee5d14bfc2fcdf372129e501062c47bb",
+      "bytes": 84507
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/preflight-settings.json",
+      "sha256": "65be99c9fb910ead14d10912f92f099674521a780c87811eb35b4e04edbf21ff",
+      "bytes": 590
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/host-route-resolution.json",
+      "sha256": "79e8e7b8e060211fbbacbcbd93fb3097f2a8ba6ec9bf24118c873a9d11c799e6",
+      "bytes": 948
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/host-route-resolution-before-capacity-observer-fix.json",
+      "sha256": "8fafeb0c8a4a8cc9dd89769e4d323b07950b5e027483f937493ce37429bfc2b8",
+      "bytes": 769
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-check.log",
+      "sha256": "37f6c02c5ba3cbb5790ef725aa35d8736ec332bc8c9f09f13868ce90c5439acc",
+      "bytes": 57509
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-package-audit.log",
+      "sha256": "15ad2967349046da3b4818b3b34cffcd67e52c6780983b57e986369ac4549e54",
+      "bytes": 355
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-package-audit.json",
+      "sha256": "00a67920f4ca4321ff45735e53d97e41b476cab2aa4589989b649c9aee52ca00",
+      "bytes": 6840
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-package-name.json",
+      "sha256": "d8aab0554158a8672596638a448fe62365a4b42f9881863a2bee6e99c3e90445",
+      "bytes": 827
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-install.log",
+      "sha256": "9a75d004dd719ecb1dc415c590d89dd528e31ea9ee516a03d133fdf9365671d2",
+      "bytes": 945
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-fresh.log",
+      "sha256": "3823bff35a63be06a5d5f7ba514be5d644a6947219a0a316bc1ddeacddcecbb2",
+      "bytes": 353
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-fresh-install.json",
+      "sha256": "4a07721689e004277186dfb00fd4f649bfa5d701bc83d6f088f0c43767eff463",
+      "bytes": 2123
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-scale.log",
+      "sha256": "9c5f0d5a6bcef8e5010cca5daa0b90099f3b46791e9a026b9725a3077cbd6d75",
+      "bytes": 1221
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/p0-scale-7331.json",
+      "sha256": "8ad935bf5d8dc208b4e44d2e533f70da4a5b0af898523b67ba5ef1644ca24859",
+      "bytes": 1087
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/protocol-tests-initial-failure.log",
+      "sha256": "b64f81c42fd53c0f3e041a3f2623b5f1066e23cedb293b67c0fd2d060ceceac5",
+      "bytes": 1862
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/protocol-tests.log",
+      "sha256": "5632c64a213817dfbc99fba5482ce1db9f759447515c8813560211b38eab828d",
+      "bytes": 549
+    },
+    {
+      "path": ".test-runtime/experiments/context-400k-v1/run-20260909/protocol-typecheck.log",
+      "sha256": "8f9a6b7b20ae988e5fab7f0db5df457406be0cebd2b0ffcaaa4713f3dcd4070b",
+      "bytes": 58
+    }
+  ]
+}

@@ -1,0 +1,383 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-10T04:41:15.629103+00:00",
+  "scope": "Handoff snapshot only; no new model runs or runtime changes",
+  "overallStatus": "STOPPED_REVIEW_REQUIRED",
+  "gitBase": "03e14615c19cf88a731742af3f450d01e9061d79",
+  "route": {
+    "provider": "zai-coding-cn",
+    "model": "glm-5.3-flash"
+  },
+  "candidateSha256": "261f83bbd164ec520ce514c5dfeb27eb1da9a1fd98f606ce5feb7ef4c72855ed",
+  "pilot": {
+    "assigned": 18,
+    "attempted": 18,
+    "terminal": 18,
+    "pass": 3,
+    "fail": 15,
+    "running": 0,
+    "notStarted": 0
+  },
+  "pilotManifestTopLevelStatus": "RUNNING",
+  "pilotSamples": [
+    {
+      "sampleId": "P1-F1-R1-A_NATIVE",
+      "status": "FAIL",
+      "failureCode": "TURN_TIMEOUT",
+      "elapsedMs": 2289835,
+      "pagesRead": 360,
+      "pagesPresentInActualRequests": 360,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "bd5f63d391f653c41c68ae7476e9c919a38d75a1c1d27ed8d331c9056aadbd40",
+      "sourceAuditSha256": "057165d08459bab6cf41a93a74447e67c1cfa89eb4e836935a73a7e18fbd7da7"
+    },
+    {
+      "sampleId": "P1-F1-R1-B400_BASIC",
+      "status": "PASS",
+      "failureCode": null,
+      "elapsedMs": 2304468,
+      "pagesRead": 1152,
+      "pagesPresentInActualRequests": 1152,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "83e24c368d6c8118941106bf2f6887cfbe412f7cd1acf4c54eb5c03d09e46077",
+      "sourceAuditSha256": "f7925525f90d7670a5662439dff997065bfcb8c603edb47153628371804980e0"
+    },
+    {
+      "sampleId": "P1-F1-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "CONTEXT_BUDGET_EXHAUSTED",
+      "elapsedMs": 844491,
+      "pagesRead": 588,
+      "pagesPresentInActualRequests": 576,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "d3a4643d982e68fa670a5f0c003ba9e0fe8ec0b501a4d568b6f0d2d04b3a131a",
+      "sourceAuditSha256": "9f3cc2d545118cd69a59a636a7e0ccb847e7e27f846c6d7cbe9e90185d70063e"
+    },
+    {
+      "sampleId": "P1-F2-R1-B400_BASIC",
+      "status": "PASS",
+      "failureCode": null,
+      "elapsedMs": 2154243,
+      "pagesRead": 1152,
+      "pagesPresentInActualRequests": 1152,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "8be113cbaab00979b93a3147670707134b669ec8f19e513dd4d7e4ffc79e7f65",
+      "sourceAuditSha256": "7685dd81bf7d326c392899c28c3b6c8bb1bed094ff760574b4f22a6b7b463c3d"
+    },
+    {
+      "sampleId": "P1-F2-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "CONTEXT_BUDGET_EXHAUSTED",
+      "elapsedMs": 1533365,
+      "pagesRead": 588,
+      "pagesPresentInActualRequests": 576,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "bcd08b326fe4d75fe294fabf6f1c40ec2bbc83f9b871c814ffad49dba2e98904",
+      "sourceAuditSha256": "8ebd53dc63add54ec46c19177dacc404dea76f7f2e026f182f64f5dd3af42c65"
+    },
+    {
+      "sampleId": "P1-F2-R1-A_NATIVE",
+      "status": "PASS",
+      "failureCode": null,
+      "elapsedMs": 3446316,
+      "pagesRead": 1152,
+      "pagesPresentInActualRequests": 1152,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "cbcd2463666468ac2861f551a3d4c842a41f2b3a0d01e4f86968f035f5de6868",
+      "sourceAuditSha256": "9fdff280dbac56380dc66a96a68edbc4a70494ecb5c07c3d7f9aaa4fcf2cbbf3"
+    },
+    {
+      "sampleId": "P1-F3-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "INCOMPLETE_READING",
+      "elapsedMs": 183579,
+      "pagesRead": 156,
+      "pagesPresentInActualRequests": 156,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "b3b967037d592e55a3831d8bea55bd38d1e6259cb29387330198ac81bc86adf3",
+      "sourceAuditSha256": "0cb75eade6544dbc4eadee817534b49c89ce6bbb2b5e8d5cc0bfde6d2138dfa2"
+    },
+    {
+      "sampleId": "P1-F3-R1-A_NATIVE",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 471803,
+      "pagesRead": 240,
+      "pagesPresentInActualRequests": 240,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "be950e5ad51a9056bb94846221e793b3851f08cbf3f1b6c8baeb9ac68c61328c",
+      "sourceAuditSha256": "4b84998a2799db2de647de47d65b21e1dca04ccd348546a8f65ca6d04775c02a"
+    },
+    {
+      "sampleId": "P1-F3-R1-B400_BASIC",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 20076,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "57c1b621cc50fd9843cbf8a83b49a0b1f0b2fe0bdba6e09fccc720134ef05ebb",
+      "sourceAuditSha256": "afd92b2db9ae9c6d170d0fc0eb90f81fdbce73b4b3e744898f408b263005ee0c"
+    },
+    {
+      "sampleId": "P1-F4-R1-A_NATIVE",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 385644,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "c6dc8c831d26a0953e84d7792f487d45b8a18e96fad2b06d2c8c455c0d4a0483",
+      "sourceAuditSha256": "e12f925a248efe4a14cb3b2415335b53856558dab81b6b862f299925c568b764"
+    },
+    {
+      "sampleId": "P1-F4-R1-B400_BASIC",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 18019,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "16d9b1e07a1bbb7c714590fed097721b62f9bdea4bb4d3193f54482675644def",
+      "sourceAuditSha256": "73ab9f4b99ef5c41f4621a0e8ec57e93319b7476f58255aaf8c2da084a5b64b9"
+    },
+    {
+      "sampleId": "P1-F4-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 19525,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "e1eb9f60f6938ba230876ed2bd9c6cc6c6d7c542f5f41915a0e09d802883a75e",
+      "sourceAuditSha256": "6f2b5066809a7c33ca68cf6568b6a7e790df62a7d9e5e919231c2340ef119107"
+    },
+    {
+      "sampleId": "P1-F5-R1-B400_BASIC",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 24719,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "716348b76a3552602cabecf5b40f045f75156fcf93ab6365205afcf9fd7366f4",
+      "sourceAuditSha256": "2e10b36f1bd282671064a35c1a2442addc0be148aca697cf0307df8d5ba2476f"
+    },
+    {
+      "sampleId": "P1-F5-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 19269,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "fa7c5d9ec0ff8f6843021202acbd42670189b083a8f31025b614735d1d4b309f",
+      "sourceAuditSha256": "32257974ef9b58d095f38bf893f14a1050fcb9c8fb44f86e9a64153cec18c3af"
+    },
+    {
+      "sampleId": "P1-F5-R1-A_NATIVE",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 27984,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "b774c718d3f4fc23ba0fb8686d32aa04def452ce5ae0356be1235c5c826314e9",
+      "sourceAuditSha256": "8f2038d47533ed107ebd90dd7cd0c155e94cb40b9b75c33a4a10649d041ab598"
+    },
+    {
+      "sampleId": "P1-F6-R1-C400_WINDOWED",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 19748,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "e4fd41269df817f9ed9c751bea04af1f9ba81580f45326e64e0695170690b446",
+      "sourceAuditSha256": "9ab1083ad14d11c885c04efb81ae32e7716cabff58b474255c4724eddd87ab5e"
+    },
+    {
+      "sampleId": "P1-F6-R1-A_NATIVE",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 19663,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "fe396653c17bced293e365e6a94d8b6344d181810ad5439ce8c2cd4067330744",
+      "sourceAuditSha256": "f5eef8899527558c9686ce7423c60919d43ceb83c812c7b8f319a32a8cb6983a"
+    },
+    {
+      "sampleId": "P1-F6-R1-B400_BASIC",
+      "status": "FAIL",
+      "failureCode": "TRANSPORT",
+      "elapsedMs": 18249,
+      "pagesRead": 0,
+      "pagesPresentInActualRequests": 0,
+      "requiredPages": 1152,
+      "sourceAudit": "PASS",
+      "reportSha256": "313902496c1dfa989a7f41b8bbec54995255bad01faee8437270ae2239465fcb",
+      "sourceAuditSha256": "484f7b38e0c2ca0a9a329e1f97554f014edd1e262cd5648df1208357a1234661"
+    }
+  ],
+  "confirmatory": {
+    "assigned": 180,
+    "attempted": 0,
+    "terminal": 0,
+    "pass": 0,
+    "fail": 0,
+    "running": 0,
+    "notStarted": 180
+  },
+  "formalFreezeExists": false,
+  "calibrationResultExists": false,
+  "p3": {
+    "assigned": 42,
+    "attempted": 42,
+    "pass": 27,
+    "fail": 6,
+    "blocked": 3,
+    "notExercised": 6,
+    "running": 0,
+    "notStarted": 0
+  },
+  "pipeline": {
+    "status": "STOPPED_REVIEW_REQUIRED",
+    "stage": "run-observer-comparison",
+    "snapshotId": "f491317d6231fff45d20ad12964c72ddbfa932f37bfbb77d4e211b13cd47a790",
+    "startedAt": "2026-09-09T05:25:29.689Z",
+    "finishedAt": "2026-09-09T07:19:37.605Z"
+  },
+  "observer": {
+    "status": "FAIL",
+    "conditions": [
+      {
+        "arm": "A_NATIVE",
+        "mode": "off",
+        "status": "FAIL",
+        "endErrorCode": "TRANSPORT",
+        "withinRequestUnchanged": true
+      },
+      {
+        "arm": "A_NATIVE",
+        "mode": "on",
+        "status": "FAIL",
+        "endErrorCode": "TRANSPORT",
+        "withinRequestUnchanged": true
+      },
+      {
+        "arm": "B400_BASIC",
+        "mode": "on",
+        "status": "FAIL",
+        "endErrorCode": "TRANSPORT",
+        "withinRequestUnchanged": true
+      },
+      {
+        "arm": "B400_BASIC",
+        "mode": "off",
+        "status": "FAIL",
+        "endErrorCode": "TRANSPORT",
+        "withinRequestUnchanged": true
+      },
+      {
+        "arm": "C400_WINDOWED",
+        "mode": "off",
+        "status": "FAIL",
+        "endErrorCode": "TRANSPORT",
+        "withinRequestUnchanged": true
+      },
+      {
+        "arm": "C400_WINDOWED",
+        "mode": "on",
+        "status": "PASS",
+        "endErrorCode": null,
+        "withinRequestUnchanged": true
+      }
+    ],
+    "pairs": [
+      {
+        "arm": "A_NATIVE",
+        "requestsEqual": false,
+        "systemEqual": true,
+        "toolsEqual": true,
+        "messagesEqual": false,
+        "dispatchSetupDifferenceMs": -0.655250000000251,
+        "journeyDifferenceMs": -67
+      },
+      {
+        "arm": "B400_BASIC",
+        "requestsEqual": false,
+        "systemEqual": true,
+        "toolsEqual": true,
+        "messagesEqual": false,
+        "dispatchSetupDifferenceMs": -0.1052910000000793,
+        "journeyDifferenceMs": 1834
+      },
+      {
+        "arm": "C400_WINDOWED",
+        "requestsEqual": false,
+        "systemEqual": true,
+        "toolsEqual": true,
+        "messagesEqual": false,
+        "dispatchSetupDifferenceMs": -0.5134590000000117,
+        "journeyDifferenceMs": 8401
+      }
+    ],
+    "causeOfMessageMismatch": "NOT_INVESTIGATED"
+  },
+  "budget": {
+    "normalizedCallReservations": 926,
+    "reportedTotalTokens": 207720302,
+    "reservedTokens": 207720302,
+    "tokenCeiling": 2000000000,
+    "stopAt": "2026-09-10T01:51:40.230Z",
+    "cost": null,
+    "deadlineExpiredAtCapture": true
+  },
+  "latestFrozenSource": {
+    "snapshotId": "f491317d6231fff45d20ad12964c72ddbfa932f37bfbb77d4e211b13cd47a790",
+    "filesVerified": 63,
+    "mismatches": 0
+  },
+  "processInspection": {
+    "experimentCoordinatorProcessesFound": 0,
+    "inspectionScope": "Local node pilot/formal/P3/sample coordinators, continuation and report watcher; no host auth args exported"
+  },
+  "stateAnomalies": [
+    "Pilot manifest top-level RUNNING is stale: 18 samples terminal and no coordinator",
+    "Public export top-level COMPLETE means pilot complete, not full experiment complete",
+    "report-watch.json is empty; report-watch.lock belongs to a dead process",
+    "Report footer snapshot 8e8e... applies to P1; P3 has multiple freezes"
+  ],
+  "reportWatchBytes": 0,
+  "previousChecksNotRerunDuringHandoff": {
+    "typecheck": "PASS",
+    "integration": {
+      "tests": 58,
+      "pass": 58
+    },
+    "experimentHarness": {
+      "tests": 26,
+      "pass": 26
+    }
+  },
+  "publicEvidenceReportAt": "2026-09-09T07:20:07.974Z",
+  "evidencePolicy": "Raw session/request bodies, host configuration, authentication data and logs are not included in portable package; hashes require original local evidence to verify."
+}

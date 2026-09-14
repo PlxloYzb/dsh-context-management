@@ -1,0 +1,541 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "context-400k-v1",
+  "date": "2026-09-09",
+  "status": "PLANNED",
+  "artifactKind": "research-plan-not-runner-config",
+  "executed": false,
+  "documents": {
+    "zh-CN": "../EXPERIMENTS.zh-CN.md",
+    "en": "../EXPERIMENTS.en.md"
+  },
+  "route": {
+    "provider": "zai-coding-cn",
+    "model": "glm-5.3-flash",
+    "mustVerifyEveryMainAndAuxiliaryCall": true,
+    "fallbackAllowed": false,
+    "credentialSource": "existing protected local DSH connection; never embed credentials"
+  },
+  "target": {
+    "pluginVersion": "0.1.1",
+    "hostVersion": "0.1.2-rc.1",
+    "candidateSha256": null,
+    "lockSha256": null,
+    "nodeVersion": null,
+    "resolvedContextWindow": null,
+    "minimumContextWindow": 481309,
+    "mainMaxTokens": 32768,
+    "summaryMaxTokens": 8192,
+    "freezeBeforeConfirmatory": true
+  },
+  "geometry": {
+    "decimalPressureTokens": 400000,
+    "logicalWindowTokens": 481309,
+    "effectiveInputTokens": 444445,
+    "nudgeTokens": 333333,
+    "reserveTokens": 32768,
+    "safetyTokens": 4096,
+    "strictAbsoluteTurnoverSupported": false
+  },
+  "arms": [
+    {
+      "id": "A_NATIVE",
+      "backend": "BasicCompactionEngine",
+      "thresholdRatio": 0.8,
+      "retainRatio": 0.16,
+      "summaryMaxTokens": 8192
+    },
+    {
+      "id": "B400_BASIC",
+      "backend": "BasicCompactionEngine",
+      "thresholdTokens": 400000,
+      "thresholdRatioRule": "calibrate 400000 / resolved route capacity using native floor; record resolved value",
+      "retainRatio": 0.16,
+      "summaryMaxTokens": 8192
+    },
+    {
+      "id": "C400_WINDOWED",
+      "backend": "ArcCompactionEngine",
+      "adaptiveGovernor": {
+        "enabled": true,
+        "strategy": "windowed",
+        "windowBudgetTokens": 481309,
+        "maxOutputTokens": 32768,
+        "safetyMarginTokens": 4096,
+        "nudgeAtEffectiveCapacityPct": 0.75,
+        "emergencyAtEffectiveCapacityPct": 0.9,
+        "targetAfterTurnoverPct": 0.55,
+        "emergencyFallback": true
+      },
+      "archive": {
+        "seedMaxTokens": 4096,
+        "retrievalDefaultMaxTokens": 2048,
+        "retrievalMaxTokens": 4096
+      }
+    }
+  ],
+  "pruner": {
+    "thresholdChars": 8192,
+    "headChars": 4096,
+    "tailChars": 1024,
+    "mustVerifyLoadedConfiguration": true
+  },
+  "stages": {
+    "P0": "offline contracts and controlled installed-host integration",
+    "P1": {
+      "tasks": 6,
+      "repeats": 1,
+      "arms": 3,
+      "journeys": 18,
+      "excludeFromConfirmation": true
+    },
+    "P2": {
+      "tasks": 30,
+      "repeats": 2,
+      "arms": 3,
+      "journeys": 180,
+      "longTasks": 24,
+      "shortTasks": 6
+    },
+    "P3": {
+      "liveRecoveryJourneys": 27,
+      "injectionJourneys": 9,
+      "attachmentJourneysIfSupported": 6,
+      "otherCases": "case inventory; call counts frozen after implementation; optional arms separate"
+    },
+    "P4": "source, pairing, scoring, statistical and artifact audit"
+  },
+  "families": [
+    {
+      "id": "F1",
+      "name": "exact-facts-corrections",
+      "pilotSeed": 90001,
+      "tasks": [
+        {
+          "taskId": "F1-V1",
+          "seed": 10101,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F1-V2",
+          "seed": 10102,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F1-V3",
+          "seed": 10103,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F1-V4",
+          "seed": 10104,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F1-V5",
+          "seed": 10105,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "name": "code-maintenance",
+      "pilotSeed": 90002,
+      "tasks": [
+        {
+          "taskId": "F2-V1",
+          "seed": 10201,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F2-V2",
+          "seed": 10202,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F2-V3",
+          "seed": 10203,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F2-V4",
+          "seed": 10204,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F2-V5",
+          "seed": 10205,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "name": "diagnosis",
+      "pilotSeed": 90003,
+      "tasks": [
+        {
+          "taskId": "F3-V1",
+          "seed": 10301,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F3-V2",
+          "seed": 10302,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F3-V3",
+          "seed": 10303,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F3-V4",
+          "seed": 10304,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F3-V5",
+          "seed": 10305,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "name": "structured-workflow",
+      "pilotSeed": 90004,
+      "tasks": [
+        {
+          "taskId": "F4-V1",
+          "seed": 10401,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F4-V2",
+          "seed": 10402,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F4-V3",
+          "seed": 10403,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F4-V4",
+          "seed": 10404,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F4-V5",
+          "seed": 10405,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "name": "historical-retrieval",
+      "pilotSeed": 90005,
+      "tasks": [
+        {
+          "taskId": "F5-V1",
+          "seed": 10501,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F5-V2",
+          "seed": 10502,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F5-V3",
+          "seed": 10503,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F5-V4",
+          "seed": 10504,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F5-V5",
+          "seed": 10505,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "name": "handoff-recovery",
+      "pilotSeed": 90006,
+      "tasks": [
+        {
+          "taskId": "F6-V1",
+          "seed": 10601,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F6-V2",
+          "seed": 10602,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F6-V3",
+          "seed": 10603,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F6-V4",
+          "seed": 10604,
+          "lengthClass": "long",
+          "status": "PLANNED"
+        },
+        {
+          "taskId": "F6-V5",
+          "seed": 10605,
+          "lengthClass": "short",
+          "status": "PLANNED"
+        }
+      ]
+    }
+  ],
+  "allocation": {
+    "repeats": [
+      1,
+      2
+    ],
+    "pairedBlocks": 60,
+    "permutationsOfThreeArms": 6,
+    "blocksPerPermutation": 10,
+    "randomizationSeed": 904009,
+    "liveConcurrency": 1,
+    "historicalControlsAllowed": false
+  },
+  "fixtures": {
+    "factsPerTask": 24,
+    "latestCorrectionFields": 6,
+    "longNewInputTokensTarget": 2000000,
+    "shortNewInputTokensRange": [
+      80000,
+      150000
+    ],
+    "readingBatchTokensTarget": 20000,
+    "expectedWindowsPerLongCJourney": 3,
+    "freezeBytesPagesAndHashesAfterPilot": true,
+    "samePairedContentNoAdaptivePadding": true,
+    "enforceProbeNoReread": true
+  },
+  "statistics": {
+    "unit": "independent task; average two repeats; paired clusters",
+    "independentTasks": 30,
+    "bootstrapResamples": 20000,
+    "bootstrapSeed": 904010,
+    "intervalConfidence": 0.975,
+    "qualityContrasts": [
+      "C400_WINDOWED - A_NATIVE",
+      "C400_WINDOWED - B400_BASIC"
+    ],
+    "nonInferiorityMargin": 0.05,
+    "strictCCompletionFloor": 0.9,
+    "correctedSessionFloor": 0.95,
+    "factPassMinimum": 23,
+    "factDenominator": 24,
+    "correctedFieldsRequired": 6,
+    "integrityViolationsAllowed": 0,
+    "efficiencyReference": "B400_BASIC",
+    "efficiencyRatioUpperBound": 0.9,
+    "efficiencyMetrics": [
+      "total_cost_per_strict_success",
+      "mean_full_journey_time_with_timeout_penalty"
+    ],
+    "degenerateQualityInterval": "inconclusive",
+    "powerTarget": 0.8,
+    "powerStatus": "pilot simulation required; sample count not a power guarantee"
+  },
+  "limits": {
+    "pilot": {
+      "requestSeconds": 300,
+      "turnSeconds": 1200,
+      "journeySeconds": 14400
+    },
+    "formalRequestSeconds": null,
+    "formalTurnSeconds": null,
+    "formalJourneySeconds": null,
+    "batchCostOrTokenCeiling": null,
+    "batchWallClockCeiling": null,
+    "formalLimitsRequiredBeforeStart": true
+  },
+  "cases": [
+    {
+      "id": "R01",
+      "name": "pressure-boundary",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R02",
+      "name": "output-intent-capacity",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R03",
+      "name": "header-and-usage-meter",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R04",
+      "name": "pruning-and-reinjection",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R05",
+      "name": "safe-intent-current-input-tool-pairs",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R06",
+      "name": "ranges-and-partial-batches",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R07",
+      "name": "transaction-crash-replay",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R08",
+      "name": "cancellation-and-disposal",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R09",
+      "name": "bounded-source-pagination",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R10",
+      "name": "cursor-session-fork-isolation",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R11",
+      "name": "nested-source-index-caps",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R12",
+      "name": "historical-prompt-injection",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R13",
+      "name": "attachments-and-missing-content",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R14",
+      "name": "native-web-commands",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R15",
+      "name": "controlled-overflow",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R16",
+      "name": "real-provider-physical-overflow",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R17",
+      "name": "preset-realm-takeover",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R18",
+      "name": "headless-lifecycle-config",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R19",
+      "name": "package-install-artifact-identity",
+      "status": "PLANNED"
+    },
+    {
+      "id": "R20",
+      "name": "scale-latency-memory",
+      "status": "PLANNED"
+    }
+  ],
+  "statuses": [
+    "PLANNED",
+    "RUNNING",
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "NOT_EXERCISED",
+    "NOT_STARTED_BUDGET"
+  ],
+  "runnerReadiness": {
+    "status": "extensions-required",
+    "legacyRunnerCompatible": false,
+    "required": [
+      "explicit-protocol-route-arm-fixture-limits",
+      "separate-configurator-from-observer",
+      "all-main-and-aux-call-observation",
+      "long-fixtures-and-hidden-validators",
+      "tool-permission-enforcement",
+      "complete-atomic-sample-and-attempt-manifests",
+      "failure-inclusive-scoring-and-statistics",
+      "source-pairing-cursor-audit",
+      "usage-budget-stop-and-sanitization"
+    ]
+  },
+  "outputs": {
+    "privateRoot": ".test-runtime/experiments/<protocol-revision>/<batch>/",
+    "packages": "artifacts/",
+    "curatedPublicResults": "docs/data/",
+    "noMeasuredResultsInThisPlan": true
+  },
+  "executionRevision": "r1-route-corrected",
+  "amendments": [
+    {
+      "id": "A01",
+      "beforeAnyModelGeneration": true,
+      "field": "route.provider",
+      "from": "zai-zcoding-cn",
+      "to": "zai-coding-cn",
+      "reason": "User explicitly authorized continuing with the actually configured route on 2026-09-09; original preflight evidence retained."
+    }
+  ]
+}

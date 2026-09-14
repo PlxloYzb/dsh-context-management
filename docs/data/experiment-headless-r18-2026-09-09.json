@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "caseId": "R18",
+  "status": "PASS_SCOPED",
+  "scope": "Actual base-only DSH CLI process, without Web/TUI bundle or agentPresets, before and after package installation; no model prompts.",
+  "finishedAt": "2026-09-09T04:32:20.295Z",
+  "candidateSha256": "261f83bbd164ec520ce514c5dfeb27eb1da9a1fd98f606ce5feb7ef4c72855ed",
+  "verifiedInstalledFiles": 32,
+  "stages": [
+    {
+      "stage": "baseline",
+      "inspectedAt": "2026-09-09T04:32:15.733Z",
+      "agentPresetsPresent": false,
+      "backend": "BasicCompactionEngine",
+      "basicConfig": {
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "summarizationProvider": "",
+        "summarizationModel": "",
+        "maxTokens": 8192,
+        "compactionRetries": 1,
+        "maxOverflowRetries": 1,
+        "modelPolicies": [],
+        "auto": true
+      },
+      "bridgeBuiltinRegistered": false,
+      "entries": [
+        {
+          "id": "include:compaction-basic",
+          "name": "@deepseek-ai/dsh-compaction-basic",
+          "disabled": false,
+          "fiberPresent": true
+        }
+      ],
+      "status": "PASS",
+      "newProviderCalls": 0,
+      "inspectionSha256": "566216e6aa6866e119fd21517a37ad033103264236adf3a820ac884a7201eecb"
+    },
+    {
+      "stage": "installed",
+      "inspectedAt": "2026-09-09T04:32:17.092Z",
+      "agentPresetsPresent": false,
+      "backend": "BasicCompactionEngine",
+      "basicConfig": {
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "summarizationProvider": "",
+        "summarizationModel": "",
+        "maxTokens": 8192,
+        "compactionRetries": 1,
+        "maxOverflowRetries": 1,
+        "modelPolicies": [],
+        "auto": true
+      },
+      "bridgeBuiltinRegistered": true,
+      "entries": [
+        {
+          "id": "include:compaction-basic",
+          "name": "@deepseek-ai/dsh-compaction-basic",
+          "disabled": false,
+          "fiberPresent": true
+        },
+        {
+          "id": "include:compaction-context-management-bridge",
+          "name": "dsh-context-management/bridge",
+          "disabled": false,
+          "fiberPresent": true
+        }
+      ],
+      "status": "PASS",
+      "newProviderCalls": 0,
+      "inspectionSha256": "63b49be6812689534d03514a6bbc27bf21aefdfd94556e5c1c4814b2374dcf49"
+    },
+    {
+      "stage": "repeat-installed",
+      "inspectedAt": "2026-09-09T04:32:18.285Z",
+      "agentPresetsPresent": false,
+      "backend": "BasicCompactionEngine",
+      "basicConfig": {
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "summarizationProvider": "",
+        "summarizationModel": "",
+        "maxTokens": 8192,
+        "compactionRetries": 1,
+        "maxOverflowRetries": 1,
+        "modelPolicies": [],
+        "auto": true
+      },
+      "bridgeBuiltinRegistered": true,
+      "entries": [
+        {
+          "id": "include:compaction-basic",
+          "name": "@deepseek-ai/dsh-compaction-basic",
+          "disabled": false,
+          "fiberPresent": true
+        },
+        {
+          "id": "include:compaction-context-management-bridge",
+          "name": "dsh-context-management/bridge",
+          "disabled": false,
+          "fiberPresent": true
+        }
+      ],
+      "status": "PASS",
+      "newProviderCalls": 0,
+      "inspectionSha256": "d8b555b797a5d423e1165070172f1f602c71116967d21e4dbc26dbf867e0577d"
+    },
+    {
+      "stage": "restarted",
+      "inspectedAt": "2026-09-09T04:32:19.074Z",
+      "agentPresetsPresent": false,
+      "backend": "BasicCompactionEngine",
+      "basicConfig": {
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "summarizationProvider": "",
+        "summarizationModel": "",
+        "maxTokens": 8192,
+        "compactionRetries": 1,
+        "maxOverflowRetries": 1,
+        "modelPolicies": [],
+        "auto": true
+      },
+      "bridgeBuiltinRegistered": true,
+      "entries": [
+        {
+          "id": "include:compaction-basic",
+          "name": "@deepseek-ai/dsh-compaction-basic",
+          "disabled": false,
+          "fiberPresent": true
+        },
+        {
+          "id": "include:compaction-context-management-bridge",
+          "name": "dsh-context-management/bridge",
+          "disabled": false,
+          "fiberPresent": true
+        }
+      ],
+      "status": "PASS",
+      "newProviderCalls": 0,
+      "inspectionSha256": "9e71cf1f4be1901159a5491ef5f55593a5602aa708168f284f7b26d98a975f42"
+    },
+    {
+      "stage": "removed",
+      "inspectedAt": "2026-09-09T04:32:20.129Z",
+      "agentPresetsPresent": false,
+      "backend": "BasicCompactionEngine",
+      "basicConfig": {
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "summarizationProvider": "",
+        "summarizationModel": "",
+        "maxTokens": 8192,
+        "compactionRetries": 1,
+        "maxOverflowRetries": 1,
+        "modelPolicies": [],
+        "auto": true
+      },
+      "bridgeBuiltinRegistered": false,
+      "entries": [
+        {
+          "id": "include:compaction-basic",
+          "name": "@deepseek-ai/dsh-compaction-basic",
+          "disabled": false,
+          "fiberPresent": true
+        }
+      ],
+      "status": "PASS",
+      "newProviderCalls": 0,
+      "inspectionSha256": "3f3150659e09b496fdabded0265e564e4ccef5e13db2f71fa0d4c7e5ea7f6fde"
+    }
+  ],
+  "sourceInventory": [
+    {
+      "path": "tests/experiments/run-headless-boundary.mjs",
+      "sha256": "1154dbb0ffa537fc6d0e528176feea22e12c935424def6ba66b932d7bee1b9a2"
+    },
+    {
+      "path": "tests/experiments/headless-inspector.mjs",
+      "sha256": "ae91cb40a1ba20f20fadccb1d01a8659bce3fa677b4d732917560feeecf68506"
+    },
+    {
+      "path": "tests/experiments/r14-no-model.mjs",
+      "sha256": "e49addb6f313c995c85179ad159e58c2ad9ff57aca0e9de64b74efd6dc594412"
+    },
+    {
+      "path": "tests/experiments/protocol.mjs",
+      "sha256": "1648866256d2850b92bea0190e86a21833de2f4ea4c6c0febde0cb57fb010dc9"
+    }
+  ],
+  "reportSha256": "9d0974ad493e1b4e500e88dbeb2c0d51cbce03726d936391ab29b56ef94e3b5c",
+  "limitations": [
+    "No agent or model request was created; the measured contract is that the installed bridge leaves base Basic unchanged when agentPresets is absent.",
+    "Invalid public configuration rejection remains separately covered by controlled regression tests."
+  ]
+}

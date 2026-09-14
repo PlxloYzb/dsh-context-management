@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "caseId": "R14",
+  "status": "PASS_SCOPED",
+  "observedAt": "2026-09-09T04:10:54.674Z",
+  "candidateSha256": "261f83bbd164ec520ce514c5dfeb27eb1da9a1fd98f606ce5feb7ef4c72855ed",
+  "scope": "Actual native Web textbox submission and rendered results on an owned fork of a completed real-model C session.",
+  "commands": [
+    {
+      "command": "/context status",
+      "commandId": "cmd-a1c0a360-1",
+      "runSeq": 1387,
+      "doneSeq": 1388,
+      "result": "success",
+      "compactions": [],
+      "resultSha256": "d04ffcf99bc6f96cbc26455cfe4ae14dc5a331ea1c3e711d0b96ed01d3f149f1"
+    },
+    {
+      "command": "/context search F01",
+      "commandId": "cmd-a1c0a360-2",
+      "runSeq": 1389,
+      "doneSeq": 1390,
+      "result": "success",
+      "compactions": [],
+      "resultSha256": "f58f4f4db349f21f10e73c8ea111990a06016a99f7b59d08028bbd3d2531b7bf"
+    },
+    {
+      "command": "/context decompress 376d3f4b-72bc-480a-8887-da451d32f1dd",
+      "commandId": "cmd-a1c0a360-3",
+      "runSeq": 1391,
+      "doneSeq": 1392,
+      "result": "success",
+      "compactions": [],
+      "resultSha256": "d3e76346b5dedacc258cf9605af7c3bf7dfe496fd48b8a571572972cf6043b81"
+    },
+    {
+      "command": "/context new",
+      "commandId": "cmd-a1c0a360-4",
+      "runSeq": 1393,
+      "doneSeq": 1398,
+      "result": "success",
+      "compactions": [],
+      "resultSha256": "58e9068a83a5a0b2e10a20e3a244312e2a439a707ef7d415100e14eb7679195d"
+    },
+    {
+      "command": "/compact",
+      "commandId": "cmd-a1c0a360-5",
+      "runSeq": 1399,
+      "doneSeq": 1402,
+      "result": "error",
+      "compactions": [
+        {
+          "seq": 1400,
+          "type": "compaction/start",
+          "error": null
+        },
+        {
+          "seq": 1401,
+          "type": "compaction/end",
+          "error": "manual ARC checkpoint would not reduce context"
+        }
+      ],
+      "resultSha256": "0da369be0e94dda73343969038cac626d69876618990a145bdc127fb83da542f"
+    },
+    {
+      "command": "/arc status",
+      "commandId": "cmd-a1c0a360-6",
+      "runSeq": 1403,
+      "doneSeq": 1404,
+      "result": "success",
+      "compactions": [],
+      "resultSha256": "3431853c2ee355001b26f6b355ffb50871078506544fc50749d948bfd67c9edb"
+    }
+  ],
+  "generationBefore": 0,
+  "generationAfter": 1,
+  "archivesBefore": 1,
+  "archivesAfter": 2,
+  "sourceParentUnchanged": true,
+  "newProviderCalls": 0,
+  "providerAttemptsBlocked": 0,
+  "sourceEventsSha256": "8a3ada6719ac18576172836537c6236b8802d881678728e325837a5389b14417",
+  "evidence": [
+    {
+      "file": "alias-status-DOM.txt",
+      "sha256": "19b7a56aeb21f92f66e423f1e7a15be58eb266f2dd0bd776a5934ad6f56ad246",
+      "bytes": 719038
+    },
+    {
+      "file": "compact-DOM.txt",
+      "sha256": "153894a79b5d748ed96c576be1a5f3fe08b1d4ad1a89c4507b5c979b5bac2691",
+      "bytes": 718029
+    },
+    {
+      "file": "decompress-DOM.txt",
+      "sha256": "8f482e530bd483450a88e5bae619d9db59c4a6838c58393fd72655166a418f66",
+      "bytes": 712827
+    },
+    {
+      "file": "native-commands.png",
+      "sha256": "cae221e502f7500ec14e0e9abad9d44fc0ae7f3cbb1fb6fe25a260113b29fbed",
+      "bytes": 82206
+    },
+    {
+      "file": "new-DOM.txt",
+      "sha256": "d32f198ddad22fcb253f499c4088d7b205aa049bf584fe32e56f4b2f6d0af231",
+      "bytes": 717910
+    },
+    {
+      "file": "search-DOM.txt",
+      "sha256": "c3ef89b8fb53f3cfa5f6c66632e14e5b14ac1da38822f6df6e6117b6afff4ee7",
+      "bytes": 710694
+    },
+    {
+      "file": "status-DOM.txt",
+      "sha256": "9067c4f6681e95a06aae615995143cf84de0c05c60bde4e0ea283799b3aff19a",
+      "bytes": 709216
+    },
+    {
+      "file": "report.json",
+      "sha256": "0eabaa34594634cad2efb5da69474b6df399b3c982a2ca119bb7a46afb3386ff",
+      "bytes": 2315
+    },
+    {
+      "file": "host.patch.yml",
+      "sha256": "47692f504e2334bca3dc91ac344844e691a2d9b3628448b0109d77ecf9b33d5a",
+      "bytes": 2928
+    }
+  ],
+  "limitations": [
+    "C backend only; A/B native UI execution was not separately exercised.",
+    "New provider dispatches were disabled. This is command UI coverage, not an additional model journey.",
+    "Compact exercised the explicit no-reduction error path after a successful window commit; it was not a second successful compression.",
+    "Only the first search/decompress pages were inspected here; exhaustive pagination is covered by separate controlled tests."
+  ]
+}

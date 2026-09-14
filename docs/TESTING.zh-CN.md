@@ -2,6 +2,8 @@
 
 [English](TESTING.en.md) · [返回首页](../README.md) · [完整汇总 JSON](data/results-0.1.1.json) · [27 个模型样本 CSV](data/model-samples-0.1.1.csv)
 
+后续使用 **`zai-zcoding-cn/glm-5.3-flash`** 的全面对照与 400k 测试见[新实验方案](EXPERIMENTS.zh-CN.md)。该方案尚未执行，须先扩展执行器；本页数据和下方模型命令属于历史旧路由实验。
+
 测试日期：**2026-09-08**。插件版本 **0.1.1**，宿主 **DSH 0.1.2-rc.1**。以下区分本次发布检查与此前的模型、预设及规模测试，避免把历史数据说成本次重跑。
 
 ## 自动化与真实宿主

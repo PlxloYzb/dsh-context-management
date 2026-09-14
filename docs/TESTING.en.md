@@ -2,6 +2,8 @@
 
 [简体中文](TESTING.zh-CN.md) · [Home](../README.en.md) · [Results JSON](data/results-0.1.1.json) · [27 model samples CSV](data/model-samples-0.1.1.csv)
 
+For the planned comprehensive comparison and 400k tests on **`zai-zcoding-cn/glm-5.3-flash`**, see the [new experiment protocol](EXPERIMENTS.en.md). It has not run and requires runner extensions. This page’s data and model commands describe the historical route and experiment.
+
 Measured on **2026-09-08**, with plugin **0.1.1** and **DSH 0.1.2-rc.1**. Current release checks are distinguished from historical model, preset, and scale measurements below.
 
 ## Automated and host checks
