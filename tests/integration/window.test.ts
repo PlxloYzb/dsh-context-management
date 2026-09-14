@@ -2,10 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Session, SessionSeq } from '@deepseek-ai/dsh-session'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
-import { WindowController, frozenPrefix, resolveArchiveConfig, windowIdentity } from '../../src/window-controller.ts'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
+import { WindowController, frozenPrefix, resolveArchiveConfig, windowEvidenceIndex, windowIdentity } from '../../src/window-controller.ts'
 import { ArcStateStore } from '../../src/state.ts'
 import { blockRegistry, rebuildBlockLedger, runCompactionTransaction, assertNoActiveCompaction } from '../../src/region.ts'
-import { resolveShadowedTokenCount } from '../../src/fallback.ts'
+import { resolveShadowedTokenCount, runEmergencyFallback } from '../../src/fallback.ts'
 import { allLogMessages } from '../../src/messages.ts'
 import { host, newSession, oldWork, newInput } from './runtime.ts'
 import { appendAssistant, appendToolCall, appendToolResult, appendUser } from '../helpers.ts'
@@ -222,4 +223,94 @@ test('W03/W04: a newly created ARC checkpoint is new work for turnover; a lone w
   assert.ok(session.surface.nodes.includes(current))
   assert.equal(await controller.turnover(agent, 'pressure', signal(), config, async () => {}), null)
   assert.equal(windowIdentity(session).generation, 2)
+})
+
+
+test('mid-turn emergency fallback never shadows the most recent surface nodes (150k iteration regression)', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'preserve-recent-midturn')
+  session.append('turn/start', { turn: 1 }); appendUser(session, 'OLD small work.')
+  session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
+  session.append('turn/start', { turn: 2 }); appendUser(session, 'LATEST phase instruction: read all pages.')
+  session.append('step/start', { turn: 1, step: 1 })
+  appendAssistant(session, 'Small compressible history. ', 1, 1)
+  session.append('step/end', { turn: 1, step: 1 })
+  session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
+  session.append('turn/start', { turn: 2 })
+  for (let i = 0; i < 6; i++) {
+    session.append('step/start', { turn: 2, step: i + 1 })
+    appendToolCall(session, `operation ${i}`, `call-${i}`, 2, i + 1)
+    appendToolResult(session, `recent tool payload ${i} with detail. `.repeat(200), `call-${i}`, 2, i + 1)
+    session.append('step/end', { turn: 2, step: i + 1 })
+  }
+  const incomingUser = createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: 'NEWEST instruction while the turn is in flight' }] })
+  const agent = { session, ctx: h.ctx, options: {} }
+  const result = runEmergencyFallback(agent, { incomingUser, includeCheckpoints: true })
+  assert.ok(result, 'a compressible balanced range exists')
+  const surface = session.surface.nodes
+  const preservedFrom = surface[surface.length - 5]!
+  assert.ok(result!.shadowedRange.end < preservedFrom, `emergency range end ${result!.shadowedRange.end} must stop before the preserved recent tail (from ${preservedFrom}); in-flight bookkeeping of the last tool exchanges must survive`)
+})
+
+test('emergency fallback takes multiple net-reducing bites and anchors recent work (150k mini regression)', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'fallback-bites')
+  session.append('turn/start', { turn: 1 }); appendUser(session, 'OLD compressible work in three blocks.')
+  for (let block = 0; block < 3; block++) {
+    session.append('step/start', { turn: 1, step: block + 1 })
+    appendToolCall(session, `operation ${block}`, `old-call-${block}`, 1, block + 1)
+    appendToolResult(session, `Compressible historical tool payload ${block}. `.repeat(400), `old-call-${block}`, 1, block + 1)
+    session.append('step/end', { turn: 1, step: block + 1 })
+  }
+  session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
+  session.append('turn/start', { turn: 2 })
+  session.append('step/start', { turn: 2, step: 1 })
+  appendToolCall(session, 'experiment_read_page', 'call-live', 2, 1)
+  appendToolResult(session, 'page 217 content', 'call-live', 2, 1)
+  session.append('step/end', { turn: 2, step: 1 })
+  const agent = { session, ctx: h.ctx, options: {} }
+  const summariesBefore = session.snapshotEvents().filter(event => event.type === 'compaction/summary').length
+  const result = runEmergencyFallback(agent, { includeCheckpoints: true })
+  assert.ok(result, 'fallback produced a transaction')
+  const summaries = session.snapshotEvents().filter(event => event.type === 'compaction/summary')
+  assert.ok(summaries.length - summariesBefore >= 1, 'fallback committed at least one transaction')
+  // Step-aligned recency must take WHOLE historical steps (both completed tool
+  // pairs) in one bite instead of splitting a pair at the recency boundary.
+  const shadowed = new Set<number>(result!.shadowedSeqs)
+  assert.ok(shadowed.has(3) && shadowed.has(4) && shadowed.has(7) && shadowed.has(8), `bite should cover both complete historical pairs, got ${[...shadowed]}`)
+  assert.ok(!shadowed.has(11) && !shadowed.has(12), 'the preserved recent steps survive')
+  const checkpoint = JSON.stringify(summaries.map(event => session.eventAt(SessionSeq(event.seq + 1))))
+  assert.match(checkpoint, /RECENT WORK STILL VISIBLE/, 'checkpoint anchors the still-visible recent tool calls')
+  assert.match(checkpoint, /bash\(/, 'the surviving tool call is enumerated in the anchor')
+  assert.ok(session.surface.nodes.includes(session.surface.nodes.at(-1)!), 'latest surface node survives')
+})
+
+test('window seed evidence index keeps quoted identifier=value records, and emergency checkpoints keep early fact-dense lines under budget pressure (150k adaptive v9 regression)', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'seed-fact-records')
+  session.append('turn/start', { turn: 1 }); appendUser(session, 'Begin synthetic evidence.')
+  // Early fact-dense tool result (the shape the JSON-only index missed).
+  session.append('step/start', { turn: 1, step: 1 })
+  appendToolCall(session, 'read', 'seed-call-0', 1, 1)
+  appendToolResult(session, 'Observation header.\nAuthoritative historical fact: F01 = "alpha-nuance-4711".\nAuthoritative historical fact: F02 = "beta-caret-9932".\nObservation tail noise. '.repeat(40), 'seed-call-0', 1, 1)
+  session.append('step/end', { turn: 1, step: 1 })
+  // Many later noisy events that would evict the early one chronologically.
+  for (let i = 1; i <= 24; i++) {
+    session.append('step/start', { turn: 1, step: i + 1 })
+    appendToolCall(session, `op ${i}`, `seed-call-${i}`, 1, i + 1)
+    appendToolResult(session, `Routine telemetry block ${i}: state=warming replicas=3. `.repeat(60), `seed-call-${i}`, 1, i + 1)
+    session.append('step/end', { turn: 1, step: i + 1 })
+  }
+  session.append('turn/end', { turn: 1, reason: { kind: 'completed' } })
+  session.append('turn/start', { turn: 2 })
+  const agent = { session, ctx: h.ctx, options: {} }
+  // 1) Evidence index must carry the quoted identifier=value records.
+  const evidence = windowEvidenceIndex(session, session.surface.nodes.filter((seq, index) => index < session.surface.nodes.length - 1), 4096)
+  assert.match(evidence, /F01 = "alpha-nuance-4711"/, 'quoted identifier=value record enters the seed evidence index')
+  assert.match(evidence, /F02 = "beta-caret-9932"/)
+  // 2) Value-ranked emergency checkpoint keeps the fact-dense early line.
+  const result = runEmergencyFallback(agent, { includeCheckpoints: true })
+  assert.ok(result, 'fallback lands')
+  const checkpoint = JSON.stringify(session.snapshotEvents().filter(event => event.type === 'compaction/summary').map(event => session.eventAt(SessionSeq(event.seq + 1))))
+  assert.match(checkpoint, /alpha-nuance-4711/, 'early authoritative fact line survives the bounded emergency checkpoint')
 })

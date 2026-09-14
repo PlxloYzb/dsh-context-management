@@ -625,20 +625,38 @@ async function handleStatus(env: ToolEnvironment, _args: StatusArgs, exec: ToolR
 export function makeTools(env: ToolEnvironment): ToolDefinition[] {
   const prompts = env.prompts ?? DEFAULT_RESOLVED
   const reader = env.reader ?? new ArchiveReader()
-  const reservations = new WeakMap<Agent['session'], { stepSeq: number; remaining: number }>()
+  const reservations = new WeakMap<Agent['session'], { stepSeq: number; turnSeq: number; remaining: number; turnGrants: number }>()
+  // Hard per-turn retrieval allowance. Soft prompt caps were ignored by
+  // thorough models (150k adaptive v8: a methodical 82-call fact hunt through
+  // 28 steps timed out the turn); the engine itself must bound retrieval so a
+  // turn always converges to answering with the evidence already recovered.
+  const TURN_RETRIEVAL_GRANTS = 20
   function retrieve(agent: Agent, signal: AbortSignal, read: (budget: number) => object): TextOutput {
     signal.throwIfAborted()
     if (!env.retrievalBudget) return { text: JSON.stringify(read(4096)) }
     const events = agent.session.snapshotEvents()
-    let stepSeq = -1
-    for (let i = events.length - 1; i >= 0; i--) if (events[i]?.type === 'step/start') { stepSeq = events[i]!.seq; break }
+    let stepSeq = -1, turnSeq = -1
+    for (let i = events.length - 1; i >= 0; i--) {
+      if (turnSeq < 0 && events[i]?.type === 'turn/start') turnSeq = events[i]!.seq
+      if (stepSeq < 0 && events[i]?.type === 'step/start') stepSeq = events[i]!.seq
+      if (turnSeq >= 0 && stepSeq >= 0) break
+    }
     let reservation = reservations.get(agent.session)
     const live = env.retrievalBudget(agent)
     if (!reservation || reservation.stepSeq !== stepSeq) {
-      reservation = { stepSeq, remaining: live }
+      // Parallel calls in one batch share this pool; a pool of exactly `live`
+      // let the second/third parallel call arrive with <768 tokens and fail
+      // with insufficient-headroom (150k adaptive v7: 18 failed retrievals).
+      // Grant up to three bounded reads per step; the ledger already accounts
+      // logged results conservatively.
+      reservation = { stepSeq, turnSeq, remaining: Math.max(live, 3 * 1536), turnGrants: reservation && reservation.turnSeq === turnSeq ? reservation.turnGrants : 0 }
       reservations.set(agent.session, reservation)
     }
-    const text = JSON.stringify(read(Math.max(0, Math.min(live, reservation.remaining))))
+    if (reservation.turnGrants >= TURN_RETRIEVAL_GRANTS) {
+      return { text: JSON.stringify({ status: 'error', code: 'retrieval-allowance-exhausted', hint: 'The per-turn retrieval allowance is used up. Answer now from the evidence already recovered; retrieval resumes next turn.' }) }
+    }
+    reservation.turnGrants += 1
+    const text = JSON.stringify(read(Math.max(0, Math.min(live, 1536, reservation.remaining))))
     // Reserve synchronously before parallel calls can observe the same headroom.
     // Logged results may also enter the live measurement: double reservation
     // within this one batch is conservative; the next step starts a fresh pool.

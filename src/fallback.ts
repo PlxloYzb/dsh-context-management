@@ -25,7 +25,7 @@ import {
   type CompactionTransactionInput,
 } from './region.ts'
 
-const PRESERVE_RECENT_SURFACE_NODES = 5
+export const PRESERVE_RECENT_SURFACE_NODES = 5
 const PREVIEW_CHARS = 180
 const MAX_SIGNAL_MATCHES = 8
 const MAX_STRUCTURED_MATCHES = 64
@@ -97,6 +97,7 @@ function structuredMatches(text: string): string[] {
   const patterns = [
     /^[ \t]*(?:[-*][ \t]+)?(?:VERBATIM_FACT|IMPORTANT|DECISION|REQUIREMENT|INVARIANT|CANARY|NEEDLE|CONSTRAINT|FILE_ANCHOR|SYMBOL_ANCHOR|TEST_ORACLE|ERROR_FINGERPRINT|COMMAND|ROLLBACK)[^\n]{0,320}$/gim,
     /^[ \t]*(?:[-*][ \t]+)?[A-Z][A-Z0-9_.-]{3,80}[ \t]*(?:=|:|=>)[ \t]*[A-Za-z0-9][A-Za-z0-9._:/-]{5,240}[ \t]*$/gm,
+    /\b[A-Za-z][A-Za-z0-9_.-]{0,40}\s*=\s*"(?:\\.|[^"\\\r\n]){1,240}"/g,
   ]
   const found: string[] = []
   const seen = new Set<string>()
@@ -286,10 +287,14 @@ export function buildEmergencyFallbackSummary(
   agent: CompactionAgentContext,
   shadowedSeqs: readonly number[],
 ): string {
+  // Value-ranked eviction (not a chronological cut): under budget pressure a
+  // chronological cut keeps late template noise and drops early fact-dense
+  // events entirely (150k adaptive v9: early authoritative fact lines were the
+  // first casualties, costing 14/24 on the blind probe).
   return buildBoundedExtractiveIndex(agent, shadowedSeqs, [
     '[ARC GOVERNOR EMERGENCY — REVERSIBLE EXTRACTIVE CHECKPOINT]',
     'No LLM summarizer was called. This is a bounded local index, not a semantic summary.',
-  ])
+  ], undefined, 'value')
 }
 
 /** Build the local checkpoint used by official manual/region seam calls. */
@@ -449,18 +454,83 @@ export function runLocalCompactionRegion(
 }
 
 /** Move one largest safe old range into reversible cold-storage without an API call. */
+/** Latest still-visible tool calls, so an emergency checkpoint never erases the
+ * model's in-flight work ledger (batch counting, page progress). Extractive,
+ * bounded, and derived only from events that are NOT being archived. */
+function recentWorkAnchor(agent: CompactionAgentContext, shadowed: readonly number[]): string {
+  const calls: string[] = []
+  for (const event of agent.session.snapshotEvents()) {
+    if (event.type !== 'assistant/message' || shadowed.includes(event.seq)) continue
+    const content = (event.data as { message?: { content?: Array<{ type?: string; name?: string; arguments?: unknown }> } }).message?.content ?? []
+    for (const item of content) {
+      if (item?.type !== 'tool-call') continue
+      const args = JSON.stringify(item.arguments ?? {}).slice(0, 90)
+      calls.push(`- ${item.name ?? 'tool'}(${args})`)
+    }
+  }
+  if (calls.length === 0) return ''
+  return `\n[RECENT WORK STILL VISIBLE — not archived; your own ledger of just-executed tool calls]\n${calls.slice(-12).join('\n')}\n`
+}
+
+// One emergency must relieve enough pressure to stop re-firing immediately:
+// a storm of minimal fallbacks repeatedly interrupted the model's in-flight
+// bookkeeping (150k mini: six clustered fallbacks at the phase tail dropped
+// the final 9-page batch). Take up to three net-reducing bites per emergency.
+const EMERGENCY_FALLBACK_MAX_BITES = 3
+
 export function runEmergencyFallback(
   agent: CompactionAgentContext,
   options: { incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; maxSummaryBytes?: number; includeCheckpoints?: boolean } = {},
 ): CompactionResult | null {
+  let result: CompactionResult | null = null
+  for (let bite = 0; bite < EMERGENCY_FALLBACK_MAX_BITES; bite++) {
+    if (bite === 0) {
+      const single = runSingleEmergencyFallbackBite(agent, options, true)
+      if (single === null) break
+      result = single
+      continue
+    }
+    // Later bites re-select from post-transaction state that can contain fresh
+    // replacement nodes the host meter has not priced yet; an unpriceable range
+    // cannot be safely shadowed, so stop extending instead of failing the turn.
+    try {
+      const single = runSingleEmergencyFallbackBite(agent, options, false)
+      if (single === null) break
+      result = single
+    } catch { break }
+  }
+  return result
+}
+
+function runSingleEmergencyFallbackBite(
+  agent: CompactionAgentContext,
+  options: { incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; maxSummaryBytes?: number; includeCheckpoints?: boolean },
+  first: boolean,
+): CompactionResult | null {
+  // Always preserve the most recent surface nodes: mid-turn emergencies
+  // (incomingUser present) shadowing the last completed tool results broke
+  // in-flight bookkeeping — models lost track of just-executed work and
+  // skipped batches (150k iteration smoke, phase-3 missing pages).
   const range = buildCompressibleSeqRanges(agent.session, {
-    preserveRecent: options.incomingUser ? 0 : PRESERVE_RECENT_SURFACE_NODES,
+    preserveRecent: PRESERVE_RECENT_SURFACE_NODES,
+    preserveRecentSteps: 2,
     includeCheckpoints: options.includeCheckpoints,
     ...(options.incomingUser ? { incomingUser: options.incomingUser } : {}),
   })[0]
   if (range === undefined) return null
+  // Belt-and-suspenders invariant: no selected range may contain the latest
+  // real user input, whatever recency/indexing divergence produced it. Trim
+  // to the balanced prefix before that message or drop the bite entirely.
+  const surfaceNodes = agent.session.surface.nodes
+  for (let index = surfaceNodes.length - 1; index >= 0; index -= 1) {
+    const event = agent.session.eventAt(surfaceNodes[index]!)
+    if (event?.type !== 'user/message' || event.data.source.kind !== 'user') continue
+    if (event.seq >= range.start && event.seq <= range.end) return null
+    break
+  }
   const shadowedSeqs = shadowedSeqsOf(agent.session, range.start, range.end)
   if (shadowedSeqs.length === 0) return null
+  void first
   // In-place histories can fill with checkpoints even when no raw range
   // remains. Fold a safe range using original sources, never recursively
   // shorten old checkpoint text; provenance stays in the durable transaction.
@@ -473,6 +543,7 @@ export function runEmergencyFallback(
     if (Buffer.byteLength(summaryText + point) > cap - 90) break
     summaryText += point
   }
+  summaryText += recentWorkAnchor(agent, shadowedSeqs)
   if (summaryText.length < body.length) summaryText += '\n[Checkpoint truncated; retrieve original evidence from the archive.]'
   const summary = [{ type: 'text' as const, text: summaryText }]
   const shadowedTokenCount = resolveShadowedTokenCount(agent, shadowedSeqs)

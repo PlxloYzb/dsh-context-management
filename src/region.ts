@@ -102,7 +102,7 @@ export function assertNoActiveCompaction(events: readonly SessionEvent[]): void 
  * them to the nearest clean cut.
  */
 function hasPlainRef(session: Session, seq: number): boolean {
-  const event = session.snapshotEvents()[seq]
+  const event = session.eventAt(SessionSeq(seq))
   if (event === undefined) return false
   switch (event.type) {
     case 'user/message':
@@ -170,14 +170,14 @@ type StaleRangeRecovery =
  *     checkpoint seq directly.
  */
 function recoverStaleRange(session: Session, start: number, end: number): StaleRangeRecovery {
-  if (session.snapshotEvents()[start] === undefined || session.snapshotEvents()[end] === undefined) {
-    const failedEdge = session.snapshotEvents()[start] === undefined ? start : end
+  if (session.eventAt(SessionSeq(start)) === undefined || session.eventAt(SessionSeq(end)) === undefined) {
+    const failedEdge = session.eventAt(SessionSeq(start)) === undefined ? start : end
     return { kind: 'unresolvable', failedEdge }
   }
   const liveInside = session.surface.nodes
     .filter((seq) => seq >= start && seq <= end)
 
-  const plain = liveInside.filter((seq) => !isCheckpointNode(session.snapshotEvents()[seq]!))
+  const plain = liveInside.filter((seq) => !isCheckpointNode(session.eventAt(SessionSeq(seq))!))
   if (plain.length === 0) {
     const coveringBlockIds = rebuildBlockLedger(session.snapshotEvents())
       .filter((entry) => entry.shadowedSeqs.some((seq) => seq >= start && seq <= end))
@@ -296,11 +296,11 @@ export function resolveSurfaceRange(
   startIdx = requestedStartIdx
   endIdx = requestedEndIdx
   while (startIdx > 0 && !cleanBefore(startIdx)) {
-    if (isCheckpointNode(session.snapshotEvents()[nodes[startIdx - 1]!]!)) break
+    if (isCheckpointNode(session.eventAt(SessionSeq(nodes[startIdx - 1]!))!)) break
     startIdx -= 1
   }
   while (endIdx < nodes.length - 1 && !cleanAfter(endIdx)) {
-    if (isCheckpointNode(session.snapshotEvents()[nodes[endIdx + 1]!]!)) break
+    if (isCheckpointNode(session.eventAt(SessionSeq(nodes[endIdx + 1]!))!)) break
     endIdx += 1
   }
   // Value order guard: the surface is locally non-monotonic after replacements
@@ -333,7 +333,9 @@ export function validateExactRange(session: Session, start: number, end: number,
     for (let i = nodes.length - 1; i >= 0; i--) {
       const event = session.eventAt(nodes[i]!)
       if (event?.type === 'user/message' && event.data.source.kind === 'user') {
-        if (i >= first && i <= last) throw new Error('protected-current-user: the latest user input cannot be archived')
+        if (i >= first && i <= last) {
+          throw new Error('protected-current-user: the latest user input cannot be archived')
+        }
         break
       }
     }
@@ -754,16 +756,42 @@ function isCheckpointNode(event: SessionEvent): boolean {
  */
 export function buildCompressibleSeqRanges(
   session: Session,
-  opts: { preserveRecent?: number; incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; includeCheckpoints?: boolean } = {},
+  opts: { preserveRecent?: number; preserveRecentSteps?: number; incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage; includeCheckpoints?: boolean } = {},
 ): SeqCompressibleRange[] {
   const nodes = session.surface.nodes
   const preserve = opts.preserveRecent ?? 5
   const protectedSeqs = new Set<number>()
-  if (preserve > 0) {
+  if (opts.preserveRecentSteps !== undefined && opts.preserveRecentSteps > 0) {
+    // Step-aligned recency: a fixed node count can split a tool call/result
+    // pair at the boundary (the call stays free, the result protected), which
+    // makes the pair unshadowable and shrinks every fallback bite — the
+    // mechanism behind clustered minimal fallbacks in the 150k iteration.
+    // Step boundaries never split pairs, so protect whole trailing steps.
+    const events = session.snapshotEvents()
+    let boundary = -1
+    let steps = 0
+    for (let seq = events.length - 1; seq >= 0; seq -= 1) {
+      const event = events[seq]
+      if (event !== undefined && event.type === 'step/start') {
+        steps += 1
+        if (steps >= opts.preserveRecentSteps) { boundary = seq; break }
+      }
+    }
+    if (boundary >= 0) {
+      for (const seq of nodes) if (seq >= boundary) protectedSeqs.add(seq)
+    } else {
+      for (const seq of nodes.slice(-preserve)) protectedSeqs.add(seq)
+    }
+  } else if (preserve > 0) {
     for (const seq of nodes.slice(-preserve)) protectedSeqs.add(seq)
   }
-  for (let index = nodes.length - 1; !opts.incomingUser && index >= 0; index -= 1) {
-    const event = session.snapshotEvents()[nodes[index]!]
+  // The latest on-surface user message is always protected, with or without an
+  // incoming admission: an incoming message does NOT make the live surface
+  // instruction archivable (the 150k adaptive run died exactly here). Use the
+  // seq-correct eventAt lookup — raw snapshotEvents() indexing missed this
+  // message on long rebuilt surfaces.
+  for (let index = nodes.length - 1; index >= 0; index -= 1) {
+    const event = session.eventAt(SessionSeq(nodes[index]!))
     if (event?.type === 'user/message' && event.data.source.kind === 'user') {
       protectedSeqs.add(nodes[index]!)
       break
@@ -776,7 +804,7 @@ export function buildCompressibleSeqRanges(
     cur = null
   }
   for (const seq of nodes) {
-    const event = session.snapshotEvents()[seq]
+    const event = session.eventAt(SessionSeq(seq))
     if (event === undefined || protectedSeqs.has(seq) || (!opts.includeCheckpoints && isCheckpointNode(event))) {
       flush()
       continue

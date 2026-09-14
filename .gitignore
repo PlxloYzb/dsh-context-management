@@ -6,3 +6,9 @@ coverage/
 *.tgz
 *.log
 .DS_Store
+
+# Experiment machinery and one-off process artifacts (exact copies preserved
+# under .test-runtime/experiment-runners; not part of the shipped package).
+tests/experiments/
+tests/experiment-protocol.test.ts
+docs/handoff-2026-09-10/
