@@ -292,9 +292,28 @@ export class ArchiveReader {
           scanned += chunk.length
           if (match >= 0 && o + match < end) {
             const at = o + match
-            let snippetStart = Math.max(0, at - 32)
+            // A hit must identify the record it belongs to. Starting 32 code
+            // points back often lands mid-line, so a generic value query such
+            // as `checksum=` returned "state=retrying; previous=delta;
+            // checksum=…" with no enclosing record name, and the model paid a
+            // whole-block decompress to learn which observation matched.
+            // Prepend the containing line's opening text when the line starts
+            // further back, inside the same 100-code-point snippet so packed
+            // bytes do not grow. The match is budgeted first, so a longer query
+            // shrinks the lead and back-context instead of truncating the
+            // literal the caller asked for.
+            const queryPoints = [...args.query].length
+            const leadPoints = Math.min(32, Math.max(0, 100 - queryPoints - 16))
+            const backPoints = Math.max(0, Math.min(32, 100 - leadPoints - 1 - queryPoints - 8))
+            let snippetStart = Math.max(0, at - backPoints)
             if (snippetStart > 0 && /[\uDC00-\uDFFF]/u.test(text[snippetStart]!)) snippetStart--
-            const hit = { blockId: block.blockId, generation: block.contextManagement?.generationAfter ?? 0, seq, textBlockPath: part.path, offset: at, snippet: [...text.slice(snippetStart, textEnd(text, snippetStart, at + args.query.length + 64 - snippetStart))].slice(0, 100).join('') }
+            const lineStart = text.lastIndexOf('\n', Math.max(0, at - 1)) + 1
+            let lead = ''
+            if (leadPoints > 0 && lineStart < snippetStart) {
+              const opening = [...text.slice(lineStart, snippetStart)]
+              lead = `${opening.slice(0, leadPoints).join('')}${opening.length > leadPoints ? '…' : ''}`
+            }
+            const hit = { blockId: block.blockId, generation: block.contextManagement?.generationAfter ?? 0, seq, textBlockPath: part.path, offset: at, snippet: [...(lead + text.slice(snippetStart, textEnd(text, snippetStart, at + args.query.length + 64 - snippetStart)))].slice(0, 100).join('') }
             const bytes = Buffer.byteLength(JSON.stringify(hit)) + (hits.length ? 1 : 0)
             if (bytes > remaining) {
               if (hits.length === 0) return fail('insufficient-headroom')

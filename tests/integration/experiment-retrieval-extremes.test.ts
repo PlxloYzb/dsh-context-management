@@ -97,6 +97,45 @@ test('R10c: a cursor-resumed page that exhausts the archive does not claim absen
   assert.ok(Buffer.byteLength(JSON.stringify(rest)) <= 1100)
 })
 
+test('R10d: a mid-line hit names the record it belongs to without growing the snippet', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-line-anchored-snippet')
+  session.append('turn/start', { turn: 1 })
+  const first = 'Observation 1.0: service=beacon; trace=b4feb9e61dab; latency=700ms; replicas=1; state=ready; previous=delta; checksum=da812088a2. Diagnostic context only.'
+  const second = 'Observation 2.0: 服务=甲🙂; trace=7ab63eebd3af; latency=491ms; replicas=2; state=retrying; previous=ember; checksum=1805d5d26e. Diagnostic context only.'
+  appendUser(session, `${first}\n${second}\n${'tail line\n'.repeat(40)}`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Line-anchored snippet fixture' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'line-anchored-snippet',
+  })
+  const reader = new ArchiveReader()
+  type Page = { status: string; hits: { seq: number; offset: number; snippet: string }[]; nextCursor: string | null }
+  const page = reader.search(session, { query: 'checksum=', limit: 5 }, 1536) as Page
+  assert.equal(page.status, 'success'); assert.ok(page.hits.length >= 2)
+  assert.ok(Buffer.byteLength(JSON.stringify(page)) <= 1536)
+  for (const hit of page.hits) {
+    // The match and its value survive, the record name leads, and the snippet
+    // never exceeds its documented 100-code-point cap.
+    assert.ok(hit.snippet.includes('checksum='), 'snippet keeps the matched literal')
+    assert.ok([...hit.snippet].length <= 100, 'snippet respects the code-point cap')
+  }
+  assert.match(page.hits[0]!.snippet, /^Observation 1\.0:/, 'first hit leads with its record name')
+  assert.match(page.hits[0]!.snippet, /checksum=da812088a2/)
+  assert.match(page.hits[1]!.snippet, /^Observation 2\.0:/, 'unicode record still resolves to its line opening')
+  assert.match(page.hits[1]!.snippet, /checksum=1805d5d26e/)
+  // A longer query must keep its whole literal visible: the lead and the
+  // back-context shrink instead of the match being truncated away.
+  const longQuery = first.slice(60, 130)
+  assert.ok([...longQuery].length > 60)
+  const longPage = reader.search(session, { query: longQuery, limit: 3 }, 1536) as Page
+  assert.equal(longPage.status, 'success'); assert.equal(longPage.hits.length, 1)
+  assert.ok(longPage.hits[0]!.snippet.includes(longQuery), 'the full matched literal survives a long query')
+  assert.ok([...longPage.hits[0]!.snippet].length <= 100)
+})
+
 test('R09 experiment: one-token and invalid retrieval budgets are explicit; cancelled pagination can resume without losing Unicode source bytes', async t => {
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'experiment-extreme-retrieval')
