@@ -79,6 +79,7 @@ import {
   findOpenTurn,
   runManualCompactionTransaction,
   shadowedSeqsOf,
+  surfaceSummary,
 } from './region.ts'
 
 const ARC_BACKEND_BRAND = Symbol.for('dsh-context-management.backend')
@@ -733,7 +734,12 @@ export class ArcCompactionEngine extends CompactionEngine {
     return { package: 'dsh-context-management', version: PACKAGE_VERSION, backend: this.backendOwnership(agent), strategy: this.adaptiveGovernor.strategy,
       ...this.windows.status(agent.session), archiveIntegrity: archiveHealth(agent.session.snapshotEvents()), budget: { routeCapacity: window, logicalWindow: this.adaptiveGovernor.windowBudgetTokens ?? null, pressure,
         ...governorCapacity(window.limit, this.adaptiveGovernor, governedOutputReserve(agent, { ...this.adaptiveGovernor, enabled: true }, window.limit)) },
-      archives: this.reader.ledger(agent.session).length }
+      archives: this.reader.ledger(agent.session).length,
+      // This is also the model tool's real status path. Prompts direct the
+      // model here for fresh seqs after a replacement; the legacy text-only
+      // fallback is not used by installed engines.
+      surface: surfaceSummary(agent.session),
+      compressibleRanges: buildCompressibleSeqRanges(agent.session).sort((a, b) => b.start - a.start).slice(0, 6) }
   }
   async windowFor(agent: Agent): Promise<ArcWindow> {
     const route = agent.session.requestHeader()?.config ?? agent.options

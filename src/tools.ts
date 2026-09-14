@@ -556,7 +556,7 @@ async function handleCompress(env: ToolEnvironment, args: CompressArgs, exec: To
 const decompressParameters = {
   blockId: { type: 'string' as const, required: true, description: 'Full or unique archive block ID.' },
   cursor: { type: 'string' as const, description: 'nextCursor from the previous page of this block.' },
-  maxTokens: { type: 'integer' as const, description: 'Output budget; default 2048, maximum 4096.' },
+  maxTokens: { type: 'integer' as const, description: 'Output budget; minimum 768, default 2048, maximum 4096. Smaller requests cannot fit the response envelope.' },
   sourceSeq: { type: 'integer' as const, description: 'Jump directly to a source seq returned by search_context; do not combine with cursor.' },
   textBlockPath: { type: 'array' as const, items: { type: 'integer' as const }, description: 'Exact textBlockPath from a search hit; requires sourceSeq.' },
   offset: { type: 'integer' as const, description: 'UTF-16 text offset from a search hit; requires sourceSeq.' },
@@ -631,7 +631,7 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
   // 28 steps timed out the turn); the engine itself must bound retrieval so a
   // turn always converges to answering with the evidence already recovered.
   const TURN_RETRIEVAL_GRANTS = 20
-  function retrieve(agent: Agent, signal: AbortSignal, read: (budget: number) => object): TextOutput {
+  function retrieve(agent: Agent, signal: AbortSignal, minimumBytes: number, read: (budget: number) => object): TextOutput {
     signal.throwIfAborted()
     if (!env.retrievalBudget) return { text: JSON.stringify(read(4096)) }
     const events = agent.session.snapshotEvents()
@@ -656,6 +656,12 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
       return { text: JSON.stringify({ status: 'error', code: 'retrieval-allowance-exhausted', hint: 'The per-turn retrieval allowance is used up. Answer now from the evidence already recovered; retrieval resumes next turn.' }) }
     }
     reservation.turnGrants += 1
+    if (live >= minimumBytes && reservation.remaining < minimumBytes) {
+      // A new step replenishes this shared burst pool without compaction.
+      // Calling it context pressure sent real F3 probes into needless
+      // compression/recovery turns after parallel searches consumed the pool.
+      return { text: JSON.stringify({ status: 'error', code: 'retrieval-step-allowance-exhausted', hint: 'This step has used its shared retrieval allowance. Retry the needed search/retrieval in the next step, with fewer parallel calls. This error does not require compression.' }) }
+    }
     const text = JSON.stringify(read(Math.max(0, Math.min(live, 1536, reservation.remaining))))
     // Reserve synchronously before parallel calls can observe the same headroom.
     // Logged results may also enter the live measurement: double reservation
@@ -695,7 +701,7 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
       execute(args, exec) {
         const agent = requireAgent(exec)
         const input = args as DecompressArgs
-        return Promise.resolve(retrieve(agent, exec.signal, budget => reader.decompress(agent.session, { ...input, maxTokens: input.maxTokens ?? env.archive?.retrievalDefaultMaxTokens ?? 2048 }, budget, exec.signal)))
+        return Promise.resolve(retrieve(agent, exec.signal, 768, budget => reader.decompress(agent.session, { ...input, maxTokens: input.maxTokens ?? env.archive?.retrievalDefaultMaxTokens ?? 2048 }, budget, exec.signal)))
       },
     }),
     defineTool({
@@ -705,7 +711,7 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
       output: textOutput(),
       execute(args, exec) {
         const agent = requireAgent(exec)
-        return Promise.resolve(retrieve(agent, exec.signal, budget => reader.search(agent.session, args as SearchArgs, budget, exec.signal)))
+        return Promise.resolve(retrieve(agent, exec.signal, 1100, budget => reader.search(agent.session, args as SearchArgs, budget, exec.signal)))
       },
     }),
     defineTool({

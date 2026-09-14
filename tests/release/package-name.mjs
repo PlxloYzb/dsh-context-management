@@ -11,6 +11,7 @@ import { join, resolve } from 'node:path'
 import { webClient } from '../live/client.mjs'
 
 const pkg = JSON.parse(await readFile('package.json', 'utf8'))
+const dshBin = process.env.EXPERIMENT_DSH_BIN ?? resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
 const temporary = await mkdtemp(join(tmpdir(), 'dsh-package-name-'))
 const dshHome = join(temporary, 'dsh'), profile = join(dshHome, 'profiles', 'web')
 const reportRoot = resolve('.test-runtime/reports/release')
@@ -40,7 +41,7 @@ async function startWeb() {
   const reserve = createServer(); await new Promise(resolve => reserve.listen(0, '127.0.0.1', resolve))
   const port = reserve.address().port; await new Promise(resolve => reserve.close(resolve))
   const log = join(temporary, 'web.log'); await writeFile(log, '')
-  web = spawn('dsh', ['--profile', 'web', '--host', '127.0.0.1', '--port', String(port), '--no-open'], { env: environment, stdio: ['ignore', 'pipe', 'pipe'] })
+  web = spawn(dshBin, ['--profile', 'web', '--host', '127.0.0.1', '--port', String(port), '--no-open'], { env: environment, stdio: ['ignore', 'pipe', 'pipe'] })
   web.stdout.on('data', data => appendFileSync(log, data)); web.stderr.on('data', data => appendFileSync(log, data))
   return webClient(log, port)
 }
@@ -51,7 +52,8 @@ async function session(client) {
 try {
   console.log('Packing and checking the candidate…')
   const packOutput = await run('npm', ['pack', '--pack-destination', temporary], 'pack', process.env)
-  report.tests = [...packOutput.matchAll(/^# tests (\d+)$/gm)].map(match => Number(match[1]))
+  const plainPackOutput = packOutput.replace(/\u001b\[[0-9;]*m/g, '')
+  report.tests = [...plainPackOutput.matchAll(/^(?:#|ℹ) tests (\d+)$/gm)].map(match => Number(match[1]))
   report.prepackPassed = true
   const tarball = await readFile(join(temporary, `${pkg.name}-${pkg.version}.tgz`))
   report.tarballHash = createHash('sha256').update(tarball).digest('hex')
@@ -78,7 +80,7 @@ try {
   environment.PNPM_CONFIG_REGISTRY = environment.npm_config_registry
   environment.PNPM_CONFIG_STORE_DIR = join(temporary, 'pnpm-store')
   console.log('Testing dsh plugin --profile web add dsh-context-management')
-  await run('dsh', ['plugin', '--profile', 'web', 'add', 'dsh-context-management'], 'add')
+  await run(dshBin, ['plugin', '--profile', 'web', 'add', 'dsh-context-management'], 'add')
   report.commands.push('dsh plugin --profile web add dsh-context-management')
   const installed = JSON.parse(await readFile(join(profile, 'node_modules', pkg.name, 'package.json'), 'utf8'))
   assert.equal(installed.version, pkg.version); assert.ok(candidateRequests > 0)
@@ -102,7 +104,7 @@ try {
   report.installed = { resolvedVersion: installed.version, bundleEnabled: true, nativeContextCommand: true, nativeCompactAvailable: true }
   await stopWeb()
   console.log('Testing dsh plugin --profile web remove dsh-context-management')
-  await run('dsh', ['plugin', '--profile', 'web', 'remove', 'dsh-context-management'], 'remove')
+  await run(dshBin, ['plugin', '--profile', 'web', 'remove', 'dsh-context-management'], 'remove')
   report.commands.push('dsh plugin --profile web remove dsh-context-management')
   const removed = JSON.parse(await readFile(join(profile, 'package.json'), 'utf8'))
   assert.equal(removed.dependencies?.[pkg.name], undefined); assert.ok(!removed.dsh.profile.bundles.includes(pkg.name))

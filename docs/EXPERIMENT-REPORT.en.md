@@ -1,6 +1,8 @@
-# 400k experiment report (pilot ended; formal cohort incomplete)
+# 400k experiment report (closed on 2026-09-12)
 
 [中文](EXPERIMENT-REPORT.zh-CN.md) · [Preregistered plan](EXPERIMENTS.en.md) · [Current data](data/experiment-400k-r1-2026-09-09.json) · [Full R20 matrix](data/experiment-scale-r20-2026-09-09.json)
+
+Current status: all 180 formal entries are terminal, comprising 98 substantive model-task outcomes and 82 infrastructure failures. The old candidate established no confirmatory quality or efficiency advantage. See the final close-out section and subsequent [150k fixes](ITERATION-150K.en.md). The chronological records below retain historical running states; those are not the current status.
 
 Updated 2026-09-09T07:20:07.974Z. **Pilot: 18/18 attempted, 18 ended (3 pass, 15 fail), 0 running. Confirmation: 0/180 attempted, 0 ended, 0 running. No quality non-inferiority, cost reduction or speed advantage is established.**
 

@@ -1,0 +1,399 @@
+{
+  "baselineCommit": "ac9e2a8",
+  "candidateSourceHash": "527039150e55f00265401bbe8873eaf881c9b22f1826e37647771cd509e34e74",
+  "measuredAt": "2026-09-14T15:04:48.410Z",
+  "results": [
+    {
+      "mode": "ordinary",
+      "events": 100001,
+      "archives": 1100,
+      "fixtureHash": "b4365fed813623db94574108ed3da1ee498ecd946d62ccbf5ebd08bf1064625d",
+      "measures": {
+        "before": [
+          22.681040999999937,
+          17.387499999999932,
+          16.79008299999998,
+          17.953666,
+          15.428583000000003,
+          17.51054099999999,
+          15.965958,
+          15.909666000000016
+        ],
+        "after": [
+          8.021499999999946,
+          6.490750000000048,
+          5.075124999999957,
+          5.503542000000039,
+          5.592875000000049,
+          5.82162500000004,
+          4.919667000000004,
+          4.7232910000000174
+        ]
+      },
+      "medianBeforeMs": 17.088791499999957,
+      "medianAfterMs": 5.548208500000044,
+      "ratio": 0.3246694478073571
+    },
+    {
+      "mode": "short-original-text",
+      "events": 100001,
+      "archives": 1100,
+      "fixtureHash": "a5f63f3acb6d1920459ecf4205c8aea7fdefc74297a20526aa5a64e289b412ff",
+      "measures": {
+        "before": [
+          229.87762500000008,
+          262.01424999999995,
+          224.79274999999984,
+          216.40650000000005,
+          210.59495900000002,
+          267.9827500000001,
+          231.78245900000002,
+          233.19337500000074
+        ],
+        "after": [
+          147.27125,
+          150.86741600000005,
+          141.08024999999998,
+          135.37975000000006,
+          174.70024999999987,
+          252.67458299999998,
+          153.79224999999997,
+          162.3720840000001
+        ]
+      },
+      "medianBeforeMs": 230.83004200000005,
+      "medianAfterMs": 152.329833,
+      "ratio": 0.6599220434227533
+    }
+  ],
+  "searchPayloadBefore": [
+    {
+      "budget": 1100,
+      "resultBytes": 402,
+      "hits": 1,
+      "hasMore": true
+    },
+    {
+      "budget": 1536,
+      "resultBytes": 402,
+      "hits": 1,
+      "hasMore": true
+    },
+    {
+      "budget": 2048,
+      "resultBytes": 569,
+      "hits": 2,
+      "hasMore": true
+    },
+    {
+      "budget": 4096,
+      "resultBytes": 1072,
+      "hits": 5,
+      "hasMore": true
+    }
+  ],
+  "searchPayloadAfter": [
+    {
+      "budget": 1100,
+      "resultBytes": 1072,
+      "hits": 5,
+      "hasMore": true
+    },
+    {
+      "budget": 1536,
+      "resultBytes": 1072,
+      "hits": 5,
+      "hasMore": true
+    },
+    {
+      "budget": 2048,
+      "resultBytes": 1072,
+      "hits": 5,
+      "hasMore": true
+    },
+    {
+      "budget": 4096,
+      "resultBytes": 1072,
+      "hits": 5,
+      "hasMore": true
+    }
+  ],
+  "classification": "Synthetic local microbenchmark; eight alternating measurements per variant, not model-task efficiency or statistical superiority.",
+  "regressions": {
+    "unitPassed": 187,
+    "integrationPassed": 74,
+    "localClientPassed": 6,
+    "typecheck": true,
+    "build": true,
+    "prepack": true
+  },
+  "modelGates": "Candidate6 three-arm cohort reviewed with the same fixture and six prompts: A native and B in-place passed all quality checks; C windowed scored 24/24 facts, 6/6 corrections, diagnosis passed, but 2/3 verbatim due to one source lookup omitted by the model. Every archive/exposure audit passed. This is not an all-three-arm quality pass. Broader F5 citation and final restart evidence are in progress.",
+  "medianConvention": "For even sample counts, average the two central order statistics.",
+  "queryDiscrimination": {
+    "sourceRun": "c-f3-91501-48p-candidate1",
+    "boundary": 9031,
+    "rows": [
+      {
+        "query": "F14",
+        "status": "success",
+        "hits": 5,
+        "literalFactHits": 2,
+        "hasMore": true,
+        "bytes": 1365
+      },
+      {
+        "query": "F14 =",
+        "status": "success",
+        "hits": 2,
+        "literalFactHits": 2,
+        "hasMore": false,
+        "bytes": 636
+      },
+      {
+        "query": "F16",
+        "status": "success",
+        "hits": 5,
+        "literalFactHits": 1,
+        "hasMore": true,
+        "bytes": 1362
+      },
+      {
+        "query": "F16 =",
+        "status": "success",
+        "hits": 2,
+        "literalFactHits": 2,
+        "hasMore": false,
+        "bytes": 641
+      },
+      {
+        "query": "F17",
+        "status": "success",
+        "hits": 5,
+        "literalFactHits": 0,
+        "hasMore": true,
+        "bytes": 1358
+      },
+      {
+        "query": "F17 =",
+        "status": "success",
+        "hits": 2,
+        "literalFactHits": 2,
+        "hasMore": false,
+        "bytes": 637
+      },
+      {
+        "query": "F19",
+        "status": "success",
+        "hits": 5,
+        "literalFactHits": 1,
+        "hasMore": true,
+        "bytes": 1360
+      },
+      {
+        "query": "F19 =",
+        "status": "success",
+        "hits": 2,
+        "literalFactHits": 2,
+        "hasMore": false,
+        "bytes": 637
+      }
+    ],
+    "classification": "Offline replay at the same inherited reading boundary; illustrates literal-query specificity, not a model-effect estimate."
+  },
+  "requestedBudgetReplay": {
+    "sourceRun": "c-f3-91503-24p-candidate4",
+    "rows": [
+      {
+        "originalMaxTokens": 512,
+        "error": "requested-budget-too-small",
+        "retryMaxTokens": 1024,
+        "retryBytes": 1024,
+        "checksumRecoveredExactly": true
+      },
+      {
+        "originalMaxTokens": 512,
+        "error": "requested-budget-too-small",
+        "retryMaxTokens": 1024,
+        "retryBytes": 1024,
+        "checksumRecoveredExactly": true
+      },
+      {
+        "originalMaxTokens": 512,
+        "error": "requested-budget-too-small",
+        "retryMaxTokens": 1024,
+        "retryBytes": 1024,
+        "checksumRecoveredExactly": true
+      },
+      {
+        "originalMaxTokens": 300,
+        "error": "requested-budget-too-small",
+        "retryMaxTokens": 1024,
+        "retryBytes": 1024,
+        "checksumRecoveredExactly": true
+      }
+    ]
+  },
+  "finalCandidateVerification": {
+    "baselineCommit": "ac9e2a8",
+    "candidateSourceHash": "a5ded86a18b081d5da2a2ba0d999977531147a93be2f9dda44e9ea4c7172f82f",
+    "measuredAt": "2026-09-14T16:43:44.192Z",
+    "results": [
+      {
+        "mode": "ordinary",
+        "events": 100001,
+        "archives": 1100,
+        "fixtureHash": "b4365fed813623db94574108ed3da1ee498ecd946d62ccbf5ebd08bf1064625d",
+        "measures": {
+          "before": [
+            20.16262499999999,
+            15.102042000000097,
+            13.737958999999933,
+            14.61749999999995,
+            14.174916999999937,
+            13.927208999999948,
+            13.347125000000005,
+            13.571582999999919
+          ],
+          "after": [
+            7.94341600000007,
+            5.238833999999997,
+            4.16658300000006,
+            4.39387499999998,
+            4.838582999999971,
+            4.347375000000056,
+            4.030541000000085,
+            4.1434169999999995
+          ]
+        },
+        "medianBeforeMs": 14.051062999999942,
+        "medianAfterMs": 4.370625000000018,
+        "ratio": 0.31105297869634746
+      },
+      {
+        "mode": "short-original-text",
+        "events": 100001,
+        "archives": 1100,
+        "fixtureHash": "a5f63f3acb6d1920459ecf4205c8aea7fdefc74297a20526aa5a64e289b412ff",
+        "measures": {
+          "before": [
+            206.102625,
+            186.90829200000007,
+            197.46849999999995,
+            180.3716669999999,
+            176.80395800000042,
+            177.49487499999987,
+            179.77262500000006,
+            184.0501250000002
+          ],
+          "after": [
+            128.09254199999987,
+            135.15379199999984,
+            124.08058400000004,
+            120.12833299999988,
+            119.11979099999962,
+            118.38999999999987,
+            124.72345799999994,
+            119.73858299999984
+          ]
+        },
+        "medianBeforeMs": 182.21089600000005,
+        "medianAfterMs": 122.10445849999996,
+        "ratio": 0.6701270954729289
+      }
+    ]
+  },
+  "legacyCompatibilityAudit": {
+    "checkedAt": "2026-09-14T17:07:08.434Z",
+    "fixtureHash": "15e164f2d9eee652e0d1c3e48e92f73a357d53fbda7526ac23c07a28674c23bc",
+    "candidateHash": "f894ad696d91d3fc171b346ee0f48fd732ab4800a501ab255fe09e717ba617b4",
+    "readerArchiveSourceHash": "a5ded86a18b081d5da2a2ba0d999977531147a93be2f9dda44e9ea4c7172f82f",
+    "declaredPages": 432,
+    "exactPagesInRequests": 432,
+    "requestObjectsVerified": 574,
+    "archives": 15,
+    "restoredBytes": 11936207,
+    "segments": 5116,
+    "archiveBytesVerified": true,
+    "classification": "Offline current-reader audit of retained v11 F1/70101 history; no new model calls or page reading. candidateHash identifies the old source run, readerArchiveSourceHash identifies the current auditor implementation."
+  },
+  "emergencyBudgetReplay": {
+    "classification": "Offline candidate6 replay of retained candidate5 B boundaries, before any candidate6 model test. Exact literal presence is not a model-task quality score.",
+    "rows": [
+      {
+        "boundary": 945,
+        "oldSummaryBytes": 4643,
+        "newSummaryBytes": [
+          3864
+        ],
+        "oldCheckpointLatestFactCount": 1,
+        "newCheckpointLatestFactCount": 13,
+        "newSurfaceLatestFactCount": 24
+      },
+      {
+        "boundary": 3538,
+        "oldSummaryBytes": 4744,
+        "newSummaryBytes": [
+          4072,
+          2615
+        ],
+        "oldCheckpointLatestFactCount": 1,
+        "newCheckpointLatestFactCount": 22,
+        "newSurfaceLatestFactCount": 22
+      },
+      {
+        "boundary": 3542,
+        "oldSummaryBytes": 4738,
+        "newSummaryBytes": [
+          2615
+        ],
+        "oldCheckpointLatestFactCount": 3,
+        "newCheckpointLatestFactCount": 6,
+        "newSurfaceLatestFactCount": 13
+      }
+    ]
+  },
+  "candidate6Package": {
+    "tarballHash": "0ace6ea8b51588442b6ce418dafa786258d4a20caab4de156fdda7d448014876",
+    "packageAuditPassed": true,
+    "packageNameInstallRemovePassed": true,
+    "consumerTypesPassed": true,
+    "packFiles": 41
+  },
+  "emergencyBudgetCost": {
+    "measuredAt": "2026-09-14T17:40:33.416Z",
+    "sourceRun": "b-f3-91503-24p-in-place",
+    "throughSeq": 3538,
+    "grantBytes": 4096,
+    "rounds": 8,
+    "warmupRounds": 2,
+    "fixtureHash": "7ee3994756b4373f6461756f545e344820e8b39de1dd13dfe079c061ae7f13c0",
+    "beforeSourceHash": "4353df151413176d13e110ef59af702a7e02f06c1c4d907105834898a8249f85",
+    "afterSourceHash": "4ff3c6ce42f3e68504bf2266f1578a9bbaff3b429a50da0e6117d4446f7dedb2",
+    "sharedIndexSourceHash": "3f64e64961ac49c347293843cc6cbe7e2c8097788bff9046d110da4072387c3f",
+    "timings": {
+      "before": [
+        19.22758300000004,
+        19.19870800000001,
+        19.77570800000001,
+        18.85795799999994,
+        18.898500000000013,
+        18.85495800000001,
+        18.375084000000015,
+        18.516333999999915
+      ],
+      "after": [
+        6.4809999999999945,
+        6.216291999999953,
+        6.436790999999971,
+        6.423915999999963,
+        6.114583000000039,
+        6.468916999999919,
+        6.08116700000005,
+        6.311207999999965
+      ]
+    },
+    "medianBeforeMs": 18.878228999999976,
+    "medianAfterMs": 6.367561999999964,
+    "classification": "Offline same-boundary full emergency transaction cost; alternating order, same host meter and requested grant. Not model task speed or a statistical effect estimate."
+  }
+}

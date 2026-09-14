@@ -10,12 +10,23 @@ export interface Sources {
   incomplete: boolean
 }
 
+function sourceIndex(ledger: readonly ArcBlockLedgerEntry[]) {
+  return {
+    checkpoints: new Map(ledger.map(entry => [entry.summarySeq, entry])),
+    byId: new Map(ledger.map(entry => [entry.blockId, entry])),
+  }
+}
+
 /** Iterative, stable traversal shared by ARC and windows. Never execute sources. */
 export function resolveSources(session: Session, roots: readonly number[], ledger = rebuildBlockLedger(session.snapshotEvents()), signal?: AbortSignal): Sources {
   signal?.throwIfAborted()
+  return resolveIndexedSources(session, roots, sourceIndex(ledger), signal)
+}
+
+function resolveIndexedSources(session: Session, roots: readonly number[], index: ReturnType<typeof sourceIndex>, signal?: AbortSignal): Sources {
+  signal?.throwIfAborted()
   const events = session.snapshotEvents()
-  const checkpoints = new Map(ledger.map(entry => [entry.summarySeq, entry]))
-  const byId = new Map(ledger.map(entry => [entry.blockId, entry]))
+  const { checkpoints, byId } = index
   const stack = [...roots].reverse()
   const visited = new Set<number>()
   const out: Sources = { seqs: [], missing: [], incomplete: false }
@@ -114,6 +125,10 @@ export class ArchiveReader {
   private readonly cursors = new WeakMap<Session, Map<string, Cursor>>()
   private readonly cache = new WeakMap<Session, BlockLedgerIndex>()
   private readonly sourceCache = new WeakMap<Session, Map<string, Sources>>()
+  // BlockLedgerIndex publishes a new array on each committed archive. Reuse
+  // lookup tables for that immutable ledger revision, including when the
+  // bounded per-block source cache evicts entries during a broad search.
+  private readonly sourceIndexes = new WeakMap<ArcBlockLedgerEntry[], ReturnType<typeof sourceIndex>>()
   private readonly searchOwners = new WeakMap<Session, Map<number, number>>()
   ledger(session: Session): ArcBlockLedgerEntry[] {
     let index = this.cache.get(session)
@@ -125,7 +140,9 @@ export class ArchiveReader {
     if (!cache) { cache = new Map(); this.sourceCache.set(session, cache) }
     let sources = cache.get(block.blockId)
     if (!sources) {
-      sources = resolveSources(session, block.shadowedSeqs, ledger, signal)
+      let index = this.sourceIndexes.get(ledger)
+      if (!index) { index = sourceIndex(ledger); this.sourceIndexes.set(ledger, index) }
+      sources = resolveIndexedSources(session, block.shadowedSeqs, index, signal)
       cache.set(block.blockId, sources)
       let entries = 0
       for (const value of cache.values()) entries += value.seqs.length + value.missing.length
@@ -173,7 +190,13 @@ export class ArchiveReader {
     const exact = ledger.find(b => b.blockId === args.blockId)
     const matches = exact ? [exact] : ledger.filter(b => b.blockId.startsWith(args.blockId))
     if (matches.length !== 1) return fail(matches.length ? 'ambiguous-block' : 'block-not-found')
-    if (budget < 768) return fail('insufficient-headroom')
+    if (budget < 768) {
+      if (Number.isFinite(available) && available >= 768 && (args.maxTokens ?? 2048) < 768) {
+        return { status: 'error', code: 'requested-budget-too-small', minimumMaxTokens: 768,
+          hint: 'Set maxTokens to at least 768, for example 1024. Lowering maxTokens or compressing context does not resolve this requested-budget error.' }
+      }
+      return fail('insufficient-headroom')
+    }
     const block = matches[0]!
     const extension: unknown = block.contextManagement
     if (extension !== undefined && !validWindowMetadata(extension, block.blockId)) return fail((extension as { schemaVersion?: unknown })?.schemaVersion !== 1 ? 'unsupported-schema' : 'corrupt-metadata')
@@ -239,7 +262,11 @@ export class ArchiveReader {
     let [b, s, p, o] = offset as [number, number, number, number]
     let scanned = 0, incomplete = false
     const hits: object[] = []
-    const maxHits = Math.min(limit, Math.max(1, Math.floor((available - 650) / 600)))
+    // Reserve the complete envelope, including the longest cursor/boolean
+    // forms, then price each hit's actual serialized bytes. A fixed 600-byte
+    // estimate allowed only one small hit in the usual 1536-byte grant.
+    const envelope = { status: 'success', boundary, hits, incomplete: false, scanBudgetReached: false, nextCursor: 'x'.repeat(60) }
+    let remaining = available - Buffer.byteLength(JSON.stringify(envelope))
     outer: for (; b < ledger.length; b++, s = 0, p = 0, o = 0) {
       signal?.throwIfAborted()
       const block = ledger[b]!
@@ -266,14 +293,23 @@ export class ArchiveReader {
             const at = o + match
             let snippetStart = Math.max(0, at - 32)
             if (snippetStart > 0 && /[\uDC00-\uDFFF]/u.test(text[snippetStart]!)) snippetStart--
-            hits.push({ blockId: block.blockId, generation: block.contextManagement?.generationAfter ?? 0, seq, textBlockPath: part.path, offset: at, snippet: [...text.slice(snippetStart, textEnd(text, snippetStart, at + args.query.length + 64 - snippetStart))].slice(0, 100).join('') })
+            const hit = { blockId: block.blockId, generation: block.contextManagement?.generationAfter ?? 0, seq, textBlockPath: part.path, offset: at, snippet: [...text.slice(snippetStart, textEnd(text, snippetStart, at + args.query.length + 64 - snippetStart))].slice(0, 100).join('') }
+            const bytes = Buffer.byteLength(JSON.stringify(hit)) + (hits.length ? 1 : 0)
+            if (bytes > remaining) {
+              if (hits.length === 0) return fail('insufficient-headroom')
+              // This occurrence was not returned: continuation must begin at
+              // the same match, including when it overlaps the prior hit.
+              o = at
+              break outer
+            }
+            hits.push(hit); remaining -= bytes
             // Resume after this occurrence, not after the entire scan chunk.
             // Advancing one scalar also makes overlapping occurrences discoverable.
             o = at + (text.codePointAt(at)! > 0xffff ? 2 : 1)
           } else {
             o = end
           }
-          if (hits.length >= maxHits || scanned >= 1_000_000) break outer
+          if (hits.length >= limit || scanned >= 1_000_000) break outer
         }
         }
       }

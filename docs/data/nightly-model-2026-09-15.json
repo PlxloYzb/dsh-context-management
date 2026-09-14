@@ -1,0 +1,3312 @@
+{
+  "schemaVersion": 1,
+  "classification": "Exploratory short-run engineering evidence; no statistical superiority claim.",
+  "hostVersion": "0.1.2-rc.1",
+  "route": {
+    "provider": "ubuntu-lora",
+    "model": "Qwen3.8-27B-NVFP4KV-384K"
+  },
+  "runs": [
+    {
+      "name": "c-f3-91501-48p-baseline",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91501,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "f894ad696d91d3fc171b346ee0f48fd732ab4800a501ab255fe09e717ba617b4",
+      "fixture": {
+        "pageCount": 48,
+        "hash": "0e56aa275299a558632d167591c9681b948421850bf8bbdd37db59467a400b9a",
+        "newTextHeuristicTokens": 84000
+      },
+      "geometry": {
+        "pressure": 48000,
+        "effective": 53334,
+        "windowBudget": 65622,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "probeOnly": false,
+      "startedAt": "2026-09-14T15:00:31.549Z",
+      "finishedAt": "2026-09-14T15:25:31.645Z",
+      "elapsedSeconds": 1500,
+      "completed": false,
+      "error": "EXPERIMENT_WALL_TIMEOUT: 25 minutes",
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 386005,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 491255,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 348651,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 109755,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 3,
+        "inPlaceCompactions": 3,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "calls": 22,
+      "reportedTokens": 761140,
+      "usageComplete": false,
+      "timedCalls": [],
+      "deniedTools": 0,
+      "archives": 6,
+      "exactPagesInRequests": 48,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91501-48p-candidate1",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91501,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "6231beb174de53649615828f2331a52aba9b3394363d2cf3c6d74d9c1e4ec528",
+      "fixture": {
+        "pageCount": 48,
+        "hash": "0e56aa275299a558632d167591c9681b948421850bf8bbdd37db59467a400b9a",
+        "newTextHeuristicTokens": 84000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 48000,
+        "effective": 53334,
+        "windowBudget": 65622,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": false,
+      "probeOnly": false,
+      "startedAt": "2026-09-14T15:26:55.193Z",
+      "finishedAt": "2026-09-14T15:50:48.081Z",
+      "elapsedSeconds": 1433,
+      "completed": false,
+      "error": "EXPERIMENT_TURN_TIMEOUT: 600s",
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 189329,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 380104,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 97700,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 162338,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 3,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "calls": 24,
+      "reportedTokens": 855411,
+      "usageComplete": false,
+      "timedCalls": [],
+      "deniedTools": 0,
+      "archives": 7,
+      "exactPagesInRequests": 48,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91501-probe-candidate2",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91501,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "03dbb442c627672bff6be928f5bb24e8cfd45a1975895641245f14d453966868",
+      "fixture": {
+        "pageCount": 48,
+        "hash": "0e56aa275299a558632d167591c9681b948421850bf8bbdd37db59467a400b9a",
+        "newTextHeuristicTokens": 84000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 48000,
+        "effective": 53334,
+        "windowBudget": 65622,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": false,
+      "probeOnly": true,
+      "inheritedFrom": "c-f3-91501-48p-candidate1",
+      "inheritedPages": 48,
+      "startedAt": "2026-09-14T15:55:29.807Z",
+      "finishedAt": "2026-09-14T16:03:55.755Z",
+      "elapsedSeconds": 506,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 3,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "retrievalsDuringP1": 7,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 408735,
+      "p2ElapsedMs": 94723,
+      "calls": 6,
+      "reportedTokens": 195613,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 539,
+          "elapsedMs": 211812,
+          "outputCharacters": {
+            "reasoning": 6538,
+            "text": 142,
+            "arguments": 1022
+          },
+          "outputTokens": 2873
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4679,
+          "elapsedMs": 98016,
+          "outputCharacters": {
+            "reasoning": 2665,
+            "text": 136,
+            "arguments": 112
+          },
+          "outputTokens": 1252
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2230,
+          "elapsedMs": 98199,
+          "outputCharacters": {
+            "reasoning": 1107,
+            "text": 1229,
+            "arguments": 0
+          },
+          "outputTokens": 1298
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 359,
+          "elapsedMs": 17920,
+          "outputCharacters": {
+            "reasoning": 461,
+            "text": 0,
+            "arguments": 98
+          },
+          "outputTokens": 242
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 556,
+          "elapsedMs": 33068,
+          "outputCharacters": {
+            "reasoning": 329,
+            "text": 76,
+            "arguments": 266
+          },
+          "outputTokens": 440
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 960,
+          "elapsedMs": 43144,
+          "outputCharacters": {
+            "reasoning": 563,
+            "text": 768,
+            "arguments": 0
+          },
+          "outputTokens": 566
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 7,
+      "exactPagesInRequests": 48,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-candidate3",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "daa0b8ab18eb83fe95ce493d0b58be48aec7ca920215d8c098f4355aa38ef6c3",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "startedAt": "2026-09-14T16:06:07.199Z",
+      "finishedAt": "2026-09-14T16:13:00.204Z",
+      "elapsedSeconds": 413,
+      "completed": false,
+      "error": "EXPERIMENT_INTERRUPTED_SIGTERM",
+      "intervention": {
+        "reason": "EARLY_STOP_ACTIONABLE_FINDING: engine-supplied arc_status omitted compressible ranges despite fresh-reference guidance; retain reading/probe evidence and fix the real status path before repeating.",
+        "elapsedSecondsAtDecision": 405,
+        "pagesReadAtDecision": 13
+      },
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 78149,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 1,
+        "inPlaceCompactions": 2,
+        "mechanismExercised": false
+      },
+      "restartVerified": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "calls": 8,
+      "reportedTokens": 154761,
+      "usageComplete": false,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1908,
+          "elapsedMs": 29493,
+          "outputCharacters": {
+            "reasoning": 961,
+            "text": 89,
+            "arguments": 22
+          },
+          "outputTokens": 395
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 29601,
+          "elapsedMs": 33924,
+          "outputCharacters": {
+            "reasoning": 324,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 5214,
+          "elapsedMs": 27219,
+          "outputCharacters": {
+            "reasoning": 538,
+            "text": 0,
+            "arguments": 44
+          },
+          "outputTokens": 317
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2268,
+          "elapsedMs": 20342,
+          "outputCharacters": {
+            "reasoning": 545,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 258
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 536,
+          "elapsedMs": 91565,
+          "outputCharacters": {
+            "reasoning": 1713,
+            "text": 0,
+            "arguments": 1316
+          },
+          "outputTokens": 1269
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3035,
+          "elapsedMs": 17380,
+          "outputCharacters": {
+            "reasoning": 250,
+            "text": 0,
+            "arguments": 48
+          },
+          "outputTokens": 199
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2282,
+          "elapsedMs": 66504,
+          "outputCharacters": {
+            "reasoning": 3115,
+            "text": 0,
+            "arguments": 2
+          },
+          "outputTokens": 881
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3094,
+          "elapsedMs": 156959,
+          "outputCharacters": {
+            "reasoning": 7671,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": null
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 3,
+      "exactPagesInRequests": 13,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-candidate4",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "981c8b8b26f058bfc18b028cfb29228d35030ef0d38ecb2f56a5c33da31f586c",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "startedAt": "2026-09-14T16:17:52.115Z",
+      "finishedAt": "2026-09-14T16:32:53.280Z",
+      "elapsedSeconds": 901,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 145764,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 178839,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 34595,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 19572,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "retrievalsDuringP1": 5,
+      "retrievalsDuringP2": 19,
+      "p1ElapsedMs": 204414,
+      "p2ElapsedMs": 315699,
+      "calls": 27,
+      "reportedTokens": 615796,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 958,
+          "elapsedMs": 40569,
+          "outputCharacters": {
+            "reasoning": 1736,
+            "text": 0,
+            "arguments": 11
+          },
+          "outputTokens": 562
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 40673,
+          "elapsedMs": 45165,
+          "outputCharacters": {
+            "reasoning": 329,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 5068,
+          "elapsedMs": 13298,
+          "outputCharacters": {
+            "reasoning": 180,
+            "text": 0,
+            "arguments": 22
+          },
+          "outputTokens": 116
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 908,
+          "elapsedMs": 22701,
+          "outputCharacters": {
+            "reasoning": 545,
+            "text": 0,
+            "arguments": 33
+          },
+          "outputTokens": 305
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1916,
+          "elapsedMs": 68418,
+          "outputCharacters": {
+            "reasoning": 3502,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 917
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 757,
+          "elapsedMs": 88782,
+          "outputCharacters": {
+            "reasoning": 3107,
+            "text": 0,
+            "arguments": 11
+          },
+          "outputTokens": 1178
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1566,
+          "elapsedMs": 10823,
+          "outputCharacters": {
+            "reasoning": 253,
+            "text": 0,
+            "arguments": 22
+          },
+          "outputTokens": 127
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1177,
+          "elapsedMs": 23286,
+          "outputCharacters": {
+            "reasoning": 397,
+            "text": 0,
+            "arguments": 48
+          },
+          "outputTokens": 298
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2293,
+          "elapsedMs": 55521,
+          "outputCharacters": {
+            "reasoning": 2031,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 710
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 984,
+          "elapsedMs": 27429,
+          "outputCharacters": {
+            "reasoning": 594,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 359
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2824,
+          "elapsedMs": 5943,
+          "outputCharacters": {
+            "reasoning": 139,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 43
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 698,
+          "elapsedMs": 13542,
+          "outputCharacters": {
+            "reasoning": 74,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 174
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3208,
+          "elapsedMs": 5871,
+          "outputCharacters": {
+            "reasoning": 85,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 37
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 179,
+          "elapsedMs": 92416,
+          "outputCharacters": {
+            "reasoning": 2284,
+            "text": 0,
+            "arguments": 80
+          },
+          "outputTokens": 1254
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 552,
+          "elapsedMs": 10655,
+          "outputCharacters": {
+            "reasoning": 117,
+            "text": 0,
+            "arguments": 103
+          },
+          "outputTokens": 138
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 939,
+          "elapsedMs": 100272,
+          "outputCharacters": {
+            "reasoning": 1360,
+            "text": 1039,
+            "arguments": 0
+          },
+          "outputTokens": 1373
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 480,
+          "elapsedMs": 15597,
+          "outputCharacters": {
+            "reasoning": 374,
+            "text": 0,
+            "arguments": 115
+          },
+          "outputTokens": 214
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1194,
+          "elapsedMs": 37856,
+          "outputCharacters": {
+            "reasoning": 461,
+            "text": 0,
+            "arguments": 308
+          },
+          "outputTokens": 526
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 439,
+          "elapsedMs": 4118,
+          "outputCharacters": {
+            "reasoning": 188,
+            "text": 0,
+            "arguments": 2
+          },
+          "outputTokens": 54
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 564,
+          "elapsedMs": 16429,
+          "outputCharacters": {
+            "reasoning": 443,
+            "text": 0,
+            "arguments": 102
+          },
+          "outputTokens": 231
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 171,
+          "elapsedMs": 50502,
+          "outputCharacters": {
+            "reasoning": 2115,
+            "text": 132,
+            "arguments": 147
+          },
+          "outputTokens": 721
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 293,
+          "elapsedMs": 23351,
+          "outputCharacters": {
+            "reasoning": 1056,
+            "text": 0,
+            "arguments": 43
+          },
+          "outputTokens": 324
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 364,
+          "elapsedMs": 30319,
+          "outputCharacters": {
+            "reasoning": 1460,
+            "text": 0,
+            "arguments": 46
+          },
+          "outputTokens": 416
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 605,
+          "elapsedMs": 30213,
+          "outputCharacters": {
+            "reasoning": 726,
+            "text": 78,
+            "arguments": 86
+          },
+          "outputTokens": 409
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 238,
+          "elapsedMs": 28660,
+          "outputCharacters": {
+            "reasoning": 917,
+            "text": 0,
+            "arguments": 115
+          },
+          "outputTokens": 395
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 328,
+          "elapsedMs": 23959,
+          "outputCharacters": {
+            "reasoning": 726,
+            "text": 0,
+            "arguments": 85
+          },
+          "outputTokens": 326
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 426,
+          "elapsedMs": 53164,
+          "outputCharacters": {
+            "reasoning": 998,
+            "text": 739,
+            "arguments": 0
+          },
+          "outputTokens": 718
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-candidate5",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "d3fbb2fbd33b8f23d665246ff933922c8cffaf73cf0c9376a6a7d8672470abbc",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T16:38:06.542Z",
+      "finishedAt": "2026-09-14T16:49:43.514Z",
+      "elapsedSeconds": 697,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 42090,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 46595,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 25568,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 27074,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 1,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 5,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 443353,
+      "p2ElapsedMs": 109752,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 1,
+            "compress": 2
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 18,
+      "reportedTokens": 467269,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1986,
+          "elapsedMs": 17659,
+          "outputCharacters": {
+            "reasoning": 186,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 217
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 17671,
+          "elapsedMs": 22221,
+          "outputCharacters": {
+            "reasoning": 330,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7018,
+          "elapsedMs": 23811,
+          "outputCharacters": {
+            "reasoning": 874,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 234
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 396,
+          "elapsedMs": 33211,
+          "outputCharacters": {
+            "reasoning": 587,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 460
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4538,
+          "elapsedMs": 9118,
+          "outputCharacters": {
+            "reasoning": 119,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 67
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1016,
+          "elapsedMs": 3464,
+          "outputCharacters": {
+            "reasoning": 109,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 36
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 978,
+          "elapsedMs": 18582,
+          "outputCharacters": {
+            "reasoning": 220,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 252
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2814,
+          "elapsedMs": 6285,
+          "outputCharacters": {
+            "reasoning": 160,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 51
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 693,
+          "elapsedMs": 12795,
+          "outputCharacters": {
+            "reasoning": 91,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 177
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3198,
+          "elapsedMs": 13641,
+          "outputCharacters": {
+            "reasoning": 519,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 152
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 209,
+          "elapsedMs": 81147,
+          "outputCharacters": {
+            "reasoning": 1961,
+            "text": 0,
+            "arguments": 125
+          },
+          "outputTokens": 1157
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 568,
+          "elapsedMs": 13888,
+          "outputCharacters": {
+            "reasoning": 340,
+            "text": 0,
+            "arguments": 88
+          },
+          "outputTokens": 187
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 774,
+          "elapsedMs": 258041,
+          "outputCharacters": {
+            "reasoning": 8627,
+            "text": 0,
+            "arguments": 1009
+          },
+          "outputTokens": 3543
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3746,
+          "elapsedMs": 36379,
+          "outputCharacters": {
+            "reasoning": 192,
+            "text": 0,
+            "arguments": 991
+          },
+          "outputTokens": 457
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 267,
+          "elapsedMs": 53477,
+          "outputCharacters": {
+            "reasoning": 83,
+            "text": 1351,
+            "arguments": 0
+          },
+          "outputTokens": 727
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 384,
+          "elapsedMs": 27306,
+          "outputCharacters": {
+            "reasoning": 693,
+            "text": 0,
+            "arguments": 124
+          },
+          "outputTokens": 362
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1109,
+          "elapsedMs": 46995,
+          "outputCharacters": {
+            "reasoning": 554,
+            "text": 0,
+            "arguments": 384
+          },
+          "outputTokens": 611
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 660,
+          "elapsedMs": 34285,
+          "outputCharacters": {
+            "reasoning": 385,
+            "text": 690,
+            "arguments": 0
+          },
+          "outputTokens": 463
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 5,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "a-f3-91503-24p-native",
+      "arm": "A_NATIVE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "d3fbb2fbd33b8f23d665246ff933922c8cffaf73cf0c9376a6a7d8672470abbc",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "Basic",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": null,
+      "startedAt": "2026-09-14T16:50:26.227Z",
+      "finishedAt": "2026-09-14T16:55:18.581Z",
+      "elapsedSeconds": 292,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 34573,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 55608,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 24064,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 22561,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": null
+      },
+      "nativeThresholdTokens": 314572,
+      "nativeCompactionRequired": false,
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 0,
+      "retrievalsDuringP2": 0,
+      "p1ElapsedMs": 120225,
+      "p2ElapsedMs": 33074,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 12,
+      "reportedTokens": 547184,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1534,
+          "elapsedMs": 17674,
+          "outputCharacters": {
+            "reasoning": 259,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 236
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 17759,
+          "elapsedMs": 22135,
+          "outputCharacters": {
+            "reasoning": 300,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 6931,
+          "elapsedMs": 15577,
+          "outputCharacters": {
+            "reasoning": 353,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 125
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 442,
+          "elapsedMs": 20576,
+          "outputCharacters": {
+            "reasoning": 311,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 279
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3633,
+          "elapsedMs": 8776,
+          "outputCharacters": {
+            "reasoning": 129,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 71
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 848,
+          "elapsedMs": 25900,
+          "outputCharacters": {
+            "reasoning": 788,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 347
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 375,
+          "elapsedMs": 15469,
+          "outputCharacters": {
+            "reasoning": 96,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 209
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4256,
+          "elapsedMs": 8337,
+          "outputCharacters": {
+            "reasoning": 170,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 57
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 809,
+          "elapsedMs": 13188,
+          "outputCharacters": {
+            "reasoning": 60,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 170
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4672,
+          "elapsedMs": 8122,
+          "outputCharacters": {
+            "reasoning": 154,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 48
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 662,
+          "elapsedMs": 119409,
+          "outputCharacters": {
+            "reasoning": 2064,
+            "text": 1027,
+            "arguments": 0
+          },
+          "outputTokens": 1610
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1191,
+          "elapsedMs": 31566,
+          "outputCharacters": {
+            "reasoning": 1069,
+            "text": 83,
+            "arguments": 0
+          },
+          "outputTokens": 418
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 0,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "b-f3-91503-24p-in-place",
+      "arm": "B_IN_PLACE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "d3fbb2fbd33b8f23d665246ff933922c8cffaf73cf0c9376a6a7d8672470abbc",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "in-place",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T16:57:30.406Z",
+      "finishedAt": "2026-09-14T17:09:48.815Z",
+      "elapsedSeconds": 738,
+      "completed": false,
+      "error": "EXPERIMENT_TURN_TIMEOUT: 600s",
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 48086,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 39084,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 27070,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 21061,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": null,
+      "verbatimScore": null,
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 6,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": null,
+      "retrievalsDuringP2": null,
+      "p1ElapsedMs": null,
+      "p2ElapsedMs": null,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 30,
+            "decompress": 1
+          },
+          "errors": {
+            "retrieval-allowance-exhausted": 11
+          }
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 16,
+      "reportedTokens": 401083,
+      "usageComplete": false,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1826,
+          "elapsedMs": 24188,
+          "outputCharacters": {
+            "reasoning": 498,
+            "text": 58,
+            "arguments": 66
+          },
+          "outputTokens": 300
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 24278,
+          "elapsedMs": 28899,
+          "outputCharacters": {
+            "reasoning": 324,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7548,
+          "elapsedMs": 23298,
+          "outputCharacters": {
+            "reasoning": 739,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 217
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 379,
+          "elapsedMs": 24843,
+          "outputCharacters": {
+            "reasoning": 478,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 334
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4291,
+          "elapsedMs": 8562,
+          "outputCharacters": {
+            "reasoning": 80,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 59
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1107,
+          "elapsedMs": 4575,
+          "outputCharacters": {
+            "reasoning": 154,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 48
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4211,
+          "elapsedMs": 18670,
+          "outputCharacters": {
+            "reasoning": 39,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 195
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3888,
+          "elapsedMs": 7443,
+          "outputCharacters": {
+            "reasoning": 155,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 49
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 403,
+          "elapsedMs": 12764,
+          "outputCharacters": {
+            "reasoning": 39,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 166
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3273,
+          "elapsedMs": 6760,
+          "outputCharacters": {
+            "reasoning": 155,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 49
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 180,
+          "elapsedMs": 90934,
+          "outputCharacters": {
+            "reasoning": 2752,
+            "text": 166,
+            "arguments": 114
+          },
+          "outputTokens": 1216
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 643,
+          "elapsedMs": 16088,
+          "outputCharacters": {
+            "reasoning": 73,
+            "text": 52,
+            "arguments": 114
+          },
+          "outputTokens": 215
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 783,
+          "elapsedMs": 98487,
+          "outputCharacters": {
+            "reasoning": 3557,
+            "text": 108,
+            "arguments": 138
+          },
+          "outputTokens": 1366
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1751,
+          "elapsedMs": 20365,
+          "outputCharacters": {
+            "reasoning": 591,
+            "text": 87,
+            "arguments": 128
+          },
+          "outputTokens": 269
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 254,
+          "elapsedMs": 313270,
+          "outputCharacters": {
+            "reasoning": 10220,
+            "text": 251,
+            "arguments": 266
+          },
+          "outputTokens": 4286
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1199,
+          "elapsedMs": 61591,
+          "outputCharacters": {
+            "reasoning": 2415,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": null
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 6,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-quiet",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "d3fbb2fbd33b8f23d665246ff933922c8cffaf73cf0c9376a6a7d8672470abbc",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": false,
+      "startedAt": "2026-09-14T17:11:24.263Z",
+      "finishedAt": "2026-09-14T17:20:54.730Z",
+      "elapsedSeconds": 570,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 28560,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 36075,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 51091,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 22569,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 0,
+        "total": 3
+      },
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 5,
+      "retrievalsDuringP2": 10,
+      "p1ElapsedMs": 234480,
+      "p2ElapsedMs": 195424,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 7
+          },
+          "errors": {
+            "requested-budget-too-small": 2
+          }
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 21,
+      "reportedTokens": 482712,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 6086,
+          "elapsedMs": 19740,
+          "outputCharacters": {
+            "reasoning": 101,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 196
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 181,
+          "elapsedMs": 4576,
+          "outputCharacters": {
+            "reasoning": 333,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2578,
+          "elapsedMs": 8311,
+          "outputCharacters": {
+            "reasoning": 290,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 81
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 374,
+          "elapsedMs": 17366,
+          "outputCharacters": {
+            "reasoning": 203,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 236
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4128,
+          "elapsedMs": 12688,
+          "outputCharacters": {
+            "reasoning": 340,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 116
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 975,
+          "elapsedMs": 5227,
+          "outputCharacters": {
+            "reasoning": 212,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 58
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 978,
+          "elapsedMs": 17808,
+          "outputCharacters": {
+            "reasoning": 210,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 233
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2816,
+          "elapsedMs": 32534,
+          "outputCharacters": {
+            "reasoning": 1033,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 410
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 713,
+          "elapsedMs": 14995,
+          "outputCharacters": {
+            "reasoning": 174,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 196
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3207,
+          "elapsedMs": 6209,
+          "outputCharacters": {
+            "reasoning": 142,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 42
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 188,
+          "elapsedMs": 85724,
+          "outputCharacters": {
+            "reasoning": 2030,
+            "text": 0,
+            "arguments": 91
+          },
+          "outputTokens": 1159
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 707,
+          "elapsedMs": 28279,
+          "outputCharacters": {
+            "reasoning": 608,
+            "text": 0,
+            "arguments": 167
+          },
+          "outputTokens": 372
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 312,
+          "elapsedMs": 120114,
+          "outputCharacters": {
+            "reasoning": 1568,
+            "text": 1531,
+            "arguments": 0
+          },
+          "outputTokens": 1631
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 992,
+          "elapsedMs": 6669,
+          "outputCharacters": {
+            "reasoning": 164,
+            "text": 0,
+            "arguments": 34
+          },
+          "outputTokens": 79
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 344,
+          "elapsedMs": 9953,
+          "outputCharacters": {
+            "reasoning": 244,
+            "text": 0,
+            "arguments": 70
+          },
+          "outputTokens": 133
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 432,
+          "elapsedMs": 12082,
+          "outputCharacters": {
+            "reasoning": 125,
+            "text": 0,
+            "arguments": 144
+          },
+          "outputTokens": 158
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 573,
+          "elapsedMs": 38870,
+          "outputCharacters": {
+            "reasoning": 1174,
+            "text": 0,
+            "arguments": 127
+          },
+          "outputTokens": 526
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 291,
+          "elapsedMs": 49907,
+          "outputCharacters": {
+            "reasoning": 1750,
+            "text": 0,
+            "arguments": 81
+          },
+          "outputTokens": 670
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 619,
+          "elapsedMs": 27307,
+          "outputCharacters": {
+            "reasoning": 261,
+            "text": 0,
+            "arguments": 254
+          },
+          "outputTokens": 369
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 255,
+          "elapsedMs": 18612,
+          "outputCharacters": {
+            "reasoning": 39,
+            "text": 0,
+            "arguments": 254
+          },
+          "outputTokens": 254
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 381,
+          "elapsedMs": 30469,
+          "outputCharacters": {
+            "reasoning": 266,
+            "text": 706,
+            "arguments": 0
+          },
+          "outputTokens": 415
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f6-91502-24p-restart",
+      "arm": "C400_WINDOWED",
+      "family": "F6",
+      "seed": 91502,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "d3fbb2fbd33b8f23d665246ff933922c8cffaf73cf0c9376a6a7d8672470abbc",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "0968b3a6d8e035a81e4a923e7d3a88b248b29a4dd0c3766eb3e8d956867850f8",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": true,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T17:22:55.117Z",
+      "finishedAt": "2026-09-14T17:31:13.275Z",
+      "elapsedSeconds": 498,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 36070,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 31569,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 79658,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 63151,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": true
+      },
+      "restartVerified": true,
+      "restartEvidence": {
+        "distinctHostProcesses": true,
+        "throughSeq": 2178,
+        "eventCount": 238,
+        "beforeHash": "3c1438f47f00953a8a6a100b8efe52a861db31372f5a22a3c85cdf78c4d9f927",
+        "afterHash": "3c1438f47f00953a8a6a100b8efe52a861db31372f5a22a3c85cdf78c4d9f927"
+      },
+      "retrievalsDuringP1": 3,
+      "retrievalsDuringP2": 10,
+      "p1ElapsedMs": 171527,
+      "p2ElapsedMs": 109752,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {
+            "arc_status": 1
+          },
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 3
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 6
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 18,
+      "reportedTokens": 424539,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 954,
+          "elapsedMs": 22779,
+          "outputCharacters": {
+            "reasoning": 563,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 304
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 22875,
+          "elapsedMs": 27417,
+          "outputCharacters": {
+            "reasoning": 338,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7213,
+          "elapsedMs": 11751,
+          "outputCharacters": {
+            "reasoning": 232,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 65
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 481,
+          "elapsedMs": 18270,
+          "outputCharacters": {
+            "reasoning": 237,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 250
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3451,
+          "elapsedMs": 7863,
+          "outputCharacters": {
+            "reasoning": 91,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 62
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 978,
+          "elapsedMs": 4389,
+          "outputCharacters": {
+            "reasoning": 158,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 49
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 978,
+          "elapsedMs": 43309,
+          "outputCharacters": {
+            "reasoning": 1153,
+            "text": 64,
+            "arguments": 72
+          },
+          "outputTokens": 592
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2980,
+          "elapsedMs": 35491,
+          "outputCharacters": {
+            "reasoning": 1312,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 456
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 250,
+          "elapsedMs": 12344,
+          "outputCharacters": {
+            "reasoning": 57,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 167
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3313,
+          "elapsedMs": 36497,
+          "outputCharacters": {
+            "reasoning": 1335,
+            "text": 0,
+            "arguments": 2
+          },
+          "outputTokens": 467
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 305,
+          "elapsedMs": 13154,
+          "outputCharacters": {
+            "reasoning": 703,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 183
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 389,
+          "elapsedMs": 72601,
+          "outputCharacters": {
+            "reasoning": 2048,
+            "text": 0,
+            "arguments": 96
+          },
+          "outputTokens": 1024
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 856,
+          "elapsedMs": 98495,
+          "outputCharacters": {
+            "reasoning": 1392,
+            "text": 1170,
+            "arguments": 0
+          },
+          "outputTokens": 1378
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1008,
+          "elapsedMs": 8702,
+          "outputCharacters": {
+            "reasoning": 285,
+            "text": 0,
+            "arguments": 35
+          },
+          "outputTokens": 108
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 468,
+          "elapsedMs": 16238,
+          "outputCharacters": {
+            "reasoning": 413,
+            "text": 0,
+            "arguments": 97
+          },
+          "outputTokens": 220
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 593,
+          "elapsedMs": 30200,
+          "outputCharacters": {
+            "reasoning": 360,
+            "text": 0,
+            "arguments": 210
+          },
+          "outputTokens": 409
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 359,
+          "elapsedMs": 34933,
+          "outputCharacters": {
+            "reasoning": 479,
+            "text": 0,
+            "arguments": 264
+          },
+          "outputTokens": 477
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 700,
+          "elapsedMs": 18567,
+          "outputCharacters": {
+            "reasoning": 449,
+            "text": 95,
+            "arguments": 0
+          },
+          "outputTokens": 246
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "b-f3-91503-24p-candidate6",
+      "arm": "B_IN_PLACE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "in-place",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T17:36:03.815Z",
+      "finishedAt": "2026-09-14T17:51:58.981Z",
+      "elapsedSeconds": 955,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 46587,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 102164,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 27072,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 33075,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 5,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 3,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 465859,
+      "p2ElapsedMs": 278064,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 2,
+            "decompress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 16,
+      "reportedTokens": 428776,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1604,
+          "elapsedMs": 17017,
+          "outputCharacters": {
+            "reasoning": 114,
+            "text": 52,
+            "arguments": 66
+          },
+          "outputTokens": 215
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 17098,
+          "elapsedMs": 21690,
+          "outputCharacters": {
+            "reasoning": 330,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7506,
+          "elapsedMs": 29263,
+          "outputCharacters": {
+            "reasoning": 796,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 300
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 393,
+          "elapsedMs": 41351,
+          "outputCharacters": {
+            "reasoning": 941,
+            "text": 63,
+            "arguments": 69
+          },
+          "outputTokens": 565
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4292,
+          "elapsedMs": 30805,
+          "outputCharacters": {
+            "reasoning": 705,
+            "text": 44,
+            "arguments": 12
+          },
+          "outputTokens": 370
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1096,
+          "elapsedMs": 28933,
+          "outputCharacters": {
+            "reasoning": 878,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 390
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4284,
+          "elapsedMs": 18849,
+          "outputCharacters": {
+            "reasoning": 92,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 208
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3362,
+          "elapsedMs": 7273,
+          "outputCharacters": {
+            "reasoning": 198,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 57
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 230,
+          "elapsedMs": 12491,
+          "outputCharacters": {
+            "reasoning": 92,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 179
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3098,
+          "elapsedMs": 19742,
+          "outputCharacters": {
+            "reasoning": 556,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 241
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 704,
+          "elapsedMs": 181105,
+          "outputCharacters": {
+            "reasoning": 7442,
+            "text": 103,
+            "arguments": 74
+          },
+          "outputTokens": 2524
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 815,
+          "elapsedMs": 22772,
+          "outputCharacters": {
+            "reasoning": 525,
+            "text": 100,
+            "arguments": 103
+          },
+          "outputTokens": 303
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1754,
+          "elapsedMs": 261700,
+          "outputCharacters": {
+            "reasoning": 6533,
+            "text": 1260,
+            "arguments": 0
+          },
+          "outputTokens": 3503
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 681,
+          "elapsedMs": 169061,
+          "outputCharacters": {
+            "reasoning": 6015,
+            "text": 283,
+            "arguments": 124
+          },
+          "outputTokens": 2352
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 707,
+          "elapsedMs": 58039,
+          "outputCharacters": {
+            "reasoning": 1327,
+            "text": 150,
+            "arguments": 310
+          },
+          "outputTokens": 817
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 676,
+          "elapsedMs": 49755,
+          "outputCharacters": {
+            "reasoning": 886,
+            "text": 790,
+            "arguments": 0
+          },
+          "outputTokens": 680
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 5,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-candidate6",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "startedAt": "2026-09-14T17:53:34.099Z",
+      "finishedAt": "2026-09-14T18:01:35.893Z",
+      "elapsedSeconds": 482,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 52601,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 48105,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 24066,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 21061,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 2,
+        "total": 3
+      },
+      "allQualityPassed": false,
+      "mechanismCoverage": {
+        "windows": 4,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": true
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 6,
+      "retrievalsDuringP2": 4,
+      "p1ElapsedMs": 247978,
+      "p2ElapsedMs": 85712,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 1,
+            "arc_status": 1,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 2,
+            "decompress": 2
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 18,
+      "reportedTokens": 442404,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1026,
+          "elapsedMs": 18015,
+          "outputCharacters": {
+            "reasoning": 246,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 231
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 18137,
+          "elapsedMs": 22697,
+          "outputCharacters": {
+            "reasoning": 324,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7145,
+          "elapsedMs": 33047,
+          "outputCharacters": {
+            "reasoning": 1129,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 364
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 640,
+          "elapsedMs": 31773,
+          "outputCharacters": {
+            "reasoning": 601,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 451
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3493,
+          "elapsedMs": 11475,
+          "outputCharacters": {
+            "reasoning": 312,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 113
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1015,
+          "elapsedMs": 3361,
+          "outputCharacters": {
+            "reasoning": 97,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 34
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1052,
+          "elapsedMs": 17444,
+          "outputCharacters": {
+            "reasoning": 205,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 229
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2820,
+          "elapsedMs": 6010,
+          "outputCharacters": {
+            "reasoning": 149,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 45
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 753,
+          "elapsedMs": 14374,
+          "outputCharacters": {
+            "reasoning": 135,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 189
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3202,
+          "elapsedMs": 6215,
+          "outputCharacters": {
+            "reasoning": 126,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 42
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 191,
+          "elapsedMs": 111587,
+          "outputCharacters": {
+            "reasoning": 2487,
+            "text": 0,
+            "arguments": 125
+          },
+          "outputTokens": 1508
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 704,
+          "elapsedMs": 11776,
+          "outputCharacters": {
+            "reasoning": 125,
+            "text": 0,
+            "arguments": 129
+          },
+          "outputTokens": 153
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 251,
+          "elapsedMs": 50279,
+          "outputCharacters": {
+            "reasoning": 1242,
+            "text": 95,
+            "arguments": 2
+          },
+          "outputTokens": 699
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1791,
+          "elapsedMs": 25972,
+          "outputCharacters": {
+            "reasoning": 309,
+            "text": 0,
+            "arguments": 534
+          },
+          "outputTokens": 352
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 194,
+          "elapsedMs": 47527,
+          "outputCharacters": {
+            "reasoning": 149,
+            "text": 1087,
+            "arguments": 0
+          },
+          "outputTokens": 660
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 312,
+          "elapsedMs": 46276,
+          "outputCharacters": {
+            "reasoning": 1718,
+            "text": 0,
+            "arguments": 83
+          },
+          "outputTokens": 630
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 462,
+          "elapsedMs": 25275,
+          "outputCharacters": {
+            "reasoning": 338,
+            "text": 0,
+            "arguments": 255
+          },
+          "outputTokens": 335
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 651,
+          "elapsedMs": 12583,
+          "outputCharacters": {
+            "reasoning": 259,
+            "text": 87,
+            "arguments": 0
+          },
+          "outputTokens": 161
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "a-f3-91503-24p-candidate6",
+      "arm": "A_NATIVE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "0cc79e351b80cf4821904b8956d0f9999e2b3dfd125400ffe0a68a40103f4243",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "Basic",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": false,
+      "readingInstructionVersion": 2,
+      "autoNudge": null,
+      "startedAt": "2026-09-14T18:05:01.451Z",
+      "finishedAt": "2026-09-14T18:11:05.983Z",
+      "elapsedSeconds": 365,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [
+        {
+          "phase": 1,
+          "elapsedMs": 46590,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 2,
+          "elapsedMs": 69140,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 3,
+          "elapsedMs": 64639,
+          "missingPages": [],
+          "end": "completed"
+        },
+        {
+          "phase": 4,
+          "elapsedMs": 67640,
+          "missingPages": [],
+          "end": "completed"
+        }
+      ],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": null
+      },
+      "nativeThresholdTokens": 314572,
+      "nativeCompactionRequired": false,
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 0,
+      "retrievalsDuringP2": 0,
+      "p1ElapsedMs": 88692,
+      "p2ElapsedMs": 25577,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 12,
+      "reportedTokens": 553856,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 1641,
+          "elapsedMs": 19154,
+          "outputCharacters": {
+            "reasoning": 311,
+            "text": 0,
+            "arguments": 66
+          },
+          "outputTokens": 247
+        },
+        {
+          "purpose": "session-title",
+          "firstContentMs": 19244,
+          "elapsedMs": 23781,
+          "outputCharacters": {
+            "reasoning": 322,
+            "text": 0,
+            "arguments": 0
+          },
+          "outputTokens": 64
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 7050,
+          "elapsedMs": 26644,
+          "outputCharacters": {
+            "reasoning": 578,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 273
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 602,
+          "elapsedMs": 25859,
+          "outputCharacters": {
+            "reasoning": 561,
+            "text": 0,
+            "arguments": 69
+          },
+          "outputTokens": 351
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3647,
+          "elapsedMs": 7225,
+          "outputCharacters": {
+            "reasoning": 50,
+            "text": 0,
+            "arguments": 12
+          },
+          "outputTokens": 50
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 919,
+          "elapsedMs": 35749,
+          "outputCharacters": {
+            "reasoning": 941,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 475
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 478,
+          "elapsedMs": 16637,
+          "outputCharacters": {
+            "reasoning": 116,
+            "text": 0,
+            "arguments": 72
+          },
+          "outputTokens": 218
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4374,
+          "elapsedMs": 47653,
+          "outputCharacters": {
+            "reasoning": 1139,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 578
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1119,
+          "elapsedMs": 14751,
+          "outputCharacters": {
+            "reasoning": 110,
+            "text": 0,
+            "arguments": 60
+          },
+          "outputTokens": 183
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 4155,
+          "elapsedMs": 52587,
+          "outputCharacters": {
+            "reasoning": 1145,
+            "text": 18,
+            "arguments": 0
+          },
+          "outputTokens": 662
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 1153,
+          "elapsedMs": 87982,
+          "outputCharacters": {
+            "reasoning": 1340,
+            "text": 848,
+            "arguments": 0
+          },
+          "outputTokens": 1207
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 667,
+          "elapsedMs": 24196,
+          "outputCharacters": {
+            "reasoning": 720,
+            "text": 70,
+            "arguments": 0
+          },
+          "outputTokens": 344
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 0,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    }
+  ],
+  "latestReviewedRun": "a-f3-91503-24p-candidate6",
+  "quietConfigurationAssessment": {
+    "sourceRuns": [
+      "c-f3-91503-24p-candidate5",
+      "c-f3-91503-24p-quiet"
+    ],
+    "sameFixtureCandidateAndAllSixUserPrompts": true,
+    "decision": "Do not adopt autoNudge=false from this sample.",
+    "factsPassed": true,
+    "verbatimCorrect": 0,
+    "verbatimTotal": 3,
+    "incorrectSourceOrdinal": 2,
+    "requestedSourceOrdinal": 1,
+    "archiveBytesVerified": true,
+    "causalLimit": "Single runs do not establish that nudge configuration caused the ordinal selection error."
+  },
+  "candidate6WindowedVerbatimFailure": {
+    "classification": "Model omitted original lookup for PAGE-1 and returned a checksum absent from all source pages; retrieved PAGE-7 and PAGE-14 correctly.",
+    "unsupportedAnswerCount": 1,
+    "verbatimCorrect": 2,
+    "verbatimTotal": 3,
+    "archiveBytesVerified": true,
+    "lookupOmittedFor": [
+      "PAGE-1"
+    ],
+    "runtimeInference": "No archive corruption found. This C run exercised four windows and no changed finite-budget emergency path; unchanged window-index implementation was verified separately."
+  },
+  "candidate6Cohort": {
+    "sameFixtureCandidateAndSixPrompts": true,
+    "allThreeQualityPassed": false,
+    "rows": [
+      {
+        "name": "a-f3-91503-24p-candidate6",
+        "allQualityPassed": true,
+        "elapsedSeconds": 365
+      },
+      {
+        "name": "b-f3-91503-24p-candidate6",
+        "allQualityPassed": true,
+        "elapsedSeconds": 955
+      },
+      {
+        "name": "c-f3-91503-24p-candidate6",
+        "allQualityPassed": false,
+        "elapsedSeconds": 482
+      }
+    ],
+    "nativeComparison": "Default behavior reference; native keeps its larger window and does not compact at this fixture size."
+  }
+}

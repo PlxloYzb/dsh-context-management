@@ -20,7 +20,14 @@ test('R09 experiment: one-token and invalid retrieval budgets are explicit; canc
     shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens, provider: 'fixture', model: 'retrieval-extremes',
   })
   const prefix = JSON.stringify(session.snapshotEvents()), reader = new ArchiveReader()
-  assert.deepEqual(reader.decompress(session, { blockId: block.compactionId, maxTokens: 1 }), { status: 'error', code: 'insufficient-headroom' })
+  for (const maxTokens of [1, 300, 512, 767]) {
+    const result = reader.decompress(session, { blockId: block.compactionId, maxTokens }, 1536) as { code: string; minimumMaxTokens: number; hint: string }
+    assert.equal(result.code, 'requested-budget-too-small')
+    assert.equal(result.minimumMaxTokens, 768)
+    assert.match(result.hint, /omit maxTokens|at least 768/)
+  }
+  assert.deepEqual(reader.decompress(session, { blockId: block.compactionId, maxTokens: 512 }, 500), { status: 'error', code: 'insufficient-headroom' })
+  assert.equal((reader.decompress(session, { blockId: block.compactionId, maxTokens: 768 }, 1536) as Page).status, 'success')
   for (const maxTokens of [0, -1, 1.5, 4097, Number.NaN, Number.POSITIVE_INFINITY]) {
     assert.deepEqual(reader.decompress(session, { blockId: block.compactionId, maxTokens }), { status: 'error', code: 'invalid-arguments' })
   }

@@ -48,9 +48,30 @@ test('parallel retrieval calls share one step budget and a later step receives a
   // parallel retrievals no longer starves its own members (150k adaptive v7).
   assert.ok(successful.length >= 1 && successful.length < outputs.length)
   assert.ok(successful.reduce((sum, output) => sum + Buffer.byteLength(output.text), 0) <= 3 * 1536)
-  assert.ok(outputs.some(output => output.text.includes('insufficient-headroom')))
+  const exhausted = outputs.map(output => JSON.parse(output.text)).filter(output => output.status === 'error')
+  assert.ok(exhausted.length > 0)
+  assert.ok(exhausted.every(output => output.code === 'retrieval-step-allowance-exhausted'))
+  assert.ok(exhausted.every(output => /next step/i.test(output.hint)))
   session.append('step/end', { turn: 1, step: 1 }); session.append('step/start', { turn: 1, step: 2 })
   assert.equal(JSON.parse((await tool.execute({ blockId: block.compactionId, maxTokens: 4096 }, exec)).text).status, 'success')
+})
+
+test('physical retrieval headroom remains distinct from an exhausted step allowance', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'physical-headroom')
+  session.append('turn/start', { turn: 1 }); appendUser(session, 'ORIGINAL evidence '.repeat(1000))
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Current request')
+  const block = runCompactionTransaction(session, { start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'fixture' }], shadowedTokenCount: 4000, provider: 'fixture', model: 'budget' })
+  session.append('step/start', { turn: 1, step: 1 })
+  const tools = makeTools({ kernel: createCore({}), store: new ArcStateStore(), modelContextLimit: 128000, retrievalBudget: () => 500 })
+  const exec = { agent: { session, ctx: h.ctx, options: {} }, signal: new AbortController().signal } as unknown as ToolRunContext
+  for (const name of ['decompress', 'search_context']) {
+    const tool = tools.find(tool => tool.name === name)!
+    const args = name === 'decompress' ? { blockId: block.compactionId } : { query: 'ORIGINAL' }
+    const result = JSON.parse((await tool.execute(args, exec)).text)
+    assert.equal(result.code, 'insufficient-headroom')
+  }
 })
 
 test('bounded output over Unicode/control text, small budgets, and oversized imported identifiers', async t => {

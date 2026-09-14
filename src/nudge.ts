@@ -148,6 +148,11 @@ export function buildNudge(
   const nudge = turn.nudge
   if (nudge === undefined || !nudge.shouldInject) return null
   const emergency = nudge.breakdown?.emergencyOverride === 1
+  const hasTierTargets = (nudge.tier === 2 || nudge.tier === 3) && (nudge.tierTargetBlocks?.length ?? 0) > 0
+  // The kernel's ranges precede DSH pairing/protection and host refresh
+  // checks. Do not ask the model to hunt for a range that the host cannot
+  // safely offer. The governor still enforces the physical request budget.
+  if (!hasTierTargets && buildCompressibleSeqRanges(session).length === 0) return null
 
   const turnNumber = findOpenTurn(session.snapshotEvents()) ?? 0
   const alreadyShown = !emergency && (lastNudgeTurn instanceof WeakMap ? lastNudgeTurn.get(session) : lastNudgeTurn.get(session.id)) === turnNumber

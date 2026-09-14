@@ -9,6 +9,7 @@ import { homedir } from 'node:os'
 const profile = process.argv[2] ?? 'ctx-v011-test'
 if (!/^ctx-v01[0-2]-[a-z0-9-]+$/.test(profile)) throw new Error('Candidate installation is restricted to isolated ctx-v010-*/ctx-v011-*/ctx-v012-* profiles')
 const hash = data => createHash('sha256').update(data).digest('hex')
+const dshBin = process.env.EXPERIMENT_DSH_BIN ?? resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
 await mkdir('.test-runtime', { recursive: true })
 execFileSync('npm', ['pack', '--ignore-scripts', '--pack-destination', '.test-runtime'], { stdio: ['ignore', 'pipe', 'pipe'] })
 const { name, version } = JSON.parse(await readFile('package.json', 'utf8'))
@@ -19,7 +20,7 @@ await mkdir(dir, { recursive: true })
 const tarball = join(dir, filename)
 await copyFile(temporary, tarball)
 // A content-addressed URL prevents pnpm from reusing an older same-version file dependency.
-const output = execFileSync(process.env.EXPERIMENT_DSH_BIN ?? 'dsh', ['plugin', '--profile', profile, 'add', tarball], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
+const output = execFileSync(dshBin, ['plugin', '--profile', profile, 'add', tarball], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] })
 await writeFile(resolve('.test-runtime', `install-${profile}.log`), output)
 const profileRoot = join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'profiles', profile)
 const installedRoot = join(profileRoot, 'node_modules', name)

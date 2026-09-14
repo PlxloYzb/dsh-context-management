@@ -13,7 +13,21 @@ import { rebuildBlockLedger } from './region.ts'
  */
 
 import type { CoreMessage } from 'acp-kernel'
-import type { SessionEvent } from '@deepseek-ai/dsh-session'
+import type { Session, SessionEvent } from '@deepseek-ai/dsh-session'
+
+/** Latest host catalogs/snapshots reappear if removed, so their tokens are not savings. */
+export function regeneratedSnapshotSeqs(session: Session): Set<number> {
+  const latest = new Map<string, number>()
+  for (const seq of session.surface.nodes) {
+    const event = session.eventAt(seq)
+    if (event?.type !== 'user/message') continue
+    const source: { kind: string; form?: unknown; plugin?: unknown } = event.data.source
+    const key = source.kind === 'skill-catalog' ? 'skill-catalog'
+      : source.kind === 'plugin' && source.form === 'snapshot' && typeof source.plugin === 'string' ? `plugin:${source.plugin}` : undefined
+    if (key) latest.set(key, seq)
+  }
+  return new Set(latest.values())
+}
 
 /**
  * Extract plain text from a DSH content block array or string.

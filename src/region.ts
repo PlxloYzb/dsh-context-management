@@ -26,7 +26,7 @@ import type { CompactionResult } from '@deepseek-ai/dsh-compaction'
 import type { CommandId } from '@deepseek-ai/dsh-commands/brand'
 import { createUserMessage, type ContentBlock } from '@deepseek-ai/dsh-llm'
 import { defaultCountTokens } from 'acp-kernel'
-import { extractEventText, extractText } from './messages.ts'
+import { extractEventText, extractText, regeneratedSnapshotSeqs } from './messages.ts'
 
 export interface WindowMetadata {
   readonly schemaVersion: 1
@@ -826,11 +826,18 @@ export function buildCompressibleSeqRanges(
   }
   flush()
   const out: SeqCompressibleRange[] = []
+  const regenerated = regeneratedSnapshotSeqs(session)
   for (const range of raw) {
     try {
       const { start, end } = resolveSurfaceRange(session, range.start, range.end)
-      const count = range.count
-      out.push({ start, end, count, tokens: range.tokens })
+      const selected = shadowedSeqsOf(session, start, end)
+      // Balancing can shrink a large span to a small prefix or expand a lone
+      // multi-call batch across its preceding user message. Recheck the exact
+      // result and advertise only its actual, reclaimable contents.
+      if (selected.some(seq => protectedSeqs.has(seq)
+        || (!opts.includeCheckpoints && isCheckpointNode(session.eventAt(SessionSeq(seq))!)))) continue
+      const tokens = selected.reduce((sum, seq) => sum + (regenerated.has(seq) ? 0 : defaultCountTokens(extractEventText(session.eventAt(SessionSeq(seq))!))), 0)
+      if (tokens > 0) out.push({ start, end, count: selected.length, tokens })
     } catch {
       // Cannot be balanced into a compressible span — skip.
     }

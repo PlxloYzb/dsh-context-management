@@ -1,6 +1,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { Context } from '@deepseek-ai/cordis'
+import { Session } from '@deepseek-ai/dsh-session'
+import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { createCore, defaultCountTokens, type CompressionCore, type NudgeDecision } from 'acp-kernel'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import type { ToolRunContext } from '@deepseek-ai/dsh-tools'
@@ -10,7 +12,7 @@ import { makeTools, type ToolEnvironment } from '../src/tools.ts'
 import { compressionAwareProjectedTokens, rebuildBlockLedger, runCompactionTransaction } from '../src/region.ts'
 import { allLogMessages } from '../src/messages.ts'
 import { kernelConfigFor } from '../src/config.ts'
-import { buildTextSession } from './helpers.ts'
+import { buildTextSession, appendUser, appendAssistant, appendMultiToolCall, appendToolResult } from './helpers.ts'
 
 function fakeAgent(session: import('@deepseek-ai/dsh-session').Session): Agent {
   return {
@@ -80,6 +82,25 @@ test('M4: no nudge is produced for a comfortable context', () => {
   const session = buildTextSession(12)
   const lastNudgeTurn = new Map<string, number>()
   assert.equal(buildNudge(fakeAgent(session), env, lastNudgeTurn), null)
+})
+
+test('M4: no pressure nudge asks the model to compress an unavailable safe range', () => {
+  const session = Session.create('nudge-without-safe-range')
+  session.append('turn/start', { turn: 1 }); appendUser(session, 'Current task: finish the assigned reading')
+  session.append('user/message', createUserMessage({
+    source: { kind: 'skill-catalog', form: 'catalog', entries: [], update: true },
+    content: [{ type: 'text', text: 'Skill catalog entry. '.repeat(500) }],
+  }), { surfaceOp: 'append' })
+  appendMultiToolCall(session, 'Read two pages', ['first', 'second'])
+  appendToolResult(session, 'Large page A. '.repeat(1500), 'first')
+  appendToolResult(session, 'Large page B. '.repeat(1500), 'second')
+  for (let i = 0; i < 4; i++) appendAssistant(session, 'Recent retained work')
+  const tokens = allLogMessages(session).reduce((sum, message) => sum + defaultCountTokens(message.text ?? ''), 0)
+  for (const usage of [0.85, 1.2]) {
+    const shown = new WeakMap<Session, number>()
+    assert.equal(buildNudge(fakeAgent(session), makeEnv(Math.ceil(tokens / usage)), shown), null)
+    assert.equal(shown.has(session), false, 'A later safe range in the same turn remains eligible')
+  }
 })
 
 test('M4: emergency nudges bypass the per-turn dedup', () => {

@@ -33,6 +33,68 @@ test('R01: search cursor pages deduplicate shared parent sources without merging
   }
 })
 
+test('R01: a warm source index follows newly committed nested archives and stays session-local', async t => {
+  const h = await host(); t.after(h.close)
+  const reader = new ArchiveReader()
+  for (const name of ['source-index-first', 'source-index-second']) {
+    const session = newSession(h.ctx, name)
+    session.append('turn/start', { turn: 1 })
+    appendUser(session, `${name} ORIGINAL_ONE`)
+    const first = session.surface.nodes.at(-1)!
+    appendUser(session, 'Current instruction')
+    const archive = (operationId: string, selected: typeof session.surface.nodes) => runCompactionTransaction(session, {
+      operationId, start: selected[0]!, end: selected.at(-1)!, shadowedSeqs: selected,
+      summary: [{ type: 'text', text: 'Nested checkpoint' }],
+      shadowedTokenCount: resolveShadowedTokenCount({ session, ctx: h.ctx, options: {} }, selected),
+      provider: 'local', model: 'test',
+    })
+    archive('same-first-block-id', [first])
+    assert.equal((reader.search(session, { query: 'ORIGINAL_ONE' }) as { hits: unknown[] }).hits.length, 1)
+    const checkpoint = session.surface.nodes[0]!
+    appendUser(session, `${name} ORIGINAL_TWO`)
+    const second = session.surface.nodes.at(-1)!
+    appendUser(session, 'Protect latest instruction')
+    archive('same-second-block-id', [second])
+    archive('same-parent-block-id', [checkpoint])
+    const page = reader.decompress(session, { blockId: 'same-parent-block-id' }) as Page
+    assert.equal(page.status, 'success'); assert.equal(page.incomplete, false)
+    assert.equal(page.segments.map(segment => segment.text).join(''), `${name} ORIGINAL_ONE`)
+    const search = reader.search(session, { query: 'ORIGINAL_TWO' }) as { hits: { seq: number; snippet: string }[] }
+    assert.equal(search.hits.length, 1); assert.equal(search.hits[0]!.seq, second)
+    assert.ok(search.hits[0]!.snippet.includes(name))
+  }
+})
+
+test('R03: search packs multiple hits into a small grant without dropping byte-boundary matches', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'search-serialized-budget')
+  session.append('turn/start', { turn: 1 })
+  const original = Array.from({ length: 18 }, (_, i) => `item-${i}: needle ${'甲🙂"\\\r\n'.repeat(8)}`).join('')
+  appendUser(session, original); const source = session.surface.nodes.at(-1)!
+  appendUser(session, 'Protect latest instruction')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Search fixture' }],
+    shadowedTokenCount: resolveShadowedTokenCount({ session, ctx: h.ctx, options: {} }, [source]), provider: 'local', model: 'test',
+  })
+  const expected = [...original.matchAll(/needle/g)].map(match => match.index)
+  for (const budget of [1100, 1536, 4096]) {
+    const reader = new ArchiveReader(), offsets: number[] = []
+    let cursor: string | undefined
+    for (let page = 0; page < 30; page++) {
+      const result = reader.search(session, { query: 'needle', limit: 20, cursor }, budget) as {
+        status: string; hits: { seq: number; offset: number }[]; nextCursor: string | null; incomplete: boolean
+      }
+      assert.equal(result.status, 'success'); assert.equal(result.incomplete, false)
+      assert.ok(Buffer.byteLength(JSON.stringify(result)) <= budget)
+      if (page === 0 && budget === 1536) assert.ok(result.hits.length > 1, 'Do not discard usable grant space')
+      for (const hit of result.hits) { assert.equal(hit.seq, source); offsets.push(hit.offset) }
+      cursor = result.nextCursor ?? undefined
+      if (!cursor) break
+    }
+    assert.equal(cursor, undefined); assert.deepEqual(offsets, expected)
+  }
+})
+
 test('R03/R04: paginated text blocks preserve Unicode, CRLF, whitespace and empty text exactly; cursors are scoped and tamper evident', async t => {
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'unicode-archive')

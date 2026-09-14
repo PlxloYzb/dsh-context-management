@@ -54,14 +54,16 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "build": "tsup && tsc --emitDeclarationOnly",
-    "check": "npm run typecheck && npm test && npm run test:integration && npm run build",
+    "check": "npm run typecheck && npm test && npm run test:integration && npm run test:live:local:unit && npm run build",
     "prepack": "npm run check",
     "presets:audit": "node dist/preset-cli.js audit",
     "test:integration": "node --import tsx --test tests/integration/*.test.ts",
     "test:live": "node tests/live/run.mjs",
     "test:performance": "node --max-old-space-size=512 --expose-gc --import tsx tests/performance/scale.ts",
     "test:release": "node tests/release/audit.mjs",
-    "test:install": "node tests/release/package-name.mjs"
+    "test:install": "node tests/release/package-name.mjs",
+    "test:live:local": "node tests/live/local-short.mjs",
+    "test:live:local:unit": "node --test tests/live/local/*.test.mjs"
   },
   "dependencies": {
     "acp-kernel": "0.0.24"
