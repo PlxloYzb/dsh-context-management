@@ -4269,9 +4269,505 @@
       "exactPagesInRequests": 432,
       "archiveBytesVerified": true,
       "archiveAuditPassed": true
+    },
+    {
+      "name": "c-f3-91503-24p-candidate7-fork",
+      "arm": "C400_WINDOWED",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": true,
+      "probeMode": "full",
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "inheritedFrom": "c-f3-91503-24p-candidate6",
+      "inheritedPages": 24,
+      "inheritedThroughSeq": 1278,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T19:12:27.382Z",
+      "finishedAt": "2026-09-14T19:18:00.118Z",
+      "elapsedSeconds": 333,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "verbatimOnlyPassed": null,
+      "mechanismCoverage": {
+        "windows": 3,
+        "inPlaceCompactions": 1,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 6,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 277967,
+      "p2ElapsedMs": 52630,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 4,
+            "decompress": 1,
+            "arc_status": 1,
+            "compress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 8,
+      "reportedTokens": 244734,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 3277,
+          "elapsedMs": 58589,
+          "outputCharacters": {
+            "reasoning": 1214,
+            "text": 0,
+            "arguments": 77
+          },
+          "outputTokens": 754
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 504,
+          "elapsedMs": 15016,
+          "outputCharacters": {
+            "reasoning": 218,
+            "text": 0,
+            "arguments": 129
+          },
+          "outputTokens": 197
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 716,
+          "elapsedMs": 60050,
+          "outputCharacters": {
+            "reasoning": 1574,
+            "text": 71,
+            "arguments": 2
+          },
+          "outputTokens": 799
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 356,
+          "elapsedMs": 30443,
+          "outputCharacters": {
+            "reasoning": 320,
+            "text": 0,
+            "arguments": 699
+          },
+          "outputTokens": 405
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 3236,
+          "elapsedMs": 113114,
+          "outputCharacters": {
+            "reasoning": 2058,
+            "text": 1039,
+            "arguments": 0
+          },
+          "outputTokens": 1454
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 463,
+          "elapsedMs": 10186,
+          "outputCharacters": {
+            "reasoning": 139,
+            "text": 0,
+            "arguments": 88
+          },
+          "outputTokens": 133
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 500,
+          "elapsedMs": 29905,
+          "outputCharacters": {
+            "reasoning": 171,
+            "text": 0,
+            "arguments": 385
+          },
+          "outputTokens": 400
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 921,
+          "elapsedMs": 11840,
+          "outputCharacters": {
+            "reasoning": 172,
+            "text": 95,
+            "arguments": 0
+          },
+          "outputTokens": 150
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 4,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "b-f3-91503-24p-candidate7-fork",
+      "arm": "B_IN_PLACE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "in-place",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": true,
+      "probeMode": "full",
+      "readingInstructionVersion": 2,
+      "autoNudge": true,
+      "inheritedFrom": "b-f3-91503-24p-candidate6",
+      "inheritedPages": 24,
+      "inheritedThroughSeq": 2124,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T19:18:50.065Z",
+      "finishedAt": "2026-09-14T19:23:46.845Z",
+      "elapsedSeconds": 297,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "verbatimOnlyPassed": null,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 5,
+        "mechanismExercised": null
+      },
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 2,
+      "retrievalsDuringP2": 6,
+      "p1ElapsedMs": 214928,
+      "p2ElapsedMs": 79669,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        },
+        "5": {
+          "calls": {
+            "search_context": 1,
+            "decompress": 1
+          },
+          "errors": {}
+        },
+        "6": {
+          "calls": {
+            "search_context": 3,
+            "decompress": 3
+          },
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 1,
+      "calls": 6,
+      "reportedTokens": 163034,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 3959,
+          "elapsedMs": 86932,
+          "outputCharacters": {
+            "reasoning": 2310,
+            "text": 0,
+            "arguments": 35
+          },
+          "outputTokens": 1147
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 575,
+          "elapsedMs": 12880,
+          "outputCharacters": {
+            "reasoning": 166,
+            "text": 0,
+            "arguments": 128
+          },
+          "outputTokens": 172
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 789,
+          "elapsedMs": 114754,
+          "outputCharacters": {
+            "reasoning": 2700,
+            "text": 1039,
+            "arguments": 0
+          },
+          "outputTokens": 1620
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 524,
+          "elapsedMs": 18691,
+          "outputCharacters": {
+            "reasoning": 497,
+            "text": 0,
+            "arguments": 124
+          },
+          "outputTokens": 264
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 2024,
+          "elapsedMs": 43584,
+          "outputCharacters": {
+            "reasoning": 569,
+            "text": 0,
+            "arguments": 385
+          },
+          "outputTokens": 595
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 495,
+          "elapsedMs": 16339,
+          "outputCharacters": {
+            "reasoning": 288,
+            "text": 265,
+            "arguments": 0
+          },
+          "outputTokens": 225
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 5,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
+    },
+    {
+      "name": "a-f3-91503-24p-candidate7-fork",
+      "arm": "A_NATIVE",
+      "family": "F3",
+      "seed": 91503,
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+      "clientHash": "854f3d3370ece9030125ef80ad00b2d9980e93ad85625df25e52fc28292d6113",
+      "fixture": {
+        "pageCount": 24,
+        "hash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "newTextHeuristicTokens": 42000
+      },
+      "geometry": {
+        "strategy": "Basic",
+        "pressure": 32000,
+        "effective": 35556,
+        "windowBudget": 47844,
+        "maxTokens": 8192,
+        "batch": 6,
+        "routeCapacity": 393216
+      },
+      "restart": false,
+      "concise": true,
+      "probeOnly": true,
+      "probeMode": "full",
+      "readingInstructionVersion": 2,
+      "autoNudge": null,
+      "inheritedFrom": "a-f3-91503-24p-candidate6",
+      "inheritedPages": 24,
+      "inheritedThroughSeq": 2597,
+      "inheritedQueueChecks": [
+        "not-pending"
+      ],
+      "startedAt": "2026-09-14T19:26:07.001Z",
+      "finishedAt": "2026-09-14T19:28:50.232Z",
+      "elapsedSeconds": 163,
+      "completed": true,
+      "error": null,
+      "intervention": null,
+      "phases": [],
+      "factsScore": {
+        "correct": 24,
+        "total": 24,
+        "correctionsCorrect": 6,
+        "correctionsTotal": 6,
+        "deliverablePassed": true,
+        "passed": true
+      },
+      "verbatimScore": {
+        "correct": 3,
+        "total": 3
+      },
+      "allQualityPassed": true,
+      "verbatimOnlyPassed": null,
+      "mechanismCoverage": {
+        "windows": 0,
+        "inPlaceCompactions": 0,
+        "mechanismExercised": null
+      },
+      "nativeThresholdTokens": 314572,
+      "nativeCompactionRequired": false,
+      "restartVerified": null,
+      "restartEvidence": null,
+      "retrievalsDuringP1": 0,
+      "retrievalsDuringP2": 0,
+      "p1ElapsedMs": 129239,
+      "p2ElapsedMs": 31587,
+      "toolActivity": {
+        "1": {
+          "calls": {},
+          "errors": {}
+        },
+        "2": {
+          "calls": {},
+          "errors": {}
+        },
+        "3": {
+          "calls": {},
+          "errors": {}
+        },
+        "4": {
+          "calls": {},
+          "errors": {}
+        }
+      },
+      "nudgesInjected": 0,
+      "calls": 2,
+      "reportedTokens": 154104,
+      "usageComplete": true,
+      "timedCalls": [
+        {
+          "purpose": "agent",
+          "firstContentMs": 16337,
+          "elapsedMs": 128465,
+          "outputCharacters": {
+            "reasoning": 1602,
+            "text": 1063,
+            "arguments": 0
+          },
+          "outputTokens": 1519
+        },
+        {
+          "purpose": "agent",
+          "firstContentMs": 701,
+          "elapsedMs": 30836,
+          "outputCharacters": {
+            "reasoning": 945,
+            "text": 95,
+            "arguments": 0
+          },
+          "outputTokens": 404
+        }
+      ],
+      "deniedTools": 0,
+      "archives": 0,
+      "exactPagesInRequests": 24,
+      "archiveBytesVerified": true,
+      "archiveAuditPassed": true
     }
   ],
-  "latestReviewedRun": "c-f1-70101-432p-legacy-verbatim-candidate7",
+  "latestReviewedRun": "a-f3-91503-24p-candidate7-fork",
   "quietConfigurationAssessment": {
     "sourceRuns": [
       "c-f3-91503-24p-candidate5",
@@ -4383,7 +4879,7 @@
       75,
       8
     ],
-    "modelGates": "Legacy original-text component passed 3/3 with actual continuation; short three-arm probe regressions pending."
+    "modelGates": "Complete: three-arm F3 probe regressions all passed; legacy original-text component passed 3/3 with actual continuation. Earlier failures retained."
   },
   "candidate7ScanGuidance": {
     "name": "c-f1-70101-432p-legacy-verbatim-candidate7",
@@ -4395,5 +4891,63 @@
     "historyCalls": 7,
     "classification": "Same audited legacy reading boundary and question. New scan-limit feedback was actually exercised, followed by cursor continuation and exact recovery. Paired engineering evidence, not a statistical model-speed claim.",
     "sameFixtureBoundaryGeometryAndQuestion": true
+  },
+  "candidate7ProbeCohort": {
+    "sameFixtureCandidateAndTwoPrompts": true,
+    "allThreeProbeQualityPassed": true,
+    "fullReadingJourneysReplayed": false,
+    "promptHash": "b985b3a5b90622aa8231d50041b3a769bd3407df7c21edb02206b1a0f8e16d43",
+    "rows": [
+      {
+        "name": "a-f3-91503-24p-candidate7-fork",
+        "arm": "A_NATIVE",
+        "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+        "fixtureHash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "inheritedFrom": "a-f3-91503-24p-candidate6",
+        "probeOnly": true,
+        "elapsedSeconds": 163,
+        "facts": 24,
+        "corrections": 6,
+        "deliverablePassed": true,
+        "verbatim": 3,
+        "allQualityPassed": true,
+        "archiveAuditPassed": true,
+        "newCompactions": 0
+      },
+      {
+        "name": "b-f3-91503-24p-candidate7-fork",
+        "arm": "B_IN_PLACE",
+        "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+        "fixtureHash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "inheritedFrom": "b-f3-91503-24p-candidate6",
+        "probeOnly": true,
+        "elapsedSeconds": 297,
+        "facts": 24,
+        "corrections": 6,
+        "deliverablePassed": true,
+        "verbatim": 3,
+        "allQualityPassed": true,
+        "archiveAuditPassed": true,
+        "newCompactions": 1
+      },
+      {
+        "name": "c-f3-91503-24p-candidate7-fork",
+        "arm": "C400_WINDOWED",
+        "candidateHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+        "fixtureHash": "47d8ff676cb3adb8361c6b79e583c353119d5e3be0e99f0ac18bd175b49a7f90",
+        "inheritedFrom": "c-f3-91503-24p-candidate6",
+        "probeOnly": true,
+        "elapsedSeconds": 333,
+        "facts": 24,
+        "corrections": 6,
+        "deliverablePassed": true,
+        "verbatim": 3,
+        "allQualityPassed": true,
+        "archiveAuditPassed": true,
+        "newCompactions": 1
+      }
+    ],
+    "nativeComparison": "Default behavior reference; native retained its larger default 80% window and did not compact. Plugin arms used the same 32k pressure.",
+    "classification": "One-at-a-time real Web/model probe regressions from audited candidate6 reading boundaries; not three new reading journeys or a statistical efficiency claim."
   }
 }

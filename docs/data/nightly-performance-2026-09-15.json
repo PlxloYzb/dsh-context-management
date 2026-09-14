@@ -121,13 +121,13 @@
   "classification": "Synthetic local microbenchmark; eight alternating measurements per variant, not model-task efficiency or statistical superiority.",
   "regressions": {
     "unitPassed": 187,
-    "integrationPassed": 74,
+    "integrationPassed": 75,
     "localClientPassed": 8,
     "typecheck": true,
     "build": true,
     "prepack": true
   },
-  "modelGates": "Candidate6 three-arm cohort reviewed with the same fixture and six prompts: A native and B in-place passed all quality checks; C windowed scored 24/24 facts, 6/6 corrections, diagnosis passed, but 2/3 verbatim due to one source lookup omitted by the model. Every archive/exposure audit passed. This is not an all-three-arm quality pass. F5/91504 with 32 pages and the final-candidate F6 boundary-fork/restart passed all quality checks and audits. A bounded probe of retained 432-page legacy history is in progress.",
+  "modelGates": "Candidate7 A/B/C F3 boundary-probe regressions all passed 24/24 facts, 6/6 corrections, diagnosis and 3/3 verbatim. Same fixture, package entry and two actual questions were verified; B/C each executed a new compaction. Legacy 432-page original-text component passed 3/3 with actual scan continuation. These are audited boundary replays, not new full reading journeys. Candidate6 C verbatim failure and all unscored timeouts remain preserved.",
   "medianConvention": "For even sample counts, average the two central order statistics.",
   "queryDiscrimination": {
     "sourceRun": "c-f3-91501-48p-candidate1",
@@ -549,5 +549,21 @@
       }
     ],
     "comparisonNormalization": "Cursor identity and the intentional new empty-scan hint excluded from semantic equality assertion; same underlying search result and limits."
+  },
+  "finalPackage": {
+    "candidate": 7,
+    "tarballHash": "00f24d34ead8f0762e94d78f1d30925444fd185597393a6e07eb8f79f8cae425",
+    "entryHash": "5315634dfdc4622031550c4e4c280c64637da2e6c4935e9f7c565abe29e39884",
+    "sourceCheckpoint": "0745639",
+    "prepackTests": [
+      187,
+      75,
+      8
+    ],
+    "packageAuditPassed": true,
+    "packageNameInstallRemovePassed": true,
+    "consumerTypesPassed": true,
+    "installedFilesVerified": 33,
+    "npmPublished": false
   }
 }

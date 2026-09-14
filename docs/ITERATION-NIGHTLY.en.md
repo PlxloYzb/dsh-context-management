@@ -4,11 +4,11 @@
 
 ## Current result
 
-Candidate 7 is now under validation: explicit continuation feedback for empty scan-limited search pages, with matching tool guidance. Its 187 unit, 75 host integration, eight driver tests and prepack passed; the retained 432-page original-text component passed 3/3 and short three-arm probe regressions are underway. Candidate 6 remains a stage checkpoint; its complete reading journeys are not reassigned to candidate 7.
+This cycle closes at candidate 7, still an unpublished post-0.1.1 repair targeting pinned host 0.1.2-rc.1. Retrieval indexing, response packing, safe-range guidance, real status output, emergency checkpoint byte caps and scan-continuation feedback are fixed and verified.
 
-The project has reached the sixth nightly post-0.1.1 repair candidate, still targeting pinned host 0.1.2-rc.1. Retrieval indexing, response packing, safe-range guidance, real status output and the emergency checkpoint's actual byte cap are fixed and verified. In-place B completed the task that previously timed out. Final short-cohort A/B passed completely; C passed facts, corrections and diagnosis but scored verbatim 2/3, so the three-arm cohort is not an all-pass result. New F5 citation and F6 restart probes passed completely with original-source/archive audits.
+Candidate 7's three-arm F3 probe regressions all passed: each scored facts 24/24, corrections 6/6, diagnosis correct and verbatim 3/3, with source-exposure/archive byte audits passing. A/B/C took 163/297/333 seconds; B and C each exercised one new compaction transaction. These reuse audited reading boundaries; full reading journeys remain candidate 6 evidence, and native A retains its larger default window. The retained 432-page original-text component passed 3/3 in 249 seconds and actually used a scan-continuation cursor.
 
-Final prepack passed 187 unit, 74 host integration and eight driver tests. The delivery package's executable code and type declarations match the model candidate: only the changelog, source maps and corresponding chunk filenames/import references changed, with a retained per-file comparison. npm publication has not been performed.
+Final prepack passed 187 unit, 75 host integration and eight driver tests. Package-name install/remove, restored native commands, package audit and installed external consumer types passed. Candidate 6 F5 citation/F6 restart evidence, its C-arm verbatim 2/3 result, every timeout and harness failure remain preserved; this is not a claim that every historical sample passed. npm publication has not been performed.
 
 Baseline: `ac9e2a8`, unpublished changes after 0.1.1. Use only the local Qwen3.8-27B-NVFP4KV-384K route (393216 capacity), pinned DSH 0.1.2-rc.1, and the two authorized isolated test profiles. Preserve daily profiles, the global host and preset files.
 
@@ -39,7 +39,9 @@ The local 393216 capacity cannot reproduce a 400k pressure line on the former 10
 | C candidate 6 / legacy F1 / 70101 / 432-page comprehensive probe | Preserve original 150k pressure, 203531 window and 32768 output reserve; skip repeated reading | Exited after 424 seconds: initial request reached its 420-second deadline, quality unscored; byte audit passed | Skip comprehensive fact generation and test three original sources directly |
 | C candidate 6 / same-boundary verbatim probe | Ask only PAGE-34, 138, 267; same geometry and deadlines | Exited after 604 seconds: 600-second turn timeout, unscored; seven searches, five empty scan-limited pages and zero continuation calls; byte audit passed | One offline continuation found PAGE-267; repair continuation guidance |
 | C candidate 7 / same-boundary verbatim probe | Change only scan continuation feedback/tool guidance, preserving budgets | Completed in 249 seconds, verbatim 3/3; seven history calls, one hint and one cursor continuation; byte audit passed | Same fixture, boundary, geometry and actual question verified; component evidence, not a full facts gate |
-| C candidate 7 / F3 / 91503 / 24-page boundary fork | Replay candidate 6's audited reading boundary without repeated page reading | Running | Review facts, corrections, diagnosis and independent verbatim recovery before choosing the next arm |
+| C candidate 7 / F3 / 91503 / 24-page boundary fork | Replay candidate 6's audited reading boundary without repeated page reading | Complete pass in 333 seconds: facts 24/24, corrections 6/6, diagnosis passed, verbatim 3/3; byte audit passed | Retain candidate 6's verbatim failure; do not attribute this pass solely to scan guidance |
+| B candidate 7 / same-fixture boundary fork | In-place strategy, same two actual blind questions | Complete pass in 297 seconds: facts 24/24, corrections 6/6, diagnosis passed, verbatim 3/3; byte audit passed | One new in-place transaction; continue native reference |
+| A native / candidate 7 same-fixture boundary fork | Default larger window, same two actual blind questions | Complete pass in 163 seconds: facts 24/24, corrections 6/6, diagnosis passed, verbatim 3/3; exposure audit passed | Same fixture, candidate identifier and two actual prompts verified across all arms; cycle regression complete |
 
 Raw evidence and recovery state remain private in `.test-runtime/nightly-20260915/`. The baseline driver and per-run snapshots remain in the private run directories; model-test tooling is excluded from the npm package.
 
@@ -55,7 +57,7 @@ Reusing source lookup tables for immutable ledger revisions reduced median missi
 
 Eight further alternating measurements on the final candidate measured about 14.05 to 4.37 ms on the ordinary fixture and 182.21 to 122.10 ms on the short-source fixture. Both sampling rounds remain available; the first round was not replaced with a favorable selection.
 
-Pricing actual serialized search-hit bytes increased the example 1536-byte response grant from one hit/402 bytes to five hits/1072 bytes. Unicode/escaping, pagination completeness, exact response bounds, ledger updates and session isolation regressions passed; the current 187 unit tests, 74 host integration tests, eight driver tests, typecheck, build and prepack passed. Final candidate 6 is installed in the designated test profile: native A and in-place B passed all quality checks; windowed C scored verbatim 2/3 with the remaining checks passing. Candidate 5's B timeout and candidate 6's C quality failure are both retained. This is not an all-three-arms pass.
+Pricing actual serialized search-hit bytes increased the example 1536-byte response grant from one hit/402 bytes to five hits/1072 bytes. Unicode/escaping, pagination completeness, exact response bounds, ledger updates and session isolation regressions passed; the current 187 unit tests, 75 host integration tests, eight driver tests, typecheck, build and prepack passed. Candidate 6 was verified in the designated test profile: native A and in-place B passed all quality checks; windowed C scored verbatim 2/3 with the remaining checks passing. Candidate 5's B timeout and candidate 6's C quality failure are both retained. This is not an all-three-arms pass.
 
 [Sanitized performance data](data/nightly-performance-2026-09-15.json). Raw responses and failures remain private.
 
@@ -95,7 +97,7 @@ The B in-place fact probe issued 30 searches and one decompression. Eleven calls
 
 Observed nudge events: default C candidate 5 injected one, while B in-place injected none. B's timeout therefore cannot be attributed to nudges. The quiet C experiment tests only the configuration difference from default C.
 
-The quiet sample did not establish a stable benefit: its fact probe took 234 seconds, but verbatim recovery took 195 seconds and scored 0/3. The model mistook `.1` (the second observation) for the first; returned characters matched the originals. Product `autoNudge` therefore remains true. A single sample cannot establish that disabling nudges caused the ordinal mistake. F6 restores default nudges and checks exact equality of paginated history before and after a real restart.
+The quiet sample did not establish a stable benefit: its fact probe took 234 seconds, but verbatim recovery took 195 seconds and scored 0/3. The model mistook `.1` (the second observation) for the first; returned characters matched the originals. Product `autoNudge` therefore remains true. A single sample cannot establish that disabling nudges caused the ordinal mistake. F6 restored default nudges and checks exact equality of paginated history before and after a real restart.
 
 ## The actual emergency-checkpoint byte grant
 
@@ -130,3 +132,9 @@ At the same boundary offline, the initial query returned no hits, one cursor con
 The candidate 7 replay exercised one new hint followed by one cursor continuation and recovered all three originals. The earlier candidate timed out after 604 seconds without a score; this run completed in 249 seconds. This shows the intended feedback mechanism was used, not a statistical speedup inferred from a timeout versus a complete task. Eight alternating candidate 7 microbenchmark measurements gave 14.15 → 4.63 ms for the ordinary fixture and 179.49 → 121.12 ms for short original text; every sample and earlier round is retained.
 
 Candidate 7 changes retrieval feedback only. Its three-arm regressions reuse each candidate 6 arm's audited completed-reading boundary and issue the same two blind questions on the same fixture. These verify the final reader/model interaction and are explicitly labeled probe regressions; full reading/compaction journeys remain candidate 6 evidence. Each arm is reviewed before the next starts.
+
+## Delivery and limits
+
+Local branch `codex/nightly-context-20260915`, implementation checkpoint `0745639`. The candidate 7 package is retained under ignored `artifacts/nightly-candidate7-20260915/dsh-context-management-0.1.1.tgz`, SHA-256 `00f24d34ead8f0762e94d78f1d30925444fd185597393a6e07eb8f79f8cae425`, matching all 33 built files installed in `ctx-v012-smoke-c`. Both candidate 6 package checkpoints and their source-map equivalence comparison are retained.
+
+These are individual engineering samples, not statistical superiority evidence; performance numbers are same-machine synthetic retrieval costs. No complete 432-page reading journey was repeated, and the 393216-capacity route did not reproduce the old 400k/1000000-capacity condition. Larger-window native controls, inherited history, component probes and unscored failures remain distinctly labeled in the data.
