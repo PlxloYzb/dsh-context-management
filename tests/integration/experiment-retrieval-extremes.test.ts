@@ -24,6 +24,7 @@ test('R10: an empty scan-limited page explains continuation; the next page finds
   const first = reader.search(session, { query, limit: 3 }, 1100) as SearchPage
   assert.equal(first.status, 'success'); assert.deepEqual(first.hits, [])
   assert.equal(first.scanBudgetReached, true); assert.ok(first.nextCursor)
+  assert.equal((first as { absent?: boolean }).absent, undefined, 'a scan-limited page must not claim absence')
   assert.match(first.hint ?? '', /nextCursor/)
   assert.match(first.hint ?? '', /same query and limit/)
   assert.match(first.hint ?? '', /not.*absence/)
@@ -32,6 +33,68 @@ test('R10: an empty scan-limited page explains continuation; the next page finds
   assert.equal(next.status, 'success'); assert.equal(next.hits.length, 1)
   assert.equal(next.hits[0]!.seq, source); assert.match(next.hits[0]!.snippet, /original-value/)
   assert.equal(next.hint, undefined); assert.ok(Buffer.byteLength(JSON.stringify(next)) <= 1100)
+})
+
+test('R10b: an exhaustive empty page reports absence instead of an ambiguous empty array, within the minimum grant', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-exhaustive-empty-search')
+  session.append('turn/start', { turn: 1 })
+  appendUser(session, `ORIGINAL_MARKER = "value-1"\n${'filler '.repeat(40)}`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Historical source archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'exhaustive-empty-search',
+  })
+  const reader = new ArchiveReader()
+  type Page = {
+    status: string; hits: { seq: number; snippet: string }[]; incomplete: boolean
+    nextCursor: string | null; scanBudgetReached: boolean
+    absent?: boolean; inspectedMessages?: number; hint?: string
+  }
+  const miss = reader.search(session, { query: 'NEVER_PRESENT_LITERAL' }, 1100) as Page
+  assert.equal(miss.status, 'success'); assert.deepEqual(miss.hits, [])
+  assert.equal(miss.incomplete, false); assert.equal(miss.scanBudgetReached, false); assert.equal(miss.nextCursor, null)
+  assert.equal(miss.absent, true, 'a full-archive scan inside the limit establishes absence')
+  assert.ok((miss.inspectedMessages ?? 0) > 0, 'the absence claim reports its coverage')
+  assert.match(miss.hint ?? '', /end of the archive/)
+  assert.match(miss.hint ?? '', /instead of repeating or permuting/)
+  assert.ok(Buffer.byteLength(JSON.stringify(miss)) <= 1100)
+  const found = reader.search(session, { query: 'ORIGINAL_MARKER' }, 1100) as Page
+  assert.equal(found.status, 'success'); assert.equal(found.hits.length, 1)
+  assert.equal(found.absent, undefined, 'a page with hits carries no absence claim')
+  assert.equal(found.inspectedMessages, undefined)
+  assert.equal(found.hint, undefined)
+})
+
+test('R10c: a cursor-resumed page that exhausts the archive does not claim absence for earlier pages', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-resumed-empty-search')
+  session.append('turn/start', { turn: 1 })
+  appendUser(session, `${'x'.repeat(1_100_000)}\nLATE_SOURCE = "original-value"`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Long original is archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'resumed-empty-search',
+  })
+  const reader = new ArchiveReader(), query = 'NEVER_PRESENT_LITERAL'
+  type Page = {
+    status: string; hits: unknown[]; incomplete: boolean; nextCursor: string | null
+    scanBudgetReached: boolean; absent?: boolean; inspectedMessages?: number; hint?: string
+  }
+  const first = reader.search(session, { query }, 1100) as Page
+  assert.equal(first.status, 'success'); assert.deepEqual(first.hits, [])
+  assert.equal(first.scanBudgetReached, true); assert.ok(first.nextCursor)
+  assert.equal(first.absent, undefined, 'a scan-limited page cannot claim absence')
+  const rest = reader.search(session, { query, cursor: first.nextCursor! }, 1100) as Page
+  assert.equal(rest.status, 'success'); assert.deepEqual(rest.hits, [])
+  assert.equal(rest.scanBudgetReached, false); assert.equal(rest.nextCursor, null)
+  assert.equal(rest.absent, undefined, 'a resumed page cannot speak for the pages it never saw')
+  assert.equal(rest.inspectedMessages, undefined)
+  assert.ok(Buffer.byteLength(JSON.stringify(rest)) <= 1100)
 })
 
 test('R09 experiment: one-token and invalid retrieval budgets are explicit; cancelled pagination can resume without losing Unicode source bytes', async t => {

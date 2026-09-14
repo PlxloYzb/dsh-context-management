@@ -36,10 +36,11 @@ test('R11 source traversal cap exposes incomplete retrieval beyond 200000 origin
   assert.deepEqual(first.missing, []); assert.ok(first.nextCursor)
   assert.ok(Buffer.byteLength(JSON.stringify(first)) <= 4096)
   const search = reader.search(session, { query: 'ONLY_BEYOND_CAP' }) as {
-    status: string; incomplete: boolean; hits: unknown[]; nextCursor: string | null
+    status: string; incomplete: boolean; hits: unknown[]; nextCursor: string | null; absent?: boolean
   }
   assert.equal(search.status, 'success'); assert.equal(search.incomplete, true)
   assert.deepEqual(search.hits, []); assert.equal(search.nextCursor, null)
+  assert.equal(search.absent, undefined, 'an incomplete archive cannot establish absence')
   assert.deepEqual(reader.decompress(session, { blockId: block.compactionId, sourceSeq: originals.at(-1)! }), {
     status: 'error', code: 'source-not-in-archive',
   })
@@ -68,9 +69,10 @@ test('R11 search ownership cap retains late sources across nested archives with 
   prices.set(secondSummary, ctx.tokenMeter.measure(session).nodes.find(node => node.seq === secondSummary)!.heuristicTokens)
   archive([secondSummary])
   const reader = new ArchiveReader(), before = session.seq
-  const miss = reader.search(session, { query: 'UNMATCHED' }) as { status: string; hits: unknown[]; incomplete: boolean; nextCursor: string | null }
+  const miss = reader.search(session, { query: 'UNMATCHED' }) as { status: string; hits: unknown[]; incomplete: boolean; nextCursor: string | null; absent?: boolean }
   assert.equal(miss.status, 'success'); assert.deepEqual(miss.hits, [])
   assert.equal(miss.incomplete, false); assert.equal(miss.nextCursor, null)
+  assert.equal(miss.absent, true, 'a complete full-archive scan establishes absence')
   const found: number[] = []; let cursor: string | undefined
   for (let page = 0; page < 8; page++) {
     const result = reader.search(session, { query: 'LATE_SOURCE_SENTINEL', limit: 1, cursor }) as {

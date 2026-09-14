@@ -1,6 +1,6 @@
 # Short-cycle overnight iteration (2026-09-15)
 
-[简体中文](ITERATION-NIGHTLY.zh-CN.md) · [Prior 150k iteration](ITERATION-150K.en.md)
+[简体中文](ITERATION-NIGHTLY.zh-CN.md) · [Prior 150k iteration](ITERATION-150K.en.md) · [Next cycle (candidate 8)](ITERATION-NIGHTLY-2.en.md)
 
 ## Current result
 

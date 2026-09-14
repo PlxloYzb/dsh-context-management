@@ -260,7 +260,7 @@ export class ArchiveReader {
     let owners = this.searchOwners.get(session)
     if (!owners) { owners = new Map(); this.searchOwners.set(session, owners) }
     let [b, s, p, o] = offset as [number, number, number, number]
-    let scanned = 0, incomplete = false
+    let scanned = 0, incomplete = false, inspected = 0
     const hits: object[] = []
     // Reserve the complete envelope, including the longest cursor/boolean
     // forms, then price each hit's actual serialized bytes. A fixed 600-byte
@@ -280,6 +280,7 @@ export class ArchiveReader {
         // Search each original once across parent archives, including cursor pages.
         // At the memory cap, untracked sources may repeat but are never omitted.
         if ((owner === undefined && owners.size < 200_000) || (owner !== undefined && b < owner)) owners.set(seq, b)
+        inspected += 1
         const parts = eventTextParts(events[seq]!).texts
         for (; p < parts.length; p++, o = 0) {
         const part = parts[p]!, text = part.text
@@ -315,11 +316,30 @@ export class ArchiveReader {
       }
     }
     const scanBudgetReached = scanned >= 1_000_000
-    const result = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor: b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null,
-      // Empty pages leave room for this fixed explanation within the minimum
-      // grant. Nonempty pages keep their existing packing and response size.
-      ...(scanBudgetReached && hits.length === 0 ? { hint: 'Scan limit reached. Continue with nextCursor using the same query and limit; zero hits on this page do not establish absence.' } : {}),
-    }
+    const nextCursor = b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null
+    const base = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor }
+    // Two different empty pages need different model reactions, and the raw
+    // empty array alone cannot tell them apart. A scan-limited page means the
+    // query is untested; a page that ran to the end of the archive without
+    // hitting the limit means the literal is genuinely absent from everything
+    // inspected, so permuting or repeating the same literal is pure waste
+    // (observed F3/C4: "latency=530ms; checksum=" and two permutations each
+    // rescanned the whole archive for zero hits).
+    //
+    // Only a page that started at offset zero may make that claim. A resumed
+    // page observes `incomplete` for its own slice only, so an earlier page's
+    // unresolved or corrupt sources could hide an occurrence; without a cursor
+    // the single pass covers every block and its flag speaks for the archive.
+    // An incomplete archive also stays silent, as does an empty inspection.
+    const absent = args.cursor === undefined && hits.length === 0 && !scanBudgetReached && nextCursor === null && !incomplete && inspected > 0
+    // Empty pages leave room for these fixed explanations within the minimum
+    // 1100-byte grant (both render under 500 bytes); nonempty pages keep their
+    // existing packing and response size.
+    const result = absent
+      ? { ...base, absent: true, inspectedMessages: inspected, hint: `No occurrence of this literal in the ${inspected} archived messages inspected; the scan reached the end of the archive without hitting the scan limit. Change the literal — shorter, or a different adjacent field — instead of repeating or permuting it.` }
+      : scanBudgetReached && hits.length === 0
+        ? { ...base, hint: 'Scan limit reached. Continue with nextCursor using the same query and limit; zero hits on this page do not establish absence.' }
+        : base
     return Buffer.byteLength(JSON.stringify(result)) <= available ? result : fail('insufficient-headroom')
   }
 }

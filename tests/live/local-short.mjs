@@ -17,7 +17,7 @@ const arm=args.arm??'C400_WINDOWED',family=args.family??'F3',seed=Number(args.se
 const concise=args.concise==='true'
 const forkName=args['fork-from']
 const probeMode=args.probe??'full'
-if(!['full','verbatim'].includes(probeMode)||(probeMode==='verbatim'&&!forkName))throw new Error('Verbatim-only probes require an audited reading fork')
+if(!['full','verbatim','absence'].includes(probeMode)||(probeMode!=='full'&&!forkName))throw new Error('Verbatim-only and absence probes require an audited reading fork')
 const nudges=args.nudges
 if(nudges!==undefined&&!['true','false'].includes(nudges))throw new Error('nudges must be true or false')
 const restart=args.restart==='true',name=args.name,isPlugin=['C400_WINDOWED','B_IN_PLACE'].includes(arm)
@@ -197,6 +197,36 @@ try{
  const answer=jsonObjects(responseText(p2.recent)).map(x=>x.value).findLast(o=>Object.keys(truth).some(k=>Object.hasOwn(o,k)))
  summary.score2={verbatimCorrect:Object.keys(truth).filter(k=>answer?.[k]===truth[k]).length,verbatimTotal:3,answer:answer??null}
  summary.retrievalsDuringP2=(await historyCalls())-beforeP2;summary.p2ElapsedMs=p2.elapsedMs
+ if(probeMode==='absence'){
+  // Two look-alike literals: one real trace= value (must resolve to its one
+  // source page) and one single-hex-digit near miss that occurs nowhere (must
+  // be reported null). A bare empty search page cannot support the second
+  // answer; the absence feedback can. Both literals are verified offline
+  // against the fixture before the model ever sees them.
+  const sourcePage=Math.max(1,Math.floor(pageCount*0.44))
+  const literal=(page,text)=>{const m=text.match(/trace=([0-9a-f]{12})/);if(!m)throw new Error(`Fixture page ${page} has no trace literal`);return m[0]}
+  const present=literal(sourcePage,fixture.pages[sourcePage-1])
+  // Mutate only inside the hex value so the near miss is a plausible
+  // mis-remembered trace, not an obviously malformed keyword.
+  const mutate=value=>{const start=value.indexOf('=')+1
+    for(let i=start;i<value.length;i++){const c=value[i]
+      if(!/[0-9a-f]/.test(c))continue
+      for(const d of '0123456789abcdef'){
+        if(d===c)continue
+        const candidate=value.slice(0,i)+d+value.slice(i+1)
+        if(!fixture.pages.some(text=>text.includes(candidate)))return candidate
+      }}
+    throw new Error('No absent near-miss literal exists for the fixture')}
+  const absent=mutate(present)
+  assert.equal(fixture.pages.filter(text=>text.includes(present)).length,1,'Present probe literal must have exactly one source page')
+  assert.ok(!fixture.pages.some(text=>text.includes(absent)),'Absent probe literal must occur nowhere')
+  const beforeP3=await historyCalls()
+  const p3=await prompt('absence-probe',`Independent blind probe, second question set. Two literals were reported by a previous analyst. For each, determine from the ORIGINAL archived historical source whether it exists, and if it does, the page ID of its source. Literal A: ${present}\nLiteral B: ${absent}\nRecover exact evidence with installed search_context/decompress; do not guess, and do not read pages directly. Return one JSON object: {"literals":{"${present}":"PAGE-<n>" or null,"${absent}":"PAGE-<n>" or null}}. An existing literal's value must be its exact source page ID; a literal that occurs nowhere must be null.`)
+  const lit=jsonObjects(responseText(p3.recent)).map(x=>x.value).findLast(o=>o?.literals&&(Object.hasOwn(o.literals,present)||Object.hasOwn(o.literals,absent)))?.literals??null
+  summary.score3={presentLiteralPage:`PAGE-${sourcePage}`,absentLiteral:absent,presentCorrect:lit?.[present]===`PAGE-${sourcePage}`,absentCorrect:lit?.[absent]===null,answer:lit}
+  summary.score3.passed=summary.score3.presentCorrect&&summary.score3.absentCorrect
+  summary.retrievalsDuringP3=(await historyCalls())-beforeP3;summary.p3ElapsedMs=p3.elapsedMs
+ }
  summary.completed=true
  summary.verbatimPassed=summary.score2.verbatimCorrect===summary.score2.verbatimTotal
 }catch(error){
@@ -221,8 +251,9 @@ try{
   summary.strictPassed=summary.completed===true&&!summary.evidenceError&&summary.score?.passed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
   summary.allQualityPassed=summary.strictPassed&&summary.verbatimPassed===true
   if(probeMode==='verbatim')summary.verbatimOnlyPassed=summary.completed===true&&!summary.evidenceError&&summary.verbatimPassed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
-  await persist();console.log(JSON.stringify({name,completed:summary.completed??false,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,facts:summary.score?.factsCorrect,corrections:summary.score?.correctionsCorrect,deliverable:summary.score?.deliverablePassed,verbatim:summary.score2?.verbatimCorrect,compactions:summary.compactions.length,calls:summary.calls,tokens:summary.reportedTokens,elapsedSeconds:summary.elapsedSeconds,error:summary.error??null}))
-  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,probeMode,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
+  if(probeMode==='absence')summary.absenceProbePassed=summary.completed===true&&!summary.evidenceError&&summary.verbatimPassed===true&&summary.score3?.passed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
+  await persist();console.log(JSON.stringify({name,completed:summary.completed??false,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,absenceProbePassed:summary.absenceProbePassed,absence:summary.score3??null,facts:summary.score?.factsCorrect,corrections:summary.score?.correctionsCorrect,deliverable:summary.score?.deliverablePassed,verbatim:summary.score2?.verbatimCorrect,compactions:summary.compactions.length,calls:summary.calls,tokens:summary.reportedTokens,elapsedSeconds:summary.elapsedSeconds,error:summary.error??null}))
+  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,probeMode,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,absenceProbePassed:summary.absenceProbePassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
  }
  await unlink(lock).catch(()=>{})
 }

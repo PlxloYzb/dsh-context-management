@@ -1,6 +1,6 @@
 # 夜间快速迭代（2026-09-15）
 
-[English](ITERATION-NIGHTLY.en.md) · [此前 150k 迭代](ITERATION-150K.zh-CN.md)
+[English](ITERATION-NIGHTLY.en.md) · [此前 150k 迭代](ITERATION-150K.zh-CN.md) · [下一轮（候选 8）](ITERATION-NIGHTLY-2.zh-CN.md)
 
 ## 当前结论
 
