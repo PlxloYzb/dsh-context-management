@@ -44,8 +44,10 @@ test('parallel retrieval calls share one step budget and a later step receives a
   const exec = { agent: { session, ctx: h.ctx, options: {} }, signal: new AbortController().signal } as unknown as ToolRunContext
   const outputs = await Promise.all(Array.from({ length: 8 }, () => tool.execute({ blockId: block.compactionId, maxTokens: 4096 }, exec)))
   const successful = outputs.filter(output => JSON.parse(output.text).status === 'success')
-  assert.ok(successful.length > 0 && successful.length < outputs.length)
-  assert.ok(successful.reduce((sum, output) => sum + Buffer.byteLength(output.text), 0) <= 4096)
+  // Burst pool: up to three parallel reads are granted per step so a batch of
+  // parallel retrievals no longer starves its own members (150k adaptive v7).
+  assert.ok(successful.length >= 1 && successful.length < outputs.length)
+  assert.ok(successful.reduce((sum, output) => sum + Buffer.byteLength(output.text), 0) <= 3 * 1536)
   assert.ok(outputs.some(output => output.text.includes('insufficient-headroom')))
   session.append('step/end', { turn: 1, step: 1 }); session.append('step/start', { turn: 1, step: 2 })
   assert.equal(JSON.parse((await tool.execute({ blockId: block.compactionId, maxTokens: 4096 }, exec)).text).status, 'success')
