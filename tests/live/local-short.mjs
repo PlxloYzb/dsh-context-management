@@ -1,5 +1,5 @@
 // One bounded, review-between-runs local-model experiment. Never schedules a batch.
-import {readFile,writeFile,mkdir,mkdtemp,unlink} from 'node:fs/promises'
+import {readFile,writeFile,mkdir,mkdtemp,unlink,readdir} from 'node:fs/promises'
 import {join,resolve} from 'node:path'
 import {homedir,tmpdir} from 'node:os'
 import {createHash} from 'node:crypto'
@@ -16,6 +16,10 @@ import {writePrivateSettings} from './local/private-settings.mjs'
 const args=Object.fromEntries(process.argv.slice(2).map(v=>{const i=v.indexOf('=');return[v.slice(2,i),v.slice(i+1)]}))
 const routeName=args.route??'qwen'
 if(!['qwen','muse'].includes(routeName))throw new Error('route must be qwen or muse')
+const portText=args.port??'3311'
+if(!/^[1-9][0-9]{0,4}$/.test(portText))throw new Error('port must be an integer from 1024 through 65535')
+const port=Number(portText)
+if(!Number.isSafeInteger(port)||port<1024||port>65535)throw new Error('port must be an integer from 1024 through 65535')
 const route=routeName==='muse'?{provider:'opencode-go-muse',model:'muse-spark-1.3-contributor',reasoningEffort:'minimal'}:{provider:'ubuntu-lora',model:'Qwen3.8-27B-NVFP4KV-384K'}
 const routeCapacity=routeName==='muse'?1048576:393216
 const arm=args.arm??'C400_WINDOWED',family=args.family??'F3',seed=Number(args.seed??91501),pageCount=Number(args.pages??48),pressure=Number(args.pressure??48000),batch=Number(args.batch??6)
@@ -37,7 +41,7 @@ if(matchedNative&&arm!=='A_NATIVE')throw new Error('Matched native threshold app
 if(!name||!/^[a-z0-9-]+$/.test(name)||!['A_NATIVE','C400_WINDOWED','B_IN_PLACE'].includes(arm)||!['F1','F3','F4','F5','F6'].includes(family))throw new Error('Invalid experiment configuration')
 if(forkName&&!/^[a-z0-9-]+$/.test(forkName))throw new Error('Fork source must name a retained local run')
 if(![seed,pageCount,pressure,batch].every(Number.isSafeInteger)||pageCount<24||pageCount>(forkName?1152:144)||pressure<24000||pressure>150000||batch<1||batch>12)throw new Error('Outside bounded reading/replay geometry')
-const night=resolve('.test-runtime/nightly-20260915'),root=join(night,name),lock=join(night,'active.lock')
+const night=resolve('.test-runtime/nightly-20260915'),root=join(night,name),lock=join(night,port===3311?'active.lock':`active-${port}.lock`),statePath=join(night,port===3311?'state.json':`state-${port}.json`)
 const pinned=resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
 const hostVersion=JSON.parse(await readFile(resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/@deepseek-ai/dsh/package.json'),'utf8')).version
 if(hostVersion!=='0.1.2-rc.1')throw new Error('Host version changed')
@@ -57,9 +61,20 @@ process.once('SIGINT',()=>{void abort('EXPERIMENT_INTERRUPTED_SIGINT')})
 const maxMs=25*60000,started=Date.now()
 let maxTokens=8192
 const hash=b=>createHash('sha256').update(b).digest('hex')
+async function distManifest(directory,relative=''){
+ const entries=await readdir(join(directory,relative),{withFileTypes:true}),files=[]
+ for(const entry of entries.sort((a,b)=>a.name<b.name?-1:a.name>b.name?1:0)){
+  const path=join(relative,entry.name)
+  if(entry.isDirectory())files.push(...await distManifest(directory,path))
+  else if(entry.isFile())files.push([path,hash(await readFile(join(directory,path)))])
+ }
+ return files
+}
+const canonicalDistEntries=entries=>entries.map(([path,digest])=>`${path}\0${digest}\n`).join('')
+const manifestHash=entries=>hash(canonicalDistEntries(entries))
 const settingsPath=join(homedir(),'.dsh/settings.yaml'),settingsBytes=await readFile(settingsPath),settingsHash=hash(settingsBytes)
 async function nightState(){
- const text=await readFile(join(night,'state.json'),'utf8').catch(error=>{if(error.code==='ENOENT')return '{}';throw error})
+ const text=await readFile(statePath,'utf8').catch(error=>{if(error.code==='ENOENT')return '{}';throw error})
  return JSON.parse(text)
 }
 async function events(){return JSON.parse(await readFile(join(spec.observed,`${sessionId}.events.json`),'utf8').catch(()=> '[]'))}
@@ -129,8 +144,15 @@ try{
   assert.ok(inheritedQueued.every(m=>m.source?.kind==='user'&&m.content?.length===1&&m.content[0].type==='text'&&m.content[0].text===finalQuestion(family)),'Unexpected inherited pending input')
  }
  const profile=isPlugin?'ctx-v012-smoke-c':'ctx-v012-mini-native'
- const built=await readFile('dist/index.js'),installed=await readFile(join(homedir(),'.dsh/profiles/ctx-v012-smoke-c/node_modules/dsh-context-management/dist/index.js'))
- if(isPlugin&&hash(built)!==hash(installed))throw new Error('Install current built candidate before running C')
+ const candidateDistEntries=await distManifest('dist'),candidateDistFiles=Object.fromEntries(candidateDistEntries),candidateDistHash=manifestHash(candidateDistEntries),built=await readFile('dist/index.js')
+ const installedDist=join(homedir(),'.dsh/profiles/ctx-v012-smoke-c/node_modules/dsh-context-management/dist')
+ let installedCandidateDistHash
+ if(isPlugin){
+  const installedDistEntries=await distManifest(installedDist)
+  installedCandidateDistHash=manifestHash(installedDistEntries)
+  if(canonicalDistEntries(candidateDistEntries)!==canonicalDistEntries(installedDistEntries))throw new Error('Install the complete current dist candidate before running a plugin arm')
+ }
+ if(parent&&parent.candidateDistHash!==undefined)assert.equal(parent.candidateDistHash,candidateDistHash,'Fork candidate dist changed')
  const effective=Math.ceil(pressure/0.9),windowBudget=effective+maxTokens+4096,matchedRetainRatio=(0.55*effective)/routeCapacity
  if(parent)assert.equal(parent.geometry.windowBudget,windowBudget,'Fork logical window changed')
  let ratio=pressure/routeCapacity;for(let i=0;Math.floor(routeCapacity*ratio)<pressure&&i<8;i++)ratio+=Number.EPSILON
@@ -139,15 +161,15 @@ try{
  const patches=[{id:'settings',config:{path:isolatedSettings}},{id:'session-title-llm',disabled:true},...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),...(background?{backgroundSummary:{...route,allowSameProvider:true,prepareAtEffectiveCapacityPct:backgroundPrepare,maxOutputTokens:2048}}:{}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
  const patch=join(root,'host.patch.yml');await writeFile(patch,JSON.stringify(patches,null,2),{mode:0o600})
  await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:costControl==='observe'?null:8000000,perCallConservativeReserve:routeCapacity,stopAtMs:started+maxMs})
- spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port:3311,route}
- summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,settingsHash,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
+ spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port,route}
+ summary={schemaVersion:1,name,arm,family,seed,port,startedAt:new Date(started).toISOString(),hostVersion,route,settingsHash,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),candidateDistFiles,candidateDistHash,candidateDistLoaded:isPlugin,installedCandidateDistHash:installedCandidateDistHash??null,runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
  summary.autoNudge=isPlugin?(nudges===undefined||nudges==='true'):null
  summary.backgroundSummaryEnabled=background;summary.costControl=costControl
  summary.backgroundPrepareFraction=background?backgroundPrepare:null
  summary.matchedNative=matchedNative
  summary.matchedNativeGeometry=matchedNative?{thresholdRatio:ratio,retainRatio:matchedRetainRatio,thresholdTokens:Math.floor(routeCapacity*ratio),retainTokens:Math.floor(routeCapacity*matchedRetainRatio),pluginTargetAfterTurnoverTokens:Math.round(0.55*effective)}:null
  summary.probeMode=probeMode
- if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,requestedThroughSeq:forkAtSeq,throughSeq,candidateHash:parent.candidateHash,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
+ if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,requestedThroughSeq:forkAtSeq,throughSeq,candidateHash:parent.candidateHash,candidateDistHash:parent.candidateDistHash??null,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
  const clientBytes=await readFile(new URL('./client.mjs',import.meta.url));summary.clientHash=hash(clientBytes)
  await writeFile(join(root,'client-snapshot.mjs'),clientBytes,{mode:0o600})
  await writeFile(join(root,'runner-snapshot.mjs'),await readFile(import.meta.filename),{mode:0o600})
@@ -156,7 +178,7 @@ try{
  summary.helperHashes=Object.fromEntries(await Promise.all(helperNames.map(async file=>{const bytes=await readFile(new URL(`./local/${file}`,import.meta.url));await writeFile(join(root,'helper-snapshot',file),bytes,{mode:0o600});return[file,hash(bytes)]})))
  await persist()
  ticker=setInterval(()=>{void progress().catch(()=>{})},15000)
- const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'running',currentRun:{name,pid:process.pid,root,startedAt:summary.startedAt},nextAction:'Inspect summary.json and progress.json; choose next run only after reviewing this result.'})
+ const state=await nightState();await atomicJson(statePath,{...state,status:'running',currentRun:{name,pid:process.pid,root,port,startedAt:summary.startedAt},nextAction:'Inspect summary.json and progress.json; choose next run only after reviewing this result.'})
  const cwd=parent?undefined:await mkdtemp(join(tmpdir(),'dsh-context-experiment-short-'))
  host=await startHost(spec,`${name}-${Date.now()}`)
  sessionId=(parent?await host.client.call('session/fork',{sessionId:parent.sessionId,atSeq:forkAtSeq}):await host.client.call('session/create',{cwd,agentPreset:'standard'})).sessionId;summary.sessionId=sessionId
@@ -279,7 +301,7 @@ try{
   if(probeMode==='verbatim')summary.verbatimOnlyPassed=summary.completed===true&&!summary.evidenceError&&summary.verbatimPassed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
   if(probeMode==='absence')summary.absenceProbePassed=summary.completed===true&&!summary.evidenceError&&summary.verbatimPassed===true&&summary.score3?.passed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)
   await persist();console.log(JSON.stringify({name,completed:summary.completed??false,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,absenceProbePassed:summary.absenceProbePassed,absence:summary.score3??null,facts:summary.score?.factsCorrect,corrections:summary.score?.correctionsCorrect,deliverable:summary.score?.deliverablePassed,verbatim:summary.score2?.verbatimCorrect,compactions:summary.compactions.length,calls:summary.calls,tokens:summary.reportedTokens,elapsedSeconds:summary.elapsedSeconds,error:summary.error??null}))
-  const state=await nightState();await atomicJson(join(night,'state.json'),{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,probeMode,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,absenceProbePassed:summary.absenceProbePassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
+  const state=await nightState();await atomicJson(statePath,{...state,status:'awaiting-result-review',currentRun:null,lastRun:{name,root,port,probeMode,strictPassed:summary.strictPassed,verbatimOnlyPassed:summary.verbatimOnlyPassed,absenceProbePassed:summary.absenceProbePassed,completed:summary.completed??false},nextAction:'Review the preserved result before another experiment; diagnose failure or select one new dimension.'})
  }
  await unlink(lock).catch(()=>{})
 }

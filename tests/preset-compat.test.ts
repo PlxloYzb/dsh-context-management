@@ -63,3 +63,10 @@ test('preset compatibility rejects both backends in one realm', () => {
   assert.ok(report.hasLocalBasic && report.hasLocalArc)
   assert.ok(report.issues.length > 0)
 })
+
+test('preset compatibility ignores commented rows and preserves quoted comment markers', () => {
+  const report = inspectPresetComposition("# name: '@deepseek-ai/dsh-compaction-basic'\n  name: '@deepseek-ai/dsh-compaction-basic # alias'\n  isolate: { compaction: false } # compaction: true\n")
+  assert.equal(report.hasLocalBasic, false)
+  assert.equal(report.isolatesCompaction, false)
+  assert.equal(report.patchable, false)
+})

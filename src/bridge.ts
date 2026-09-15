@@ -32,7 +32,7 @@
 
 import { standingMountFor } from '@deepseek-ai/dsh-agent-presets'
 import { symbols, type Context, type Fiber } from '@deepseek-ai/cordis'
-import type { Entry } from '@deepseek-ai/cordis-plugin-loader'
+import type { Entry, EntryTree } from '@deepseek-ai/cordis-plugin-loader'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import ArcCompactionEngine, { Config, isArcBackend, validateContextConfig, type Config as ArcConfig } from './index.ts'
 import { ContextManagementError, contextBoundary, waitForContext } from './errors.ts'
@@ -65,6 +65,8 @@ interface PresetIncludeConfig {
 
 /** One patched preset mount, restorable by effect-owned teardown. */
 interface TrackedMount {
+  readonly tree: EntryTree
+  latestConfig?: PresetIncludeConfig
   readonly config: PresetIncludeConfig
   readonly hadPatches: boolean
   readonly originalPatches: EntryPatch[] | undefined
@@ -112,6 +114,14 @@ function restorePatches(config: PresetIncludeConfig, hadPatches: boolean, origin
   } else {
     delete config.patches
   }
+}
+
+/** Same-path Include updates commit to tree.config without replacing fiber.config. */
+function currentIncludeConfig(fiber: Fiber, tree: EntryTree): PresetIncludeConfig | undefined {
+  const activeTree = fiber.entry?.subtree ?? tree
+  const live = 'config' in activeTree ? activeTree.config as PresetIncludeConfig | undefined : undefined
+  const cached = fiber.config as PresetIncludeConfig | undefined
+  return typeof live?.path === 'string' && live.path === cached?.path ? live : cached
 }
 
 /**
@@ -177,8 +187,14 @@ export async function takeoverMount(
   mount: PresetMountHandle,
   tracked: Map<Fiber, TrackedMount>,
 ): Promise<TakeoverStatus> {
-  if (tracked.has(mount.fiber)) return 'taken-over'
-  if (isArcBackend(serviceWithin(ctx, mount, 'compaction'))) return 'already-arc'
+  if (isArcBackend(serviceWithin(ctx, mount, 'compaction'))) {
+    return [...tracked.keys()].some(carrier => withinContext(carrier.ctx, mount.fiber.ctx)) ? 'taken-over' : 'already-arc'
+  }
+  // A previous success is not evidence about a reloaded Include. Release our
+  // old patches before discovering the currently mounted provider again.
+  for (const [carrier] of [...tracked]) {
+    if (withinContext(carrier.ctx, mount.fiber.ctx)) await rollbackMount(carrier, tracked)
+  }
   if (typeof (mount.fiber.config as { path?: unknown } | undefined)?.path !== 'string') return 'unrecognized-carrier'
   const backend = serviceWithin(ctx, mount, 'compaction') as { ctx?: Context } | undefined
   const entry: Entry | undefined = backend?.ctx?.fiber.entry
@@ -187,7 +203,7 @@ export async function takeoverMount(
   // user-defined; a nested Include has its own patch namespace.
   const treeFiber = entry.parent.tree.ctx.fiber
   const carrier = treeFiber.uid === mount.fiber.uid ? mount.fiber : treeFiber
-  const include = carrier.config as PresetIncludeConfig | undefined
+  const include = currentIncludeConfig(carrier, entry.parent.tree)
   if (typeof include?.path !== 'string') return 'unrecognized-carrier'
   const groupId = entry.parent === entry.parent.tree.root ? undefined : entry.parent.ctx.fiber.entry?.options.id
   if (entry.parent !== entry.parent.tree.root && !groupId) return 'unrecognized-carrier'
@@ -207,7 +223,7 @@ export async function takeoverMount(
   }
 
   include.patches = [...base, retireBasic]
-  tracked.set(carrier, { config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
+  tracked.set(carrier, { tree: entry.parent.tree, config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
   try {
     await carrier.update(include, true)
     // The name guard did not match: a foreign backend still owns the realm,
@@ -242,11 +258,19 @@ export async function rollbackMount(fiber: Fiber, tracked: Map<Fiber, TrackedMou
   const record = tracked.get(fiber)
   if (record === undefined) return
   tracked.delete(fiber)
-  const { config, hadPatches, originalPatches, owned } = record
+  const { owned } = record
   if (fiber.uid === null) {
-    restorePatches(config, hadPatches, originalPatches)
+    restorePatches(record.config, record.hadPatches, record.originalPatches)
     return
   }
+  // External Include updates may replace the config object or remove our
+  // patches. Teardown must preserve that new composition, not replay the old.
+  const config = record.latestConfig ?? currentIncludeConfig(fiber, record.tree)
+  if (!config) throw new Error('context rollback lost its Include configuration')
+  if (!config.patches?.some(patch => owned.includes(patch))) return
+  const sameConfig = config === record.config
+  const hadPatches = sameConfig ? record.hadPatches : Object.hasOwn(config, 'patches')
+  const originalPatches = sameConfig ? record.originalPatches : config.patches.filter(patch => !owned.includes(patch))
   try {
     config.patches = config.patches?.filter(patch => patch !== owned[1]) ?? []
     await fiber.update(config, true)
@@ -321,9 +345,21 @@ export function apply(ctx: Context, config: ArcConfig): void {
   loader.builtins[BUILTIN_KEY] = ArcCompactionEngine
   const tracked = new Map<Fiber, TrackedMount>()
   const operations = new WeakMap<Fiber, Promise<void>>()
+  const fallbacks = new WeakMap<Fiber, unknown>()
+  const blocked = new WeakMap<Fiber, { backend: unknown; error: ContextManagementError }>()
   const inFlight = new Set<Promise<void>>()
   const agents = new Map<Agent, () => void>()
   let closing = false
+  // Include may replace its tree on a path change, then replace only the
+  // tree's config on a same-path update. Observe successful Loader updates
+  // around the native hook, including updates that leave no serving backend.
+  ctx.on('internal/update', async function (candidate: unknown, _noSave, next) {
+    const record = tracked.get(this)
+    await next()
+    if (record && candidate && typeof candidate === 'object' && 'path' in candidate && typeof candidate.path === 'string') {
+      record.latestConfig = candidate as PresetIncludeConfig
+    }
+  }, { global: true, prepend: true })
   ctx.effect(() => async () => {
     closing = true
     for (const dispose of [...agents.values()]) dispose()
@@ -346,6 +382,12 @@ export function apply(ctx: Context, config: ArcConfig): void {
     let operation = operations.get(mount.fiber)
     if (!operation) {
       const previous = serviceWithin(ctx, mount, 'compaction')
+      const failure = blocked.get(mount.fiber)
+      if (failure?.backend === previous && failure !== undefined) throw failure.error
+      blocked.delete(mount.fiber)
+      // A verified rollback stays usable. Retry it only after an actual reload
+      // changes the service, avoiding repeated failed swaps on every request.
+      if (previous !== undefined && fallbacks.get(mount.fiber) === previous) return mount
       operation = takeoverMount(ctx, config, mount, tracked).then(status => {
         if (status !== 'taken-over' && status !== 'already-arc') ctx.logger.warn(`context takeover: ${status} for preset ${mount.presetId}`)
       }).catch(error => {
@@ -354,7 +396,12 @@ export function apply(ctx: Context, config: ArcConfig): void {
         // failed/uncertain rollback must never turn into an unguarded request.
         const available = !(error instanceof AggregateError) && previous !== undefined && restored !== undefined
           && !isArcBackend(restored) && Object.getPrototypeOf(previous) === Object.getPrototypeOf(restored)
-        if (!available) throw new ContextManagementError('CONTEXT_BACKEND_UNAVAILABLE', 'Context takeover failed and the original backend could not be verified. Fix the plugin configuration and restart the profile.', { cause: error })
+        if (!available) {
+          const failure = new ContextManagementError('CONTEXT_BACKEND_UNAVAILABLE', 'Context takeover failed and the original backend could not be verified. Fix the plugin configuration and restart the profile.', { cause: error })
+          blocked.set(mount.fiber, { backend: restored, error: failure })
+          throw failure
+        }
+        fallbacks.set(mount.fiber, restored)
         const message = `CONTEXT_TAKEOVER_FALLBACK: context takeover failed for preset ${mount.presetId}; the original compaction backend is restored and active. Fix the plugin configuration and reload to enable dsh-context-management.`
         ctx.logger.error(message)
         // CLI/Web logger sinks differ; this notice must remain visible at boot.
@@ -363,7 +410,11 @@ export function apply(ctx: Context, config: ArcConfig): void {
       operations.set(mount.fiber, operation)
       inFlight.add(operation)
       const owned = operation
-      void owned.then(() => inFlight.delete(owned), () => inFlight.delete(owned))
+      const release = (): void => {
+        inFlight.delete(owned)
+        if (operations.get(mount.fiber) === owned) operations.delete(mount.fiber)
+      }
+      void owned.then(release, release)
     }
     await operation
     return mount
@@ -376,7 +427,7 @@ export function apply(ctx: Context, config: ArcConfig): void {
       if (agent.session.id === sessionId) void ensure(agent).catch(error => ctx.logger.error(String(error)))
     }
   })
-  ctx.on('agent/created', ({ agent }) => {
+  const attach = (agent: Agent): void => {
     if (closing || agents.has(agent)) return
     const listeners: (() => void)[] = []
     const dispose = (): void => { for (const remove of listeners.splice(0)) remove(); agents.delete(agent) }
@@ -398,5 +449,8 @@ export function apply(ctx: Context, config: ArcConfig): void {
       return next()
     }))
     void ensure(agent).catch(error => ctx.logger.error(String(error)))
-  })
+  }
+  ctx.on('agent/created', ({ agent }) => attach(agent))
+  // Hot enabling the bundle must cover agents created before this bridge.
+  for (const agent of ctx.get('agents')?.list() ?? []) attach(agent)
 }

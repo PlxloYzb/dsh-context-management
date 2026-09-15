@@ -12,7 +12,23 @@ export interface PresetCompatibility {
 }
 
 const BASIC_NAME = /(^|\n)\s*name:\s*['"]?@deepseek-ai\/dsh-compaction-basic['"]?\s*(?:\n|$)/
-const ARC_NAME = /(^|\n)\s*name:\s*['"]?dsh-context-management['"]?\s*(?:\n|$)/
+const ARC_NAME = /(^|\n)\s*name:\s*['"]?(?:cordis:)?dsh-context-management['"]?\s*(?:\n|$)/
+
+/** Remove YAML comments without treating a quoted # as a comment marker. */
+function withoutComments(text: string): string {
+  return text.split(/\r?\n/).map(line => {
+    let quote: string | undefined
+    for (let index = 0; index < line.length; index++) {
+      const char = line[index]!
+      if (quote === '"' && char === '\\') { index++; continue }
+      if (quote === "'" && char === "'" && line[index + 1] === "'") { index++; continue }
+      if (char === quote) quote = undefined
+      else if (!quote && (char === '"' || char === "'")) quote = char
+      else if (!quote && char === '#' && (index === 0 || /\s/.test(line[index - 1]!))) return line.slice(0, index)
+    }
+    return line
+  }).join('\n')
+}
 
 function indentOf(line: string): number {
   return line.length - line.trimStart().length
@@ -20,9 +36,11 @@ function indentOf(line: string): number {
 
 /** True only when `compaction: true` occurs inside an `isolate:` mapping. */
 export function isolatesCompaction(text: string): boolean {
-  const lines = text.split(/\r?\n/)
+  const lines = withoutComments(text).split('\n')
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index]!
+    // Common flow-style isolate mappings are equivalent to block mappings.
+    if (/^\s*isolate:\s*\{\s*(?:[\w]+:\s*(?:true|false)\s*,\s*)*compaction:\s*true\s*(?:,\s*[\w]+:\s*(?:true|false)\s*)*\}\s*$/.test(line)) return true
     if (!/^\s*isolate:\s*$/.test(line)) continue
     const base = indentOf(line)
     for (let cursor = index + 1; cursor < lines.length; cursor += 1) {
@@ -38,13 +56,15 @@ export function isolatesCompaction(text: string): boolean {
 /**
  * Audit one preset composition text against the bridge's takeover guards:
  * the bridge disables the official `compaction-basic` row by name and
- * inserts the engine row into the `compaction` isolate group, so a
- * composition is patchable exactly when it isolates a compaction realm and
- * mounts the official Basic row — or already selects ARC natively.
+ * inserts the engine row into its isolate group. This text audit recognizes
+ * ordinary block/flow isolate mappings and named
+ * rows. Runtime takeover uses the mounted Loader tree; nested Includes and
+ * YAML aliases require that live audit rather than this text-only heuristic.
  */
 export function inspectPresetComposition(text: string): PresetCompatibility {
-  const hasLocalBasic = BASIC_NAME.test(text)
-  const hasLocalArc = ARC_NAME.test(text)
+  const uncommented = withoutComments(text)
+  const hasLocalBasic = BASIC_NAME.test(uncommented)
+  const hasLocalArc = ARC_NAME.test(uncommented)
   const isolated = isolatesCompaction(text)
   const issues = [
     ...(hasLocalBasic && hasLocalArc

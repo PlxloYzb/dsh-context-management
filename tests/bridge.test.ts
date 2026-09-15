@@ -388,6 +388,7 @@ test('F12: an uncertain rollback still blocks requests with a stable error code'
   const agent = { ctx: preset.fiber.ctx, session: Session.create('bridge-test'), options: {} } as unknown as Agent
   announce(preset.ctx, 'agent/created', agent)
   await assert.rejects(agent.ctx.waterfall('agent/pre-step', { agent, signal: new AbortController().signal, turn: 1, step: 1 }, async () => ({ kind: 'enter' as const, messages: [] })), (error: unknown) => error instanceof Error && 'code' in error && error.code === 'CONTEXT_BACKEND_UNAVAILABLE')
+  await assert.rejects(agent.ctx.waterfall('agent/pre-step', { agent, signal: new AbortController().signal, turn: 1, step: 2 }, async () => ({ kind: 'enter' as const, messages: [] })), (error: unknown) => error instanceof Error && 'code' in error && error.code === 'CONTEXT_BACKEND_UNAVAILABLE')
   announce(preset.ctx, 'agent/disposed', agent)
 })
 

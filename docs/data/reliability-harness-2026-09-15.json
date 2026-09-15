@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-15",
+  "baseCommit": "a607d1c206945f2b870816b51d321778389cd959",
+  "candidateDistHash": "799151fdada17114c8c818431cddee7705bc882c4d044719d07439db6023e96b",
+  "candidateIndexHash": "75c27747c6ed80f53ceaa1cbf359163f2918596bb27e01803594325037f4da91",
+  "candidateDistFileCount": 34,
+  "packageSha256": "cfab61d84d5fedd8a0eaa4627cf054778a77fc7152436eb251467b3abc7f1127",
+  "sourceHashes": {
+    "src/bridge.ts": "352daa723ce66e56e109f5e3e48c82fa3d478503675d02f5d376a218da20e713",
+    "src/preset-compat.ts": "433f406e4cf143ba3a9d95e856cefb47a7cf7b2d4c3725fcbcd73bb991aa4bb4",
+    "tests/reliability/replacement-contract.test.ts": "c8b824ba9a22bd8ec1951fabbe8766cf1b5f3417cde349d2844f04a04c7c5924",
+    "tests/reliability/web-contract.mjs": "b012a0213a562a3578aab1e4b11786c2bd63b1a92bccb67b51ed674ccc1f0c9a",
+    "tests/reliability/web-observer.mjs": "89a79a30141af08dc0f14e69ced4b2734024e12ea2efb1b67513a76f4d303b40",
+    "tests/reliability/package-lifecycle.mjs": "f83be3fba2bd590284da6443055a6ccbb2919f1a002537b1c7ba81d0f6b6a2b6"
+  },
+  "hostVersion": "0.1.2-rc.1",
+  "route": {
+    "provider": "opencode-go-muse",
+    "model": "muse-spark-1.3-contributor",
+    "reasoningEffort": "minimal"
+  },
+  "verification": {
+    "unit": 188,
+    "integration": 133,
+    "reliability": 15,
+    "experimentTools": 22,
+    "total": 358,
+    "typecheck": true,
+    "prepack": true,
+    "releaseAudit": true
+  },
+  "replacement": {
+    "sameServiceSymbol": true,
+    "oldBasicFiberDisposed": true,
+    "fourBasicListenersRemoved": true,
+    "consumerResolvesSameArcObject": true,
+    "lateEnable": true,
+    "lateBasic": true,
+    "reacquireAfterReload": true,
+    "externalConfigPreserved": true,
+    "failedUpdateExcludedFromRollback": true,
+    "noBackendConfigPreserved": true,
+    "existingAgentThreeEnableDisableCycles": true,
+    "presetFilesUnchanged": true
+  },
+  "packageLifecycle": {
+    "completed": true,
+    "modelRequestCount": 0,
+    "stages": [
+      {
+        "stage": "installed",
+        "bundleEnabled": true
+      },
+      {
+        "stage": "installed-web",
+        "contextCommand": true,
+        "compactCommand": true,
+        "bridgeLoaded": true,
+        "backend": "ArcCompactionEngine"
+      },
+      {
+        "stage": "third-party-preset",
+        "backend": "BasicCompactionEngine",
+        "unaffected": true
+      },
+      {
+        "stage": "removed-web",
+        "contextCommand": false,
+        "compactCommand": true,
+        "bridgeAbsent": true,
+        "nativeBasicRestoredByCleanRestart": true,
+        "backend": "BasicCompactionEngine"
+      },
+      {
+        "stage": "reinstalled",
+        "bundleEnabled": true,
+        "backend": "ArcCompactionEngine",
+        "otherProfileUnchanged": true,
+        "presetsUnchanged": true,
+        "noCompactionPresetUnchanged": true,
+        "thirdPartyBackendUnchanged": true
+      }
+    ],
+    "thirdPartyFixture": "A local alias package re-exporting the native Basic class; not every vendor implementation."
+  },
+  "web": {
+    "completed": true,
+    "modelRequests": 5,
+    "cases": [
+      {
+        "stage": "standard-first",
+        "preset": "standard",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "minimal-first",
+        "preset": "minimal",
+        "backend": null,
+        "providerCount": 0,
+        "basicActive": 0,
+        "arcActive": 0,
+        "commands": {
+          "compact": 0,
+          "context": 0
+        },
+        "prunerAvailable": false,
+        "leakedServices": []
+      },
+      {
+        "stage": "after-native-compact",
+        "preset": "standard",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "switched-ptc-before-model",
+        "preset": "ptc",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "ptc-first",
+        "preset": "ptc",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "cordis-first",
+        "preset": "cordis",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "standard-restart",
+        "preset": "standard",
+        "backend": "ArcCompactionEngine",
+        "providerCount": 1,
+        "basicActive": 0,
+        "arcActive": 1,
+        "commands": {
+          "compact": 1,
+          "context": 1
+        },
+        "prunerAvailable": true,
+        "leakedServices": []
+      },
+      {
+        "stage": "minimal-restart",
+        "preset": "minimal",
+        "backend": null,
+        "providerCount": 0,
+        "basicActive": 0,
+        "arcActive": 0,
+        "commands": {
+          "compact": 0,
+          "context": 0
+        },
+        "prunerAvailable": false,
+        "leakedServices": []
+      }
+    ],
+    "nativeCompact": {
+      "kind": "success",
+      "sourceEventSeq": 89,
+      "summaryProvider": "local",
+      "generationBefore": 0,
+      "generationAfter": 1
+    },
+    "presetsUnchanged": true,
+    "settingsUnchanged": true
+  },
+  "modelGate": {
+    "fixture": {
+      "family": "F3",
+      "seed": 91543,
+      "pages": 24,
+      "pressure": 32000,
+      "batch": 6
+    },
+    "schedule": "Native and windowed run concurrently in separate host processes/profiles; inspect both before in-place on the plugin profile.",
+    "arms": [
+      {
+        "name": "reliability-native-91543",
+        "arm": "A_NATIVE",
+        "completed": true,
+        "strictPassed": true,
+        "allQualityPassed": false,
+        "calls": 22,
+        "reportedTokens": 520911,
+        "elapsedSeconds": 101,
+        "restartVerified": true,
+        "settingsUnchanged": true,
+        "backgroundSummaryEnabled": false,
+        "candidateDistLoaded": false,
+        "facts": "24/24",
+        "corrections": "6/6",
+        "deliverablePassed": true,
+        "verbatim": "1/3",
+        "compactions": 4,
+        "archiveBytesVerified": true,
+        "all24PagesExposed": true,
+        "qualityFailure": "verbatim probe recovered only 1 of 3 exact checksums"
+      },
+      {
+        "name": "reliability-inplace-91543",
+        "arm": "B_IN_PLACE",
+        "completed": true,
+        "strictPassed": false,
+        "allQualityPassed": false,
+        "calls": 14,
+        "reportedTokens": 378348,
+        "elapsedSeconds": 71,
+        "restartVerified": true,
+        "settingsUnchanged": true,
+        "backgroundSummaryEnabled": false,
+        "candidateDistLoaded": true,
+        "facts": "24/24",
+        "corrections": "6/6",
+        "deliverablePassed": false,
+        "verbatim": "3/3",
+        "compactions": 3,
+        "archiveBytesVerified": true,
+        "all24PagesExposed": true,
+        "qualityFailure": "deliverable.eventOrder was an empty array"
+      },
+      {
+        "name": "reliability-window-91543",
+        "arm": "C400_WINDOWED",
+        "completed": true,
+        "strictPassed": true,
+        "allQualityPassed": true,
+        "calls": 28,
+        "reportedTokens": 727390,
+        "elapsedSeconds": 76,
+        "restartVerified": true,
+        "settingsUnchanged": true,
+        "backgroundSummaryEnabled": true,
+        "candidateDistLoaded": true,
+        "facts": "24/24",
+        "corrections": "6/6",
+        "deliverablePassed": true,
+        "verbatim": "3/3",
+        "compactions": 4,
+        "archiveBytesVerified": true,
+        "all24PagesExposed": true,
+        "qualityFailure": null
+      }
+    ]
+  },
+  "deferredSummary": {
+    "boundariesMs": [
+      29,
+      24,
+      31,
+      30
+    ],
+    "delivered": 2,
+    "interruptedNotified": 1,
+    "classifications": [
+      "covered-pending-crossed-window",
+      "terminated-interrupted",
+      "covered-ready-before-window",
+      "receipt-without-observed-window-pending"
+    ],
+    "structuralPassed": true,
+    "coverage": "partially-covered-with-natural-uncovered-work",
+    "autonomousAwaitCalls": 0,
+    "maximumInFlight": 2,
+    "maximumSummaryInFlight": 1,
+    "hostStreamOverlapMs": 28112,
+    "summaryCalls": 4
+  },
+  "retainedFailures": [
+    {
+      "type": "product",
+      "cases": [
+        "RC03",
+        "RC04",
+        "RC06",
+        "RC08",
+        "RC09",
+        "RC13"
+      ],
+      "resolution": "Fixed and covered by the final 15 reliability regressions."
+    },
+    {
+      "type": "observer",
+      "run": "web-candidate-1",
+      "resolution": "ARC row omitted by observer filter; fixed, subsequent baseline and final Web cohorts pass."
+    },
+    {
+      "type": "installation",
+      "run": "web-final",
+      "resolution": "Same-path same-version local tarball kept prior installed bridge; full-dist guard rejected before model calls. Reinstalled using content-hashed filename; 34 files match."
+    },
+    {
+      "type": "environment",
+      "resolution": "Corepack automatic packageManager insertion reverted; auto-pin disabled and lifecycle commands use private cwd."
+    },
+    {
+      "type": "quality",
+      "run": "reliability-inplace-91543",
+      "resolution": "Retained failure; eventOrder empty despite fact/correction/verbatim probes passing."
+    },
+    {
+      "type": "quality",
+      "run": "reliability-native-91543",
+      "resolution": "Retained verbatim probe failure, 1/3."
+    }
+  ],
+  "limits": [
+    "Pinned host only; no sustained endurance workload.",
+    "One synthetic sample per model arm, no statistical quality or latency claim.",
+    "PTC request tool presentation tested, not full PTC program execution.",
+    "No arbitrary in-flight package uninstall test.",
+    "Text compatibility audit is a heuristic for common YAML; live mounts are authoritative.",
+    "Natural await_context was not exercised in this cohort.",
+    "One background operation did not have an observed pending-window receipt; not counted as delivered.",
+    "Reported token totals may omit usage from an interrupted stream and are not a complete bill."
+  ],
+  "inPlaceFailureDiagnosis": {
+    "expectedEventOrderItems": 3,
+    "actualEventOrderItems": 0,
+    "sourcePage": 2,
+    "sourceExposed": true,
+    "archiveBytesVerified": true,
+    "factsProbeToolCalls": 0,
+    "laterVerbatimRetrievalCalls": 6,
+    "classification": "Valid model-output omission; no evidence of archive loss or scorer error; model memory loss cannot be established."
+  }
+}
