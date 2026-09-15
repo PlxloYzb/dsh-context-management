@@ -6,6 +6,7 @@ import { resolve, join } from 'node:path'
 import { Session } from '@deepseek-ai/dsh-session'
 import { toolPairingBalancedBefore, toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
 import { ArchiveReader, resolveSources, eventTextParts } from '../../src/archive.ts'
+import { retrievalOutcomes } from './turnover/retrieval-outcomes.mjs'
 
 const root = resolve(process.argv[2] ?? '')
 assert.ok(root.startsWith(resolve('.test-runtime/turnover-muse-20260915') + '/'))
@@ -73,11 +74,11 @@ const snapshot = JSON.parse(await readFile(join(root, 'snapshot.json'), 'utf8'))
 const afterSnapshot = rows.filter(event => event.seq > snapshot.throughSeq && ledger[0].shadowedSeqs.includes(event.seq) && ['assistant/message', 'tool/result'].includes(event.type))
 const archivedAfterSnapshotBytes = afterSnapshot.reduce((sum, event) => sum + eventTextParts(event).texts.reduce((n, part) => n + Buffer.byteLength(part.text), 0), 0)
 const accesses = orchestration.filter(row => row.phase === 'tool')
-const successfulRetrievalCalls = accesses.filter(row => row.allowed && ['search_context', 'decompress'].includes(row.name)).length
+const allowedRetrievalAttempts = accesses.filter(row => row.allowed && ['search_context', 'decompress'].includes(row.name)).length
 const deniedToolAttempts = accesses.filter(row => !row.allowed).map(row => row.name)
 const foreground = local[0]
 const overlapMs = cloud.reduce((sum, call) => sum + Math.max(0, Math.min(call.end, foreground.end) - Math.max(call.start, foreground.start)), 0)
-const output = { name: report.name, archiveBytesVerified: true, currentInputProtected: true, toolPairsBalanced: true, appendOnly: true, localRequestsSerial: true, observedEvents: rows.length, webPageEvents: webRows.length, webPageIsFullLog: rows.length === webRows.length, restoredBytes, archivePages: pages, generation: ledger[0].contextManagement.generationAfter, seedMode: ledger[0].contextManagement.seed.mode, overlapMs, successfulRetrievalCalls, deniedToolAttempts,
+const output = { name: report.name, archiveBytesVerified: true, currentInputProtected: true, toolPairsBalanced: true, appendOnly: true, localRequestsSerial: true, observedEvents: rows.length, webPageEvents: webRows.length, webPageIsFullLog: rows.length === webRows.length, restoredBytes, archivePages: pages, generation: ledger[0].contextManagement.generationAfter, seedMode: ledger[0].contextManagement.seed.mode, overlapMs, allowedRetrievalAttempts, retrievalOutcomes: retrievalOutcomes(rows), deniedToolAttempts,
   snapshotGap: { archivedMessagesAfterSnapshot: afterSnapshot.length, archivedAfterSnapshotBytes, includedInSummaryRequest: false, limitation: 'Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it.' },
   calls: [...calls.values()].map(call => ({ provider: call.provider, purpose: call.purpose, start: call.start, end: call.end ?? null, firstContent: call.first ?? null, elapsedMs: call.end ? call.end - call.start : null, usage: call.usage ?? null, reason: call.reason ?? null })) }
 await writeFile(join(root, 'audit.json'), JSON.stringify(output, null, 2), { mode: 0o600 })

@@ -1,11 +1,14 @@
 // Publish only explicitly selected, sanitized metrics; raw model output,
 // settings copies, authentication-bearing host logs and sessions remain private.
-import { readFile, readdir, writeFile } from 'node:fs/promises'
+import { readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { retrievalOutcomes } from './turnover/retrieval-outcomes.mjs'
 const root = resolve('.test-runtime/turnover-muse-20260915')
-const names = (await readdir(root, { withFileTypes: true })).filter(row => row.isDirectory()).map(row => row.name)
+const published = JSON.parse(await readFile(resolve('docs/data/turnover-muse-2026-09-15.json'), 'utf8'))
+const preflightNames = (published.preflight ?? []).map(row => row.name)
+const names = [...new Set(['samples', 'faults', 'calibrations'].flatMap(group => (published[group] ?? []).map(row => row.name)))]
 const samples = [], calibrations = [], faults = [], preflight = []
-for (const name of names.filter(name => name.startsWith('preflight-'))) {
+for (const name of preflightNames) {
   let result, events
   try { result = JSON.parse(await readFile(join(root, name, 'result.json'), 'utf8')); events = (await readFile(join(root, name, 'streams.jsonl'), 'utf8')).trim().split('\n').filter(Boolean).map(JSON.parse) } catch { continue }
   const calls = new Map()
@@ -30,6 +33,9 @@ for (const name of names) {
   if (!result.arm) continue
   let audit = null
   try { audit = JSON.parse(await readFile(join(root, name, 'audit.json'), 'utf8')) } catch { /* Explicitly report missing audit. */ }
+  let outcomes = null
+  try { outcomes = retrievalOutcomes(JSON.parse(await readFile(join(root, name, 'final-events.json'), 'utf8'))) } catch { /* Missing final events cannot establish successful results. */ }
+  const allowedRetrievalAttempts = audit?.allowedRetrievalAttempts ?? audit?.successfulRetrievalCalls ?? null
   const boundary = result.boundary ?? null
   let sourceBytes = null
   try { sourceBytes = JSON.parse(await readFile(join(root, name, 'snapshot.json'), 'utf8')).sourceBytes } catch { /* Pre-boundary calibration can lack a snapshot. */ }
@@ -37,8 +43,8 @@ for (const name of names) {
     settingsUnchanged: result.settingsUnchanged ?? null, candidateHash: result.candidateHash, fixtureHash: result.fixtureHash, sourceBytes, harnessHashes: result.harnessHashes ?? null,
     summaryStatus: boundary?.summaryStatus ?? null, boundaryWaitMs: boundary?.waitMs ?? null, transactionMs: boundary?.transactionMs ?? null, totalBoundaryMs: boundary?.totalBoundaryMs ?? null,
     seedBytes: boundary?.seedBytes ?? null, seedOriginalFields: boundary?.seedFields ?? null,
-    stages: result.stages.map(stage => ({ phase: stage.phase, end: stage.end, elapsedMs: stage.elapsedMs, correct: stage.score?.correct ?? null, total: stage.score?.total ?? null, fields: stage.score?.fields ?? null, historicalToolAttempts: stage.retrievalCalls, retrievalCalls: audit ? (stage.phase === 'retrieval' ? audit.successfulRetrievalCalls : 0) : null })),
-    audit: audit && { archiveBytesVerified: audit.archiveBytesVerified, currentInputProtected: audit.currentInputProtected, toolPairsBalanced: audit.toolPairsBalanced, localRequestsSerial: audit.localRequestsSerial, restoredBytes: audit.restoredBytes, overlapMs: audit.overlapMs, observedEvents: audit.observedEvents, webPageEvents: audit.webPageEvents, deniedToolAttempts: audit.deniedToolAttempts, snapshotGap: audit.snapshotGap },
+    stages: result.stages.map(stage => ({ phase: stage.phase, end: stage.end, elapsedMs: stage.elapsedMs, correct: stage.score?.correct ?? null, total: stage.score?.total ?? null, fields: stage.score?.fields ?? null, historicalToolAttempts: stage.retrievalCalls })),
+    audit: audit && { archiveBytesVerified: audit.archiveBytesVerified, currentInputProtected: audit.currentInputProtected, toolPairsBalanced: audit.toolPairsBalanced, localRequestsSerial: audit.localRequestsSerial, restoredBytes: audit.restoredBytes, overlapMs: audit.overlapMs, observedEvents: audit.observedEvents, webPageEvents: audit.webPageEvents, allowedRetrievalAttempts, retrievalOutcomes: outcomes, deniedToolAttempts: audit.deniedToolAttempts, snapshotGap: audit.snapshotGap },
     calls: audit?.calls.map(call => ({ provider: call.provider, purpose: call.purpose, elapsedMs: call.elapsedMs, usage: call.usage, reason: call.reason?.kind ?? null })) ?? null,
   }
   if (result.fault) faults.push(row)
@@ -72,4 +78,4 @@ const report = { schemaVersion: 1, generatedAt: new Date().toISOString(), hostVe
   preflight, samples, faults, calibrations, gates, seedBudgetStress, suffixMechanism, environmentIncident }
 await writeFile(join(root, 'sanitized-report.json'), JSON.stringify(report, null, 2) + '\n', { mode: 0o600 })
 if (process.argv.includes('--public')) await writeFile(resolve('docs/data/turnover-muse-2026-09-15.json'), JSON.stringify(report, null, 2) + '\n')
-console.log(JSON.stringify({ samples: samples.map(row => ({ name: row.name, completed: row.completed, summary: row.summaryStatus, wait: row.boundaryWaitMs, commit: row.transactionMs, overlap: row.audit?.overlapMs, score: row.stages.map(s => s.correct), retrievals: row.stages.at(-1)?.retrievalCalls })), gates, faults: faults.length, calibrations: calibrations.length }, null, 2))
+console.log(JSON.stringify({ samples: samples.map(row => ({ name: row.name, completed: row.completed, summary: row.summaryStatus, wait: row.boundaryWaitMs, commit: row.transactionMs, overlap: row.audit?.overlapMs, score: row.stages.map(s => s.correct), allowedRetrievalAttempts: row.audit?.allowedRetrievalAttempts ?? null })), gates, faults: faults.length, calibrations: calibrations.length }, null, 2))

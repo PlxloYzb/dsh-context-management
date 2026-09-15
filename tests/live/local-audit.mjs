@@ -80,7 +80,7 @@ for(const block of ledger){
 const consumption=JSON.parse(await readFile(join(root,'control',`${summary.sessionId}.consumption.json`),'utf8'))
 const notExposed=consumption.pages.filter(page=>!exposed.has(page))
 const report={schemaVersion:1,name:summary.name,checkedAt:new Date().toISOString(),fixtureHash:fixture.hash,candidateHash:summary.candidateHash,stoppedRunError:summary.error??null,taskCompleted:summary.completed===true,probeOnly:!!summary.fork,inheritedPages:summary.fork?.inheritedPages??0,declaredPages:fixture.pageCount,toolReadPages:summary.fork?0:consumption.pages.length,exactPagesInRequests:exposed.size,notExposed,requestObjectsVerified,archives:ledger.length,restoredBytes,segments,archiveBytesVerified:true,completed:notExposed.length===0}
-report.compactionsObserved=rows.filter(e=>e.type==='compaction/summary').map(e=>({seq:e.seq,kind:e.data.contextManagement?.kind??'in-place-fallback'}))
+report.compactionsObserved=rows.filter(e=>e.type==='compaction/summary').map(e=>({seq:e.seq,kind:e.data.contextManagement?.kind??(summary.arm==='A_NATIVE'?'native-basic':'in-place-fallback')}))
 report.readerArchiveSourceHash=readerArchiveSourceHash
 await writeFile(join(root,'audit.json'),JSON.stringify(report,null,2)+'\n',{mode:0o600})
 console.log(JSON.stringify(report))

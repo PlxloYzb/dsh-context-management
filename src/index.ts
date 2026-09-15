@@ -20,8 +20,8 @@ import { governorCapacity } from './governor.ts'
  *    `search_context`, and replay always work;
  *  - refs are surface seqs carried by the injected nudge's range table (DSH
  *    has no in-memory message rewrite hook);
- *  - automatic policy uses deterministic turnover; an explicitly configured
- *    independent provider may prepare a bounded handoff in the background.
+ *  - automatic policy uses deterministic turnover; a configured provider with
+ *    explicit concurrency policy may prepare a bounded handoff in the background.
  *
  * Mount it wherever a compaction backend is expected:
  *
@@ -248,7 +248,7 @@ export interface ArcConfig {
    */
   readonly adaptiveGovernor?: Partial<AdaptiveGovernorConfig>
   readonly archive?: Partial<ArchiveConfig>
-  /** Opt-in independent-provider preparation. Never awaited at a window boundary. */
+  /** Opt-in background preparation. Same-provider work remains disabled unless allowSameProvider is true. Never awaited at a window boundary. */
   readonly backgroundSummary?: BackgroundSummaryInput
 }
 
@@ -259,7 +259,7 @@ const positiveInteger = () => Schema.number().step(1).min(1)
 const fraction = () => Schema.number().min(0.000001).max(0.999999)
 
 const BackgroundSummarySchema: Schema<BackgroundSummaryInput | undefined> = Schema.object({ provider: Schema.string().required(), model: Schema.string().required(), reasoningEffort: Schema.string(),
-    prepareAtEffectiveCapacityPct: fraction().default(0.6), maxInputBytes: positiveInteger().default(262144), maxOutputTokens: positiveInteger().default(2048), timeoutMs: positiveInteger().default(60000) })
+    allowSameProvider: Schema.boolean().default(false), prepareAtEffectiveCapacityPct: fraction().default(0.6), maxInputBytes: positiveInteger().default(262144), maxOutputTokens: positiveInteger().default(2048), timeoutMs: positiveInteger().default(60000) })
 
 /**
  * Official Cordis/Schemastery configuration surface. Defaults make a plain

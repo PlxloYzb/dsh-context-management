@@ -2,15 +2,19 @@
 import assert from 'node:assert/strict'
 import { readFile, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
+import { retrievalOutcomes } from './turnover/retrieval-outcomes.mjs'
 const root = resolve('.test-runtime/turnover-muse-20260915'), night = resolve('.test-runtime/nightly-20260915')
 const read = async path => JSON.parse(await readFile(path, 'utf8'))
 const names = ['engine-a-91521','engine-c-91521','engine-c-91522','engine-v2-c-91522','engine-v2-a-91522','engine-v2-c-91523','engine-v2-timeout-91524','engine-v2-late-91525']
 const runs = []
 for (const name of names) {
   const r = await read(join(root, name, 'result.json')), audit = await read(join(root, name, 'audit.json'))
+  const events = await read(join(root, name, 'final-events.json'))
   assert.ok(r.completed && r.finishedAt && r.settingsUnchanged && audit.archiveBytesVerified)
+  const { successfulRetrievalCalls: legacyAllowedRetrievalAttempts, ...audited } = audit
+  const allowedRetrievalAttempts = audit.allowedRetrievalAttempts ?? legacyAllowedRetrievalAttempts
   runs.push({ name, arm: r.arm, seed: r.seed, probeVersion: r.probeVersion ?? 1, geometry: r.geometry ?? { windowBudget: 64000, prepareFraction: 0.25 }, fault: r.fault, candidateHash: r.candidateHash,
-    stages: r.stages.map(s => ({ phase: s.phase, elapsedMs: s.elapsedMs, freshCorrect: s.score ? s.score.answer?.fresh === `fresh-${r.seed}-7e0183` : s.freshVisible, score: s.score ? { correct: s.score.correct, total: s.score.total, fields: s.score.fields } : null })), audit })
+    stages: r.stages.map(s => ({ phase: s.phase, elapsedMs: s.elapsedMs, freshCorrect: s.score ? s.score.answer?.fresh === `fresh-${r.seed}-7e0183` : s.freshVisible, score: s.score ? { correct: s.score.correct, total: s.score.total, fields: s.score.fields } : null })), audit: { ...audited, allowedRetrievalAttempts, retrievalOutcomes: retrievalOutcomes(events) } })
 }
 const gates = []
 for (const name of ['muse-min-native-91503','muse-min-in-place-91503','muse-min-windowed-91503','muse-min-windowed-repeat-91503']) {

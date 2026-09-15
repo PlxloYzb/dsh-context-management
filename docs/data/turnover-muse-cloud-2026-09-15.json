@@ -1,0 +1,4338 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-15T06:31:01.461Z",
+  "classification": "Offline aggregation of explicitly allowlisted retained artifacts; no model requests. Mechanism, wire diagnostic, and Web gates are separate groups; missing completion audits remain pending.",
+  "metricDefinitions": {
+    "completed": "Execution completion, independent of strict instruction or answer quality; the original failed mechanism run remains failed.",
+    "overlap": "Host stream lifecycle interval intersection only. Audits require serial foreground requests and at most one summary, avoiding double counting. Does not establish provider compute parallelism.",
+    "usage": "Host/adapter-reported totalTokens, including cache token categories where reported. Cancelled streams may have null or zero usage; neither establishes free service. No billing amount inferred.",
+    "foregroundInstructionPassed": "Brief: exact marker-only text. Standard: marker presence only, not full semantic validation of twelve requested checks.",
+    "retrieval": "Whole-run durable tool results; success requires status=success. Attempts include denied or errored calls.",
+    "wire": "One diagnostic pairs each fetch response to its own request and compares final foreground text; no claim that all host streams were mapped to wire IDs."
+  },
+  "allowlist": {
+    "mechanism": [
+      "cloud-c-91531",
+      "cloud-a-91531",
+      "cloud-brief-c-91531",
+      "cloud-brief-a-91531",
+      "cloud-brief-c-repeat-91531",
+      "cloud-brief-c-nocache-91531"
+    ],
+    "wire": [
+      "cloud-wire-c-91531"
+    ],
+    "web": [
+      "cloud-windowed-bg-91533",
+      "cloud-windowed-early-91533",
+      "cloud-native-91533",
+      "cloud-inplace-91533",
+      "cloud-windowed-control-91533"
+    ]
+  },
+  "groups": {
+    "mechanism": [
+      {
+        "name": "cloud-c-91531",
+        "group": "mechanism",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": true,
+        "originalRunCompleted": true,
+        "markerProduced": true,
+        "seedScore": {
+          "correct": 6,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 4,
+          "successes": 4,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": 10990,
+            "stream": 15235,
+            "content": 1517
+          },
+          "window": {
+            "boundaryMs": 9.795750000001135,
+            "firstSummaryStartLeadMs": 17173,
+            "firstSummaryEndLeadMs": 6183,
+            "summaryRejected": null,
+            "backgroundAtBoundary": "consumed",
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 15638
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 6102
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 21156
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "model-assisted",
+            "seedBytes": 1577,
+            "sourceHashVerified": true,
+            "freshRawRetained": true
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": true,
+          "sourceHashVerified": true,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 239413,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 9
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 11951,
+            "usage": {
+              "inputTokens": 26840,
+              "outputTokens": 440,
+              "totalTokens": 27280
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 10990,
+            "usage": {
+              "inputTokens": 23377,
+              "outputTokens": 386,
+              "totalTokens": 23763
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4252,
+            "usage": {
+              "inputTokens": 19280,
+              "outputTokens": 265,
+              "totalTokens": 22602,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 5957,
+            "usage": {
+              "inputTokens": 9261,
+              "outputTokens": 471,
+              "totalTokens": 9732
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5304,
+            "usage": {
+              "inputTokens": 30074,
+              "outputTokens": 222,
+              "totalTokens": 30409,
+              "cacheReadTokens": 113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2394,
+            "usage": {
+              "inputTokens": 478,
+              "outputTokens": 180,
+              "totalTokens": 30723,
+              "cacheReadTokens": 30065
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5047,
+            "usage": {
+              "inputTokens": 723,
+              "outputTokens": 225,
+              "totalTokens": 31397,
+              "cacheReadTokens": 30449
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1952,
+            "usage": {
+              "inputTokens": 428,
+              "outputTokens": 70,
+              "totalTokens": 31587,
+              "cacheReadTokens": 31089
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4163,
+            "usage": {
+              "inputTokens": 334,
+              "outputTokens": 113,
+              "totalTokens": 31920,
+              "cacheReadTokens": 31473
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-c-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-c-91531/audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-a-91531",
+        "group": "mechanism",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": false,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": true,
+        "originalRunCompleted": true,
+        "markerProduced": true,
+        "seedScore": {
+          "correct": 2,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 5,
+          "successes": 5,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "extractive",
+          "overlapMs": {
+            "firstForeground": 0,
+            "stream": 0,
+            "content": 0
+          },
+          "window": {
+            "boundaryMs": 11.035832999999911,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 1,
+          "maximumSummaryInFlight": 0,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 9135
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 6099
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 100461
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "extractive",
+            "seedBytes": 1432,
+            "sourceHashVerified": false,
+            "freshRawRetained": false
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": false,
+          "sourceHashVerified": false,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 139597,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 5
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 6381,
+            "usage": {
+              "inputTokens": 25955,
+              "outputTokens": 273,
+              "totalTokens": 27109,
+              "cacheReadTokens": 881
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3217,
+            "usage": {
+              "inputTokens": 18523,
+              "outputTokens": 152,
+              "totalTokens": 21732,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4165,
+            "usage": {
+              "inputTokens": 21132,
+              "outputTokens": 130,
+              "totalTokens": 29567,
+              "cacheReadTokens": 8305
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6335,
+            "usage": {
+              "inputTokens": 366,
+              "outputTokens": 281,
+              "totalTokens": 30072,
+              "cacheReadTokens": 29425
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 88429,
+            "usage": {
+              "inputTokens": 1238,
+              "outputTokens": 198,
+              "totalTokens": 31117,
+              "cacheReadTokens": 29681
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-a-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-a-91531/audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-brief-c-91531",
+        "group": "mechanism",
+        "status": "failed",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "brief",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": false,
+        "foregroundInstructionPassed": false,
+        "originalRunCompleted": false,
+        "markerProduced": false,
+        "seedScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 8,
+          "successes": 8,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": 6504,
+            "stream": 14581,
+            "content": 1343
+          },
+          "window": {
+            "boundaryMs": 10.475540999999794,
+            "firstSummaryStartLeadMs": 13351,
+            "firstSummaryEndLeadMs": 2130,
+            "summaryRejected": null,
+            "backgroundAtBoundary": "consumed",
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 11899
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 5919
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 18939
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "model-assisted",
+            "seedBytes": 1598,
+            "sourceHashVerified": true,
+            "freshRawRetained": true
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": true,
+          "sourceHashVerified": true,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [
+            "run-failed",
+            "result.completed=false",
+            "audit.originalRunCompleted=false",
+            "audit.markerProduced=false",
+            "error:sample-failed",
+            "foregroundInstructionPassed=false"
+          ],
+          "deniedTools": [
+            "arc_status"
+          ]
+        },
+        "usage": {
+          "reportedTokens": 239522,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 9
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 6511,
+            "usage": {
+              "inputTokens": 26800,
+              "outputTokens": 283,
+              "totalTokens": 27083
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 11221,
+            "usage": {
+              "inputTokens": 23376,
+              "outputTokens": 610,
+              "totalTokens": 23986
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3747,
+            "usage": {
+              "inputTokens": 382,
+              "outputTokens": 230,
+              "totalTokens": 27349,
+              "cacheReadTokens": 26737
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4337,
+            "usage": {
+              "inputTokens": 19438,
+              "outputTokens": 221,
+              "totalTokens": 22716,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 5979,
+            "usage": {
+              "inputTokens": 11770,
+              "outputTokens": 439,
+              "totalTokens": 12209
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4883,
+            "usage": {
+              "inputTokens": 30188,
+              "outputTokens": 152,
+              "totalTokens": 30453,
+              "cacheReadTokens": 113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5799,
+            "usage": {
+              "inputTokens": 480,
+              "outputTokens": 369,
+              "totalTokens": 31042,
+              "cacheReadTokens": 30193
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4124,
+            "usage": {
+              "inputTokens": 1146,
+              "outputTokens": 254,
+              "totalTokens": 31977,
+              "cacheReadTokens": 30577
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2305,
+            "usage": {
+              "inputTokens": 952,
+              "outputTokens": 154,
+              "totalTokens": 32707,
+              "cacheReadTokens": 31601
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-91531/audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-brief-a-91531",
+        "group": "mechanism",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": false,
+        "foregroundWork": "brief",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": true,
+        "originalRunCompleted": true,
+        "markerProduced": true,
+        "seedScore": {
+          "correct": 2,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 6,
+          "successes": 6,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "extractive",
+          "overlapMs": {
+            "firstForeground": 0,
+            "stream": 0,
+            "content": 0
+          },
+          "window": {
+            "boundaryMs": 14.71600000000035,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 1,
+          "maximumSummaryInFlight": 0,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 6101
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 5985
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 15029
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "extractive",
+            "seedBytes": 1237,
+            "sourceHashVerified": false,
+            "freshRawRetained": false
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": false,
+          "sourceHashVerified": false,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 140620,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 5
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 3720,
+            "usage": {
+              "inputTokens": 26798,
+              "outputTokens": 29,
+              "totalTokens": 26827
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3463,
+            "usage": {
+              "inputTokens": 18729,
+              "outputTokens": 187,
+              "totalTokens": 21973,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4027,
+            "usage": {
+              "inputTokens": 29565,
+              "outputTokens": 111,
+              "totalTokens": 29789,
+              "cacheReadTokens": 113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4007,
+            "usage": {
+              "inputTokens": 464,
+              "outputTokens": 349,
+              "totalTokens": 30366,
+              "cacheReadTokens": 29553
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3190,
+            "usage": {
+              "inputTokens": 1514,
+              "outputTokens": 214,
+              "totalTokens": 31665,
+              "cacheReadTokens": 29937
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-brief-a-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-brief-a-91531/audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-brief-c-repeat-91531",
+        "group": "mechanism",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "brief",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": false,
+        "originalRunCompleted": true,
+        "markerProduced": false,
+        "seedScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 12,
+          "successes": 12,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": 6011,
+            "stream": 9553,
+            "content": 0
+          },
+          "window": {
+            "boundaryMs": 10.242750000001251,
+            "firstSummaryStartLeadMs": 19609,
+            "firstSummaryEndLeadMs": 13598,
+            "summaryRejected": null,
+            "backgroundAtBoundary": "consumed",
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 18165
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 5998
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 27092
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "model-assisted",
+            "seedBytes": 1720,
+            "sourceHashVerified": true,
+            "freshRawRetained": true
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": true,
+          "sourceHashVerified": true,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [
+            "audit.markerProduced=false",
+            "foregroundInstructionPassed=false"
+          ],
+          "deniedTools": [
+            "arc_status"
+          ]
+        },
+        "usage": {
+          "reportedTokens": 311525,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 11
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 11113,
+            "usage": {
+              "inputTokens": 26802,
+              "outputTokens": 621,
+              "totalTokens": 27423
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 6011,
+            "usage": {
+              "inputTokens": 23372,
+              "outputTokens": 446,
+              "totalTokens": 23818
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4213,
+            "usage": {
+              "inputTokens": 722,
+              "outputTokens": 285,
+              "totalTokens": 27744,
+              "cacheReadTokens": 26737
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3550,
+            "usage": {
+              "inputTokens": 19877,
+              "outputTokens": 226,
+              "totalTokens": 23160,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 5686,
+            "usage": {
+              "inputTokens": 13654,
+              "outputTokens": 475,
+              "totalTokens": 14129
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 8183,
+            "usage": {
+              "inputTokens": 30632,
+              "outputTokens": 178,
+              "totalTokens": 30923,
+              "cacheReadTokens": 113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3276,
+            "usage": {
+              "inputTokens": 444,
+              "outputTokens": 350,
+              "totalTokens": 31499,
+              "cacheReadTokens": 30705
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2816,
+            "usage": {
+              "inputTokens": 1081,
+              "outputTokens": 234,
+              "totalTokens": 32404,
+              "cacheReadTokens": 31089
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2970,
+            "usage": {
+              "inputTokens": 685,
+              "outputTokens": 170,
+              "totalTokens": 32968,
+              "cacheReadTokens": 32113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4980,
+            "usage": {
+              "inputTokens": 472,
+              "outputTokens": 206,
+              "totalTokens": 33431,
+              "cacheReadTokens": 32753
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3368,
+            "usage": {
+              "inputTokens": 751,
+              "outputTokens": 138,
+              "totalTokens": 34026,
+              "cacheReadTokens": 33137
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-repeat-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-repeat-91531/audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-brief-c-nocache-91531",
+        "group": "mechanism",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "brief",
+        "cachePolicy": "none",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": false,
+        "originalRunCompleted": true,
+        "markerProduced": false,
+        "seedScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "finalScore": {
+          "correct": 7,
+          "total": 7
+        },
+        "retrieval": {
+          "attempts": 10,
+          "successes": 8,
+          "errors": 2,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": 6481,
+            "stream": 9997,
+            "content": 0
+          },
+          "window": {
+            "boundaryMs": 10.428332999999839,
+            "firstSummaryStartLeadMs": 16435,
+            "firstSummaryEndLeadMs": 9954,
+            "summaryRejected": null,
+            "backgroundAtBoundary": "consumed",
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 15001
+            },
+            {
+              "phase": "seed",
+              "end": "completed",
+              "elapsedMs": 6011
+            },
+            {
+              "phase": "retrieval",
+              "end": "completed",
+              "elapsedMs": 26926
+            }
+          ]
+        },
+        "windows": [
+          {
+            "mode": "model-assisted",
+            "seedBytes": 1645,
+            "sourceHashVerified": true,
+            "freshRawRetained": true
+          }
+        ],
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": true,
+          "toolPairsBalanced": true,
+          "appendOnly": true,
+          "freshRawRetained": true,
+          "sourceHashVerified": true,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": true,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [
+            "audit.markerProduced=false",
+            "foregroundInstructionPassed=false"
+          ],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 247724,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 9
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 11928,
+            "usage": {
+              "inputTokens": 26800,
+              "outputTokens": 853,
+              "totalTokens": 27653
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 6481,
+            "usage": {
+              "inputTokens": 23369,
+              "outputTokens": 365,
+              "totalTokens": 23734
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3522,
+            "usage": {
+              "inputTokens": 19656,
+              "outputTokens": 266,
+              "totalTokens": 22979,
+              "cacheReadTokens": 3057
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 6632,
+            "usage": {
+              "inputTokens": 11253,
+              "outputTokens": 402,
+              "totalTokens": 11655
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2733,
+            "usage": {
+              "inputTokens": 30451,
+              "outputTokens": 139,
+              "totalTokens": 30703,
+              "cacheReadTokens": 113
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 10325,
+            "usage": {
+              "inputTokens": 482,
+              "outputTokens": 536,
+              "totalTokens": 31467,
+              "cacheReadTokens": 30449
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2735,
+            "usage": {
+              "inputTokens": 1790,
+              "outputTokens": 107,
+              "totalTokens": 32730,
+              "cacheReadTokens": 30833
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3372,
+            "usage": {
+              "inputTokens": 368,
+              "outputTokens": 182,
+              "totalTokens": 33047,
+              "cacheReadTokens": 32497
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5046,
+            "usage": {
+              "inputTokens": 747,
+              "outputTokens": 256,
+              "totalTokens": 33756,
+              "cacheReadTokens": 32753
+            },
+            "terminalPhase": null,
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": true,
+          "cloudAudit": false,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-nocache-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-brief-c-nocache-91531/audit.json"
+          ]
+        }
+      }
+    ],
+    "wire": [
+      {
+        "name": "cloud-wire-c-91531",
+        "group": "wire",
+        "status": "complete",
+        "seed": 91531,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "brief",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "1ee963deb77d0524fbbf2c7b91f846cc191898a3dd8e19ba472f340864d8fdc8",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": false,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": null,
+        "retrieval": null,
+        "timing": {
+          "mode": "wire-diagnostic",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": null,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 64000,
+            "prepareFraction": 0.25
+          },
+          "overlapMetric": null,
+          "maximumInFlight": null,
+          "maximumSummaryInFlight": null,
+          "boundaries": null,
+          "elapsedSeconds": null,
+          "stages": [
+            {
+              "phase": "foreground",
+              "end": "completed",
+              "elapsedMs": 14959
+            }
+          ]
+        },
+        "windows": null,
+        "compactions": null,
+        "backgroundStates": null,
+        "quality": {
+          "archiveBytesVerified": null,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": null,
+          "allMuseMinimal": true,
+          "hostOutputMatchesForegroundResponse": true,
+          "restartVerified": null,
+          "deliverablePassed": null
+        },
+        "strict": {
+          "passed": null,
+          "allQualityPassed": null,
+          "failureReasons": [
+            "foregroundInstructionPassed=false"
+          ],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": null,
+          "usageMissingCount": null,
+          "callCount": null
+        },
+        "callMetrics": null,
+        "wire": {
+          "capturedHttpRequests": 3,
+          "allHttp200": true,
+          "separateResponseIds": true,
+          "sharedCacheKey": true,
+          "foregroundInstructionDelivered": true,
+          "hostOutputMatchesForegroundResponse": true,
+          "serverActionNames": [
+            "arc_status"
+          ]
+        },
+        "artifacts": {
+          "summary": false,
+          "result": true,
+          "audit": false,
+          "cloudAudit": false,
+          "wireAudit": true,
+          "sourceFiles": [
+            ".test-runtime/turnover-muse-20260915/cloud-wire-c-91531/result.json",
+            ".test-runtime/turnover-muse-20260915/cloud-wire-c-91531/wire-audit.json"
+          ]
+        }
+      }
+    ],
+    "web": [
+      {
+        "name": "cloud-windowed-bg-91533",
+        "group": "web",
+        "status": "complete",
+        "seed": 91533,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "abdb0d1f6693c1a2def51cc373494899414030e1d601073dc30d66a7db779764",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": null,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": {
+          "facts": {
+            "correct": 24,
+            "total": 24
+          },
+          "corrections": {
+            "correct": 6,
+            "total": 6
+          },
+          "verbatim": {
+            "correct": 3,
+            "total": 3
+          }
+        },
+        "retrieval": {
+          "attempts": 14,
+          "successes": 14,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": 18043,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 47844,
+            "prepareFraction": 0.6
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": [
+            {
+              "elapsedMs": 28,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 22,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 23,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 27,
+              "backgroundBefore": "oversize",
+              "backgroundAfter": "oversize"
+            }
+          ],
+          "elapsedSeconds": 85,
+          "stages": null
+        },
+        "windows": [
+          {
+            "seq": 162,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 236,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 293,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 516,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          }
+        ],
+        "compactions": [
+          {
+            "seq": 162,
+            "kind": "window"
+          },
+          {
+            "seq": 236,
+            "kind": "window"
+          },
+          {
+            "seq": 293,
+            "kind": "window"
+          },
+          {
+            "seq": 516,
+            "kind": "window"
+          }
+        ],
+        "backgroundStates": {
+          "pending": 5,
+          "late": 9,
+          "oversize": 28
+        },
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": true,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": true,
+          "deliverablePassed": true
+        },
+        "strict": {
+          "passed": false,
+          "allQualityPassed": false,
+          "failureReasons": [
+            "summary.strictPassed=false",
+            "summary.allQualityPassed=false"
+          ],
+          "deniedTools": [
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            }
+          ]
+        },
+        "usage": {
+          "reportedTokens": 683163,
+          "usageMissingCount": 1,
+          "zeroUsageCount": 3,
+          "incompleteStreamCount": 4,
+          "callCount": 31
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 4193,
+            "usage": {
+              "inputTokens": 14154,
+              "outputTokens": 341,
+              "totalTokens": 14495
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2184,
+            "usage": {
+              "inputTokens": 674,
+              "outputTokens": 103,
+              "totalTokens": 14842,
+              "cacheReadTokens": 14065
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3210,
+            "usage": {
+              "inputTokens": 2233,
+              "outputTokens": 308,
+              "totalTokens": 17246,
+              "cacheReadTokens": 14705
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1756,
+            "usage": {
+              "inputTokens": 10863,
+              "outputTokens": 32,
+              "totalTokens": 27776,
+              "cacheReadTokens": 16881
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4427,
+            "usage": {
+              "inputTokens": 561,
+              "outputTokens": 364,
+              "totalTokens": 28558,
+              "cacheReadTokens": 27633
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 4474,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2105,
+            "usage": {
+              "inputTokens": 16968,
+              "outputTokens": 65,
+              "totalTokens": 27770,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2003,
+            "usage": {
+              "inputTokens": 2354,
+              "outputTokens": 25,
+              "totalTokens": 30012,
+              "cacheReadTokens": 27633
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3038,
+            "usage": {
+              "inputTokens": 501,
+              "outputTokens": 344,
+              "totalTokens": 30782,
+              "cacheReadTokens": 29937
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 3064,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2177,
+            "usage": {
+              "inputTokens": 17304,
+              "outputTokens": 24,
+              "totalTokens": 28065,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3520,
+            "usage": {
+              "inputTokens": 584,
+              "outputTokens": 289,
+              "totalTokens": 28890,
+              "cacheReadTokens": 28017
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 3551,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2994,
+            "usage": {
+              "inputTokens": 15386,
+              "outputTokens": 25,
+              "totalTokens": 26148,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4920,
+            "usage": {
+              "inputTokens": 172,
+              "outputTokens": 231,
+              "totalTokens": 26500,
+              "cacheReadTokens": 26097
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 7121,
+            "usage": null,
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2182,
+            "usage": {
+              "inputTokens": 417,
+              "outputTokens": 108,
+              "totalTokens": 26750,
+              "cacheReadTokens": 26225
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2301,
+            "usage": {
+              "inputTokens": 831,
+              "outputTokens": 144,
+              "totalTokens": 27584,
+              "cacheReadTokens": 26609
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1844,
+            "usage": {
+              "inputTokens": 702,
+              "outputTokens": 144,
+              "totalTokens": 28223,
+              "cacheReadTokens": 27377
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1400,
+            "usage": {
+              "inputTokens": 695,
+              "outputTokens": 114,
+              "totalTokens": 28826,
+              "cacheReadTokens": 28017
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2987,
+            "usage": {
+              "inputTokens": 545,
+              "outputTokens": 105,
+              "totalTokens": 29307,
+              "cacheReadTokens": 28657
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2092,
+            "usage": {
+              "inputTokens": 491,
+              "outputTokens": 147,
+              "totalTokens": 29807,
+              "cacheReadTokens": 29169
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4104,
+            "usage": {
+              "inputTokens": 773,
+              "outputTokens": 595,
+              "totalTokens": 30921,
+              "cacheReadTokens": 29553
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2198,
+            "usage": {
+              "inputTokens": 674,
+              "outputTokens": 116,
+              "totalTokens": 31111,
+              "cacheReadTokens": 30321
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2400,
+            "usage": {
+              "inputTokens": 300,
+              "outputTokens": 115,
+              "totalTokens": 31376,
+              "cacheReadTokens": 30961
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4027,
+            "usage": {
+              "inputTokens": 664,
+              "outputTokens": 108,
+              "totalTokens": 31989,
+              "cacheReadTokens": 31217
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3396,
+            "usage": {
+              "inputTokens": 5427,
+              "outputTokens": 143,
+              "totalTokens": 16307,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2220,
+            "usage": {
+              "inputTokens": 546,
+              "outputTokens": 90,
+              "totalTokens": 16749,
+              "cacheReadTokens": 16113
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2330,
+            "usage": {
+              "inputTokens": 276,
+              "outputTokens": 161,
+              "totalTokens": 17062,
+              "cacheReadTokens": 16625
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2866,
+            "usage": {
+              "inputTokens": 685,
+              "outputTokens": 174,
+              "totalTokens": 17740,
+              "cacheReadTokens": 16881
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1970,
+            "usage": {
+              "inputTokens": 726,
+              "outputTokens": 80,
+              "totalTokens": 18327,
+              "cacheReadTokens": 17521
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": true,
+          "result": false,
+          "audit": true,
+          "cloudAudit": true,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/nightly-20260915/cloud-windowed-bg-91533/summary.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-bg-91533/audit.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-bg-91533/cloud-audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-windowed-early-91533",
+        "group": "web",
+        "status": "complete",
+        "seed": 91533,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "backgroundSummaryEnabled": true,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "abdb0d1f6693c1a2def51cc373494899414030e1d601073dc30d66a7db779764",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": null,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": {
+          "facts": {
+            "correct": 24,
+            "total": 24
+          },
+          "corrections": {
+            "correct": 6,
+            "total": 6
+          },
+          "verbatim": {
+            "correct": 3,
+            "total": 3
+          }
+        },
+        "retrieval": {
+          "attempts": 13,
+          "successes": 13,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": 19423,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 47844,
+            "prepareFraction": 0.4
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 2,
+          "maximumSummaryInFlight": 1,
+          "boundaries": [
+            {
+              "elapsedMs": 27,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 29,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 23,
+              "backgroundBefore": "pending",
+              "backgroundAfter": "late"
+            },
+            {
+              "elapsedMs": 25,
+              "backgroundBefore": "oversize",
+              "backgroundAfter": "oversize"
+            }
+          ],
+          "elapsedSeconds": 82,
+          "stages": null
+        },
+        "windows": [
+          {
+            "seq": 107,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 182,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 238,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 463,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          }
+        ],
+        "compactions": [
+          {
+            "seq": 107,
+            "kind": "window"
+          },
+          {
+            "seq": 182,
+            "kind": "window"
+          },
+          {
+            "seq": 238,
+            "kind": "window"
+          },
+          {
+            "seq": 463,
+            "kind": "window"
+          }
+        ],
+        "backgroundStates": {
+          "pending": 5,
+          "late": 9,
+          "oversize": 20
+        },
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": true,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": true,
+          "deliverablePassed": true
+        },
+        "strict": {
+          "passed": true,
+          "allQualityPassed": true,
+          "failureReasons": [],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 578114,
+          "usageMissingCount": 1,
+          "zeroUsageCount": 3,
+          "incompleteStreamCount": 4,
+          "callCount": 25
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 3834,
+            "usage": {
+              "inputTokens": 14154,
+              "outputTokens": 356,
+              "totalTokens": 14510
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2228,
+            "usage": {
+              "inputTokens": 13037,
+              "outputTokens": 27,
+              "totalTokens": 27129,
+              "cacheReadTokens": 14065
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3182,
+            "usage": {
+              "inputTokens": 362,
+              "outputTokens": 348,
+              "totalTokens": 27703,
+              "cacheReadTokens": 26993
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 3214,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2381,
+            "usage": {
+              "inputTokens": 16762,
+              "outputTokens": 88,
+              "totalTokens": 27587,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 7078,
+            "usage": {
+              "inputTokens": 2427,
+              "outputTokens": 24,
+              "totalTokens": 29828,
+              "cacheReadTokens": 27377
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2622,
+            "usage": {
+              "inputTokens": 373,
+              "outputTokens": 347,
+              "totalTokens": 30401,
+              "cacheReadTokens": 29681
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 2665,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2291,
+            "usage": {
+              "inputTokens": 17108,
+              "outputTokens": 25,
+              "totalTokens": 27870,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 7780,
+            "usage": {
+              "inputTokens": 454,
+              "outputTokens": 284,
+              "totalTokens": 28499,
+              "cacheReadTokens": 27761
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 7811,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1832,
+            "usage": {
+              "inputTokens": 15207,
+              "outputTokens": 23,
+              "totalTokens": 25967,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3898,
+            "usage": {
+              "inputTokens": 247,
+              "outputTokens": 145,
+              "totalTokens": 26233,
+              "cacheReadTokens": 25841
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 5896,
+            "usage": null,
+            "terminalPhase": "incomplete-stream",
+            "terminalReason": null
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2636,
+            "usage": {
+              "inputTokens": 408,
+              "outputTokens": 129,
+              "totalTokens": 26506,
+              "cacheReadTokens": 25969
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2685,
+            "usage": {
+              "inputTokens": 851,
+              "outputTokens": 153,
+              "totalTokens": 27357,
+              "cacheReadTokens": 26353
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2075,
+            "usage": {
+              "inputTokens": 740,
+              "outputTokens": 115,
+              "totalTokens": 27976,
+              "cacheReadTokens": 27121
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2117,
+            "usage": {
+              "inputTokens": 713,
+              "outputTokens": 117,
+              "totalTokens": 28591,
+              "cacheReadTokens": 27761
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3693,
+            "usage": {
+              "inputTokens": 566,
+              "outputTokens": 96,
+              "totalTokens": 29063,
+              "cacheReadTokens": 28401
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3884,
+            "usage": {
+              "inputTokens": 509,
+              "outputTokens": 133,
+              "totalTokens": 29555,
+              "cacheReadTokens": 28913
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 4595,
+            "usage": {
+              "inputTokens": 775,
+              "outputTokens": 753,
+              "totalTokens": 30825,
+              "cacheReadTokens": 29297
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2953,
+            "usage": {
+              "inputTokens": 834,
+              "outputTokens": 106,
+              "totalTokens": 31005,
+              "cacheReadTokens": 30065
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2303,
+            "usage": {
+              "inputTokens": 324,
+              "outputTokens": 247,
+              "totalTokens": 31404,
+              "cacheReadTokens": 30833
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3482,
+            "usage": {
+              "inputTokens": 1125,
+              "outputTokens": 234,
+              "totalTokens": 32448,
+              "cacheReadTokens": 31089
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2970,
+            "usage": {
+              "inputTokens": 6834,
+              "outputTokens": 86,
+              "totalTokens": 17657,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": true,
+          "result": false,
+          "audit": true,
+          "cloudAudit": true,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/nightly-20260915/cloud-windowed-early-91533/summary.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-early-91533/audit.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-early-91533/cloud-audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-native-91533",
+        "group": "web",
+        "status": "complete",
+        "seed": 91533,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": null,
+        "backgroundSummaryEnabled": false,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "abdb0d1f6693c1a2def51cc373494899414030e1d601073dc30d66a7db779764",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": null,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": {
+          "facts": {
+            "correct": 24,
+            "total": 24
+          },
+          "corrections": {
+            "correct": 6,
+            "total": 6
+          },
+          "verbatim": {
+            "correct": 1,
+            "total": 3
+          }
+        },
+        "retrieval": {
+          "attempts": 0,
+          "successes": 0,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "Basic",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": 0,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 47844,
+            "prepareFraction": null
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 1,
+          "maximumSummaryInFlight": 1,
+          "boundaries": [
+            {
+              "elapsedMs": 16299,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 10586,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 12122,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 14144,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            }
+          ],
+          "elapsedSeconds": 118,
+          "stages": null
+        },
+        "windows": [],
+        "compactions": [
+          {
+            "seq": 107,
+            "kind": "native-basic"
+          },
+          {
+            "seq": 144,
+            "kind": "native-basic"
+          },
+          {
+            "seq": 191,
+            "kind": "native-basic"
+          },
+          {
+            "seq": 249,
+            "kind": "native-basic"
+          }
+        ],
+        "backgroundStates": {},
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": true,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": true
+        },
+        "strict": {
+          "passed": true,
+          "allQualityPassed": false,
+          "failureReasons": [
+            "summary.allQualityPassed=false"
+          ],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 530870,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 23
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 3740,
+            "usage": {
+              "inputTokens": 11787,
+              "outputTokens": 355,
+              "totalTokens": 12142
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5866,
+            "usage": {
+              "inputTokens": 12973,
+              "outputTokens": 27,
+              "totalTokens": 24761,
+              "cacheReadTokens": 11761
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3446,
+            "usage": {
+              "inputTokens": 298,
+              "outputTokens": 361,
+              "totalTokens": 25348,
+              "cacheReadTokens": 24689
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 13495,
+            "usage": {
+              "inputTokens": 400,
+              "outputTokens": 425,
+              "totalTokens": 12586,
+              "cacheReadTokens": 11761
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 2776,
+            "usage": {
+              "inputTokens": 859,
+              "outputTokens": 386,
+              "totalTokens": 9678,
+              "cacheReadTokens": 8433
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1935,
+            "usage": {
+              "inputTokens": 29120,
+              "outputTokens": 67,
+              "totalTokens": 38004,
+              "cacheReadTokens": 8817
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 3306,
+            "usage": {
+              "inputTokens": 91,
+              "outputTokens": 381,
+              "totalTokens": 9673,
+              "cacheReadTokens": 9201
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1427,
+            "usage": {
+              "inputTokens": 2349,
+              "outputTokens": 24,
+              "totalTokens": 40246,
+              "cacheReadTokens": 37873
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 6928,
+            "usage": {
+              "inputTokens": 91,
+              "outputTokens": 352,
+              "totalTokens": 9644,
+              "cacheReadTokens": 9201
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 3641,
+            "usage": {
+              "inputTokens": 702,
+              "outputTokens": 353,
+              "totalTokens": 9616,
+              "cacheReadTokens": 8561
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5324,
+            "usage": {
+              "inputTokens": 31626,
+              "outputTokens": 344,
+              "totalTokens": 40787,
+              "cacheReadTokens": 8817
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 7804,
+            "usage": {
+              "inputTokens": 462,
+              "outputTokens": 733,
+              "totalTokens": 23196,
+              "cacheReadTokens": 22001
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 4294,
+            "usage": {
+              "inputTokens": 1075,
+              "outputTokens": 757,
+              "totalTokens": 10393,
+              "cacheReadTokens": 8561
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2981,
+            "usage": {
+              "inputTokens": 31327,
+              "outputTokens": 22,
+              "totalTokens": 40550,
+              "cacheReadTokens": 9201
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 4432,
+            "usage": {
+              "inputTokens": 51,
+              "outputTokens": 725,
+              "totalTokens": 10361,
+              "cacheReadTokens": 9585
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2837,
+            "usage": {
+              "inputTokens": 343,
+              "outputTokens": 285,
+              "totalTokens": 41061,
+              "cacheReadTokens": 40433
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 4538,
+            "usage": {
+              "inputTokens": 485,
+              "outputTokens": 937,
+              "totalTokens": 28927,
+              "cacheReadTokens": 27505
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 9581,
+            "usage": {
+              "inputTokens": 1157,
+              "outputTokens": 951,
+              "totalTokens": 10797,
+              "cacheReadTokens": 8689
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1759,
+            "usage": {
+              "inputTokens": 26800,
+              "outputTokens": 21,
+              "totalTokens": 36278,
+              "cacheReadTokens": 9457
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 5243,
+            "usage": {
+              "inputTokens": 5,
+              "outputTokens": 937,
+              "totalTokens": 10783,
+              "cacheReadTokens": 9841
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6046,
+            "usage": {
+              "inputTokens": 310,
+              "outputTokens": 996,
+              "totalTokens": 37515,
+              "cacheReadTokens": 36209
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "compaction",
+            "elapsedMs": 6846,
+            "usage": {
+              "inputTokens": 5,
+              "outputTokens": 936,
+              "totalTokens": 10782,
+              "cacheReadTokens": 9841
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3366,
+            "usage": {
+              "inputTokens": 1124,
+              "outputTokens": 153,
+              "totalTokens": 37742,
+              "cacheReadTokens": 36465
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": true,
+          "result": false,
+          "audit": true,
+          "cloudAudit": true,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/nightly-20260915/cloud-native-91533/summary.json",
+            ".test-runtime/nightly-20260915/cloud-native-91533/audit.json",
+            ".test-runtime/nightly-20260915/cloud-native-91533/cloud-audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-inplace-91533",
+        "group": "web",
+        "status": "complete",
+        "seed": 91533,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": null,
+        "backgroundSummaryEnabled": false,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "abdb0d1f6693c1a2def51cc373494899414030e1d601073dc30d66a7db779764",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": null,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": {
+          "facts": {
+            "correct": 24,
+            "total": 24
+          },
+          "corrections": {
+            "correct": 6,
+            "total": 6
+          },
+          "verbatim": {
+            "correct": 3,
+            "total": 3
+          }
+        },
+        "retrieval": {
+          "attempts": 8,
+          "successes": 8,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "in-place",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": 0,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 47844,
+            "prepareFraction": null
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 1,
+          "maximumSummaryInFlight": 0,
+          "boundaries": [
+            {
+              "elapsedMs": 28,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 19,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 19,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            }
+          ],
+          "elapsedSeconds": 64,
+          "stages": null
+        },
+        "windows": [],
+        "compactions": [
+          {
+            "seq": 107,
+            "kind": "in-place-fallback"
+          },
+          {
+            "seq": 182,
+            "kind": "in-place-fallback"
+          },
+          {
+            "seq": 237,
+            "kind": "in-place-fallback"
+          }
+        ],
+        "backgroundStates": {},
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": true,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": null,
+          "deliverablePassed": true
+        },
+        "strict": {
+          "passed": true,
+          "allQualityPassed": true,
+          "failureReasons": [],
+          "deniedTools": []
+        },
+        "usage": {
+          "reportedTokens": 524646,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 19
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 3910,
+            "usage": {
+              "inputTokens": 13986,
+              "outputTokens": 351,
+              "totalTokens": 14337
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2841,
+            "usage": {
+              "inputTokens": 12992,
+              "outputTokens": 23,
+              "totalTokens": 26952,
+              "cacheReadTokens": 13937
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3597,
+            "usage": {
+              "inputTokens": 313,
+              "outputTokens": 352,
+              "totalTokens": 27530,
+              "cacheReadTokens": 26865
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2039,
+            "usage": {
+              "inputTokens": 16771,
+              "outputTokens": 84,
+              "totalTokens": 27464,
+              "cacheReadTokens": 10609
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2032,
+            "usage": {
+              "inputTokens": 2304,
+              "outputTokens": 21,
+              "totalTokens": 29702,
+              "cacheReadTokens": 27377
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2769,
+            "usage": {
+              "inputTokens": 247,
+              "outputTokens": 334,
+              "totalTokens": 30262,
+              "cacheReadTokens": 29681
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1740,
+            "usage": {
+              "inputTokens": 16938,
+              "outputTokens": 25,
+              "totalTokens": 27828,
+              "cacheReadTokens": 10865
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2652,
+            "usage": {
+              "inputTokens": 293,
+              "outputTokens": 282,
+              "totalTokens": 28336,
+              "cacheReadTokens": 27761
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2938,
+            "usage": {
+              "inputTokens": 14826,
+              "outputTokens": 22,
+              "totalTokens": 25713,
+              "cacheReadTokens": 10865
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6091,
+            "usage": {
+              "inputTokens": 368,
+              "outputTokens": 583,
+              "totalTokens": 26536,
+              "cacheReadTokens": 25585
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2067,
+            "usage": {
+              "inputTokens": 999,
+              "outputTokens": 130,
+              "totalTokens": 26970,
+              "cacheReadTokens": 25841
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3034,
+            "usage": {
+              "inputTokens": 753,
+              "outputTokens": 452,
+              "totalTokens": 27942,
+              "cacheReadTokens": 26737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2694,
+            "usage": {
+              "inputTokens": 639,
+              "outputTokens": 111,
+              "totalTokens": 28127,
+              "cacheReadTokens": 27377
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2269,
+            "usage": {
+              "inputTokens": 368,
+              "outputTokens": 115,
+              "totalTokens": 28372,
+              "cacheReadTokens": 27889
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5057,
+            "usage": {
+              "inputTokens": 725,
+              "outputTokens": 106,
+              "totalTokens": 28976,
+              "cacheReadTokens": 28145
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3198,
+            "usage": {
+              "inputTokens": 321,
+              "outputTokens": 115,
+              "totalTokens": 29221,
+              "cacheReadTokens": 28785
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2603,
+            "usage": {
+              "inputTokens": 678,
+              "outputTokens": 61,
+              "totalTokens": 29780,
+              "cacheReadTokens": 29041
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1863,
+            "usage": {
+              "inputTokens": 230,
+              "outputTokens": 116,
+              "totalTokens": 30027,
+              "cacheReadTokens": 29681
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1805,
+            "usage": {
+              "inputTokens": 710,
+              "outputTokens": 52,
+              "totalTokens": 30571,
+              "cacheReadTokens": 29809
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": true,
+          "result": false,
+          "audit": true,
+          "cloudAudit": true,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/nightly-20260915/cloud-inplace-91533/summary.json",
+            ".test-runtime/nightly-20260915/cloud-inplace-91533/audit.json",
+            ".test-runtime/nightly-20260915/cloud-inplace-91533/cloud-audit.json"
+          ]
+        }
+      },
+      {
+        "name": "cloud-windowed-control-91533",
+        "group": "web",
+        "status": "complete",
+        "seed": 91533,
+        "route": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "summaryRoute": null,
+        "backgroundSummaryEnabled": false,
+        "foregroundWork": "standard",
+        "cachePolicy": "configured",
+        "hostVersion": "0.1.2-rc.1",
+        "fixtureHash": "abdb0d1f6693c1a2def51cc373494899414030e1d601073dc30d66a7db779764",
+        "candidateHash": "6de596def16399609b450e4708ae0da7346c3d8f326653afb75f25f8da07629c",
+        "completed": true,
+        "foregroundInstructionPassed": null,
+        "originalRunCompleted": null,
+        "markerProduced": null,
+        "seedScore": null,
+        "finalScore": {
+          "facts": {
+            "correct": 24,
+            "total": 24
+          },
+          "corrections": {
+            "correct": 6,
+            "total": 6
+          },
+          "verbatim": {
+            "correct": 3,
+            "total": 3
+          }
+        },
+        "retrieval": {
+          "attempts": 11,
+          "successes": 11,
+          "errors": 0,
+          "missingResults": 0
+        },
+        "timing": {
+          "mode": "windowed",
+          "overlapMs": {
+            "firstForeground": null,
+            "stream": 0,
+            "content": null
+          },
+          "window": {
+            "boundaryMs": null,
+            "firstSummaryStartLeadMs": null,
+            "firstSummaryEndLeadMs": null,
+            "summaryRejected": null,
+            "backgroundAtBoundary": null,
+            "windowBudget": 47844,
+            "prepareFraction": null
+          },
+          "overlapMetric": "host-stream-lifecycle-pairwise-ms",
+          "maximumInFlight": 1,
+          "maximumSummaryInFlight": 0,
+          "boundaries": [
+            {
+              "elapsedMs": 25,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 20,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            },
+            {
+              "elapsedMs": 24,
+              "backgroundBefore": null,
+              "backgroundAfter": null
+            }
+          ],
+          "elapsedSeconds": 120,
+          "stages": null
+        },
+        "windows": [
+          {
+            "seq": 174,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 273,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          },
+          {
+            "seq": 384,
+            "mode": "extractive",
+            "rejected": null,
+            "sourceHashVerified": false,
+            "newerSuffixRetained": null
+          }
+        ],
+        "compactions": [
+          {
+            "seq": 174,
+            "kind": "window"
+          },
+          {
+            "seq": 273,
+            "kind": "window"
+          },
+          {
+            "seq": 384,
+            "kind": "window"
+          }
+        ],
+        "backgroundStates": {},
+        "quality": {
+          "archiveBytesVerified": true,
+          "currentInputProtected": null,
+          "toolPairsBalanced": null,
+          "appendOnly": null,
+          "freshRawRetained": null,
+          "sourceHashVerified": null,
+          "settingsUnchanged": true,
+          "foregroundRequestsSerial": null,
+          "localRequestsSerial": null,
+          "allRequestsSameCloudRoute": true,
+          "allMuseMinimal": null,
+          "hostOutputMatchesForegroundResponse": null,
+          "restartVerified": true,
+          "deliverablePassed": true
+        },
+        "strict": {
+          "passed": false,
+          "allQualityPassed": false,
+          "failureReasons": [
+            "summary.strictPassed=false",
+            "summary.allQualityPassed=false"
+          ],
+          "deniedTools": [
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            },
+            {
+              "name": "experiment_read_page",
+              "reason": "Unassigned page"
+            }
+          ]
+        },
+        "usage": {
+          "reportedTokens": 872028,
+          "usageMissingCount": 0,
+          "zeroUsageCount": 0,
+          "incompleteStreamCount": 0,
+          "callCount": 35
+        },
+        "callMetrics": [
+          {
+            "purpose": "agent",
+            "elapsedMs": 11934,
+            "usage": {
+              "inputTokens": 9945,
+              "outputTokens": 337,
+              "totalTokens": 14491,
+              "cacheReadTokens": 4209
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1965,
+            "usage": {
+              "inputTokens": 670,
+              "outputTokens": 99,
+              "totalTokens": 14834,
+              "cacheReadTokens": 14065
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3567,
+            "usage": {
+              "inputTokens": 2225,
+              "outputTokens": 133,
+              "totalTokens": 17063,
+              "cacheReadTokens": 14705
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2948,
+            "usage": {
+              "inputTokens": 2278,
+              "outputTokens": 59,
+              "totalTokens": 19218,
+              "cacheReadTokens": 16881
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6986,
+            "usage": {
+              "inputTokens": 2248,
+              "outputTokens": 68,
+              "totalTokens": 21373,
+              "cacheReadTokens": 19057
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3222,
+            "usage": {
+              "inputTokens": 2243,
+              "outputTokens": 58,
+              "totalTokens": 23534,
+              "cacheReadTokens": 21233
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1884,
+            "usage": {
+              "inputTokens": 2235,
+              "outputTokens": 58,
+              "totalTokens": 25702,
+              "cacheReadTokens": 23409
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3197,
+            "usage": {
+              "inputTokens": 28004,
+              "outputTokens": 25,
+              "totalTokens": 28029
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2280,
+            "usage": {
+              "inputTokens": 366,
+              "outputTokens": 93,
+              "totalTokens": 28348,
+              "cacheReadTokens": 27889
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2048,
+            "usage": {
+              "inputTokens": 2314,
+              "outputTokens": 57,
+              "totalTokens": 30516,
+              "cacheReadTokens": 28145
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1672,
+            "usage": {
+              "inputTokens": 8203,
+              "outputTokens": 68,
+              "totalTokens": 19008,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2471,
+            "usage": {
+              "inputTokens": 2305,
+              "outputTokens": 64,
+              "totalTokens": 21298,
+              "cacheReadTokens": 18929
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1702,
+            "usage": {
+              "inputTokens": 2141,
+              "outputTokens": 83,
+              "totalTokens": 23457,
+              "cacheReadTokens": 21233
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6001,
+            "usage": {
+              "inputTokens": 2251,
+              "outputTokens": 61,
+              "totalTokens": 25593,
+              "cacheReadTokens": 23281
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3062,
+            "usage": {
+              "inputTokens": 2442,
+              "outputTokens": 64,
+              "totalTokens": 27963,
+              "cacheReadTokens": 25457
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2166,
+            "usage": {
+              "inputTokens": 2172,
+              "outputTokens": 22,
+              "totalTokens": 30083,
+              "cacheReadTokens": 27889
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1501,
+            "usage": {
+              "inputTokens": 372,
+              "outputTokens": 85,
+              "totalTokens": 30394,
+              "cacheReadTokens": 29937
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1778,
+            "usage": {
+              "inputTokens": 6375,
+              "outputTokens": 65,
+              "totalTokens": 17177,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2858,
+            "usage": {
+              "inputTokens": 2394,
+              "outputTokens": 90,
+              "totalTokens": 19493,
+              "cacheReadTokens": 17009
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1992,
+            "usage": {
+              "inputTokens": 2263,
+              "outputTokens": 62,
+              "totalTokens": 21638,
+              "cacheReadTokens": 19313
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3050,
+            "usage": {
+              "inputTokens": 2250,
+              "outputTokens": 79,
+              "totalTokens": 23818,
+              "cacheReadTokens": 21489
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2223,
+            "usage": {
+              "inputTokens": 2244,
+              "outputTokens": 64,
+              "totalTokens": 25973,
+              "cacheReadTokens": 23665
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1477,
+            "usage": {
+              "inputTokens": 2427,
+              "outputTokens": 24,
+              "totalTokens": 28292,
+              "cacheReadTokens": 25841
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1718,
+            "usage": {
+              "inputTokens": 373,
+              "outputTokens": 83,
+              "totalTokens": 28601,
+              "cacheReadTokens": 28145
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1568,
+            "usage": {
+              "inputTokens": 2304,
+              "outputTokens": 61,
+              "totalTokens": 30766,
+              "cacheReadTokens": 28401
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3610,
+            "usage": {
+              "inputTokens": 8666,
+              "outputTokens": 239,
+              "totalTokens": 19642,
+              "cacheReadTokens": 10737
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1864,
+            "usage": {
+              "inputTokens": 6715,
+              "outputTokens": 22,
+              "totalTokens": 26050,
+              "cacheReadTokens": 19313
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 6020,
+            "usage": {
+              "inputTokens": 202,
+              "outputTokens": 382,
+              "totalTokens": 26553,
+              "cacheReadTokens": 25969
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 5190,
+            "usage": {
+              "inputTokens": 596,
+              "outputTokens": 209,
+              "totalTokens": 26902,
+              "cacheReadTokens": 26097
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2361,
+            "usage": {
+              "inputTokens": 1066,
+              "outputTokens": 166,
+              "totalTokens": 27841,
+              "cacheReadTokens": 26609
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 3529,
+            "usage": {
+              "inputTokens": 720,
+              "outputTokens": 474,
+              "totalTokens": 28827,
+              "cacheReadTokens": 27633
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2514,
+            "usage": {
+              "inputTokens": 628,
+              "outputTokens": 105,
+              "totalTokens": 29006,
+              "cacheReadTokens": 28273
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2996,
+            "usage": {
+              "inputTokens": 373,
+              "outputTokens": 262,
+              "totalTokens": 29420,
+              "cacheReadTokens": 28785
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 2242,
+            "usage": {
+              "inputTokens": 959,
+              "outputTokens": 265,
+              "totalTokens": 30265,
+              "cacheReadTokens": 29041
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "purpose": "agent",
+            "elapsedMs": 1885,
+            "usage": {
+              "inputTokens": 871,
+              "outputTokens": 52,
+              "totalTokens": 30860,
+              "cacheReadTokens": 29937
+            },
+            "terminalPhase": "finish",
+            "terminalReason": {
+              "kind": "stop"
+            }
+          }
+        ],
+        "wire": null,
+        "artifacts": {
+          "summary": true,
+          "result": false,
+          "audit": true,
+          "cloudAudit": true,
+          "wireAudit": false,
+          "sourceFiles": [
+            ".test-runtime/nightly-20260915/cloud-windowed-control-91533/summary.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-control-91533/audit.json",
+            ".test-runtime/nightly-20260915/cloud-windowed-control-91533/cloud-audit.json"
+          ]
+        }
+      }
+    ]
+  }
+}

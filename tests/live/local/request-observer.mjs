@@ -28,6 +28,7 @@ export function apply(ctx, config) {
     const measurement = ctx.tokenMeter.measure(agent.session)
     const backend = ctx.agentPresets.serviceFor(agent, 'compaction')
     append(`${agent.session.id}.pressure.jsonl`, { time: new Date().toISOString(), stage, seq: agent.session.seq, backend: backend?.constructor.name,
+      backgroundSummary: backend?.summaries?.status(agent.session) ?? null,
       effectiveBasicConfig: backend?.config?.thresholdRatio === undefined ? null : backend.config,
       hostEstimatedInput: measurement.totalTokens, baseline: measurement.baseline.kind,
       contextPressure: ctx.sessionProjections.snapshot(agent.session).values.contextPressure,
@@ -48,7 +49,7 @@ export function apply(ctx, config) {
     if (config.route.reasoningEffort && effectiveReasoningEffort !== config.route.reasoningEffort) throw new Error('Experiment reasoning effort differs from the frozen route')
     const expectedCapacity = config.expectedContextWindow ?? 1000000
     if (info.context?.contextWindow !== expectedCapacity) throw new Error(`EXPERIMENT_CAPACITY_CHANGED: expected ${expectedCapacity}, route reports ${info.context?.contextWindow}`)
-    const record = { callId, time: new Date().toISOString(), sessionId: session.id, seq: session.seq, provider: request.provider, model: request.model,
+    const record = { callId, time: new Date().toISOString(), startedAtMs: start, sessionId: session.id, seq: session.seq, provider: request.provider, model: request.model,
       purpose: request.purpose ?? 'agent', maxTokens: request.maxTokens ?? null, reasoningEffort: request.reasoningEffort ?? null, effectiveReasoningEffort,
       requestHash: hash({ ...request, signal: undefined }), messagesHash: hash(request.messages), systemHash: hash(request.system ?? null),
       toolsHash: hash(request.tools ?? null), tools: request.tools?.map(tool => tool.name) ?? [], messageCount: request.messages.length }
@@ -85,12 +86,12 @@ export function apply(ctx, config) {
         }
         if (chunk.type === 'finish') {
           terminal = true
-          append('requests.jsonl', { callId, phase: 'finish', elapsedMs: Date.now() - start, reason: chunk.reason, ...timing() })
+          append('requests.jsonl', { callId, phase: 'finish', endedAtMs: Date.now(), elapsedMs: Date.now() - start, reason: chunk.reason, ...timing() })
         }
         yield chunk
       }
     } finally {
-      if (!terminal) append('requests.jsonl', { callId, phase: 'incomplete-stream', elapsedMs: Date.now() - start, ...timing() })
+      if (!terminal) append('requests.jsonl', { callId, phase: 'incomplete-stream', endedAtMs: Date.now(), elapsedMs: Date.now() - start, ...timing() })
     }
   })
   ctx.on('session/event', (session, event) => {

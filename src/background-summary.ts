@@ -9,6 +9,7 @@ export interface BackgroundSummaryConfig {
   provider: string
   model: string
   reasoningEffort?: string
+  allowSameProvider: boolean
   prepareAtEffectiveCapacityPct: number
   maxInputBytes: number
   maxOutputTokens: number
@@ -17,8 +18,9 @@ export interface BackgroundSummaryConfig {
 export type BackgroundSummaryInput = Pick<BackgroundSummaryConfig, 'provider' | 'model'> & Partial<BackgroundSummaryConfig>
 export function resolveBackgroundSummary(input?: BackgroundSummaryInput): BackgroundSummaryConfig | undefined {
   if (!input) return undefined
-  const config = { prepareAtEffectiveCapacityPct: 0.6, maxInputBytes: 262144, maxOutputTokens: 2048, timeoutMs: 60000, ...input }
+  const config = { allowSameProvider: false, prepareAtEffectiveCapacityPct: 0.6, maxInputBytes: 262144, maxOutputTokens: 2048, timeoutMs: 60000, ...input }
   if (!config.provider?.trim() || !config.model?.trim()) throw new Error('backgroundSummary requires provider and model')
+  if (typeof config.allowSameProvider !== 'boolean') throw new Error('backgroundSummary.allowSameProvider must be boolean')
   if (!(config.prepareAtEffectiveCapacityPct > 0 && config.prepareAtEffectiveCapacityPct < 1)) throw new Error('backgroundSummary preparation fraction must be in (0,1)')
   for (const [key, min, max] of [['maxInputBytes', 4096, 1048576], ['maxOutputTokens', 128, 4096], ['timeoutMs', 1, 120000]] as const) {
     if (!Number.isSafeInteger(config[key]) || config[key] < min || config[key] > max) throw new Error(`backgroundSummary.${key} must be in ${min}..${max}`)
@@ -82,8 +84,8 @@ export class BackgroundSummaries {
   }
   prepare(agent: CompactionAgentContext & { ctx: Context }, config: BackgroundSummaryConfig, archive: ArchiveConfig, generation: number, signal: AbortSignal, incomingUser?: UserMessage, requestRoute?: string): void {
     const session = agent.session, route = requestRoute ?? foregroundRoute(agent), key = `${session.surface.replaceGeneration}:${route}`
-    // An independent provider is required: a second model on a serial local server is still serial.
-    if (signal.aborted || config.provider === route.split('\0')[0] || !agent.ctx.get('llm') || this.jobs.get(session)?.key === key) return
+    // Same-provider concurrency requires explicit opt-in; the flag does not establish provider capacity.
+    if (signal.aborted || (!config.allowSameProvider && config.provider === route.split('\0')[0]) || !agent.ctx.get('llm') || this.jobs.get(session)?.key === key) return
     this.cancel(session, 'superseded')
     const unlogged = incomingUser && !session.surface.nodes.some(seq => { const event = session.eventAt(seq); return event?.type === 'user/message' && event.data.id === incomingUser.id }) ? incomingUser : undefined
     const prefix = frozenPrefix(session, unlogged)

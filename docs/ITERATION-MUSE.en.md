@@ -23,12 +23,14 @@ Values below are **medians of three samples per arm**. The seven probe fields in
 | Replacement transaction | 8.39 ms | 12.25 ms | 6.39 ms |
 | Visible-context probe | 2/7 in all samples | 6/7 in all samples | 6/7 in all samples |
 | Retrieval-enabled probe | 7/7 in all samples | 7/7 in all samples | 7/7 in all samples |
-| Successful historical calls | 9 (5/9/10) | 10 (11/10/2) | 3 (3/3/2) |
+| Allowed attempts / confirmed successful results | 9 / 8 (5/9/10; 5/9/8) | 10 / 10 (11/10/2; 11/10/2) | 3 / 2 (3/3/2; 3/2/2) |
 | Retrieval-phase elapsed time | 46.41 s | 71.51 s | 36.81 s |
 
 C boundaries ranged **7.21–9.18 ms**. Their small difference from A is not evidence of a faster deterministic algorithm; the important difference is eliminating B's **4.63–6.35 seconds** of boundary waiting. Actual C cloud streams overlapped local foreground streams by **4.633/5.644/5.347 seconds**, with both completing. Formal local requests were serial and automatic title calls were disabled. Stream overlap does not prove a particular server GPU scheduling policy.
 
-C used fewer historical calls in this pilot, but total-cost improvement is not guaranteed. B's first two samples reverified facts already present in the summary, making 11 and 10 historical calls. C's second retrieval phase took 64.82 seconds. The small sample, generation variability and denied diagnostic tool attempts preclude statistical or general end-to-end performance claims. The data distinguishes successful retrievals from denied attempts.
+C used fewer allowed retrieval attempts in this pilot, but total-cost improvement is not guaranteed. B's first two samples reverified facts already present in the summary, making 11 and 10 allowed attempts. C's second retrieval phase took 64.82 seconds. The small sample, generation variability and denied diagnostic tool attempts preclude statistical or general end-to-end performance claims.
+
+Correction: the earlier “Successful historical calls” label described guard-allowed attempts, not successful tool results. It is now `allowedRetrievalAttempts`; where retained final events exist, sanitized data also records result-derived successes, failures, missing results, and status counts. Raw audits and probe scores are unchanged.
 
 ## Late delivery and safety
 

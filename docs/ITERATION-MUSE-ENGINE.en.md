@@ -1,5 +1,7 @@
 # Muse background summaries: engine implementation and validation
 
+For the subsequent same-route cloud experiment, see [Muse/Muse minimal validation](ITERATION-MUSE-CLOUD.en.md). This page retains the Qwen/Muse stage results.
+
 This follows the [prototype experiment](ITERATION-MUSE.en.md). Snapshot boundaries, byte budgets and job ownership now live in the engine. All follow-up Muse calls use `minimal`; the host remains pinned to DSH `0.1.2-rc.1`.
 
 ## Behavior and configuration
@@ -46,22 +48,24 @@ The three model gates retain F3/91503, 24 pages, 32k pressure, six-page batches 
 
 All eight completed samples are shown. A uses a deterministic seed; C enables the independent Muse summary. Scores require exact matches for seven historical fields. Raw retention separately checks whether the assistant message produced after the snapshot remains on the active surface. Historical retrieval is disabled for the seed probe and enabled for the next probe.
 
-| Sample / probe version | Seed only | Retrieval allowed | Fresh raw message retained | Boundary ms | Successful retrieval calls |
+| Sample / probe version | Seed only | Retrieval allowed | Fresh raw message retained | Boundary ms | Allowed attempts / confirmed successes |
 | --- | --- | --- | --- | ---: | ---: |
-| A / 91521 / v1 | 2/7 | 7/7 | No | 9.59 | 6 |
-| C / 91521 / v1 | 6/7 | 7/7 | Yes | 20.64 | 2 |
-| C / 91522 / v1 | 5/7 | 6/7 | Yes | 10.59 | 2 |
-| A / 91522 / v2 | 2/7 | 7/7 | No | 10.46 | 5 |
-| C / 91522 / v2 | 6/7 | 7/7 | Yes | 10.51 | 7 |
-| C / 91523 / v2, 50k / 60% | 7/7 | 7/7 | Yes | 10.60 | 0 |
-| C / 91524 / v2, 500 ms timeout | 1/7 | 7/7 | No, deterministic fallback | 10.55 | 9 |
-| C / 91525 / v2, held delivery | 2/7 | 7/7 | No, deterministic fallback | 11.15 | 28 |
+| A / 91521 / v1 | 2/7 | 7/7 | No | 9.59 | 6 / 6 |
+| C / 91521 / v1 | 6/7 | 7/7 | Yes | 20.64 | 2 / 2 |
+| C / 91522 / v1 | 5/7 | 6/7 | Yes | 10.59 | 2 / 2 |
+| A / 91522 / v2 | 2/7 | 7/7 | No | 10.46 | 5 / 5 |
+| C / 91522 / v2 | 6/7 | 7/7 | Yes | 10.51 | 7 / 7 |
+| C / 91523 / v2, 50k / 60% | 7/7 | 7/7 | Yes | 10.60 | 0 / 0 |
+| C / 91524 / v2, 500 ms timeout | 1/7 | 7/7 | No, deterministic fallback | 10.55 | 9 / 8 |
+| C / 91525 / v2, held delivery | 2/7 | 7/7 | No, deterministic fallback | 11.15 | 28 / 18 |
 
 The v1 / 91522 failure added `after approval` to the original `nextAction` identifier. The exact scorer still records failure; the source fact was not found missing. Probe v2 explicitly requests bare original identifiers and repeats the matched A/C comparison without changing old scores. All samples correctly answered the separate fresh marker. A's user index can carry that marker even after the assistant message is archived, so a correct marker answer does not prove raw retention.
 
+Correction: the old field named `successfulRetrievalCalls` counted guard-allowed attempts, not successful tool results. It is now named `allowedRetrievalAttempts`; the sanitized data also derives result outcomes from the retained final events. Raw audits and scores are unchanged.
+
 All four ready C samples used a `model-assisted` seed and archived only the covered snapshot prefix. Their first Muse calls took **4.08–9.87 seconds**, overlapping the local Qwen stream without adding a boundary wait. The 50k / 60% run made one Muse call. Each ready 25% run made another preparation call in the next generation; the data includes these costs, not just consumed summaries.
 
-The real 500 ms timeout and held-delivery fault each committed one deterministic replacement immediately. The latter holds the finish chunk of a completed real Muse response for 32.209 seconds until after commitment, then releases it. There was no late write or second replacement. Its stream duration includes the artificial hold and is excluded from model-speed claims. Retrieval remains necessary after fallback: the late sample needed 28 successful calls, so a fast boundary does not establish low total task cost.
+The real 500 ms timeout and held-delivery fault each committed one deterministic replacement immediately. The latter holds the finish chunk of a completed real Muse response for 32.209 seconds until after commitment, then releases it. There was no late write or second replacement. Its stream duration includes the artificial hold and is excluded from model-speed claims. Retrieval remains necessary after fallback: the late sample had 28 allowed attempts but 18 confirmed successful results, so a fast boundary does not establish low total task cost.
 
 Every completed sample passed current-input protection, tool pairing, append-only transaction, full byte-identical archive pagination and serial Qwen audits. All four assisted source hashes matched. Seeds ranged from 1432 to 1771 bytes. No completion callback directly edited the session.
 

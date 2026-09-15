@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-09-15T03:53:40.845Z",
+  "generatedAt": "2026-09-15T06:21:59.056Z",
   "hostVersion": "0.1.2-rc.1",
   "productChanged": false,
   "classification": "Pilot: fixed synthetic boundary with real host transactions and real Qwen/Muse calls; separate Muse autonomous-reading gate. No statistical significance or 400k production claim.",
@@ -159,8 +159,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -177,8 +176,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -195,8 +193,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 5,
-          "retrievalCalls": 5
+          "historicalToolAttempts": 5
         }
       ],
       "audit": {
@@ -208,6 +205,16 @@
         "overlapMs": 0,
         "observedEvents": 1871,
         "webPageEvents": 178,
+        "allowedRetrievalAttempts": 5,
+        "retrievalOutcomes": {
+          "attempts": 5,
+          "successes": 5,
+          "failures": 0,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 5
+          }
+        },
         "deniedToolAttempts": [
           "arc_status"
         ],
@@ -327,8 +334,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -345,8 +351,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -363,8 +368,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 9,
-          "retrievalCalls": 9
+          "historicalToolAttempts": 9
         }
       ],
       "audit": {
@@ -376,6 +380,16 @@
         "overlapMs": 0,
         "observedEvents": 949,
         "webPageEvents": 204,
+        "allowedRetrievalAttempts": 9,
+        "retrievalOutcomes": {
+          "attempts": 9,
+          "successes": 9,
+          "failures": 0,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 9
+          }
+        },
         "deniedToolAttempts": [],
         "snapshotGap": {
           "archivedMessagesAfterSnapshot": 1,
@@ -548,8 +562,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -566,8 +579,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -584,8 +596,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 10,
-          "retrievalCalls": 10
+          "historicalToolAttempts": 10
         }
       ],
       "audit": {
@@ -597,6 +608,17 @@
         "overlapMs": 0,
         "observedEvents": 1110,
         "webPageEvents": 193,
+        "allowedRetrievalAttempts": 10,
+        "retrievalOutcomes": {
+          "attempts": 10,
+          "successes": 8,
+          "failures": 2,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 8,
+            "error": 2
+          }
+        },
         "deniedToolAttempts": [],
         "snapshotGap": {
           "archivedMessagesAfterSnapshot": 1,
@@ -736,8 +758,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -754,8 +775,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 1,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 1
         },
         {
           "phase": "retrieval",
@@ -772,8 +792,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 11,
-          "retrievalCalls": 11
+          "historicalToolAttempts": 11
         }
       ],
       "audit": {
@@ -785,6 +804,17 @@
         "overlapMs": 0,
         "observedEvents": 1395,
         "webPageEvents": 237,
+        "allowedRetrievalAttempts": 11,
+        "retrievalOutcomes": {
+          "attempts": 12,
+          "successes": 11,
+          "failures": 1,
+          "missingResults": 0,
+          "statusCounts": {
+            "invalid-result": 1,
+            "success": 11
+          }
+        },
         "deniedToolAttempts": [
           "search_context",
           "arc_status"
@@ -1004,8 +1034,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -1022,8 +1051,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -1040,8 +1068,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 10,
-          "retrievalCalls": 10
+          "historicalToolAttempts": 10
         }
       ],
       "audit": {
@@ -1053,6 +1080,16 @@
         "overlapMs": 0,
         "observedEvents": 1266,
         "webPageEvents": 218,
+        "allowedRetrievalAttempts": 10,
+        "retrievalOutcomes": {
+          "attempts": 10,
+          "successes": 10,
+          "failures": 0,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 10
+          }
+        },
         "deniedToolAttempts": [],
         "snapshotGap": {
           "archivedMessagesAfterSnapshot": 1,
@@ -1258,8 +1295,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -1276,8 +1312,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -1294,8 +1329,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 2,
-          "retrievalCalls": 2
+          "historicalToolAttempts": 2
         }
       ],
       "audit": {
@@ -1307,6 +1341,16 @@
         "overlapMs": 0,
         "observedEvents": 799,
         "webPageEvents": 146,
+        "allowedRetrievalAttempts": 2,
+        "retrievalOutcomes": {
+          "attempts": 2,
+          "successes": 2,
+          "failures": 0,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 2
+          }
+        },
         "deniedToolAttempts": [],
         "snapshotGap": {
           "archivedMessagesAfterSnapshot": 1,
@@ -1425,8 +1469,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -1443,8 +1486,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -1461,8 +1503,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 3,
-          "retrievalCalls": 3
+          "historicalToolAttempts": 3
         }
       ],
       "audit": {
@@ -1474,6 +1515,16 @@
         "overlapMs": 4633,
         "observedEvents": 734,
         "webPageEvents": 155,
+        "allowedRetrievalAttempts": 3,
+        "retrievalOutcomes": {
+          "attempts": 3,
+          "successes": 3,
+          "failures": 0,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 3
+          }
+        },
         "deniedToolAttempts": [],
         "snapshotGap": {
           "archivedMessagesAfterSnapshot": 1,
@@ -1603,8 +1654,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -1621,8 +1671,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "retrieval",
@@ -1639,8 +1688,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 3,
-          "retrievalCalls": 3
+          "historicalToolAttempts": 3
         }
       ],
       "audit": {
@@ -1652,6 +1700,17 @@
         "overlapMs": 5644,
         "observedEvents": 926,
         "webPageEvents": 197,
+        "allowedRetrievalAttempts": 3,
+        "retrievalOutcomes": {
+          "attempts": 3,
+          "successes": 2,
+          "failures": 1,
+          "missingResults": 0,
+          "statusCounts": {
+            "success": 2,
+            "error": 1
+          }
+        },
         "deniedToolAttempts": [
           "arc_status",
           "arc_status",
@@ -1829,8 +1888,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -1847,8 +1905,7 @@
             "nextAction": true,
             "verbatim": false
           },
-          "historicalToolAttempts": 3,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 3
         },
         {
           "phase": "retrieval",
@@ -1865,8 +1922,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 2,
-          "retrievalCalls": 2
+          "historicalToolAttempts": 2
         }
       ],
       "audit": {
@@ -1878,6 +1934,17 @@
         "overlapMs": 5347,
         "observedEvents": 1002,
         "webPageEvents": 204,
+        "allowedRetrievalAttempts": 2,
+        "retrievalOutcomes": {
+          "attempts": 5,
+          "successes": 2,
+          "failures": 3,
+          "missingResults": 0,
+          "statusCounts": {
+            "invalid-result": 3,
+            "success": 2
+          }
+        },
         "deniedToolAttempts": [
           "arc_status",
           "search_context",
@@ -2070,8 +2137,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -2088,8 +2154,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 2,
-          "retrievalCalls": 0
+          "historicalToolAttempts": 2
         },
         {
           "phase": "retrieval",
@@ -2106,8 +2171,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 5,
-          "retrievalCalls": 5
+          "historicalToolAttempts": 5
         }
       ],
       "audit": {
@@ -2119,6 +2183,17 @@
         "overlapMs": 8676,
         "observedEvents": 833,
         "webPageEvents": 197,
+        "allowedRetrievalAttempts": 5,
+        "retrievalOutcomes": {
+          "attempts": 7,
+          "successes": 5,
+          "failures": 2,
+          "missingResults": 0,
+          "statusCounts": {
+            "invalid-result": 2,
+            "success": 5
+          }
+        },
         "deniedToolAttempts": [
           "search_context",
           "decompress",
@@ -2289,8 +2364,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": null
+          "historicalToolAttempts": 0
         }
       ],
       "audit": null,
@@ -2322,8 +2396,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": null
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -2340,8 +2413,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 0,
-          "retrievalCalls": null
+          "historicalToolAttempts": 0
         }
       ],
       "audit": null,
@@ -2387,8 +2459,7 @@
           "correct": null,
           "total": null,
           "fields": null,
-          "historicalToolAttempts": 0,
-          "retrievalCalls": null
+          "historicalToolAttempts": 0
         },
         {
           "phase": "seed",
@@ -2405,8 +2476,7 @@
             "nextAction": false,
             "verbatim": false
           },
-          "historicalToolAttempts": 5,
-          "retrievalCalls": null
+          "historicalToolAttempts": 5
         },
         {
           "phase": "retrieval",
@@ -2423,8 +2493,7 @@
             "nextAction": true,
             "verbatim": true
           },
-          "historicalToolAttempts": 7,
-          "retrievalCalls": null
+          "historicalToolAttempts": 7
         }
       ],
       "audit": null,
@@ -2730,6 +2799,7 @@
       "reasoningEffort": "low"
     },
     "firstIsolatedSettingsHash": "3011adb207ee0d19e71d1eb69b400b00779f8d07ed21c5bc3326c1db386873f2",
-    "unchangedSinceFirstIsolatedRun": true
+    "unchangedSinceFirstIsolatedRun": true,
+    "followupSettingsHash": "b05e22c37f9cd24ccea40a38dc6130f65a7087e84b2f81e243cb64f381d09564"
   }
 }

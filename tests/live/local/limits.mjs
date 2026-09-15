@@ -20,7 +20,8 @@ export function budgetState(root) {
 }
 export function reserveCall(root, callId, details) {
   const state = budgetState(root)
-  if (Date.now() >= state.limits.stopAtMs || state.reservedTokens + state.limits.perCallConservativeReserve > state.limits.tokenCeiling) {
+  const overTokenCeiling = state.limits.tokenCeiling !== null && state.reservedTokens + state.limits.perCallConservativeReserve > state.limits.tokenCeiling
+  if (Date.now() >= state.limits.stopAtMs || overTokenCeiling) {
     throw new Error('EXPERIMENT_BATCH_LIMIT: no new request is permitted')
   }
   appendFileSync(join(root, 'usage-ledger.jsonl'), JSON.stringify({ callId, phase: 'reserved', ...details }) + '\n', { mode: 0o600 })

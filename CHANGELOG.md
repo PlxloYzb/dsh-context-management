@@ -2,6 +2,7 @@
 
 ## Unreleased (post-0.1.1, driven by the 400k experiment close-out findings)
 
+- 后台摘要新增 `allowSameProvider` 显式开关（默认 false），支持前台与摘要同用 Muse minimal；仍按会话/代次限流并拥有取消与迟到结果。双云端小步验证观察到宿主流重叠和准备充足时的模型种子采用；真实短分页在 60%/40% 准备线均为 0/4 采用，迟到与超预算安全回退，未修改默认调度。测试工具新增仅记账成本模式、HTTP 归属诊断和按实际工具结果的检索计数；保留指令失败并勘误此前“允许即成功”的统计。见[中文](docs/ITERATION-MUSE-CLOUD.zh-CN.md) / [English](docs/ITERATION-MUSE-CLOUD.en.md)。
 - 新增显式可选的独立路由后台摘要：使用最终请求路由、绑定完整来源快照、按实际 UTF-8 余量生成、只在安全边界消费就绪结果并保留快照后的原文；取消/超时/过期/超限立即回退，超预算手写 handoff 整体回退并报告原因。Muse 后续验证统一 minimal。详见[中文](docs/ITERATION-MUSE-ENGINE.zh-CN.md) / [English](docs/ITERATION-MUSE-ENGINE.en.md)。
 - 第一阶段新增 Muse 双路换窗验证与测试层摘要调度原型：固定来源快照、提前准备/同步等待/确定性回退对照、迟到与取消状态机、种子预算压力测试及完整归档审计；运行时保持不变。真实 Web 执行器支持 `--route=muse`，按该路由容量计算匹配阈值，并使用私有 settings 副本隔离 rc.1 选模型 API 的全局默认项写入，禁用实验宿主的额外标题生成。协议与结果见 [中文](docs/ITERATION-MUSE.zh-CN.md) / [English](docs/ITERATION-MUSE.en.md)。
 - 修正 `search_context` 的能力说明：索引只覆盖归档原文，压缩摘要本身不被索引。此前说明声称“检索摘要与原文”，而候选 8 的 `absent: true` 会把一个只存在于摘要里的短语变成权威的“确实不存在”。对抗性自查实测：写入检查点的 `ROOT_CAUSE_TOKEN` 返回 `hits: 0, absent: true`。曾尝试把检查点文本纳入索引，但留档数据否证了该做法——新增命中是模型自己在检查点里对原文的回声（如 `seq 335 tool/result: …`），并实际挤掉了一条独立原文命中；因此撤销索引改动，只保留如实说明，并由 ADV6 回归锁定“摘要回声不得进入索引、也不得挤掉原文命中”。同时新增 7 项对抗性回归（查询长度预算边界、代理对、CRLF、空归档、所有权去重、摘要回声、后段命中）。

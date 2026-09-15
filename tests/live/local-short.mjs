@@ -20,6 +20,12 @@ const route=routeName==='muse'?{provider:'opencode-go-muse',model:'muse-spark-1.
 const routeCapacity=routeName==='muse'?1048576:393216
 const arm=args.arm??'C400_WINDOWED',family=args.family??'F3',seed=Number(args.seed??91501),pageCount=Number(args.pages??48),pressure=Number(args.pressure??48000),batch=Number(args.batch??6)
 const concise=args.concise==='true'
+const background=args.background==='true',costControl=args['cost-control']??'bounded'
+const backgroundPrepare=Number(args.prepare??0.6)
+if(!(backgroundPrepare>0&&backgroundPrepare<0.9)||(args.prepare!==undefined&&!background))throw new Error('prepare requires background and a fraction below the emergency line')
+if(args.background!==undefined&&!['true','false'].includes(args.background))throw new Error('background must be true or false')
+if(!['bounded','observe'].includes(costControl))throw new Error('cost-control must be bounded or observe')
+if(background&&(routeName!=='muse'||arm!=='C400_WINDOWED'))throw new Error('Cloud background experiment requires Muse windowed arm')
 const forkName=args['fork-from']
 const probeMode=args.probe??'full'
 if(!['full','verbatim','absence'].includes(probeMode)||(probeMode!=='full'&&!forkName))throw new Error('Verbatim-only and absence probes require an audited reading fork')
@@ -109,6 +115,8 @@ try{
   assert.equal(parent.geometry.batch,batch,'Fork reading geometry changed')
   assert.equal(parent.concise,concise,'Fork prompt configuration changed')
   assert.equal(parent.matchedNative===true,matchedNative,'Fork native threshold configuration changed')
+  assert.equal(parent.backgroundSummaryEnabled===true,background,'Fork background configuration changed')
+  if(background)assert.equal(parent.backgroundPrepareFraction??0.6,backgroundPrepare,'Fork background preparation fraction changed')
   const parentEvents=JSON.parse(await readFile(join(parentRoot,'observed',`${parent.sessionId}.events.json`),'utf8'))
   const boundary=parentEvents.find(e=>e.type==='turn/end'&&e.data.turn===4&&e.data.reason.kind==='completed')
   assert.ok(boundary,'Completed reading boundary missing')
@@ -128,12 +136,14 @@ try{
  let ratio=pressure/routeCapacity;for(let i=0;Math.floor(routeCapacity*ratio)<pressure&&i<8;i++)ratio+=Number.EPSILON
  const insert=[...(!isPlugin?[{id:'experiment-configurator',name:resolve('tests/live/local/configurator.mjs'),config:{output:root,arm,basicRatio:ratio,mainMaxTokens:maxTokens,matchedNative,matchedRetainRatio:matchedRetainRatio}}]:[]),{id:'experiment-fixture-tools',name:resolve('tests/live/local/fixture-tools.mjs'),config:{controlRoot:join(root,'control')}},{id:'experiment-observer',name:resolve('tests/live/local/request-observer.mjs'),config:{output:join(root,'observed'),route,mainMaxTokens:maxTokens,expectedContextWindow:routeCapacity,budgetRoot:join(root,'budget')}}]
  const isolatedSettings=join(root,'private-settings.yaml');await writePrivateSettings(isolatedSettings,settingsBytes,routeName==='muse')
- const patches=[{id:'settings',config:{path:isolatedSettings}},{id:'session-title-llm',disabled:true},...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
+ const patches=[{id:'settings',config:{path:isolatedSettings}},{id:'session-title-llm',disabled:true},...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),...(background?{backgroundSummary:{...route,allowSameProvider:true,prepareAtEffectiveCapacityPct:backgroundPrepare,maxOutputTokens:2048}}:{}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
  const patch=join(root,'host.patch.yml');await writeFile(patch,JSON.stringify(patches,null,2),{mode:0o600})
- await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:8000000,perCallConservativeReserve:routeCapacity,stopAtMs:started+maxMs})
+ await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:costControl==='observe'?null:8000000,perCallConservativeReserve:routeCapacity,stopAtMs:started+maxMs})
  spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port:3311,route}
  summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,settingsHash,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
  summary.autoNudge=isPlugin?(nudges===undefined||nudges==='true'):null
+ summary.backgroundSummaryEnabled=background;summary.costControl=costControl
+ summary.backgroundPrepareFraction=background?backgroundPrepare:null
  summary.matchedNative=matchedNative
  summary.matchedNativeGeometry=matchedNative?{thresholdRatio:ratio,retainRatio:matchedRetainRatio,thresholdTokens:Math.floor(routeCapacity*ratio),retainTokens:Math.floor(routeCapacity*matchedRetainRatio),pluginTargetAfterTurnoverTokens:Math.round(0.55*effective)}:null
  summary.probeMode=probeMode
@@ -261,7 +271,7 @@ try{
   const rows=await requestRecords(join(spec.observed,'requests.jsonl')).catch(()=>[])
   summary.calls=rows.length;summary.reportedTokens=rows.reduce((n,r)=>n+(Number.isFinite(r.usage?.totalTokens)?r.usage.totalTokens:0),0)
   summary.modelElapsedMs=rows.reduce((n,r)=>n+(r.elapsedMs??0),0)
-  summary.compactions=(await events().catch(()=>[])).filter(e=>e.type==='compaction/summary').map(e=>({seq:e.seq,kind:e.data.contextManagement?.kind??'in-place-fallback'}))
+  summary.compactions=(await events().catch(()=>[])).filter(e=>e.type==='compaction/summary').map(e=>({seq:e.seq,kind:e.data.contextManagement?.kind??(arm==='A_NATIVE'?'native-basic':'in-place-fallback')}))
   const access=(await readFile(join(root,'control','tool-access.jsonl'),'utf8').catch(()=> '')).trim().split('\n').filter(Boolean).map(JSON.parse)
   summary.deniedTools=access.filter(r=>r.status==='DENIED').map(r=>({name:r.name,reason:r.reason}))
   summary.strictPassed=summary.completed===true&&!summary.evidenceError&&summary.score?.passed===true&&summary.deniedTools.length===0&&(!restart||summary.restartVerified===true)

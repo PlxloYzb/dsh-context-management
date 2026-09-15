@@ -7,7 +7,7 @@ import { BackgroundSummaries, resolveBackgroundSummary, type PreparedSummary } f
 import { WindowController, seedLayout, resolveArchiveConfig } from '../../src/window-controller.ts'
 import { rebuildBlockLedger } from '../../src/region.ts'
 import { validWindowMetadata } from '../../src/archive-health.ts'
-import { validateContextConfig } from '../../src/index.ts'
+import { Config, validateContextConfig } from '../../src/index.ts'
 import { host, newSession, oldWork, newInput } from './runtime.ts'
 import { appendAssistant, appendToolCall, appendToolResult } from '../helpers.ts'
 
@@ -114,20 +114,48 @@ for (const reason of ['late', 'cancelled', 'disposed', 'timeout', 'oversize', 'f
   assert.equal(rebuildBlockLedger(h.session.snapshotEvents()).length, 1)
 })
 
-test('same provider skips background work; input cap keeps complete tool pairs; lifetime abort cancels ready result', async t => {
+test('same provider skips background work by default; explicit opt-in runs once and cancellation cannot write late', async t => {
   let calls = 0
-  const h = await setup('job-ownership', () => { calls++; return good() }); t.after(h.close)
+  let release!: () => void
+  const gate = new Promise<void>(resolve => { release = resolve })
+  const h = await setup('job-ownership', async function* () {
+    calls++
+    await gate // deliberately ignores cancellation to prove completion is inert after cancellation
+    yield* good()
+  }); t.after(h.close)
   h.jobs.prepare(h.agent, { ...config, provider: 'local' }, archive, 0, new AbortController().signal, incoming())
   assert.equal(calls, 0)
   const abort = new AbortController()
-  h.jobs.prepare(h.agent, { ...config, maxInputBytes: 4096 }, archive, 0, abort.signal, incoming())
-  await immediate(); assert.equal(calls, 1)
-  assert.equal((h.jobs.status(h.session) as { status: string }).status, 'ready')
+  const sameRoute = { ...config, provider: 'local', model: 'serial', allowSameProvider: true }
+  h.jobs.prepare(h.agent, sameRoute, archive, 0, abort.signal, incoming())
+  h.jobs.prepare(h.agent, sameRoute, archive, 0, abort.signal, incoming())
+  await immediate(); assert.equal(calls, 1, 'one session/generation permits only one same-route request')
+  const before = h.session.seq
   abort.abort(); assert.equal(h.jobs.take(h.agent), undefined)
+  release(); await immediate()
+  assert.equal(h.session.seq, before, 'late completion cannot append to the session')
+  assert.equal(h.jobs.take(h.agent), undefined)
 })
 
-test('background configuration requires independent opt-in and an earlier preparation line', () => {
+test('background input cap reaches ready state and lifetime abort discards it', async t => {
+  let calls = 0
+  const h = await setup('job-input-cap', () => { calls++; return good() }); t.after(h.close)
+  const abort = new AbortController()
+  h.jobs.prepare(h.agent, { ...config, maxInputBytes: 4096 }, archive, 0, abort.signal, incoming())
+  await immediate()
+  assert.equal(calls, 1)
+  assert.equal((h.jobs.status(h.session) as { status: string }).status, 'ready')
+  abort.abort()
+  assert.equal(h.jobs.take(h.agent), undefined)
+})
+
+test('background configuration defaults same-provider work to false and rejects invalid boolean types', () => {
   assert.equal(resolveBackgroundSummary(), undefined)
+  assert.equal(resolveBackgroundSummary({ provider: 'cloud', model: 'm' })?.allowSameProvider, false)
+  assert.equal(Config({ backgroundSummary: { provider: 'cloud', model: 'm', allowSameProvider: true } }).backgroundSummary?.allowSameProvider, true)
+  const invalid: unknown = { backgroundSummary: { provider: 'cloud', model: 'm', allowSameProvider: 'true' } }
+  if (typeof invalid !== 'object' || invalid === null || Array.isArray(invalid)) assert.fail('invalid test fixture must be an object')
+  assert.throws(() => Config(invalid), /boolean/)
   assert.throws(() => validateContextConfig({ adaptiveGovernor: { enabled: false }, backgroundSummary: { provider: 'cloud', model: 'm' } }))
   assert.throws(() => validateContextConfig({ adaptiveGovernor: { enabled: true }, backgroundSummary: { provider: 'cloud', model: 'm', prepareAtEffectiveCapacityPct: 0.95 } }))
   assert.throws(() => resolveBackgroundSummary({ provider: 'cloud', model: 'm', maxInputBytes: Infinity }))
