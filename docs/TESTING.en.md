@@ -2,7 +2,7 @@
 
 [简体中文](TESTING.zh-CN.md) · [Home](../README.en.md) · [Results JSON](data/results-0.1.1.json) · [27 model samples CSV](data/model-samples-0.1.1.csv)
 
-The 400k experiment closed on 2026-09-12; see the [close-out report](EXPERIMENT-REPORT.en.md), subsequent [150k iteration](ITERATION-150K.en.md), [overnight iteration](ITERATION-NIGHTLY.en.md), [second](ITERATION-NIGHTLY-2.en.md), [third](ITERATION-NIGHTLY-3.en.md) and [fourth](ITERATION-NIGHTLY-4.en.md) overnight iterations. Data and model commands below remain historical 0.1.1 release evidence, not reruns of the latest candidate.
+The 400k experiment closed on 2026-09-12; see the [close-out report](EXPERIMENT-REPORT.en.md), subsequent [150k iteration](ITERATION-150K.en.md), [overnight iteration](ITERATION-NIGHTLY.en.md), [second](ITERATION-NIGHTLY-2.en.md), [third](ITERATION-NIGHTLY-3.en.md) and [fourth](ITERATION-NIGHTLY-4.en.md) and [fifth](ITERATION-NIGHTLY-5.en.md) overnight iterations. Data and model commands below remain historical 0.1.1 release evidence, not reruns of the latest candidate.
 
 Measured on **2026-09-08**, with plugin **0.1.1** and **DSH 0.1.2-rc.1**. Current release checks are distinguished from historical model, preset, and scale measurements below.
 

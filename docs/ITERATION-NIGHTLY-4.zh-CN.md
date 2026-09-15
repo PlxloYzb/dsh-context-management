@@ -1,6 +1,6 @@
 # 夜间快速迭代 4（2026-09-15，候选 10：对抗性自查与原生对照）
 
-[English](ITERATION-NIGHTLY-4.en.md) · [上一轮（候选 9）](ITERATION-NIGHTLY-3.zh-CN.md)
+[English](ITERATION-NIGHTLY-4.en.md) · [上一轮（候选 9）](ITERATION-NIGHTLY-3.zh-CN.md) · [下一轮（换窗统筹与实验设计）](ITERATION-NIGHTLY-5.zh-CN.md)
 
 ## 当前结论
 

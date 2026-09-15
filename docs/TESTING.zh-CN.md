@@ -2,7 +2,7 @@
 
 [English](TESTING.en.md) · [返回首页](../README.md) · [完整汇总 JSON](data/results-0.1.1.json) · [27 个模型样本 CSV](data/model-samples-0.1.1.csv)
 
-400k 实验已于 2026-09-12 收束，见[终局报告](EXPERIMENT-REPORT.zh-CN.md)；后续修复见[150k 迭代](ITERATION-150K.zh-CN.md)与[夜间快速迭代](ITERATION-NIGHTLY.zh-CN.md)、[第二轮](ITERATION-NIGHTLY-2.zh-CN.md)、[第三轮](ITERATION-NIGHTLY-3.zh-CN.md)、[第四轮（对抗性自查与原生对照）](ITERATION-NIGHTLY-4.zh-CN.md)。本页下方数据与模型命令保留为 0.1.1 发布时的历史证据，不代表最新候选重跑结果。
+400k 实验已于 2026-09-12 收束，见[终局报告](EXPERIMENT-REPORT.zh-CN.md)；后续修复见[150k 迭代](ITERATION-150K.zh-CN.md)与[夜间快速迭代](ITERATION-NIGHTLY.zh-CN.md)、[第二轮](ITERATION-NIGHTLY-2.zh-CN.md)、[第三轮](ITERATION-NIGHTLY-3.zh-CN.md)、[第四轮（对抗性自查与原生对照）](ITERATION-NIGHTLY-4.zh-CN.md)、[第五轮（换窗统筹与串行实验设计）](ITERATION-NIGHTLY-5.zh-CN.md)。本页下方数据与模型命令保留为 0.1.1 发布时的历史证据，不代表最新候选重跑结果。
 
 测试日期：**2026-09-08**。插件版本 **0.1.1**，宿主 **DSH 0.1.2-rc.1**。以下区分本次发布检查与此前的模型、预设及规模测试，避免把历史数据说成本次重跑。
 

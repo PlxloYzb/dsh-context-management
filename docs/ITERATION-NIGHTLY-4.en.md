@@ -1,6 +1,6 @@
 # Short-cycle overnight iteration 4 (2026-09-15, candidate 10: adversarial audit and native comparison)
 
-[简体中文](ITERATION-NIGHTLY-4.zh-CN.md) · [Previous cycle (candidate 9)](ITERATION-NIGHTLY-3.en.md)
+[简体中文](ITERATION-NIGHTLY-4.zh-CN.md) · [Previous cycle (candidate 9)](ITERATION-NIGHTLY-3.en.md) · [Next cycle (turnover orchestration and experiment design)](ITERATION-NIGHTLY-5.en.md)
 
 ## Current result
 
