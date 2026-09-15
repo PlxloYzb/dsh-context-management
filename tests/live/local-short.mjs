@@ -12,7 +12,12 @@ import {scoreAnswer,finalQuestion,jsonObjects} from './local/scoring.mjs'
 import {responseText} from './client.mjs'
 import assert from 'node:assert/strict'
 import {observedEvents} from './local/observed-events.mjs'
+import {writePrivateSettings} from './local/private-settings.mjs'
 const args=Object.fromEntries(process.argv.slice(2).map(v=>{const i=v.indexOf('=');return[v.slice(2,i),v.slice(i+1)]}))
+const routeName=args.route??'qwen'
+if(!['qwen','muse'].includes(routeName))throw new Error('route must be qwen or muse')
+const route=routeName==='muse'?{provider:'opencode-go-muse',model:'muse-spark-1.3-contributor',reasoningEffort:'minimal'}:{provider:'ubuntu-lora',model:'Qwen3.8-27B-NVFP4KV-384K'}
+const routeCapacity=routeName==='muse'?1048576:393216
 const arm=args.arm??'C400_WINDOWED',family=args.family??'F3',seed=Number(args.seed??91501),pageCount=Number(args.pages??48),pressure=Number(args.pressure??48000),batch=Number(args.batch??6)
 const concise=args.concise==='true'
 const forkName=args['fork-from']
@@ -31,8 +36,10 @@ const pinned=resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/d
 const hostVersion=JSON.parse(await readFile(resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/@deepseek-ai/dsh/package.json'),'utf8')).version
 if(hostVersion!=='0.1.2-rc.1')throw new Error('Host version changed')
 process.env.EXPERIMENT_DSH_BIN=pinned
-const modelInfo=await fetch('http://127.0.0.1:18000/v1/models',{signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw new Error(`Local route HTTP ${r.status}`);return r.json()})
-if(!modelInfo.data.some(m=>m.id==='Qwen3.8-27B-NVFP4KV-384K'&&m.max_model_len===393216))throw new Error('Local model identity/capacity mismatch')
+if(routeName==='qwen'){
+ const modelInfo=await fetch('http://127.0.0.1:18000/v1/models',{signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw new Error(`Local route HTTP ${r.status}`);return r.json()})
+ if(!modelInfo.data.some(m=>m.id===route.model&&m.max_model_len===routeCapacity))throw new Error('Local model identity/capacity mismatch')
+}
 await mkdir(night,{recursive:true})
 await writeFile(lock,JSON.stringify({pid:process.pid,name,startedAt:new Date().toISOString()}),{flag:'wx',mode:0o600})
 let host,sessionId,ticker,deadlineTimer,caffeine,summary,spec,finished=false,abortReject
@@ -41,9 +48,10 @@ const deadline=new Promise((_,reject)=>{abortReject=reject});deadline.catch(()=>
 async function abort(reason){if(finished)return;runAbort.abort(new Error(reason));abortReject(new Error(reason));if(host&&sessionId)await host.client.call('session/cancel',{sessionId}).catch(()=>{})}
 process.once('SIGTERM',()=>{void abort('EXPERIMENT_INTERRUPTED_SIGTERM')})
 process.once('SIGINT',()=>{void abort('EXPERIMENT_INTERRUPTED_SIGINT')})
-const maxMs=25*60000,started=Date.now(),route={provider:'ubuntu-lora',model:'Qwen3.8-27B-NVFP4KV-384K'}
+const maxMs=25*60000,started=Date.now()
 let maxTokens=8192
 const hash=b=>createHash('sha256').update(b).digest('hex')
+const settingsPath=join(homedir(),'.dsh/settings.yaml'),settingsBytes=await readFile(settingsPath),settingsHash=hash(settingsBytes)
 async function nightState(){
  const text=await readFile(join(night,'state.json'),'utf8').catch(error=>{if(error.code==='ENOENT')return '{}';throw error})
  return JSON.parse(text)
@@ -83,6 +91,7 @@ try{
   const parentAudit=JSON.parse(await readFile(join(parentRoot,'audit.json'),'utf8'))
   assert.ok(parentAudit.completed&&parentAudit.archiveBytesVerified&&parentAudit.exactPagesInRequests===pageCount,'Fork requires an audited complete reading source')
   assert.equal(parent.hostVersion,hostVersion,'Fork host version changed')
+  assert.deepEqual(parent.route,route,'Fork route changed')
   lengthClass=parentFixture.lengthClass
   assert.ok(['short','long'].includes(lengthClass),'Unknown source fixture class')
   maxTokens=parent.geometry.maxTokens
@@ -114,24 +123,25 @@ try{
  const profile=isPlugin?'ctx-v012-smoke-c':'ctx-v012-mini-native'
  const built=await readFile('dist/index.js'),installed=await readFile(join(homedir(),'.dsh/profiles/ctx-v012-smoke-c/node_modules/dsh-context-management/dist/index.js'))
  if(isPlugin&&hash(built)!==hash(installed))throw new Error('Install current built candidate before running C')
- const effective=Math.ceil(pressure/0.9),windowBudget=effective+maxTokens+4096,matchedRetainRatio=(0.55*effective)/393216
+ const effective=Math.ceil(pressure/0.9),windowBudget=effective+maxTokens+4096,matchedRetainRatio=(0.55*effective)/routeCapacity
  if(parent)assert.equal(parent.geometry.windowBudget,windowBudget,'Fork logical window changed')
- let ratio=pressure/393216;for(let i=0;Math.floor(393216*ratio)<pressure&&i<8;i++)ratio+=Number.EPSILON
- const insert=[...(!isPlugin?[{id:'experiment-configurator',name:resolve('tests/live/local/configurator.mjs'),config:{output:root,arm,basicRatio:ratio,mainMaxTokens:maxTokens,matchedNative,matchedRetainRatio:matchedRetainRatio}}]:[]),{id:'experiment-fixture-tools',name:resolve('tests/live/local/fixture-tools.mjs'),config:{controlRoot:join(root,'control')}},{id:'experiment-observer',name:resolve('tests/live/local/request-observer.mjs'),config:{output:join(root,'observed'),route,mainMaxTokens:maxTokens,expectedContextWindow:393216,budgetRoot:join(root,'budget')}}]
- const patches=[...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
+ let ratio=pressure/routeCapacity;for(let i=0;Math.floor(routeCapacity*ratio)<pressure&&i<8;i++)ratio+=Number.EPSILON
+ const insert=[...(!isPlugin?[{id:'experiment-configurator',name:resolve('tests/live/local/configurator.mjs'),config:{output:root,arm,basicRatio:ratio,mainMaxTokens:maxTokens,matchedNative,matchedRetainRatio:matchedRetainRatio}}]:[]),{id:'experiment-fixture-tools',name:resolve('tests/live/local/fixture-tools.mjs'),config:{controlRoot:join(root,'control')}},{id:'experiment-observer',name:resolve('tests/live/local/request-observer.mjs'),config:{output:join(root,'observed'),route,mainMaxTokens:maxTokens,expectedContextWindow:routeCapacity,budgetRoot:join(root,'budget')}}]
+ const isolatedSettings=join(root,'private-settings.yaml');await writePrivateSettings(isolatedSettings,settingsBytes,routeName==='muse')
+ const patches=[{id:'settings',config:{path:isolatedSettings}},{id:'session-title-llm',disabled:true},...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
  const patch=join(root,'host.patch.yml');await writeFile(patch,JSON.stringify(patches,null,2),{mode:0o600})
- await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:8000000,perCallConservativeReserve:393216,stopAtMs:started+maxMs})
+ await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:8000000,perCallConservativeReserve:routeCapacity,stopAtMs:started+maxMs})
  spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port:3311,route}
- summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity:393216},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
+ summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,settingsHash,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
  summary.autoNudge=isPlugin?(nudges===undefined||nudges==='true'):null
  summary.matchedNative=matchedNative
- summary.matchedNativeGeometry=matchedNative?{thresholdRatio:ratio,retainRatio:matchedRetainRatio,thresholdTokens:Math.floor(393216*ratio),retainTokens:Math.floor(393216*matchedRetainRatio),pluginTargetAfterTurnoverTokens:Math.round(0.55*effective)}:null
+ summary.matchedNativeGeometry=matchedNative?{thresholdRatio:ratio,retainRatio:matchedRetainRatio,thresholdTokens:Math.floor(routeCapacity*ratio),retainTokens:Math.floor(routeCapacity*matchedRetainRatio),pluginTargetAfterTurnoverTokens:Math.round(0.55*effective)}:null
  summary.probeMode=probeMode
  if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,requestedThroughSeq:forkAtSeq,throughSeq,candidateHash:parent.candidateHash,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
  const clientBytes=await readFile(new URL('./client.mjs',import.meta.url));summary.clientHash=hash(clientBytes)
  await writeFile(join(root,'client-snapshot.mjs'),clientBytes,{mode:0o600})
  await writeFile(join(root,'runner-snapshot.mjs'),await readFile(import.meta.filename),{mode:0o600})
- const helperNames=['runtime.mjs','protocol.mjs','request-client.mjs','fixtures.mjs','scoring.mjs','fixture-tools.mjs','request-observer.mjs','limits.mjs','configurator.mjs','observed-events.mjs']
+ const helperNames=['runtime.mjs','protocol.mjs','request-client.mjs','fixtures.mjs','scoring.mjs','fixture-tools.mjs','request-observer.mjs','limits.mjs','configurator.mjs','observed-events.mjs','private-settings.mjs']
  await mkdir(join(root,'helper-snapshot'))
  summary.helperHashes=Object.fromEntries(await Promise.all(helperNames.map(async file=>{const bytes=await readFile(new URL(`./local/${file}`,import.meta.url));await writeFile(join(root,'helper-snapshot',file),bytes,{mode:0o600});return[file,hash(bytes)]})))
  await persist()
@@ -242,6 +252,7 @@ try{
  finished=true;clearInterval(ticker);clearTimeout(deadlineTimer)
  if(host)await host.stop().catch(()=>{});caffeine?.kill('SIGTERM')
  if(summary){
+  summary.settingsUnchanged=settingsHash===hash(await readFile(settingsPath))
   summary.finishedAt=new Date().toISOString();summary.elapsedSeconds=Math.round((Date.now()-started)/1000);summary.stage='finished'
   try {
    const finalEvents=await observedEvents(spec.observed,sessionId)

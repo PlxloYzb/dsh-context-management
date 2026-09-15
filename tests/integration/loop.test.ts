@@ -5,10 +5,11 @@ import { AgentLoop } from '@deepseek-ai/dsh-agent-loop'
 import { SystemPrompt } from '@deepseek-ai/dsh-system-prompt'
 import { ToolRuntime, defineTool } from '@deepseek-ai/dsh-tools'
 import { Session, SessionId } from '@deepseek-ai/dsh-session'
-import { LlmAdapter, LlmRuntime, LlmError, createUserMessage, type GenerateOptions, type StreamChunk, type ContentBlock } from '@deepseek-ai/dsh-llm'
+import { LlmAdapter, LlmRuntime, LlmError, ReasoningEffortId, createUserMessage, type GenerateOptions, type StreamChunk, type ContentBlock } from '@deepseek-ai/dsh-llm'
 import { ContextManagementEngine } from '../../src/index.ts'
 import { ArchiveReader } from '../../src/archive.ts'
 import { windowIdentity } from '../../src/window-controller.ts'
+import { rebuildBlockLedger } from '../../src/region.ts'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
 import { host, oldWork } from './runtime.ts'
 
@@ -38,6 +39,44 @@ async function runtime(adapter: ControlledAdapter, governor: { windowBudgetToken
   return { ...h, engine }
 }
 function seeded() { const session = Session.create(SessionId('seed')); oldWork(session); return session.snapshotEvents() }
+
+test('background preparation starts on the first admitted request, survives a completed turn and lands at the next real pressure boundary', { timeout: 5000 }, async t => {
+  const h = await host(); t.after(h.close)
+  new AgentRegistry(h.ctx); new LlmRuntime(h.ctx)
+  new SystemPrompt(h.ctx, { includeHarnessIdentity: false, includeRuntimeContext: false }); new ToolRuntime(h.ctx)
+  let cloudReady!: () => void
+  const ready = new Promise<void>(resolve => { cloudReady = resolve })
+  const cloud = new ControlledAdapter(async function* () {
+    yield { type: 'text-delta', text: 'Goal: preserve the verified facts; next: continue review.' }
+    yield { type: 'finish', reason: { kind: 'stop' } }
+    cloudReady()
+  })
+  cloud.resolveModel = async (provider, id) => ({ provider, id, name: id, context: { contextWindow: 1000000 }, reasoning: { efforts: [{ id: ReasoningEffortId('minimal'), name: 'minimal' }] } })
+  const local = new ControlledAdapter(async function* (_request, index) {
+    if (index === 1) await Promise.race([ready, new Promise(resolve => setTimeout(resolve, 50))])
+    yield* response([{ type: 'text', text: index === 1 ? 'FRESH-LOOP-SUFFIX-821' : 'continued' }])
+  })
+  h.ctx.llm.registerAdapter(['controlled-test'], local); h.ctx.llm.registerAdapter(['independent-test'], cloud)
+  new AgentLoop(h.ctx, { agents: [] })
+  const engine = new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'independent-test', model: 'summary', reasoningEffort: 'minimal', prepareAtEffectiveCapacityPct: 0.01 } })
+  h.ctx.on('agent/request', async (_payload, next) => ({ ...await next(), provider: 'controlled-test', model: 'fixture' }))
+  const handle = await h.ctx.agents.create({ sessionId: SessionId('first-request-background'), seed: seeded(), agentOptions: { provider: 'independent-test', model: 'summary' } })
+  t.after(() => handle.dispose())
+  handle.agent.followup(prompt('Continue foreground review.')); await handle.agent.whenIdle()
+  assert.equal(cloud.calls.length, 1); assert.equal(cloud.calls[0]!.reasoningEffort, 'minimal')
+  assert.equal((engine.summaries.status(handle.agent.session) as { status: string }).status, 'ready')
+  assert.equal(windowIdentity(handle.agent.session).generation, 0)
+  const status = await engine.contextStatus(handle.agent) as { budget: { pressure: { projectedTokens: number }; effectiveInputLimit: number } }
+  const needed = status.budget.effectiveInputLimit * 1.12 - status.budget.pressure.projectedTokens
+  let padding = ''
+  while (h.ctx.tokenMeter.estimateMessage(prompt(padding)) < needed) padding += 'Padding for synthetic pressure; no new fact. '.repeat(20)
+  handle.agent.followup(prompt(padding + '\nContinue with the fresh checkpoint.')); await handle.agent.whenIdle()
+  const ledger = rebuildBlockLedger(handle.agent.session.snapshotEvents())
+  assert.equal(ledger.length, 1)
+  assert.equal(ledger[0]!.contextManagement?.seed.mode, 'model-assisted')
+  assert.equal((engine.windows.status(handle.agent.session) as { lastOperation: { targetReached: boolean } }).lastOperation.targetReached, false, 'soft target may be exceeded while preserving fresh work safely')
+  assert.match(JSON.stringify(local.calls.at(-1)!.messages), /FRESH-LOOP-SUFFIX-821/)
+})
 
 test('O01/O02: real agent loop retries normalized overflow once after durable progress; ordinary provider error is terminal', async t => {
   for (const code of ['CONTEXT_WINDOW_EXCEEDED', 'RATE_LIMITED']) {

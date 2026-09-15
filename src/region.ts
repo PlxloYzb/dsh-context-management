@@ -40,7 +40,8 @@ export interface WindowMetadata {
   readonly generationAfter: number
   readonly parentBlockIds: readonly string[]
   readonly route: { readonly provider: string; readonly model: string }
-  readonly seed: { readonly incomplete: boolean; readonly formatVersion: 1; readonly mode?: 'extractive' | 'model-assisted' }
+  readonly seed: { readonly incomplete: boolean; readonly formatVersion: 1; readonly mode?: 'extractive' | 'model-assisted'; readonly rejected?: string
+    readonly prepared?: { readonly throughSeq: number; readonly sourceHash: string; readonly provider: string; readonly model: string; readonly reasoningEffort?: string } }
 }
 
 /** One durable ARC block as rebuilt from the session log. */

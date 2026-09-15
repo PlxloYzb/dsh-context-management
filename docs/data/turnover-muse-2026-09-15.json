@@ -1,0 +1,2735 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-15T03:53:40.845Z",
+  "hostVersion": "0.1.2-rc.1",
+  "productChanged": false,
+  "classification": "Pilot: fixed synthetic boundary with real host transactions and real Qwen/Muse calls; separate Muse autonomous-reading gate. No statistical significance or 400k production claim.",
+  "plannedSeeds": [
+    91511,
+    91512,
+    91513
+  ],
+  "plannedOrder": [
+    "A",
+    "B",
+    "C",
+    "B",
+    "C",
+    "A",
+    "C",
+    "A",
+    "B"
+  ],
+  "preflight": [
+    {
+      "name": "preflight-1789441479694",
+      "hostVersion": "0.1.2-rc.1",
+      "completed": true,
+      "settingsUnchanged": null,
+      "usesPrivateSettings": false,
+      "pairs": [
+        {
+          "repeat": 0,
+          "overlapMs": 4167,
+          "streams": [
+            {
+              "provider": "opencode-go-muse",
+              "elapsedMs": 4268,
+              "firstContentMs": 3652,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 7658,
+                "outputTokens": 291,
+                "totalTokens": 14974,
+                "cacheReadTokens": 7025
+              }
+            },
+            {
+              "provider": "ubuntu-lora",
+              "elapsedMs": 67031,
+              "firstContentMs": 5476,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 11146,
+                "outputTokens": 839,
+                "totalTokens": 11985
+              }
+            }
+          ]
+        },
+        {
+          "repeat": 1,
+          "overlapMs": 5065,
+          "streams": [
+            {
+              "provider": "opencode-go-muse",
+              "elapsedMs": 5167,
+              "firstContentMs": 4811,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 7658,
+                "outputTokens": 437,
+                "totalTokens": 15120,
+                "cacheReadTokens": 7025
+              }
+            },
+            {
+              "provider": "ubuntu-lora",
+              "elapsedMs": 63416,
+              "firstContentMs": 864,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 11144,
+                "outputTokens": 852,
+                "totalTokens": 11996
+              }
+            }
+          ]
+        },
+        {
+          "repeat": 2,
+          "overlapMs": 5675,
+          "streams": [
+            {
+              "provider": "ubuntu-lora",
+              "elapsedMs": 43398,
+              "firstContentMs": 873,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 11144,
+                "outputTokens": 602,
+                "totalTokens": 11746
+              }
+            },
+            {
+              "provider": "opencode-go-muse",
+              "elapsedMs": 5675,
+              "firstContentMs": 5064,
+              "reason": "stop",
+              "usage": {
+                "inputTokens": 7656,
+                "outputTokens": 439,
+                "totalTokens": 15120,
+                "cacheReadTokens": 7025
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "samples": [
+    {
+      "name": "paired-a-91511",
+      "arm": "A",
+      "seed": 91511,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "disabled",
+      "boundaryWaitMs": 0.23412500000267755,
+      "transactionMs": 8.007625000005646,
+      "totalBoundaryMs": 8.972583000002487,
+      "seedBytes": 1363,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": false,
+        "rollback": false,
+        "region": false,
+        "gate": false,
+        "nextAction": false,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 38918,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 69660,
+          "correct": 2,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": false,
+            "rollback": false,
+            "region": true,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 42881,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 5,
+          "retrievalCalls": 5
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94655,
+        "overlapMs": 0,
+        "observedEvents": 1871,
+        "webPageEvents": 178,
+        "deniedToolAttempts": [
+          "arc_status"
+        ],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2062,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 35091,
+          "usage": {
+            "inputTokens": 30019,
+            "outputTokens": 423,
+            "totalTokens": 30442
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 59049,
+          "usage": {
+            "inputTokens": 6164,
+            "outputTokens": 830,
+            "totalTokens": 6994
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 6496,
+          "usage": {
+            "inputTokens": 7167,
+            "outputTokens": 88,
+            "totalTokens": 7255
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 11021,
+          "usage": {
+            "inputTokens": 15008,
+            "outputTokens": 127,
+            "totalTokens": 15135
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7310,
+          "usage": {
+            "inputTokens": 16173,
+            "outputTokens": 97,
+            "totalTokens": 16270
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 23207,
+          "usage": {
+            "inputTokens": 16737,
+            "outputTokens": 311,
+            "totalTokens": 17048
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-a-91512",
+      "arm": "A",
+      "seed": 91512,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "2310ce60d87d4d60c14f110aa5eb8b7a9ab60d98eec5fad49f1ea9f0a4b893cb",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "disabled",
+      "boundaryWaitMs": 0.2811250000013388,
+      "transactionMs": 8.386916999996174,
+      "totalBoundaryMs": 9.508832999999868,
+      "seedBytes": 1363,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": false,
+        "rollback": false,
+        "region": false,
+        "gate": false,
+        "nextAction": false,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 46003,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 6109,
+          "correct": 2,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": false,
+            "rollback": false,
+            "region": true,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 46409,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 9,
+          "retrievalCalls": 9
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94999,
+        "overlapMs": 0,
+        "observedEvents": 949,
+        "webPageEvents": 204,
+        "deniedToolAttempts": [],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2406,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 42254,
+          "usage": {
+            "inputTokens": 30071,
+            "outputTokens": 507,
+            "totalTokens": 30578
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4635,
+          "usage": {
+            "inputTokens": 6167,
+            "outputTokens": 53,
+            "totalTokens": 6220
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4018,
+          "usage": {
+            "inputTokens": 14105,
+            "outputTokens": 38,
+            "totalTokens": 14143
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2919,
+          "usage": {
+            "inputTokens": 14658,
+            "outputTokens": 38,
+            "totalTokens": 14696
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 5859,
+          "usage": {
+            "inputTokens": 15123,
+            "outputTokens": 77,
+            "totalTokens": 15200
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3182,
+          "usage": {
+            "inputTokens": 16124,
+            "outputTokens": 39,
+            "totalTokens": 16163
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 9305,
+          "usage": {
+            "inputTokens": 16491,
+            "outputTokens": 121,
+            "totalTokens": 16612
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3368,
+          "usage": {
+            "inputTokens": 16898,
+            "outputTokens": 39,
+            "totalTokens": 16937
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2905,
+          "usage": {
+            "inputTokens": 17187,
+            "outputTokens": 38,
+            "totalTokens": 17225
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3017,
+          "usage": {
+            "inputTokens": 17652,
+            "outputTokens": 39,
+            "totalTokens": 17691
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7743,
+          "usage": {
+            "inputTokens": 17810,
+            "outputTokens": 103,
+            "totalTokens": 17913
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-a-91513",
+      "arm": "A",
+      "seed": 91513,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "b439993a2003b5ed8372c9ad2d44cc7230e541fa272b831f31b9d3b95522c8aa",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "disabled",
+      "boundaryWaitMs": 0.29429199999867706,
+      "transactionMs": 8.612166999999317,
+      "totalBoundaryMs": 9.722499999996217,
+      "seedBytes": 1363,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": false,
+        "rollback": false,
+        "region": false,
+        "gate": false,
+        "nextAction": false,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 42902,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 6138,
+          "correct": 2,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": false,
+            "rollback": false,
+            "region": true,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 55180,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 10,
+          "retrievalCalls": 10
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94677,
+        "overlapMs": 0,
+        "observedEvents": 1110,
+        "webPageEvents": 193,
+        "deniedToolAttempts": [],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2084,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 39732,
+          "usage": {
+            "inputTokens": 30095,
+            "outputTokens": 510,
+            "totalTokens": 30605
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4480,
+          "usage": {
+            "inputTokens": 6168,
+            "outputTokens": 54,
+            "totalTokens": 6222
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 14640,
+          "usage": {
+            "inputTokens": 14107,
+            "outputTokens": 192,
+            "totalTokens": 14299
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3005,
+          "usage": {
+            "inputTokens": 15947,
+            "outputTokens": 39,
+            "totalTokens": 15986
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2998,
+          "usage": {
+            "inputTokens": 16328,
+            "outputTokens": 38,
+            "totalTokens": 16366
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 5989,
+          "usage": {
+            "inputTokens": 16791,
+            "outputTokens": 78,
+            "totalTokens": 16869
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2776,
+          "usage": {
+            "inputTokens": 17325,
+            "outputTokens": 38,
+            "totalTokens": 17363
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 21567,
+          "usage": {
+            "inputTokens": 17888,
+            "outputTokens": 301,
+            "totalTokens": 18189
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-b-91511",
+      "arm": "B",
+      "seed": 91511,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 6351.802167000002,
+      "transactionMs": 12.24841600000218,
+      "totalBoundaryMs": 6366.514500000005,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 48579,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 21271,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 1,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 71505,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 11,
+          "retrievalCalls": 11
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 95538,
+        "overlapMs": 0,
+        "observedEvents": 1395,
+        "webPageEvents": 237,
+        "deniedToolAttempts": [
+          "search_context",
+          "arc_status"
+        ],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2945,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 45337,
+          "usage": {
+            "inputTokens": 30019,
+            "outputTokens": 585,
+            "totalTokens": 30604
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 6349,
+          "usage": {
+            "inputTokens": 19473,
+            "outputTokens": 710,
+            "totalTokens": 20183
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2782,
+          "usage": {
+            "inputTokens": 6267,
+            "outputTokens": 29,
+            "totalTokens": 6296
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1159,
+          "usage": {
+            "inputTokens": 6469,
+            "outputTokens": 15,
+            "totalTokens": 6484
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 6951,
+          "usage": {
+            "inputTokens": 6526,
+            "outputTokens": 95,
+            "totalTokens": 6621
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3232,
+          "usage": {
+            "inputTokens": 14374,
+            "outputTokens": 28,
+            "totalTokens": 14402
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7416,
+          "usage": {
+            "inputTokens": 14617,
+            "outputTokens": 101,
+            "totalTokens": 14718
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2857,
+          "usage": {
+            "inputTokens": 15223,
+            "outputTokens": 36,
+            "totalTokens": 15259
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7652,
+          "usage": {
+            "inputTokens": 15406,
+            "outputTokens": 100,
+            "totalTokens": 15506
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 5326,
+          "usage": {
+            "inputTokens": 16003,
+            "outputTokens": 68,
+            "totalTokens": 16071
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2917,
+          "usage": {
+            "inputTokens": 16574,
+            "outputTokens": 35,
+            "totalTokens": 16609
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8934,
+          "usage": {
+            "inputTokens": 16756,
+            "outputTokens": 115,
+            "totalTokens": 16871
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7904,
+          "usage": {
+            "inputTokens": 17146,
+            "outputTokens": 107,
+            "totalTokens": 17253
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2641,
+          "usage": {
+            "inputTokens": 17674,
+            "outputTokens": 34,
+            "totalTokens": 17708
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 18265,
+          "usage": {
+            "inputTokens": 17854,
+            "outputTokens": 245,
+            "totalTokens": 18099
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-b-91512",
+      "arm": "B",
+      "seed": 91512,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "2310ce60d87d4d60c14f110aa5eb8b7a9ab60d98eec5fad49f1ea9f0a4b893cb",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 4631.255582999998,
+      "transactionMs": 9.724792000000889,
+      "totalBoundaryMs": 4641.863540999999,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 39559,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 15196,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 76163,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 10,
+          "retrievalCalls": 10
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94867,
+        "overlapMs": 0,
+        "observedEvents": 1266,
+        "webPageEvents": 218,
+        "deniedToolAttempts": [],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2274,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 36845,
+          "usage": {
+            "inputTokens": 30073,
+            "outputTokens": 447,
+            "totalTokens": 30520
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 4630,
+          "usage": {
+            "inputTokens": 19496,
+            "outputTokens": 527,
+            "totalTokens": 20023
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7435,
+          "usage": {
+            "inputTokens": 6271,
+            "outputTokens": 93,
+            "totalTokens": 6364
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3949,
+          "usage": {
+            "inputTokens": 14250,
+            "outputTokens": 38,
+            "totalTokens": 14288
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8741,
+          "usage": {
+            "inputTokens": 14687,
+            "outputTokens": 118,
+            "totalTokens": 14805
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3604,
+          "usage": {
+            "inputTokens": 15090,
+            "outputTokens": 47,
+            "totalTokens": 15137
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3718,
+          "usage": {
+            "inputTokens": 15286,
+            "outputTokens": 48,
+            "totalTokens": 15334
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8931,
+          "usage": {
+            "inputTokens": 15484,
+            "outputTokens": 118,
+            "totalTokens": 15602
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3082,
+          "usage": {
+            "inputTokens": 15894,
+            "outputTokens": 38,
+            "totalTokens": 15932
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3881,
+          "usage": {
+            "inputTokens": 16260,
+            "outputTokens": 48,
+            "totalTokens": 16308
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3234,
+          "usage": {
+            "inputTokens": 16460,
+            "outputTokens": 39,
+            "totalTokens": 16499
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4132,
+          "usage": {
+            "inputTokens": 16826,
+            "outputTokens": 49,
+            "totalTokens": 16875
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3130,
+          "usage": {
+            "inputTokens": 17026,
+            "outputTokens": 41,
+            "totalTokens": 17067
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 26060,
+          "usage": {
+            "inputTokens": 17218,
+            "outputTokens": 350,
+            "totalTokens": 17568
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-b-91513",
+      "arm": "B",
+      "seed": 91513,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "b439993a2003b5ed8372c9ad2d44cc7230e541fa272b831f31b9d3b95522c8aa",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 4734.783332999999,
+      "transactionMs": 12.308750000003783,
+      "totalBoundaryMs": 4747.950250000002,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 30726,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 18553,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 24548,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 2,
+          "retrievalCalls": 2
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94361,
+        "overlapMs": 0,
+        "observedEvents": 799,
+        "webPageEvents": 146,
+        "deniedToolAttempts": [],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 1768,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 28769,
+          "usage": {
+            "inputTokens": 30093,
+            "outputTokens": 339,
+            "totalTokens": 30432
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 4734,
+          "usage": {
+            "inputTokens": 55,
+            "outputTokens": 510,
+            "totalTokens": 19992,
+            "cacheReadTokens": 19427
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 10006,
+          "usage": {
+            "inputTokens": 6273,
+            "outputTokens": 129,
+            "totalTokens": 6402
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4055,
+          "usage": {
+            "inputTokens": 14286,
+            "outputTokens": 40,
+            "totalTokens": 14326
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8915,
+          "usage": {
+            "inputTokens": 14467,
+            "outputTokens": 123,
+            "totalTokens": 14590
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 10146,
+          "usage": {
+            "inputTokens": 14952,
+            "outputTokens": 139,
+            "totalTokens": 15091
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-c-91511",
+      "arm": "C",
+      "seed": 91511,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 0.3038330000053975,
+      "transactionMs": 6.224874999999884,
+      "totalBoundaryMs": 7.208666999998968,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 27537,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 9266,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 33527,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 3,
+          "retrievalCalls": 3
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94042,
+        "overlapMs": 4633,
+        "observedEvents": 734,
+        "webPageEvents": 155,
+        "deniedToolAttempts": [],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 1449,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 4706,
+          "usage": {
+            "inputTokens": 46,
+            "outputTokens": 550,
+            "totalTokens": 20023,
+            "cacheReadTokens": 19427
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 23939,
+          "usage": {
+            "inputTokens": 30021,
+            "outputTokens": 263,
+            "totalTokens": 30284
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7934,
+          "usage": {
+            "inputTokens": 6275,
+            "outputTokens": 95,
+            "totalTokens": 6370
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4065,
+          "usage": {
+            "inputTokens": 14255,
+            "outputTokens": 39,
+            "totalTokens": 14294
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 9257,
+          "usage": {
+            "inputTokens": 14533,
+            "outputTokens": 124,
+            "totalTokens": 14657
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 5840,
+          "usage": {
+            "inputTokens": 15021,
+            "outputTokens": 77,
+            "totalTokens": 15098
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 10301,
+          "usage": {
+            "inputTokens": 15599,
+            "outputTokens": 137,
+            "totalTokens": 15736
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-c-91512",
+      "arm": "C",
+      "seed": 91512,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "2310ce60d87d4d60c14f110aa5eb8b7a9ab60d98eec5fad49f1ea9f0a4b893cb",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 0.31433300000207964,
+      "transactionMs": 8.061166999999841,
+      "totalBoundaryMs": 9.178957999996783,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 39712,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 12396,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 64823,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 3,
+          "retrievalCalls": 3
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 95080,
+        "overlapMs": 5644,
+        "observedEvents": 926,
+        "webPageEvents": 197,
+        "deniedToolAttempts": [
+          "arc_status",
+          "arc_status",
+          "compress"
+        ],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2487,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 5718,
+          "usage": {
+            "inputTokens": 69,
+            "outputTokens": 623,
+            "totalTokens": 20119,
+            "cacheReadTokens": 19427
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 36476,
+          "usage": {
+            "inputTokens": 30071,
+            "outputTokens": 448,
+            "totalTokens": 30519
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1734,
+          "usage": {
+            "inputTokens": 6270,
+            "outputTokens": 15,
+            "totalTokens": 6285
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1110,
+          "usage": {
+            "inputTokens": 6458,
+            "outputTokens": 15,
+            "totalTokens": 6473
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 6627,
+          "usage": {
+            "inputTokens": 6515,
+            "outputTokens": 93,
+            "totalTokens": 6608
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2249,
+          "usage": {
+            "inputTokens": 14362,
+            "outputTokens": 15,
+            "totalTokens": 14377
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2821,
+          "usage": {
+            "inputTokens": 14763,
+            "outputTokens": 38,
+            "totalTokens": 14801
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8703,
+          "usage": {
+            "inputTokens": 15117,
+            "outputTokens": 118,
+            "totalTokens": 15235
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 8732,
+          "usage": {
+            "inputTokens": 15311,
+            "outputTokens": 120,
+            "totalTokens": 15431
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 30132,
+          "usage": {
+            "inputTokens": 15788,
+            "outputTokens": 412,
+            "totalTokens": 16200
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7768,
+          "usage": {
+            "inputTokens": 16242,
+            "outputTokens": 103,
+            "totalTokens": 16345
+          },
+          "reason": "stop"
+        }
+      ]
+    },
+    {
+      "name": "paired-c-91513",
+      "arm": "C",
+      "seed": 91513,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "b439993a2003b5ed8372c9ad2d44cc7230e541fa272b831f31b9d3b95522c8aa",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "ready",
+      "boundaryWaitMs": 0.28545799999847077,
+      "transactionMs": 6.39024999999674,
+      "totalBoundaryMs": 7.399958000001789,
+      "seedBytes": 1621,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": true,
+        "rollback": true,
+        "region": true,
+        "gate": true,
+        "nextAction": true,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 46063,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 21581,
+          "correct": 6,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 3,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 36809,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 2,
+          "retrievalCalls": 2
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94733,
+        "overlapMs": 5347,
+        "observedEvents": 1002,
+        "webPageEvents": 204,
+        "deniedToolAttempts": [
+          "arc_status",
+          "search_context",
+          "arc_status",
+          "search_context",
+          "search_context",
+          "compress"
+        ],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 2140,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 5420,
+          "usage": {
+            "inputTokens": 19482,
+            "outputTokens": 688,
+            "totalTokens": 20170
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 42326,
+          "usage": {
+            "inputTokens": 30097,
+            "outputTokens": 522,
+            "totalTokens": 30619
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1771,
+          "usage": {
+            "inputTokens": 6273,
+            "outputTokens": 15,
+            "totalTokens": 6288
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2550,
+          "usage": {
+            "inputTokens": 6462,
+            "outputTokens": 34,
+            "totalTokens": 6496
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1178,
+          "usage": {
+            "inputTokens": 6538,
+            "outputTokens": 15,
+            "totalTokens": 6553
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2665,
+          "usage": {
+            "inputTokens": 6595,
+            "outputTokens": 35,
+            "totalTokens": 6630
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2255,
+          "usage": {
+            "inputTokens": 6672,
+            "outputTokens": 30,
+            "totalTokens": 6702
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 6848,
+          "usage": {
+            "inputTokens": 6744,
+            "outputTokens": 94,
+            "totalTokens": 6838
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2981,
+          "usage": {
+            "inputTokens": 14592,
+            "outputTokens": 25,
+            "totalTokens": 14617
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7651,
+          "usage": {
+            "inputTokens": 15154,
+            "outputTokens": 105,
+            "totalTokens": 15259
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 16885,
+          "usage": {
+            "inputTokens": 15773,
+            "outputTokens": 235,
+            "totalTokens": 16008
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7617,
+          "usage": {
+            "inputTokens": 16050,
+            "outputTokens": 104,
+            "totalTokens": 16154
+          },
+          "reason": "stop"
+        }
+      ]
+    }
+  ],
+  "faults": [
+    {
+      "name": "fault-late-91514",
+      "arm": "C",
+      "seed": 91514,
+      "fault": "late",
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "3aa9d8f696b4a3ea4c3412bf972e1686ac89997eadbf62b0aec3d4a378d1502a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "b8c5a839e10cc66bd4a90d7cb1d7cdcb369b6f230c64886d45560ab97ae65d4a",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "pending",
+      "boundaryWaitMs": 0.40570799999841256,
+      "transactionMs": 17.53337499999907,
+      "totalBoundaryMs": 18.796332999998413,
+      "seedBytes": 1363,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": false,
+        "rollback": false,
+        "region": false,
+        "gate": false,
+        "nextAction": false,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 36643,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 15503,
+          "correct": 2,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": false,
+            "rollback": false,
+            "region": true,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 2,
+          "retrievalCalls": 0
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 24280,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 5,
+          "retrievalCalls": 5
+        }
+      ],
+      "audit": {
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94409,
+        "overlapMs": 8676,
+        "observedEvents": 833,
+        "webPageEvents": 197,
+        "deniedToolAttempts": [
+          "search_context",
+          "decompress",
+          "arc_status"
+        ],
+        "snapshotGap": {
+          "archivedMessagesAfterSnapshot": 1,
+          "archivedAfterSnapshotBytes": 1816,
+          "includedInSummaryRequest": false,
+          "limitation": "Foreground output after the frozen snapshot is archived at the forced boundary. This pilot does not test preservation of new facts learned in that suffix; production scheduling must retain or separately index it."
+        }
+      },
+      "calls": [
+        {
+          "provider": "opencode-go-muse",
+          "purpose": "compaction",
+          "elapsedMs": 8748,
+          "usage": {
+            "inputTokens": 19491,
+            "outputTokens": 848,
+            "totalTokens": 20339
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 34388,
+          "usage": {
+            "inputTokens": 30054,
+            "outputTokens": 417,
+            "totalTokens": 30471
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3272,
+          "usage": {
+            "inputTokens": 6161,
+            "outputTokens": 36,
+            "totalTokens": 6197
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 4087,
+          "usage": {
+            "inputTokens": 6370,
+            "outputTokens": 56,
+            "totalTokens": 6426
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 1150,
+          "usage": {
+            "inputTokens": 6468,
+            "outputTokens": 15,
+            "totalTokens": 6483
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3822,
+          "usage": {
+            "inputTokens": 6525,
+            "outputTokens": 52,
+            "totalTokens": 6577
+          },
+          "reason": "stop"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 3897,
+          "usage": {
+            "inputTokens": 14330,
+            "outputTokens": 38,
+            "totalTokens": 14368
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2832,
+          "usage": {
+            "inputTokens": 14779,
+            "outputTokens": 38,
+            "totalTokens": 14817
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 2911,
+          "usage": {
+            "inputTokens": 15293,
+            "outputTokens": 38,
+            "totalTokens": 15331
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 5768,
+          "usage": {
+            "inputTokens": 15836,
+            "outputTokens": 77,
+            "totalTokens": 15913
+          },
+          "reason": "tool-calls"
+        },
+        {
+          "provider": "ubuntu-lora",
+          "purpose": "agent",
+          "elapsedMs": 7325,
+          "usage": {
+            "inputTokens": 16637,
+            "outputTokens": 97,
+            "totalTokens": 16734
+          },
+          "reason": "stop"
+        }
+      ]
+    }
+  ],
+  "calibrations": [
+    {
+      "name": "cohort-a-91511",
+      "arm": "A",
+      "seed": 91511,
+      "fault": null,
+      "completed": false,
+      "errorCode": "sample-failed",
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "f063d87d8a166860cd5d2a402ef8ffcfce74ce7c5ba24bd57a8fdaccb06b7964",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": null,
+      "boundaryWaitMs": null,
+      "transactionMs": null,
+      "totalBoundaryMs": null,
+      "seedBytes": null,
+      "seedOriginalFields": null,
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "error",
+          "elapsedMs": 3140,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": null
+        }
+      ],
+      "audit": null,
+      "calls": null
+    },
+    {
+      "name": "pilot-a-91511",
+      "arm": "A",
+      "seed": 91511,
+      "fault": null,
+      "completed": false,
+      "errorCode": "sample-failed",
+      "settingsUnchanged": false,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": null,
+      "summaryStatus": null,
+      "boundaryWaitMs": null,
+      "transactionMs": null,
+      "totalBoundaryMs": null,
+      "seedBytes": null,
+      "seedOriginalFields": null,
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 68682,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": null
+        },
+        {
+          "phase": "seed",
+          "end": "max-tokens",
+          "elapsedMs": 157131,
+          "correct": 0,
+          "total": 7,
+          "fields": {
+            "seedFact": false,
+            "owner": false,
+            "rollback": false,
+            "region": false,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 0,
+          "retrievalCalls": null
+        }
+      ],
+      "audit": null,
+      "calls": null
+    },
+    {
+      "name": "run-a-91511",
+      "arm": "A",
+      "seed": 91511,
+      "fault": null,
+      "completed": true,
+      "errorCode": null,
+      "settingsUnchanged": true,
+      "candidateHash": "8840d4c709e01d5cc3b6cce528f220e6f9009d30d7ad3fcc9c9e621f3a2a8a6a",
+      "fixtureHash": "14a3f5535fb671ac608cd270133245663fef7389a61c2cd4ec88219e5f0ee55a",
+      "sourceBytes": 79252,
+      "harnessHashes": {
+        "turnover-muse.mjs": "1a56ce9faf72d32f0be392a1a203aeb8302848a2844e5f16880089e307445931",
+        "turnover/controller.mjs": "08ab834ef8d7370760975f7ad404fd4a3331f22b2b14df67991156e0088d2b11",
+        "turnover/observer.mjs": "01760b65ef1e5a44e207ff55c49529ce039174e3c636c5f1a24356e0ac9bbe4f",
+        "turnover/fixture.mjs": "ead5f0ecfd8039428d5a5e32d7a986814058df27433fce8ab07f6e4b79bd00aa",
+        "turnover/summary-job.mjs": "48396e9e90fe4b951639153a01233c920a9dbb89085e5fabd45972e8d5fdb861"
+      },
+      "summaryStatus": "disabled",
+      "boundaryWaitMs": 0.30379199999879347,
+      "transactionMs": 7.913291000004392,
+      "totalBoundaryMs": 9.04187500000262,
+      "seedBytes": 1363,
+      "seedOriginalFields": {
+        "seedFact": true,
+        "owner": false,
+        "rollback": false,
+        "region": false,
+        "gate": false,
+        "nextAction": false,
+        "verbatim": false
+      },
+      "stages": [
+        {
+          "phase": "foreground",
+          "end": "completed",
+          "elapsedMs": 36375,
+          "correct": null,
+          "total": null,
+          "fields": null,
+          "historicalToolAttempts": 0,
+          "retrievalCalls": null
+        },
+        {
+          "phase": "seed",
+          "end": "completed",
+          "elapsedMs": 45149,
+          "correct": 2,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": false,
+            "rollback": false,
+            "region": true,
+            "gate": false,
+            "nextAction": false,
+            "verbatim": false
+          },
+          "historicalToolAttempts": 5,
+          "retrievalCalls": null
+        },
+        {
+          "phase": "retrieval",
+          "end": "completed",
+          "elapsedMs": 42310,
+          "correct": 7,
+          "total": 7,
+          "fields": {
+            "seedFact": true,
+            "owner": true,
+            "rollback": true,
+            "region": true,
+            "gate": true,
+            "nextAction": true,
+            "verbatim": true
+          },
+          "historicalToolAttempts": 7,
+          "retrievalCalls": null
+        }
+      ],
+      "audit": null,
+      "calls": null
+    }
+  ],
+  "gates": [
+    {
+      "name": "muse-native-91503",
+      "arm": "A_NATIVE",
+      "completed": true,
+      "elapsedSeconds": 141,
+      "facts": 24,
+      "factsTotal": 24,
+      "corrections": 6,
+      "correctionsTotal": 6,
+      "verbatim": 1,
+      "verbatimTotal": 3,
+      "allQualityPassed": false,
+      "compactions": [
+        {
+          "seq": 109,
+          "kind": "in-place-fallback"
+        },
+        {
+          "seq": 192,
+          "kind": "in-place-fallback"
+        },
+        {
+          "seq": 196,
+          "kind": "in-place-fallback"
+        },
+        {
+          "seq": 253,
+          "kind": "in-place-fallback"
+        }
+      ],
+      "calls": 22,
+      "reportedTokens": 535052,
+      "settingsUnchanged": true,
+      "restartVerified": null,
+      "newContextCalls": 0,
+      "compressCalls": 0,
+      "seedModes": [
+        "native-or-in-place",
+        "native-or-in-place",
+        "native-or-in-place",
+        "native-or-in-place"
+      ],
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    },
+    {
+      "name": "muse-in-place-91503",
+      "arm": "B_IN_PLACE",
+      "completed": true,
+      "elapsedSeconds": 80,
+      "facts": 24,
+      "factsTotal": 24,
+      "corrections": 6,
+      "correctionsTotal": 6,
+      "verbatim": 3,
+      "verbatimTotal": 3,
+      "allQualityPassed": true,
+      "compactions": [
+        {
+          "seq": 109,
+          "kind": "in-place-fallback"
+        },
+        {
+          "seq": 186,
+          "kind": "in-place-fallback"
+        },
+        {
+          "seq": 242,
+          "kind": "in-place-fallback"
+        }
+      ],
+      "calls": 22,
+      "reportedTokens": 623500,
+      "settingsUnchanged": true,
+      "restartVerified": null,
+      "newContextCalls": 0,
+      "compressCalls": 0,
+      "seedModes": [
+        "native-or-in-place",
+        "native-or-in-place",
+        "native-or-in-place"
+      ],
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    },
+    {
+      "name": "muse-windowed-91503",
+      "arm": "C400_WINDOWED",
+      "completed": true,
+      "elapsedSeconds": 79,
+      "facts": 24,
+      "factsTotal": 24,
+      "corrections": 6,
+      "correctionsTotal": 6,
+      "verbatim": 3,
+      "verbatimTotal": 3,
+      "allQualityPassed": true,
+      "compactions": [
+        {
+          "seq": 110,
+          "kind": "window"
+        },
+        {
+          "seq": 187,
+          "kind": "window"
+        },
+        {
+          "seq": 244,
+          "kind": "window"
+        },
+        {
+          "seq": 458,
+          "kind": "window"
+        }
+      ],
+      "calls": 23,
+      "reportedTokens": 612696,
+      "settingsUnchanged": true,
+      "restartVerified": true,
+      "newContextCalls": 0,
+      "compressCalls": 0,
+      "seedModes": [
+        "extractive",
+        "extractive",
+        "extractive",
+        "extractive"
+      ],
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    }
+  ],
+  "seedBudgetStress": {
+    "kind": "offline-real-controller-with-retained-Muse-handoff",
+    "rows": [
+      {
+        "variant": "real-compact",
+        "historicalUsers": 1,
+        "handoffChars": 185,
+        "seedBytes": 3663,
+        "elapsedMs": 38.541083999999984,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 1,
+        "handoffChars": 1300,
+        "seedBytes": 4027,
+        "elapsedMs": 24.783709000000016,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": true
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 12,
+        "handoffChars": 185,
+        "seedBytes": 3533,
+        "elapsedMs": 19.151917000000026,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 12,
+        "handoffChars": 1300,
+        "seedBytes": 4027,
+        "elapsedMs": 18.948083999999994,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": true
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 24,
+        "handoffChars": 185,
+        "seedBytes": 3398,
+        "elapsedMs": 18.35941600000001,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 24,
+        "handoffChars": 1300,
+        "seedBytes": 4027,
+        "elapsedMs": 28.560915999999963,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": true
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 48,
+        "handoffChars": 185,
+        "seedBytes": 3415,
+        "elapsedMs": 19.934708999999998,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 48,
+        "handoffChars": 1300,
+        "seedBytes": 4027,
+        "elapsedMs": 21.16999999999996,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": true
+      }
+    ]
+  },
+  "suffixMechanism": {
+    "kind": "offline-shared-transaction-suffix-test",
+    "rows": [
+      {
+        "mode": "whole-frozen-prefix",
+        "transactionMs": 32.015874999999994,
+        "freshMessageStillOnSurface": false,
+        "freshMarkerVisible": false,
+        "appendOnly": true,
+        "generation": 1
+      },
+      {
+        "mode": "snapshot-prefix-only",
+        "transactionMs": 19.936999999999983,
+        "freshMessageStillOnSurface": true,
+        "freshMarkerVisible": true,
+        "appendOnly": true,
+        "generation": 1
+      }
+    ]
+  },
+  "environmentIncident": {
+    "initialSettingsHash": "cae7a12714e068cb4665e674c5f9e9a4c8496d69f7265940fbc6567511015200",
+    "currentSettingsHash": "3011adb207ee0d19e71d1eb69b400b00779f8d07ed21c5bc3326c1db386873f2",
+    "preflightChangedDefault": true,
+    "cause": "rc.1 session/selectModel also calls agentDefaultModel.saveSelection; initial preflight had no settings-path override.",
+    "mitigation": "All subsequent samples and Muse gates use a private settings provider path and disable automatic title LLM calls.",
+    "restoreStatus": "user-explicitly-requested-no-restoration",
+    "currentDefault": {
+      "provider": "ubuntu-lora",
+      "model": "Qwen3.8-27B-NVFP4KV-384K",
+      "reasoningEffort": "low"
+    },
+    "firstIsolatedSettingsHash": "3011adb207ee0d19e71d1eb69b400b00779f8d07ed21c5bc3326c1db386873f2",
+    "unchangedSinceFirstIsolatedRun": true
+  }
+}

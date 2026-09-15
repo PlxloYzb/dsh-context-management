@@ -11,6 +11,9 @@ export function validWindowMetadata(value: unknown, operationId: string): value 
     && Array.isArray(m.parentBlockIds) && m.parentBlockIds.every(id => typeof id === 'string' && id !== operationId)
     && !!m.route && typeof m.route.provider === 'string' && typeof m.route.model === 'string'
     && !!m.seed && m.seed.formatVersion === 1 && typeof m.seed.incomplete === 'boolean'
+    && (m.seed.prepared === undefined || (!!m.seed.prepared && typeof m.seed.prepared === 'object' && Number.isSafeInteger(m.seed.prepared.throughSeq) && m.seed.prepared.throughSeq >= 0
+      && /^[a-f0-9]{64}$/.test(m.seed.prepared.sourceHash) && typeof m.seed.prepared.provider === 'string' && typeof m.seed.prepared.model === 'string'
+      && (m.seed.prepared.reasoningEffort === undefined || typeof m.seed.prepared.reasoningEffort === 'string')))
     && ['model', 'manual', 'pressure', 'context-overflow'].includes(m.trigger ?? '')
     && (m.requestId === undefined || typeof m.requestId === 'string')
     && (m.incomingUserId === undefined || typeof m.incomingUserId === 'string')

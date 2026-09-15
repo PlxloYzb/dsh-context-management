@@ -44,10 +44,12 @@ export function apply(ctx, config) {
     if (!owned(session)) throw new Error('Experiment observer refuses unattributed generation in its isolated host')
     const callId = randomUUID(), start = Date.now()
     const info = await ctx.llm.resolveModelInfo(request.provider, request.model)
+    const effectiveReasoningEffort = request.reasoningEffort ?? info.reasoning?.defaultEffort ?? null
+    if (config.route.reasoningEffort && effectiveReasoningEffort !== config.route.reasoningEffort) throw new Error('Experiment reasoning effort differs from the frozen route')
     const expectedCapacity = config.expectedContextWindow ?? 1000000
     if (info.context?.contextWindow !== expectedCapacity) throw new Error(`EXPERIMENT_CAPACITY_CHANGED: expected ${expectedCapacity}, route reports ${info.context?.contextWindow}`)
     const record = { callId, time: new Date().toISOString(), sessionId: session.id, seq: session.seq, provider: request.provider, model: request.model,
-      purpose: request.purpose ?? 'agent', maxTokens: request.maxTokens ?? null, reasoningEffort: request.reasoningEffort ?? null,
+      purpose: request.purpose ?? 'agent', maxTokens: request.maxTokens ?? null, reasoningEffort: request.reasoningEffort ?? null, effectiveReasoningEffort,
       requestHash: hash({ ...request, signal: undefined }), messagesHash: hash(request.messages), systemHash: hash(request.system ?? null),
       toolsHash: hash(request.tools ?? null), tools: request.tools?.map(tool => tool.name) ?? [], messageCount: request.messages.length }
     append('requests.jsonl', { ...record, phase: 'before-route-guard' })

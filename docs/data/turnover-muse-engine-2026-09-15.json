@@ -1,0 +1,2545 @@
+{
+  "schemaVersion": 1,
+  "hostVersion": "0.1.2-rc.1",
+  "defaultEnabled": false,
+  "mainModel": "Qwen3.8-27B-NVFP4KV-384K",
+  "mainEffort": "off",
+  "summaryModel": "muse-spark-1.3-contributor",
+  "summaryEffort": "minimal",
+  "mechanism": {
+    "windowBudget": 64000,
+    "seedBytes": 4096,
+    "prepareFraction": 0.25,
+    "defaultPrepareFraction": 0.6,
+    "source": "synthetic fixed history; governor triggered by host-priced incoming padding"
+  },
+  "runs": [
+    {
+      "name": "engine-a-91521",
+      "arm": "A",
+      "seed": 91521,
+      "probeVersion": 1,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 46186,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 9396,
+          "freshCorrect": true,
+          "score": {
+            "correct": 2,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": false,
+              "rollback": false,
+              "region": true,
+              "gate": false,
+              "nextAction": false,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 33536,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-a-91521",
+        "arm": "A",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 95355,
+        "archivePages": 27,
+        "generation": 1,
+        "seedMode": "extractive",
+        "seedBytes": 1432,
+        "summaryRejected": null,
+        "freshRawRetained": false,
+        "sourceHashVerified": false,
+        "overlapMs": 0,
+        "boundaryMs": 9.587082999998529,
+        "backgroundAtBoundary": null,
+        "successfulRetrievalCalls": 6,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446764591,
+            "end": 1789446806606,
+            "elapsedMs": 42015,
+            "usage": {
+              "inputTokens": 30103,
+              "outputTokens": 519,
+              "totalTokens": 30622
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446812261,
+            "end": 1789446820338,
+            "elapsedMs": 8077,
+            "usage": {
+              "inputTokens": 22436,
+              "outputTokens": 69,
+              "totalTokens": 22505
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446823182,
+            "end": 1789446829689,
+            "elapsedMs": 6507,
+            "usage": {
+              "inputTokens": 30403,
+              "outputTokens": 37,
+              "totalTokens": 30440
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446829715,
+            "end": 1789446832991,
+            "elapsedMs": 3276,
+            "usage": {
+              "inputTokens": 30850,
+              "outputTokens": 37,
+              "totalTokens": 30887
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446833013,
+            "end": 1789446835887,
+            "elapsedMs": 2874,
+            "usage": {
+              "inputTokens": 31415,
+              "outputTokens": 37,
+              "totalTokens": 31452
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446835913,
+            "end": 1789446839035,
+            "elapsedMs": 3122,
+            "usage": {
+              "inputTokens": 31985,
+              "outputTokens": 38,
+              "totalTokens": 32023
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446839056,
+            "end": 1789446842148,
+            "elapsedMs": 3092,
+            "usage": {
+              "inputTokens": 32430,
+              "outputTokens": 38,
+              "totalTokens": 32468
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446842172,
+            "end": 1789446845222,
+            "elapsedMs": 3050,
+            "usage": {
+              "inputTokens": 32780,
+              "outputTokens": 37,
+              "totalTokens": 32817
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446845246,
+            "end": 1789446854327,
+            "elapsedMs": 9081,
+            "usage": {
+              "inputTokens": 33217,
+              "outputTokens": 120,
+              "totalTokens": 33337
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-c-91521",
+      "arm": "C",
+      "seed": 91521,
+      "probeVersion": 1,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 85485,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 15470,
+          "freshCorrect": true,
+          "score": {
+            "correct": 6,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 27277,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-c-91521",
+        "arm": "C",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 79352,
+        "archivePages": 23,
+        "generation": 1,
+        "seedMode": "model-assisted",
+        "seedBytes": 1629,
+        "summaryRejected": null,
+        "freshRawRetained": true,
+        "sourceHashVerified": true,
+        "overlapMs": 4077,
+        "boundaryMs": 20.63566699999501,
+        "backgroundAtBoundary": {
+          "status": "consumed",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 2,
+        "deniedToolAttempts": [
+          "experiment_compress_page"
+        ],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446577348,
+            "end": 1789446598146,
+            "elapsedMs": 20798,
+            "usage": {
+              "inputTokens": 30105,
+              "outputTokens": 222,
+              "totalTokens": 30327
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789446577355,
+            "end": 1789446581432,
+            "elapsedMs": 4077,
+            "usage": {
+              "inputTokens": 23314,
+              "outputTokens": 376,
+              "totalTokens": 23690
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446598156,
+            "end": 1789446660500,
+            "elapsedMs": 62344,
+            "usage": {
+              "inputTokens": 30358,
+              "outputTokens": 831,
+              "totalTokens": 31189
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446664509,
+            "end": 1789446675802,
+            "elapsedMs": 11293,
+            "usage": {
+              "inputTokens": 23653,
+              "outputTokens": 110,
+              "totalTokens": 23763
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789446664517,
+            "end": 1789446670497,
+            "elapsedMs": 5980,
+            "usage": {
+              "inputTokens": 8374,
+              "outputTokens": 617,
+              "totalTokens": 8991
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446681693,
+            "end": 1789446688739,
+            "elapsedMs": 7046,
+            "usage": {
+              "inputTokens": 31531,
+              "outputTokens": 40,
+              "totalTokens": 31571
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446688783,
+            "end": 1789446696776,
+            "elapsedMs": 7993,
+            "usage": {
+              "inputTokens": 31711,
+              "outputTokens": 106,
+              "totalTokens": 31817
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446696791,
+            "end": 1789446705879,
+            "elapsedMs": 9088,
+            "usage": {
+              "inputTokens": 32337,
+              "outputTokens": 120,
+              "totalTokens": 32457
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-c-91522",
+      "arm": "C",
+      "seed": 91522,
+      "probeVersion": 1,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 30571,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 18164,
+          "freshCorrect": true,
+          "score": {
+            "correct": 5,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": false,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 30275,
+          "freshCorrect": true,
+          "score": {
+            "correct": 6,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": false,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-c-91522",
+        "arm": "C",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 79352,
+        "archivePages": 23,
+        "generation": 1,
+        "seedMode": "model-assisted",
+        "seedBytes": 1771,
+        "summaryRejected": null,
+        "freshRawRetained": true,
+        "sourceHashVerified": true,
+        "overlapMs": 9866,
+        "boundaryMs": 10.585832999997365,
+        "backgroundAtBoundary": {
+          "status": "consumed",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 2,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446910529,
+            "end": 1789446937271,
+            "elapsedMs": 26742,
+            "usage": {
+              "inputTokens": 30080,
+              "outputTokens": 323,
+              "totalTokens": 30403
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789446910539,
+            "end": 1789446920405,
+            "elapsedMs": 9866,
+            "usage": {
+              "inputTokens": 23419,
+              "outputTokens": 356,
+              "totalTokens": 23775
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446942565,
+            "end": 1789446956801,
+            "elapsedMs": 14236,
+            "usage": {
+              "inputTokens": 23488,
+              "outputTokens": 148,
+              "totalTokens": 23636
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789446942572,
+            "end": 1789446948955,
+            "elapsedMs": 6383,
+            "usage": {
+              "inputTokens": 7450,
+              "outputTokens": 589,
+              "totalTokens": 8039
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446962317,
+            "end": 1789446969141,
+            "elapsedMs": 6824,
+            "usage": {
+              "inputTokens": 31406,
+              "outputTokens": 40,
+              "totalTokens": 31446
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446969161,
+            "end": 1789446977794,
+            "elapsedMs": 8633,
+            "usage": {
+              "inputTokens": 31585,
+              "outputTokens": 121,
+              "totalTokens": 31706
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789446977811,
+            "end": 1789446989127,
+            "elapsedMs": 11316,
+            "usage": {
+              "inputTokens": 32065,
+              "outputTokens": 158,
+              "totalTokens": 32223
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-v2-c-91522",
+      "arm": "C",
+      "seed": 91522,
+      "probeVersion": 2,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 39054,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 15772,
+          "freshCorrect": true,
+          "score": {
+            "correct": 6,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 56635,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-v2-c-91522",
+        "arm": "C",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 79352,
+        "archivePages": 23,
+        "generation": 1,
+        "seedMode": "model-assisted",
+        "seedBytes": 1757,
+        "summaryRejected": null,
+        "freshRawRetained": true,
+        "sourceHashVerified": true,
+        "overlapMs": 4460,
+        "boundaryMs": 10.514540999996825,
+        "backgroundAtBoundary": {
+          "status": "consumed",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 7,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447096651,
+            "end": 1789447134375,
+            "elapsedMs": 37724,
+            "usage": {
+              "inputTokens": 30082,
+              "outputTokens": 455,
+              "totalTokens": 30537
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447096657,
+            "end": 1789447101117,
+            "elapsedMs": 4460,
+            "usage": {
+              "inputTokens": 23406,
+              "outputTokens": 383,
+              "totalTokens": 23789
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447137161,
+            "end": 1789447148578,
+            "elapsedMs": 11417,
+            "usage": {
+              "inputTokens": 23435,
+              "outputTokens": 112,
+              "totalTokens": 23547
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447137169,
+            "end": 1789447141104,
+            "elapsedMs": 3935,
+            "usage": {
+              "inputTokens": 7565,
+              "outputTokens": 441,
+              "totalTokens": 8006
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447154394,
+            "end": 1789447161347,
+            "elapsedMs": 6953,
+            "usage": {
+              "inputTokens": 31353,
+              "outputTokens": 39,
+              "totalTokens": 31392
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447161374,
+            "end": 1789447170495,
+            "elapsedMs": 9121,
+            "usage": {
+              "inputTokens": 31629,
+              "outputTokens": 122,
+              "totalTokens": 31751
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447170518,
+            "end": 1789447184816,
+            "elapsedMs": 14298,
+            "usage": {
+              "inputTokens": 32043,
+              "outputTokens": 192,
+              "totalTokens": 32235
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447184856,
+            "end": 1789447208104,
+            "elapsedMs": 23248,
+            "usage": {
+              "inputTokens": 33445,
+              "outputTokens": 309,
+              "totalTokens": 33754
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-v2-a-91522",
+      "arm": "A",
+      "seed": 91522,
+      "probeVersion": 2,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 48202,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 38392,
+          "freshCorrect": true,
+          "score": {
+            "correct": 2,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": false,
+              "rollback": false,
+              "region": true,
+              "gate": false,
+              "nextAction": false,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 48511,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-v2-a-91522",
+        "arm": "A",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94978,
+        "archivePages": 27,
+        "generation": 1,
+        "seedMode": "extractive",
+        "seedBytes": 1432,
+        "summaryRejected": null,
+        "freshRawRetained": false,
+        "sourceHashVerified": false,
+        "overlapMs": 0,
+        "boundaryMs": 10.461000000002969,
+        "backgroundAtBoundary": null,
+        "successfulRetrievalCalls": 5,
+        "deniedToolAttempts": [
+          "arc_status"
+        ],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447276645,
+            "end": 1789447323403,
+            "elapsedMs": 46758,
+            "usage": {
+              "inputTokens": 30078,
+              "outputTokens": 571,
+              "totalTokens": 30649
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447326404,
+            "end": 1789447332642,
+            "elapsedMs": 6238,
+            "usage": {
+              "inputTokens": 22541,
+              "outputTokens": 43,
+              "totalTokens": 22584
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447332653,
+            "end": 1789447362107,
+            "elapsedMs": 29454,
+            "usage": {
+              "inputTokens": 22745,
+              "outputTokens": 410,
+              "totalTokens": 23155
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447366191,
+            "end": 1789447380727,
+            "elapsedMs": 14536,
+            "usage": {
+              "inputTokens": 30961,
+              "outputTokens": 153,
+              "totalTokens": 31114
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447380766,
+            "end": 1789447385094,
+            "elapsedMs": 4328,
+            "usage": {
+              "inputTokens": 32437,
+              "outputTokens": 58,
+              "totalTokens": 32495
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447385114,
+            "end": 1789447411668,
+            "elapsedMs": 26554,
+            "usage": {
+              "inputTokens": 32898,
+              "outputTokens": 374,
+              "totalTokens": 33272
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-v2-c-91523",
+      "arm": "C",
+      "seed": 91523,
+      "probeVersion": 2,
+      "geometry": {
+        "windowBudget": 50000,
+        "prepareFraction": 0.6
+      },
+      "fault": null,
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 57488,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 14823,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 17786,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-v2-c-91523",
+        "arm": "C",
+        "fault": null,
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 79352,
+        "archivePages": 23,
+        "generation": 1,
+        "seedMode": "model-assisted",
+        "seedBytes": 1709,
+        "summaryRejected": null,
+        "freshRawRetained": true,
+        "sourceHashVerified": true,
+        "overlapMs": 5387,
+        "boundaryMs": 10.6036249999961,
+        "backgroundAtBoundary": {
+          "status": "consumed",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 0,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447492311,
+            "end": 1789447547132,
+            "elapsedMs": 54821,
+            "usage": {
+              "inputTokens": 30071,
+              "outputTokens": 673,
+              "totalTokens": 30744
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447492319,
+            "end": 1789447497706,
+            "elapsedMs": 5387,
+            "usage": {
+              "inputTokens": 23356,
+              "outputTokens": 482,
+              "totalTokens": 23838
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447551245,
+            "end": 1789447564569,
+            "elapsedMs": 13324,
+            "usage": {
+              "inputTokens": 12958,
+              "outputTokens": 157,
+              "totalTokens": 13115
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447567510,
+            "end": 1789447583132,
+            "elapsedMs": 15622,
+            "usage": {
+              "inputTokens": 20920,
+              "outputTokens": 181,
+              "totalTokens": 21101
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-v2-timeout-91524",
+      "arm": "C",
+      "seed": 91524,
+      "probeVersion": 2,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": "timeout",
+      "candidateHash": "3f15f2ab36021c8900167c04a875f3a2c6ac286455ceac2e2020f191b87a9143",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 45439,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 9291,
+          "freshCorrect": true,
+          "score": {
+            "correct": 1,
+            "total": 7,
+            "fields": {
+              "seedFact": false,
+              "owner": false,
+              "rollback": false,
+              "region": true,
+              "gate": false,
+              "nextAction": false,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 51044,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-v2-timeout-91524",
+        "arm": "C",
+        "fault": "timeout",
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94611,
+        "archivePages": 27,
+        "generation": 1,
+        "seedMode": "extractive",
+        "seedBytes": 1432,
+        "summaryRejected": null,
+        "freshRawRetained": false,
+        "sourceHashVerified": false,
+        "overlapMs": 504,
+        "boundaryMs": 10.554125000002387,
+        "backgroundAtBoundary": {
+          "status": "superseded",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 9,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447601791,
+            "end": 1789447643798,
+            "elapsedMs": 42007,
+            "usage": {
+              "inputTokens": 30075,
+              "outputTokens": 518,
+              "totalTokens": 30593
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447601799,
+            "end": 1789447602303,
+            "elapsedMs": 504,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "reason": null
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447648725,
+            "end": 1789447655967,
+            "elapsedMs": 7242,
+            "usage": {
+              "inputTokens": 22631,
+              "outputTokens": 58,
+              "totalTokens": 22689
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447659583,
+            "end": 1789447664557,
+            "elapsedMs": 4974,
+            "usage": {
+              "inputTokens": 30624,
+              "outputTokens": 15,
+              "totalTokens": 30639
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447659591,
+            "end": 1789447660094,
+            "elapsedMs": 503,
+            "usage": {
+              "inputTokens": 0,
+              "outputTokens": 0,
+              "totalTokens": 0
+            },
+            "reason": null
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447664578,
+            "end": 1789447670683,
+            "elapsedMs": 6105,
+            "usage": {
+              "inputTokens": 31140,
+              "outputTokens": 76,
+              "totalTokens": 31216
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447670702,
+            "end": 1789447676465,
+            "elapsedMs": 5763,
+            "usage": {
+              "inputTokens": 32245,
+              "outputTokens": 77,
+              "totalTokens": 32322
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447676485,
+            "end": 1789447679767,
+            "elapsedMs": 3282,
+            "usage": {
+              "inputTokens": 33091,
+              "outputTokens": 39,
+              "totalTokens": 33130
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447679781,
+            "end": 1789447687545,
+            "elapsedMs": 7764,
+            "usage": {
+              "inputTokens": 33458,
+              "outputTokens": 100,
+              "totalTokens": 33558
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447687573,
+            "end": 1789447694766,
+            "elapsedMs": 7193,
+            "usage": {
+              "inputTokens": 33587,
+              "outputTokens": 103,
+              "totalTokens": 33690
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447694783,
+            "end": 1789447697669,
+            "elapsedMs": 2886,
+            "usage": {
+              "inputTokens": 34201,
+              "outputTokens": 39,
+              "totalTokens": 34240
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447697692,
+            "end": 1789447700710,
+            "elapsedMs": 3018,
+            "usage": {
+              "inputTokens": 34578,
+              "outputTokens": 38,
+              "totalTokens": 34616
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447700835,
+            "end": 1789447709273,
+            "elapsedMs": 8438,
+            "usage": {
+              "inputTokens": 35134,
+              "outputTokens": 118,
+              "totalTokens": 35252
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "engine-v2-late-91525",
+      "arm": "C",
+      "seed": 91525,
+      "probeVersion": 2,
+      "geometry": {
+        "windowBudget": 64000,
+        "prepareFraction": 0.25
+      },
+      "fault": "late",
+      "candidateHash": "e5db6bfe454a878e0ae8da2678202cc9955ee7bf9c59fadddcc8882e5277b18e",
+      "stages": [
+        {
+          "phase": "foreground",
+          "elapsedMs": 36441,
+          "freshCorrect": true,
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "elapsedMs": 12015,
+          "freshCorrect": true,
+          "score": {
+            "correct": 2,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": false,
+              "rollback": false,
+              "region": true,
+              "gate": false,
+              "nextAction": false,
+              "verbatim": false
+            }
+          }
+        },
+        {
+          "phase": "retrieval",
+          "elapsedMs": 132282,
+          "freshCorrect": true,
+          "score": {
+            "correct": 7,
+            "total": 7,
+            "fields": {
+              "seedFact": true,
+              "owner": true,
+              "rollback": true,
+              "region": true,
+              "gate": true,
+              "nextAction": true,
+              "verbatim": true
+            }
+          }
+        }
+      ],
+      "audit": {
+        "name": "engine-v2-late-91525",
+        "lateDelivery": {
+          "networkFinishedBeforeCommit": true,
+          "deliveredAfterCommit": true,
+          "noExtraWindow": true,
+          "heldMs": 32209
+        },
+        "arm": "C",
+        "fault": "late",
+        "archiveBytesVerified": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "appendOnly": true,
+        "localRequestsSerial": true,
+        "restoredBytes": 94199,
+        "archivePages": 27,
+        "generation": 1,
+        "seedMode": "extractive",
+        "seedBytes": 1432,
+        "summaryRejected": null,
+        "freshRawRetained": false,
+        "sourceHashVerified": false,
+        "overlapMs": 34896,
+        "boundaryMs": 11.15058300000237,
+        "backgroundAtBoundary": {
+          "status": "late",
+          "throughSeq": 72,
+          "maxBytes": 2888,
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal"
+        },
+        "successfulRetrievalCalls": 28,
+        "deniedToolAttempts": [],
+        "settingsUnchanged": true,
+        "calls": [
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447795780,
+            "end": 1789447830683,
+            "elapsedMs": 34903,
+            "usage": {
+              "inputTokens": 30141,
+              "outputTokens": 416,
+              "totalTokens": 30557
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447795787,
+            "end": 1789447833703,
+            "elapsedMs": 37916,
+            "usage": {
+              "inputTokens": 23286,
+              "outputTokens": 430,
+              "totalTokens": 23815,
+              "cacheReadTokens": 99
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447833714,
+            "end": 1789447842017,
+            "elapsedMs": 8303,
+            "usage": {
+              "inputTokens": 22704,
+              "outputTokens": 69,
+              "totalTokens": 22773
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447847157,
+            "end": 1789447860890,
+            "elapsedMs": 13733,
+            "usage": {
+              "inputTokens": 30708,
+              "outputTokens": 129,
+              "totalTokens": 30837
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "opencode-go-muse",
+            "purpose": "compaction",
+            "reasoningEffort": "minimal",
+            "start": 1789447847167,
+            "end": 1789447920095,
+            "elapsedMs": 72928,
+            "usage": {
+              "inputTokens": 23299,
+              "outputTokens": 511,
+              "totalTokens": 23810
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447860932,
+            "end": 1789447863199,
+            "elapsedMs": 2267,
+            "usage": {
+              "inputTokens": 32339,
+              "outputTokens": 26,
+              "totalTokens": 32365
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447863217,
+            "end": 1789447865765,
+            "elapsedMs": 2548,
+            "usage": {
+              "inputTokens": 32786,
+              "outputTokens": 28,
+              "totalTokens": 32814
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447865786,
+            "end": 1789447872853,
+            "elapsedMs": 7067,
+            "usage": {
+              "inputTokens": 32954,
+              "outputTokens": 89,
+              "totalTokens": 33043
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447872868,
+            "end": 1789447882214,
+            "elapsedMs": 9346,
+            "usage": {
+              "inputTokens": 33563,
+              "outputTokens": 117,
+              "totalTokens": 33680
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447882230,
+            "end": 1789447884937,
+            "elapsedMs": 2707,
+            "usage": {
+              "inputTokens": 34191,
+              "outputTokens": 34,
+              "totalTokens": 34225
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447884952,
+            "end": 1789447888666,
+            "elapsedMs": 3714,
+            "usage": {
+              "inputTokens": 34344,
+              "outputTokens": 47,
+              "totalTokens": 34391
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447888680,
+            "end": 1789447891740,
+            "elapsedMs": 3060,
+            "usage": {
+              "inputTokens": 34510,
+              "outputTokens": 38,
+              "totalTokens": 34548
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447891753,
+            "end": 1789447894748,
+            "elapsedMs": 2995,
+            "usage": {
+              "inputTokens": 34973,
+              "outputTokens": 36,
+              "totalTokens": 35009
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447894763,
+            "end": 1789447897968,
+            "elapsedMs": 3205,
+            "usage": {
+              "inputTokens": 35260,
+              "outputTokens": 38,
+              "totalTokens": 35298
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447897983,
+            "end": 1789447904082,
+            "elapsedMs": 6099,
+            "usage": {
+              "inputTokens": 35523,
+              "outputTokens": 75,
+              "totalTokens": 35598
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447904099,
+            "end": 1789447913027,
+            "elapsedMs": 8928,
+            "usage": {
+              "inputTokens": 36088,
+              "outputTokens": 113,
+              "totalTokens": 36201
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447913042,
+            "end": 1789447916637,
+            "elapsedMs": 3595,
+            "usage": {
+              "inputTokens": 36427,
+              "outputTokens": 39,
+              "totalTokens": 36466
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447916659,
+            "end": 1789447920266,
+            "elapsedMs": 3607,
+            "usage": {
+              "inputTokens": 36815,
+              "outputTokens": 46,
+              "totalTokens": 36861
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447920283,
+            "end": 1789447928052,
+            "elapsedMs": 7769,
+            "usage": {
+              "inputTokens": 36980,
+              "outputTokens": 102,
+              "totalTokens": 37082
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447928068,
+            "end": 1789447936739,
+            "elapsedMs": 8671,
+            "usage": {
+              "inputTokens": 37442,
+              "outputTokens": 113,
+              "totalTokens": 37555
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447936757,
+            "end": 1789447945603,
+            "elapsedMs": 8846,
+            "usage": {
+              "inputTokens": 38055,
+              "outputTokens": 114,
+              "totalTokens": 38169
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447945618,
+            "end": 1789447952715,
+            "elapsedMs": 7097,
+            "usage": {
+              "inputTokens": 38228,
+              "outputTokens": 90,
+              "totalTokens": 38318
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447952744,
+            "end": 1789447956573,
+            "elapsedMs": 3829,
+            "usage": {
+              "inputTokens": 38471,
+              "outputTokens": 45,
+              "totalTokens": 38516
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447956590,
+            "end": 1789447960581,
+            "elapsedMs": 3991,
+            "usage": {
+              "inputTokens": 38575,
+              "outputTokens": 47,
+              "totalTokens": 38622
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447960601,
+            "end": 1789447963498,
+            "elapsedMs": 2897,
+            "usage": {
+              "inputTokens": 38681,
+              "outputTokens": 32,
+              "totalTokens": 38713
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447963511,
+            "end": 1789447966487,
+            "elapsedMs": 2976,
+            "usage": {
+              "inputTokens": 38772,
+              "outputTokens": 33,
+              "totalTokens": 38805
+            },
+            "reason": {
+              "kind": "tool-calls"
+            }
+          },
+          {
+            "provider": "ubuntu-lora",
+            "purpose": "agent",
+            "reasoningEffort": "off",
+            "start": 1789447966541,
+            "end": 1789447975543,
+            "elapsedMs": 9002,
+            "usage": {
+              "inputTokens": 38864,
+              "outputTokens": 115,
+              "totalTokens": 38979
+            },
+            "reason": {
+              "kind": "stop"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "gates": [
+    {
+      "name": "muse-min-native-91503",
+      "adoption": {
+        "new_context": 0,
+        "compress": 0
+      },
+      "initialReadArguments": [
+        "{}",
+        "{}",
+        "{}",
+        "{}",
+        "{}",
+        "{}"
+      ],
+      "firstRequestArgumentCharacters": 12,
+      "windowSeeds": [],
+      "arm": "A_NATIVE",
+      "candidateHash": "e5db6bfe454a878e0ae8da2678202cc9955ee7bf9c59fadddcc8882e5277b18e",
+      "elapsedSeconds": 102,
+      "facts": [
+        23,
+        24
+      ],
+      "corrections": [
+        6,
+        6
+      ],
+      "verbatim": [
+        1,
+        3
+      ],
+      "strictPassed": false,
+      "deniedTools": [
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        }
+      ],
+      "allQualityPassed": false,
+      "restartVerified": null,
+      "windows": 0,
+      "compactions": 3,
+      "calls": 24,
+      "reportedTokens": 550289,
+      "modelElapsedMs": 93065,
+      "effectiveReasoningEffort": "minimal",
+      "settingsUnchanged": true,
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    },
+    {
+      "name": "muse-min-in-place-91503",
+      "adoption": {
+        "new_context": 0,
+        "compress": 0
+      },
+      "initialReadArguments": [
+        "{\"page\":1}",
+        "{\"page\":2}",
+        "{\"page\":3}",
+        "{\"page\":4}",
+        "{\"page\":5}",
+        "{\"page\":6}"
+      ],
+      "firstRequestArgumentCharacters": 60,
+      "windowSeeds": [],
+      "arm": "B_IN_PLACE",
+      "candidateHash": "e5db6bfe454a878e0ae8da2678202cc9955ee7bf9c59fadddcc8882e5277b18e",
+      "elapsedSeconds": 49,
+      "facts": [
+        24,
+        24
+      ],
+      "corrections": [
+        6,
+        6
+      ],
+      "verbatim": [
+        3,
+        3
+      ],
+      "strictPassed": true,
+      "deniedTools": [],
+      "allQualityPassed": true,
+      "restartVerified": null,
+      "windows": 0,
+      "compactions": 3,
+      "calls": 16,
+      "reportedTokens": 436600,
+      "modelElapsedMs": 41290,
+      "effectiveReasoningEffort": "minimal",
+      "settingsUnchanged": true,
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    },
+    {
+      "name": "muse-min-windowed-91503",
+      "adoption": {
+        "new_context": 0,
+        "compress": 0
+      },
+      "initialReadArguments": [
+        "{}",
+        "{}",
+        "{}",
+        "{}",
+        "{}",
+        "{}"
+      ],
+      "firstRequestArgumentCharacters": 12,
+      "windowSeeds": [
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        },
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        },
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        }
+      ],
+      "arm": "C400_WINDOWED",
+      "candidateHash": "e5db6bfe454a878e0ae8da2678202cc9955ee7bf9c59fadddcc8882e5277b18e",
+      "elapsedSeconds": 66,
+      "facts": [
+        24,
+        24
+      ],
+      "corrections": [
+        6,
+        6
+      ],
+      "verbatim": [
+        3,
+        3
+      ],
+      "strictPassed": false,
+      "deniedTools": [
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        },
+        {
+          "name": "experiment_read_page",
+          "reason": "Unassigned page"
+        }
+      ],
+      "allQualityPassed": false,
+      "restartVerified": true,
+      "windows": 3,
+      "compactions": 3,
+      "calls": 18,
+      "reportedTokens": 476363,
+      "modelElapsedMs": 55859,
+      "effectiveReasoningEffort": "minimal",
+      "settingsUnchanged": true,
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    },
+    {
+      "name": "muse-min-windowed-repeat-91503",
+      "adoption": {
+        "new_context": 0,
+        "compress": 0
+      },
+      "initialReadArguments": [
+        "{\"page\":1}",
+        "{\"page\":2}",
+        "{\"page\":3}",
+        "{\"page\":4}",
+        "{\"page\":5}",
+        "{\"page\":6}"
+      ],
+      "firstRequestArgumentCharacters": 60,
+      "windowSeeds": [
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        },
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        },
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        },
+        {
+          "trigger": "pressure",
+          "mode": "extractive"
+        }
+      ],
+      "arm": "C400_WINDOWED",
+      "candidateHash": "e5db6bfe454a878e0ae8da2678202cc9955ee7bf9c59fadddcc8882e5277b18e",
+      "elapsedSeconds": 75,
+      "facts": [
+        24,
+        24
+      ],
+      "corrections": [
+        6,
+        6
+      ],
+      "verbatim": [
+        3,
+        3
+      ],
+      "strictPassed": true,
+      "deniedTools": [],
+      "allQualityPassed": true,
+      "restartVerified": true,
+      "windows": 4,
+      "compactions": 4,
+      "calls": 24,
+      "reportedTokens": 657681,
+      "modelElapsedMs": 63170,
+      "effectiveReasoningEffort": "minimal",
+      "settingsUnchanged": true,
+      "archiveBytesVerified": true,
+      "exactPagesInRequests": 24
+    }
+  ],
+  "budgets": {
+    "kind": "offline-real-controller-with-retained-Muse-handoff",
+    "rows": [
+      {
+        "variant": "real-compact",
+        "historicalUsers": 1,
+        "handoffChars": 185,
+        "seedBytes": 3663,
+        "elapsedMs": 57.537957999999975,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false,
+        "handoffRejected": null
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 1,
+        "handoffChars": 1300,
+        "seedBytes": 3897,
+        "elapsedMs": 33.53608299999999,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": false,
+        "handoffRejected": "byte-budget"
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 12,
+        "handoffChars": 185,
+        "seedBytes": 3533,
+        "elapsedMs": 20.32541599999999,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false,
+        "handoffRejected": null
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 12,
+        "handoffChars": 1300,
+        "seedBytes": 3960,
+        "elapsedMs": 20.894499999999994,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": false,
+        "handoffRejected": "byte-budget"
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 24,
+        "handoffChars": 185,
+        "seedBytes": 3398,
+        "elapsedMs": 21.26724999999999,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false,
+        "handoffRejected": null
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 24,
+        "handoffChars": 1300,
+        "seedBytes": 3944,
+        "elapsedMs": 25.39020899999997,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": false,
+        "handoffRejected": "byte-budget"
+      },
+      {
+        "variant": "real-compact",
+        "historicalUsers": 48,
+        "handoffChars": 185,
+        "seedBytes": 3415,
+        "elapsedMs": 25.895624999999995,
+        "handoffFieldsRetained": {
+          "seedFact": true,
+          "owner": true,
+          "rollback": true,
+          "region": true,
+          "gate": true,
+          "nextAction": true
+        },
+        "truncationNotice": false,
+        "handoffRejected": null
+      },
+      {
+        "variant": "synthetic-1300-char-stress",
+        "historicalUsers": 48,
+        "handoffChars": 1300,
+        "seedBytes": 3961,
+        "elapsedMs": 25.396000000000015,
+        "handoffFieldsRetained": {
+          "seedFact": false,
+          "owner": false,
+          "rollback": false,
+          "region": false,
+          "gate": false,
+          "nextAction": false
+        },
+        "truncationNotice": false,
+        "handoffRejected": "byte-budget"
+      }
+    ]
+  },
+  "calibrations": [
+    {
+      "name": "engine-pilot-91521",
+      "completed": false,
+      "candidateHash": "f2159100b8eff70136d063806227b363c98c12dc9125af5ed5e2e05409b8df9c",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        }
+      ],
+      "error": "fetch failed",
+      "settingsUnchanged": true
+    },
+    {
+      "name": "engine-ready-91521",
+      "completed": false,
+      "candidateHash": "d58050ce729a317d0c45b4a0a0cf4a61bdcfa4ebd58ad50dc29715b82eaad29e",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "score": 2
+        }
+      ],
+      "error": "fetch failed",
+      "settingsUnchanged": true
+    },
+    {
+      "name": "engine-admission-91521",
+      "completed": false,
+      "candidateHash": "a3ef5daad57f886a5ba713de8d6ee6790d1382dc464729c1a9bcab975a866d38",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        }
+      ],
+      "error": "fetch failed",
+      "settingsUnchanged": true
+    },
+    {
+      "name": "engine-debug-91521",
+      "completed": false,
+      "candidateHash": "a3ef5daad57f886a5ba713de8d6ee6790d1382dc464729c1a9bcab975a866d38",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "score": 2
+        }
+      ],
+      "error": "fetch failed",
+      "settingsUnchanged": true
+    },
+    {
+      "name": "engine-route-91521",
+      "completed": false,
+      "candidateHash": "463e7095a35263cb6b31e6ac8319b1a80ef6d6eddb741eece24b5c0a3bc36ca8",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "score": 2
+        }
+      ],
+      "error": "fetch failed",
+      "settingsUnchanged": true
+    },
+    {
+      "name": "engine-stream-91521",
+      "completed": false,
+      "candidateHash": "3646c7297f12acf0ef39de1354ad2cbe439805b2035d562755d6b2627c1fa4c7",
+      "stages": [
+        {
+          "phase": "foreground",
+          "score": null
+        },
+        {
+          "phase": "seed",
+          "score": 2
+        },
+        {
+          "phase": "retrieval",
+          "score": 7
+        }
+      ],
+      "error": "Engine boundary/continuity invariant failed",
+      "settingsUnchanged": true
+    }
+  ],
+  "limitations": [
+    "Small, synthetic mechanism study; no statistically significant latency or total-cost claim.",
+    "Probe v1 permitted annotations; one exact-match failure is preserved. Probe v2 explicitly asks for bare original identifiers.",
+    "Marker answers and raw suffix retention are distinct: the extractive user index can retain a marker even after its assistant message is archived.",
+    "One live fault uses a real 500 ms summary timeout. Another holds delivery of a real Muse finish chunk until after engine commitment; its elapsed stream time includes this artificial hold. Other cancellation/stale/oversize states have host integration regressions.",
+    "Global settings preserved at the start-of-follow-up value; the user explicitly declined restoration of the earlier incident."
+  ]
+}

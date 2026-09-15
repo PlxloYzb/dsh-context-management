@@ -16,4 +16,4 @@ dsh plugin --profile web add dsh-context-management
 dsh plugin --profile web remove dsh-context-management
 ```
 
-[设计思路](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/DESIGN.zh-CN.md) · [测试数据](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/TESTING.zh-CN.md) · [150k 迭代日志](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/ITERATION-150K.zh-CN.md) · [版本发布](https://github.com/PlxloYzb/dsh-context-management/releases) · [npm](https://www.npmjs.com/package/dsh-context-management) · [MIT / 来源声明](NOTICE.md)
+[设计思路](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/DESIGN.zh-CN.md) · [测试数据](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/TESTING.zh-CN.md) · [可选后台摘要与实验](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/ITERATION-MUSE-ENGINE.zh-CN.md) · [150k 迭代日志](https://github.com/PlxloYzb/dsh-context-management/blob/main/docs/ITERATION-150K.zh-CN.md) · [版本发布](https://github.com/PlxloYzb/dsh-context-management/releases) · [npm](https://www.npmjs.com/package/dsh-context-management) · [MIT / 来源声明](NOTICE.md)

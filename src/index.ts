@@ -7,6 +7,7 @@ import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
 import { inputPressure, assertEnvelopeFits } from './host-budget.ts'
 import { ArchiveReader } from './archive.ts'
 import { WindowController, windowIdentity, resolveArchiveConfig, type ArchiveConfig } from './window-controller.ts'
+import { BackgroundSummaries, resolveBackgroundSummary, type BackgroundSummaryInput, type BackgroundSummaryConfig } from './background-summary.ts'
 import { governorCapacity } from './governor.ts'
 /**
  * dsh-context-management — Adaptive Reversible Context (ARC) for the DeepSeek Harness,
@@ -19,7 +20,8 @@ import { governorCapacity } from './governor.ts'
  *    `search_context`, and replay always work;
  *  - refs are surface seqs carried by the injected nudge's range table (DSH
  *    has no in-memory message rewrite hook);
- *  - automatic policy never summarizes by itself: it nudges the model.
+ *  - automatic policy uses deterministic turnover; an explicitly configured
+ *    independent provider may prepare a bounded handoff in the background.
  *
  * Mount it wherever a compaction backend is expected:
  *
@@ -48,7 +50,7 @@ import {
 } from '@deepseek-ai/dsh-compaction'
 import { createCore, type CompressionCore } from 'acp-kernel'
 import type { Agent } from '@deepseek-ai/dsh-agent'
-import { createUserMessage, type UserMessage } from '@deepseek-ai/dsh-llm'
+import { createUserMessage, isAgentLoopRequest, type UserMessage } from '@deepseek-ai/dsh-llm'
 import { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
 import { headerEquals, type Session, type EpochHeader } from '@deepseek-ai/dsh-session'
 import type { CommandId } from '@deepseek-ai/dsh-commands/brand'
@@ -246,6 +248,8 @@ export interface ArcConfig {
    */
   readonly adaptiveGovernor?: Partial<AdaptiveGovernorConfig>
   readonly archive?: Partial<ArchiveConfig>
+  /** Opt-in independent-provider preparation. Never awaited at a window boundary. */
+  readonly backgroundSummary?: BackgroundSummaryInput
 }
 
 /** Loader-facing configuration type; programmatic-only countTokens is intentionally omitted. */
@@ -253,6 +257,9 @@ export type Config = Omit<Partial<ArcConfig>, 'countTokens'>
 
 const positiveInteger = () => Schema.number().step(1).min(1)
 const fraction = () => Schema.number().min(0.000001).max(0.999999)
+
+const BackgroundSummarySchema: Schema<BackgroundSummaryInput | undefined> = Schema.object({ provider: Schema.string().required(), model: Schema.string().required(), reasoningEffort: Schema.string(),
+    prepareAtEffectiveCapacityPct: fraction().default(0.6), maxInputBytes: positiveInteger().default(262144), maxOutputTokens: positiveInteger().default(2048), timeoutMs: positiveInteger().default(60000) })
 
 /**
  * Official Cordis/Schemastery configuration surface. Defaults make a plain
@@ -282,6 +289,7 @@ const ConfigFields: Schema<Config> = Schema.object({
     systemPrompt: Schema.string(),
   }).description('Prompt templates; unknown slots and placeholders fail validation.'),
   archive: Schema.object({ seedMaxTokens: positiveInteger().default(4096), retrievalDefaultMaxTokens: positiveInteger().default(2048), retrievalMaxTokens: positiveInteger().default(4096) }),
+  backgroundSummary: BackgroundSummarySchema.default(undefined),
   adaptiveGovernor: Schema.object({
     strategy: Schema.union(['windowed', 'in-place']).default('windowed'),
     windowBudgetTokens: positiveInteger(),
@@ -324,6 +332,8 @@ export function validateContextConfig(config: Partial<ArcConfig> = {}): void {
   try {
     const governor = resolveAdaptiveGovernor(config.adaptiveGovernor)
     const archive = resolveArchiveConfig(config.archive)
+    const background = resolveBackgroundSummary(config.backgroundSummary)
+    if (background && (!governor.enabled || governor.strategy !== 'windowed' || !governor.emergencyFallback || background.prepareAtEffectiveCapacityPct >= governor.emergencyAtEffectiveCapacityPct)) throw new Error('backgroundSummary requires a windowed emergency governor and preparation before the emergency line')
     resolvePrompts(config.prompts)
     const limits = [config.modelContextLimit, governor.windowBudgetTokens].filter((value): value is number => value !== undefined)
     if (limits.some(value => !Number.isSafeInteger(value) || value <= 0)) throw new Error('modelContextLimit must be a positive safe integer')
@@ -357,6 +367,8 @@ export class ArcCompactionEngine extends CompactionEngine {
   readonly adaptiveGovernor: AdaptiveGovernorConfig
 
   readonly windows = new WindowController()
+  readonly summaries = new BackgroundSummaries()
+  readonly backgroundSummary: BackgroundSummaryConfig | undefined
   readonly reader = new ArchiveReader(ref => {
     const attachments = this.ctx.get('attachments')
     if (!attachments) return 'unverified-reference'
@@ -366,6 +378,7 @@ export class ArcCompactionEngine extends CompactionEngine {
   readonly archive: ArchiveConfig
   private readonly lifetime = new AbortController()
   private readonly assembled = new WeakMap<CompactionAgentContext, Pick<EpochHeader, 'system' | 'tools'>>()
+  private readonly admissions = new WeakMap<Session, { agent: Agent; signal: AbortSignal; incomingUser?: UserMessage }>()
   private readonly lastOverflowTurn = new WeakMap<Agent, number>()
   private readonly nudgedGeneration = new WeakMap<Agent, number>()
   private readonly lastNudgeTurn = new WeakMap<Session, number>()
@@ -432,6 +445,7 @@ export class ArcCompactionEngine extends CompactionEngine {
     this.config = resolveArcConfig(config)
     this.adaptiveGovernor = resolveAdaptiveGovernor(config.adaptiveGovernor)
     this.archive = resolveArchiveConfig(config.archive)
+    this.backgroundSummary = resolveBackgroundSummary(config.backgroundSummary)
     ctx.effect(() => () => this.lifetime.abort(new Error('context engine disposed')))
     // Resolve + validate prompt templates BEFORE building env: a template typo
     // must fail engine construction, never silently leak into model context.
@@ -522,6 +536,22 @@ export class ArcCompactionEngine extends CompactionEngine {
       }))
     }
 
+    const engine = this
+    ctx.on('llm/stream', async function* (request, next) {
+      const session = request.sessionId && engine.ctx.get('sessions')?.get(request.sessionId)
+      const admission = session && engine.admissions.get(session)
+      if (engine.backgroundSummary && admission && isAgentLoopRequest(request)) {
+        // Stream entry has the final route and persisted header/context. Web
+        // model selection can override earlier agent/request waterfall values.
+        const pressure = engine.projectedContext(admission.agent)
+        if (pressure) {
+          const budget = governorCapacity(pressure.contextWindow, engine.adaptiveGovernor, request.maxTokens).effectiveInputLimit
+          if (pressure.projectedTokens >= budget * engine.backgroundSummary.prepareAtEffectiveCapacityPct) engine.summaries.prepare(engine.metered(admission.agent), engine.backgroundSummary, engine.archive, engine.windows.identity(admission.agent.session).generation, admission.signal, admission.incomingUser, `${request.provider ?? ''}\0${request.model ?? ''}`)
+        }
+      }
+      yield* next()
+    })
+
     // CompactionEngine is only a service seam: unlike BasicCompactionEngine,
     // it does not install pressure/overflow listeners for subclasses. ARC is
     // also commonly mounted beside a realm-local Basic engine with `auto:
@@ -532,8 +562,10 @@ export class ArcCompactionEngine extends CompactionEngine {
     // proves durable surface progress, and at most once per proposed step.
     ctx.on('session/event', (session, event) => {
       if (event.type === 'turn/end') this.windows.cancel(session)
+      if (event.type === 'turn/end' && event.data.reason.kind !== 'completed') this.summaries.cancel(session)
+      if ('surfaceOp' in event && typeof event.surfaceOp === 'object') this.summaries.cancel(session, 'superseded')
     })
-    ctx.on('agent/disposed', ({ agent }) => this.windows.cancel(agent.session))
+    ctx.on('agent/disposed', ({ agent }) => { this.windows.cancel(agent.session); this.summaries.cancel(agent.session, 'disposed') })
     ctx.on('agent/pre-step', async ({ agent, signal, turn }, next) => contextBoundary(this.ctx, async () => {
       signal = AbortSignal.any([signal, this.lifetime.signal])
       if (this.lastOverflowTurn.get(agent) !== turn) { this.overflowFallbackUsed.delete(agent); this.lastOverflowTurn.set(agent, turn) }
@@ -544,6 +576,7 @@ export class ArcCompactionEngine extends CompactionEngine {
       if (decision.kind !== 'enter') return decision
       if (this.adaptiveGovernor.enabled) await this.windowFor(agent)
       const incomingUser = [...decision.messages].reverse().find(message => message.source.kind === 'user')
+      this.admissions.set(agent.session, { agent, signal, ...(incomingUser ? { incomingUser } : {}) })
       let messages = decision.messages
       const generation = agent.session.surface.replaceGeneration
       const pendingResult = await this.windows.commitPending(this.metered(agent), signal, this.archive, () => this.flush(agent), incomingUser)
@@ -732,7 +765,7 @@ export class ArcCompactionEngine extends CompactionEngine {
   async contextStatus(agent: Agent): Promise<object> {
     const window = await this.windowFor(agent), pressure = this.projectedContext(agent)
     return { package: 'dsh-context-management', version: PACKAGE_VERSION, backend: this.backendOwnership(agent), strategy: this.adaptiveGovernor.strategy,
-      ...this.windows.status(agent.session), archiveIntegrity: archiveHealth(agent.session.snapshotEvents()), budget: { routeCapacity: window, logicalWindow: this.adaptiveGovernor.windowBudgetTokens ?? null, pressure,
+      ...this.windows.status(agent.session), backgroundSummary: this.summaries.status(agent.session), archiveIntegrity: archiveHealth(agent.session.snapshotEvents()), budget: { routeCapacity: window, logicalWindow: this.adaptiveGovernor.windowBudgetTokens ?? null, pressure,
         ...governorCapacity(window.limit, this.adaptiveGovernor, governedOutputReserve(agent, { ...this.adaptiveGovernor, enabled: true }, window.limit)) },
       archives: this.reader.ledger(agent.session).length,
       // This is also the model tool's real status path. Prompts direct the
@@ -810,11 +843,17 @@ export class ArcCompactionEngine extends CompactionEngine {
     this.requireDurability()
     const pruner = this.ctx.get('toolResultPruner') as { pruneSession(session: CompactionAgentContext['session']): void } | undefined
     if (this.adaptiveGovernor.strategy === 'windowed') {
+      const pressure = this.boundaryPressure(agent, incomingUser, admissionTokens)
+      const effective = pressure ? governorCapacity(pressure.contextWindow, this.adaptiveGovernor, governedOutputReserve(agent, this.adaptiveGovernor, pressure.contextWindow)).effectiveInputLimit : 0
+      // The 55% target is a soft preference, not a reason to discard fresh
+      // work. Require relief below the normal pressure line, then report any
+      // retained-tail overshoot through the existing budget status.
+      const requiredReduction = pressure ? Math.max(0, pressure.projectedTokens - effective * this.adaptiveGovernor.nudgeAtEffectiveCapacityPct) : 0
       const result = await this.windows.turnover(this.metered(agent), trigger, signal, this.archive, () => this.flush(agent), undefined, () => {
         pruner?.pruneSession(agent.session)
         const pressure = this.boundaryPressure(agent, incomingUser, admissionTokens)
         return trigger !== 'pressure' || pressure === null || shouldRunEmergencyFallback(trigger, pressure.projectedTokens, pressure.contextWindow, this.adaptiveGovernor, governedOutputReserve(agent, this.adaptiveGovernor, pressure.contextWindow))
-      }, incomingUser)
+      }, incomingUser, this.summaries.take(agent), requiredReduction)
       if (result) { this.store.delete(agent.session); this.checkRemainingBudget(agent, true, incomingUser, admissionTokens); return result }
       // Graceful degradation: a window turnover can no-op at emergency pressure
       // (no safe range, no new history, or no net reduction) while retained input
