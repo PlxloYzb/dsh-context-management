@@ -1,6 +1,6 @@
 # Short-cycle overnight iteration 3 (2026-09-15, candidate 9)
 
-[简体中文](ITERATION-NIGHTLY-3.zh-CN.md) · [Previous cycle (candidate 8)](ITERATION-NIGHTLY-2.en.md)
+[简体中文](ITERATION-NIGHTLY-3.zh-CN.md) · [Previous cycle (candidate 8)](ITERATION-NIGHTLY-2.en.md) · [Next cycle (candidate 10: adversarial audit and native comparison)](ITERATION-NIGHTLY-4.en.md)
 
 ## Current result
 

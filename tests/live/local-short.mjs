@@ -21,6 +21,8 @@ if(!['full','verbatim','absence'].includes(probeMode)||(probeMode!=='full'&&!for
 const nudges=args.nudges
 if(nudges!==undefined&&!['true','false'].includes(nudges))throw new Error('nudges must be true or false')
 const restart=args.restart==='true',name=args.name,isPlugin=['C400_WINDOWED','B_IN_PLACE'].includes(arm)
+const matchedNative=args['matched-native']==='true'
+if(matchedNative&&arm!=='A_NATIVE')throw new Error('Matched native threshold applies only to the native arm')
 if(!name||!/^[a-z0-9-]+$/.test(name)||!['A_NATIVE','C400_WINDOWED','B_IN_PLACE'].includes(arm)||!['F1','F3','F4','F5','F6'].includes(family))throw new Error('Invalid experiment configuration')
 if(forkName&&!/^[a-z0-9-]+$/.test(forkName))throw new Error('Fork source must name a retained local run')
 if(![seed,pageCount,pressure,batch].every(Number.isSafeInteger)||pageCount<24||pageCount>(forkName?1152:144)||pressure<24000||pressure>150000||batch<1||batch>12)throw new Error('Outside bounded reading/replay geometry')
@@ -97,6 +99,7 @@ try{
   assert.equal(parent.geometry.pressure,pressure,'Fork pressure changed')
   assert.equal(parent.geometry.batch,batch,'Fork reading geometry changed')
   assert.equal(parent.concise,concise,'Fork prompt configuration changed')
+  assert.equal(parent.matchedNative===true,matchedNative,'Fork native threshold configuration changed')
   const parentEvents=JSON.parse(await readFile(join(parentRoot,'observed',`${parent.sessionId}.events.json`),'utf8'))
   const boundary=parentEvents.find(e=>e.type==='turn/end'&&e.data.turn===4&&e.data.reason.kind==='completed')
   assert.ok(boundary,'Completed reading boundary missing')
@@ -111,16 +114,18 @@ try{
  const profile=isPlugin?'ctx-v012-smoke-c':'ctx-v012-mini-native'
  const built=await readFile('dist/index.js'),installed=await readFile(join(homedir(),'.dsh/profiles/ctx-v012-smoke-c/node_modules/dsh-context-management/dist/index.js'))
  if(isPlugin&&hash(built)!==hash(installed))throw new Error('Install current built candidate before running C')
- const effective=Math.ceil(pressure/0.9),windowBudget=effective+maxTokens+4096
+ const effective=Math.ceil(pressure/0.9),windowBudget=effective+maxTokens+4096,matchedRetainRatio=(0.55*effective)/393216
  if(parent)assert.equal(parent.geometry.windowBudget,windowBudget,'Fork logical window changed')
  let ratio=pressure/393216;for(let i=0;Math.floor(393216*ratio)<pressure&&i<8;i++)ratio+=Number.EPSILON
- const insert=[...(!isPlugin?[{id:'experiment-configurator',name:resolve('tests/live/local/configurator.mjs'),config:{output:root,arm,basicRatio:ratio,mainMaxTokens:maxTokens}}]:[]),{id:'experiment-fixture-tools',name:resolve('tests/live/local/fixture-tools.mjs'),config:{controlRoot:join(root,'control')}},{id:'experiment-observer',name:resolve('tests/live/local/request-observer.mjs'),config:{output:join(root,'observed'),route,mainMaxTokens:maxTokens,expectedContextWindow:393216,budgetRoot:join(root,'budget')}}]
+ const insert=[...(!isPlugin?[{id:'experiment-configurator',name:resolve('tests/live/local/configurator.mjs'),config:{output:root,arm,basicRatio:ratio,mainMaxTokens:maxTokens,matchedNative,matchedRetainRatio:matchedRetainRatio}}]:[]),{id:'experiment-fixture-tools',name:resolve('tests/live/local/fixture-tools.mjs'),config:{controlRoot:join(root,'control')}},{id:'experiment-observer',name:resolve('tests/live/local/request-observer.mjs'),config:{output:join(root,'observed'),route,mainMaxTokens:maxTokens,expectedContextWindow:393216,budgetRoot:join(root,'budget')}}]
  const patches=[...(isPlugin?[{id:'compaction-context-management-bridge',config:{...(nudges===undefined?{}:{autoNudge:nudges==='true'}),adaptiveGovernor:{enabled:true,strategy:arm==='B_IN_PLACE'?'in-place':'windowed',windowBudgetTokens:windowBudget,maxOutputTokens:maxTokens,safetyMarginTokens:4096,nudgeAtEffectiveCapacityPct:0.75,emergencyAtEffectiveCapacityPct:0.9,targetAfterTurnoverPct:0.55,emergencyFallback:true},archive:{seedMaxTokens:4096,retrievalDefaultMaxTokens:2048,retrievalMaxTokens:4096}}}]:[]),{insert}]
  const patch=join(root,'host.patch.yml');await writeFile(patch,JSON.stringify(patches,null,2),{mode:0o600})
  await atomicJson(join(root,'budget','limits.json'),{tokenCeiling:8000000,perCallConservativeReserve:393216,stopAtMs:started+maxMs})
  spec={dshBin:pinned,root,directory:root,observed:join(root,'observed'),controlRoot:join(root,'control'),profile,patch,port:3311,route}
  summary={schemaVersion:1,name,arm,family,seed,startedAt:new Date(started).toISOString(),hostVersion,route,nodeVersion:process.version,sourceCommit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),candidateHash:hash(built),runnerHash:hash(await readFile(import.meta.filename)),fixture:{pageCount,hash:fixture.hash,newTextHeuristicTokens:fixture.newTextHeuristicTokens},geometry:{strategy:isPlugin?(arm==='B_IN_PLACE'?'in-place':'windowed'):'Basic',pressure,effective,windowBudget,maxTokens,batch,routeCapacity:393216},restart,concise,readingInstructionVersion:parent?(parent.readingInstructionVersion??1):2,limits:{wallSeconds:1500,turnSeconds:600,requestSeconds:420},stage:'starting',phases:[]}
  summary.autoNudge=isPlugin?(nudges===undefined||nudges==='true'):null
+ summary.matchedNative=matchedNative
+ summary.matchedNativeGeometry=matchedNative?{thresholdRatio:ratio,retainRatio:matchedRetainRatio,thresholdTokens:Math.floor(393216*ratio),retainTokens:Math.floor(393216*matchedRetainRatio),pluginTargetAfterTurnoverTokens:Math.round(0.55*effective)}:null
  summary.probeMode=probeMode
  if(parent)summary.fork={name:forkName,sessionId:parent.sessionId,requestedThroughSeq:forkAtSeq,throughSeq,candidateHash:parent.candidateHash,inheritedPages:pageCount,sourceOutputReserve:maxTokens,classification:'Probe-only boundary replay; not an independent end-to-end run'}
  const clientBytes=await readFile(new URL('./client.mjs',import.meta.url));summary.clientHash=hash(clientBytes)

@@ -1,6 +1,6 @@
 # 夜间快速迭代 3（2026-09-15，候选 9）
 
-[English](ITERATION-NIGHTLY-3.en.md) · [上一轮（候选 8）](ITERATION-NIGHTLY-2.zh-CN.md)
+[English](ITERATION-NIGHTLY-3.en.md) · [上一轮（候选 8）](ITERATION-NIGHTLY-2.zh-CN.md) · [下一轮（候选 10：对抗性自查与原生对照）](ITERATION-NIGHTLY-4.zh-CN.md)
 
 ## 当前结论
 
