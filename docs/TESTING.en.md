@@ -2,6 +2,8 @@
 
 [简体中文](TESTING.zh-CN.md) · [Home](../README.en.md) · [Results JSON](data/results-0.1.1.json) · [27 model samples CSV](data/model-samples-0.1.1.csv)
 
+See the latest [reliability and Harness replacement report](RELIABILITY-HARNESS.en.md). The next [3M long-run protocol](EXPERIMENT-LONGRUN-3M.en.md) and [machine-readable plan](experiments/muse-longrun-v1.plan.json) are designed but not executed; they specify repeated windows, multiple summaries, long-tail history, native Basic controls, and continuous supervision.
+
 The 400k experiment closed on 2026-09-12; see the [close-out report](EXPERIMENT-REPORT.en.md), subsequent [150k iteration](ITERATION-150K.en.md), [overnight iteration](ITERATION-NIGHTLY.en.md), [second](ITERATION-NIGHTLY-2.en.md), [third](ITERATION-NIGHTLY-3.en.md), [fourth](ITERATION-NIGHTLY-4.en.md), [fifth](ITERATION-NIGHTLY-5.en.md), and [Muse two-route validation](ITERATION-MUSE.en.md), [engine implementation](ITERATION-MUSE-ENGINE.en.md), and [Muse/Muse minimal cloud validation](ITERATION-MUSE-CLOUD.en.md), and [deferred handoffs with demand-driven waiting](ITERATION-DEFERRED-HANDOFF.en.md). Data and model commands below remain historical 0.1.1 release evidence, not reruns of the latest candidate.
 
 Measured on **2026-09-08**, with plugin **0.1.1** and **DSH 0.1.2-rc.1**. Current release checks are distinguished from historical model, preset, and scale measurements below.
