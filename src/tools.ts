@@ -49,6 +49,7 @@ export interface ToolEnvironment extends KernelConfigInput {
   readonly archive?: ArchiveConfig
   readonly retrievalBudget?: (agent: Agent) => number
   readonly status?: (agent: Agent) => Promise<object>
+  readonly awaitContext?: (agent: Agent, signal: AbortSignal) => Promise<object>
   readonly newContext?: (agent: Agent, handoff?: string, callId?: string) => object
   readonly manualNew?: (agent: Agent, signal: AbortSignal) => Promise<unknown>
   readonly exclusive?: <T>(agent: Agent, task: () => Promise<T>) => Promise<T>
@@ -621,7 +622,7 @@ async function handleStatus(env: ToolEnvironment, _args: StatusArgs, exec: ToolR
   return { text: lines.join('\n') }
 }
 
-/** Build the four ARC model tools bound to one engine. */
+/** Build the ARC model tools bound to one engine. */
 export function makeTools(env: ToolEnvironment): ToolDefinition[] {
   const prompts = env.prompts ?? DEFAULT_RESOLVED
   const reader = env.reader ?? new ArchiveReader()
@@ -670,6 +671,16 @@ export function makeTools(env: ToolEnvironment): ToolDefinition[] {
     return { text }
   }
   const tools: ToolDefinition[] = [
+    ...(env.awaitContext ? [defineTool({
+      name: 'await_context',
+      description: 'Wait for the pending historical handoff only when the next action needs missing history; independent work can continue without waiting. Returns readiness; the host adds the handoff before the next model step.',
+      parameters: {},
+      output: textOutput(),
+      async execute(_args, exec) {
+        exec.signal.throwIfAborted()
+        return { text: JSON.stringify(await env.awaitContext!(requireAgent(exec), exec.signal)) }
+      },
+    })] : []),
     ...(env.newContext ? [defineTool({
       name: 'new_context', description: 'Request a fresh window with an optional handoff. Returns accepted; commits at the next safe pre-step.',
       parameters: { handoff: { type: 'string' as const, description: 'Goals, constraints, facts and next actions; at most 8000 Unicode code points.' } },

@@ -20,6 +20,14 @@ flowchart LR
 
 The default `windowed` strategy advances to a new window under context pressure and carries continuity information forward. `new_context` accepts an intent; the mutation commits at the next safe pre-step boundary, protecting current user input and tool call/result pairs. An `in-place` strategy can fold older content within the current window. Their measured differences appear in the [test report](TESTING.en.md).
 
+## Optional background handoffs and demand-driven waiting
+
+With explicit `backgroundSummary` configuration, `delivery: deferred` is the default. A background job prepares a source-hashed historical snapshot. Turnover commits a deterministic index while retaining the current input and recent tool pairs; the job continues. At a subsequent pre-step that the foreground already needs, the Harness appends the ready handoff as historical data. Only the durable append acknowledges delivery. It does not replace the window again or cause an extra request after a final answer.
+
+The model can continue independent work using current data. It calls `await_context` only when its next action needs missing history. The tool waits for the same job and returns status; the next host boundary appends the body. Cancellation, timeout, stale sources and insufficient delivery budget remain explicit, with archive retrieval available. Pending provenance is durable in the window transaction, so a restart before the notice append can report interruption. The independent summary cap defaults to 4096 UTF-8 bytes and delivery still uses the host token budget.
+
+`allowSameProvider` defaults to false; concurrent cloud routes require explicit opt-in. `delivery: seed` retains the previous immediate boundary-consumption/fallback mode for comparison. Without background configuration, `await_context` is absent. See the [next-iteration report](ITERATION-DEFERRED-HANDOFF.en.md) for configuration and evidence.
+
 ## Four constraints
 
 1. **Recoverable history.** Compression and window changes append events through a shared transaction instead of deleting original records. Summaries may omit details; archived sources remain searchable and pageable. Reversible means source recovery, not lossless summaries or guaranteed model recall.

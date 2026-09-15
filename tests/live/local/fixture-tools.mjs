@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync } fr
 import { join } from 'node:path'
 import { familyExpectation } from './fixtures.mjs'
 export const inject = ['tools']
-const historyTools = new Set(['arc_status', 'new_context', 'compress', 'decompress', 'search_context'])
+const historyTools = new Set(['arc_status', 'new_context', 'compress', 'decompress', 'search_context', 'await_context'])
 const fixtureTools = new Set(['experiment_read_page', 'experiment_work_file', 'experiment_write_file', 'experiment_apply_operation'])
 const sourceFiles = new Set(['policy.js', 'normalize.js', 'limits.js'])
 const output = { schema: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'], additionalProperties: false },

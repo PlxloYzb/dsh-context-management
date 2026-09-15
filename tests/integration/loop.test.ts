@@ -1,15 +1,17 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import type { Context } from '@deepseek-ai/cordis'
 import { AgentRegistry, type Agent } from '@deepseek-ai/dsh-agent'
 import { AgentLoop } from '@deepseek-ai/dsh-agent-loop'
 import { SystemPrompt } from '@deepseek-ai/dsh-system-prompt'
 import { ToolRuntime, defineTool } from '@deepseek-ai/dsh-tools'
 import { Session, SessionId } from '@deepseek-ai/dsh-session'
 import { LlmAdapter, LlmRuntime, LlmError, ReasoningEffortId, createUserMessage, type GenerateOptions, type StreamChunk, type ContentBlock } from '@deepseek-ai/dsh-llm'
+import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
 import { ContextManagementEngine } from '../../src/index.ts'
 import { ArchiveReader } from '../../src/archive.ts'
 import { windowIdentity } from '../../src/window-controller.ts'
-import { rebuildBlockLedger } from '../../src/region.ts'
+import { rebuildBlockLedger, readContextHandoff } from '../../src/region.ts'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
 import { host, oldWork } from './runtime.ts'
 
@@ -58,7 +60,7 @@ test('background preparation starts on the first admitted request, survives a co
   })
   h.ctx.llm.registerAdapter(['controlled-test'], local); h.ctx.llm.registerAdapter(['independent-test'], cloud)
   new AgentLoop(h.ctx, { agents: [] })
-  const engine = new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'independent-test', model: 'summary', reasoningEffort: 'minimal', prepareAtEffectiveCapacityPct: 0.01 } })
+  const engine = new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'independent-test', model: 'summary', reasoningEffort: 'minimal', delivery: 'seed', prepareAtEffectiveCapacityPct: 0.01 } })
   h.ctx.on('agent/request', async (_payload, next) => ({ ...await next(), provider: 'controlled-test', model: 'fixture' }))
   const handle = await h.ctx.agents.create({ sessionId: SessionId('first-request-background'), seed: seeded(), agentOptions: { provider: 'independent-test', model: 'summary' } })
   t.after(() => handle.dispose())
@@ -76,6 +78,71 @@ test('background preparation starts on the first admitted request, survives a co
   assert.equal(ledger[0]!.contextManagement?.seed.mode, 'model-assisted')
   assert.equal((engine.windows.status(handle.agent.session) as { lastOperation: { targetReached: boolean } }).lastOperation.targetReached, false, 'soft target may be exceeded while preserving fresh work safely')
   assert.match(JSON.stringify(local.calls.at(-1)!.messages), /FRESH-LOOP-SUFFIX-821/)
+})
+
+for (const scenario of ['independent', 'dependent', 'model'] as const) test(`deferred handoff crosses a real loop window: ${scenario}`, { timeout: 5000 }, async t => {
+  const dependent = scenario !== 'independent'
+  const h = await host(); t.after(h.close)
+  let release!: () => void, foreground = 0, agent: Agent, engine: ContextManagementEngine
+  const gate = new Promise<void>(resolve => { release = resolve })
+  const requests: GenerateOptions[] = []
+  const adapter = new ControlledAdapter(async function* (request) {
+    if (request.purpose === 'compaction') {
+      await gate
+      yield { type: 'text-delta', text: 'HISTORICAL-DECISION-7284' }
+      yield { type: 'finish', reason: { kind: 'stop' } }
+      return
+    }
+    requests.push(request); foreground++
+    if (foreground === 1) yield* response([{ type: 'tool-call', id: 'payload' as never, name: 'current_payload', arguments: '{}' }, ...(scenario === 'model' ? [{ type: 'tool-call' as const, id: 'requested-window' as never, name: 'new_context', arguments: '{}' }] : [])])
+    else if (foreground === 2) {
+      assert.equal(windowIdentity(agent.session).generation, 1)
+      assert.equal((engine.summaries.status(agent.session) as { status: string }).status, 'pending')
+      assert.doesNotMatch(JSON.stringify(request.messages), /HISTORICAL-DECISION-7284/)
+      if (dependent) setTimeout(release, 10)
+      yield* response([{ type: 'tool-call', id: 'dependency' as never, name: dependent ? 'await_context' : 'independent_verify', arguments: '{}' }])
+    } else {
+      assert.match(JSON.stringify(request.messages), /HISTORICAL-DECISION-7284/)
+      assert.match(JSON.stringify(request.messages), /CURRENT-PAYLOAD-783/)
+      yield* response([{ type: 'text', text: 'done' }])
+    }
+  })
+  const scopedRoot = h.ctx.isolate('tokenMeter')
+  new TokenMeter(scopedRoot)
+  const scopeFiber = await scopedRoot.plugin({
+    inject: ['sessions', 'sessionPersistence'],
+    apply(ctx: Context) {
+      // This is a real Cordis plugin scope. tokenMeter is intentionally absent
+      // from inject: direct access is rejected, while ctx.get resolves the
+      // scoped host service used by the engine.
+      assert.throws(() => ctx.tokenMeter, /cannot get property "tokenMeter" without inject/)
+      assert.ok(ctx.get('tokenMeter'))
+      new AgentRegistry(ctx); new LlmRuntime(ctx)
+      new SystemPrompt(ctx, { includeHarnessIdentity: false, includeRuntimeContext: false }); new ToolRuntime(ctx)
+      ctx.llm.registerAdapter(['controlled-test'], adapter)
+      new AgentLoop(ctx, { agents: [] })
+      engine = new ContextManagementEngine(ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'controlled-test', model: 'fixture', allowSameProvider: true, delivery: 'deferred', prepareAtEffectiveCapacityPct: 0.01 } })
+      ctx.tools.register(defineTool({ name: 'current_payload', description: 'Current independent data', parameters: {}, output: { schema: { type: 'object', properties: { text: { type: 'string' } }, additionalProperties: false }, render: (_args, value: { text: string }) => [{ type: 'text', text: value.text }] },
+        async execute() { return { text: 'CURRENT-PAYLOAD-783\n' + 'Current diagnostic row, no historical decision. '.repeat(scenario === 'model' ? 10 : 2000) } } }))
+      ctx.tools.register(defineTool({ name: 'independent_verify', description: 'Current verification', parameters: {}, output: { schema: { type: 'object', properties: { text: { type: 'string' } }, additionalProperties: false }, render: (_args, value: { text: string }) => [{ type: 'text', text: value.text }] },
+        async execute() { assert.equal((engine.summaries.status(agent.session) as { status: string }).status, 'pending'); release(); await new Promise(resolve => setImmediate(resolve)); return { text: 'current verification done' } } }))
+    },
+  })
+  t.after(() => scopeFiber.dispose())
+  const handle = await scopeFiber.ctx.agents.create({ sessionId: SessionId(`deferred-loop-${scenario}`), seed: seeded(), agentOptions: { provider: 'controlled-test', model: 'fixture' } }); agent = handle.agent
+  assert.ok(handle.agent.ctx.get('tokenMeter'))
+  t.after(() => handle.dispose())
+  agent.followup(prompt('Use the current payload and continue.')); await agent.whenIdle()
+  assert.equal(requests.length, 3, 'handoff delivery must not create a fourth, unnecessary request after the final answer')
+  const events = agent.session.snapshotEvents(), receipts = events.map(readContextHandoff).filter(r => r !== undefined)
+  assert.deepEqual(receipts.map(r => r.status), ['pending', 'delivered'])
+  assert.equal(windowIdentity(agent.session).generation, 1, 'delivery is an append, not a second window replacement')
+  assert.equal(rebuildBlockLedger(events)[0]!.contextManagement!.trigger, scenario === 'model' ? 'model' : 'pressure')
+  assert.equal((engine.summaries.status(agent.session) as { status: string }).status, 'delivered')
+  assert.equal((engine.summaries.status(agent.session) as { waitCount: number }).waitCount, dependent ? 1 : 0)
+  assert.equal(toolPairingBalancedAfter(agent.session, agent.session.surface.nodes.at(-1)!), true)
+  await scopeFiber.ctx.sessions.flush(agent.session)
+  assert.deepEqual((await scopeFiber.ctx.sessionPersistence.inspect(agent.session.id)).events, events)
 })
 
 test('O01/O02: real agent loop retries normalized overflow once after durable progress; ordinary provider error is terminal', async t => {

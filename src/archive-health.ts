@@ -1,5 +1,5 @@
 import type { SessionEvent } from '@deepseek-ai/dsh-session'
-import { readCompactionSummary, validCompactionReplacement, type WindowMetadata } from './region.ts'
+import { readCompactionSummary, validCompactionReplacement, validContextHandoffReceipt, type WindowMetadata } from './region.ts'
 
 export function validWindowMetadata(value: unknown, operationId: string): value is WindowMetadata {
   if (!value || typeof value !== 'object') return false
@@ -10,6 +10,8 @@ export function validWindowMetadata(value: unknown, operationId: string): value 
     && Number.isSafeInteger(m.generationAfter) && m.generationAfter! > 0
     && Array.isArray(m.parentBlockIds) && m.parentBlockIds.every(id => typeof id === 'string' && id !== operationId)
     && !!m.route && typeof m.route.provider === 'string' && typeof m.route.model === 'string'
+    && (m.pendingHandoff === undefined || (validContextHandoffReceipt(m.pendingHandoff) && m.pendingHandoff.status === 'pending'
+      && m.pendingHandoff.windowGeneration === m.generationAfter))
     && !!m.seed && m.seed.formatVersion === 1 && typeof m.seed.incomplete === 'boolean'
     && (m.seed.prepared === undefined || (!!m.seed.prepared && typeof m.seed.prepared === 'object' && Number.isSafeInteger(m.seed.prepared.throughSeq) && m.seed.prepared.throughSeq >= 0
       && /^[a-f0-9]{64}$/.test(m.seed.prepared.sourceHash) && typeof m.seed.prepared.provider === 'string' && typeof m.seed.prepared.model === 'string'

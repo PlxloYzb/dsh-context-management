@@ -1,0 +1,901 @@
+{
+  "schemaVersion": 1,
+  "kind": "deferred-handoff-curated-report",
+  "hostVersion": "0.1.2-rc.1",
+  "model": "muse-spark-1.3-contributor",
+  "reasoningEffort": "minimal",
+  "cohort": "mechanism-and-web",
+  "runs": [
+    {
+      "name": "deferred-independent-91541",
+      "task": "independent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "92251b305adb144c8bfac6b921d34104e177fb43c9a8fa32a6bc5128c5f96d10",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": null,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": false,
+        "originalError": {
+          "code": "sample-failed",
+          "message": "Incomplete task turn"
+        },
+        "score": {
+          "correct": 0,
+          "total": 1,
+          "fields": null
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": false,
+        "dependentFactAvailabilityByForegroundRequest": null
+      },
+      "window": {
+        "count": 0,
+        "timings": [],
+        "handoffClassifications": [],
+        "await": {
+          "count": 0,
+          "userVisibleWaitMs": null,
+          "waitedMsFallback": null
+        },
+        "peak": {
+          "summaryInFlight": 0,
+          "totalInFlight": 0,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 0
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 0,
+        "pages": 0
+      },
+      "usage": {
+        "calls": 0,
+        "states": {
+          "reported": 0,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 0,
+          "outputTokens": 0,
+          "totalTokens": 0,
+          "cacheReadTokens": 0
+        }
+      }
+    },
+    {
+      "name": "deferred-independent-v2-91541",
+      "task": "independent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "6a0b35991aa790a2640502eec2593bcbd61617afea119a443510ca45053b7b47",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": null,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": false,
+        "originalError": {
+          "code": "sample-failed",
+          "message": "The real governor did not produce a window replacement"
+        },
+        "score": {
+          "correct": 1,
+          "total": 1,
+          "fields": null
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": false,
+        "dependentFactAvailabilityByForegroundRequest": null
+      },
+      "window": {
+        "count": 0,
+        "timings": [],
+        "handoffClassifications": [
+          "uncovered-no-window-source-still-current"
+        ],
+        "await": {
+          "count": 0,
+          "userVisibleWaitMs": 0,
+          "waitedMsFallback": 0
+        },
+        "peak": {
+          "summaryInFlight": 1,
+          "totalInFlight": 2,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 6262
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 0,
+        "pages": 0
+      },
+      "usage": {
+        "calls": 4,
+        "states": {
+          "reported": 4,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 67499,
+          "outputTokens": 794,
+          "totalTokens": 146727,
+          "cacheReadTokens": 78434
+        }
+      }
+    },
+    {
+      "name": "deferred-independent-v3-91541",
+      "task": "independent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "183df6a80ed47180612a5b52eafc5fc38d9ab0cba3707cd419a6b8ebf984a977",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": 48000,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": false,
+        "originalError": {
+          "code": "sample-failed",
+          "message": "The real governor did not produce a window replacement"
+        },
+        "score": {
+          "correct": 1,
+          "total": 1,
+          "fields": null
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": false,
+        "dependentFactAvailabilityByForegroundRequest": null
+      },
+      "window": {
+        "count": 0,
+        "timings": [],
+        "handoffClassifications": [
+          "uncovered-no-window-source-still-current",
+          "uncovered-no-window-source-still-current"
+        ],
+        "await": {
+          "count": 0,
+          "userVisibleWaitMs": 0,
+          "waitedMsFallback": 0
+        },
+        "peak": {
+          "summaryInFlight": 0,
+          "totalInFlight": 1,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 0
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 74925,
+        "pages": 22
+      },
+      "usage": {
+        "calls": 5,
+        "states": {
+          "reported": 3,
+          "zero": 2,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 31905,
+          "outputTokens": 178,
+          "totalTokens": 67494,
+          "cacheReadTokens": 35411
+        }
+      }
+    },
+    {
+      "name": "deferred-independent-v4-91541",
+      "task": "independent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "183df6a80ed47180612a5b52eafc5fc38d9ab0cba3707cd419a6b8ebf984a977",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": 44000,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": false,
+        "originalError": {
+          "code": "sample-failed",
+          "message": "Incomplete task turn"
+        },
+        "score": {
+          "correct": 0,
+          "total": 1,
+          "fields": null
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": false,
+        "dependentFactAvailabilityByForegroundRequest": null
+      },
+      "window": {
+        "count": 1,
+        "timings": [
+          {
+            "generation": 1,
+            "preStepBoundaryMs": null,
+            "firstForegroundAfterCommitMs": null,
+            "handoffs": [
+              {
+                "classification": "uncovered-natural-pending-at-task-end",
+                "pendingAfterCommitMs": 0,
+                "readyAfterCommitMs": null,
+                "deliveryAfterCommitMs": null
+              }
+            ]
+          }
+        ],
+        "handoffClassifications": [
+          "uncovered-natural-pending-at-task-end"
+        ],
+        "await": {
+          "count": 0,
+          "userVisibleWaitMs": 0,
+          "waitedMsFallback": 0
+        },
+        "peak": {
+          "summaryInFlight": 0,
+          "totalInFlight": 1,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 0
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 79324,
+        "pages": 23
+      },
+      "usage": {
+        "calls": 2,
+        "states": {
+          "reported": 1,
+          "zero": 1,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 34671,
+          "outputTokens": 78,
+          "totalTokens": 34749,
+          "cacheReadTokens": 0
+        }
+      }
+    },
+    {
+      "name": "deferred-independent-v5-91541",
+      "task": "independent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "e105896b9d2bf49b0b7ea7a2c31366d448bfb2c0e85cdaa5876382e240f45ecd",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": 44000,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": true,
+        "originalError": null,
+        "score": {
+          "correct": 1,
+          "total": 1,
+          "fields": null
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": true,
+        "dependentFactAvailabilityByForegroundRequest": null
+      },
+      "window": {
+        "count": 1,
+        "timings": [
+          {
+            "generation": 1,
+            "preStepBoundaryMs": 17,
+            "firstForegroundAfterCommitMs": 14,
+            "handoffs": [
+              {
+                "classification": "covered",
+                "pendingAfterCommitMs": 12,
+                "readyAfterCommitMs": 3320,
+                "deliveryAfterCommitMs": 6493
+              }
+            ]
+          }
+        ],
+        "handoffClassifications": [
+          "covered"
+        ],
+        "await": {
+          "count": 0,
+          "userVisibleWaitMs": 0,
+          "waitedMsFallback": 0
+        },
+        "peak": {
+          "summaryInFlight": 1,
+          "totalInFlight": 2,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 9142
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 79324,
+        "pages": 23
+      },
+      "usage": {
+        "calls": 4,
+        "states": {
+          "reported": 4,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 78699,
+          "outputTokens": 651,
+          "totalTokens": 90087,
+          "cacheReadTokens": 10737
+        }
+      }
+    },
+    {
+      "name": "deferred-dependent-91541",
+      "task": "dependent",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "e105896b9d2bf49b0b7ea7a2c31366d448bfb2c0e85cdaa5876382e240f45ecd",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "windowBudget": 44000,
+        "prepareFraction": null,
+        "maxSummaryBytes": null
+      },
+      "result": {
+        "completed": true,
+        "originalError": null,
+        "score": {
+          "correct": 3,
+          "total": 3,
+          "fields": {
+            "owner": true,
+            "rollback": true,
+            "gate": true
+          }
+        }
+      },
+      "quality": {
+        "strictPassed": null,
+        "allQualityPassed": null,
+        "auditStructuralPassed": true,
+        "dependentFactAvailabilityByForegroundRequest": [
+          {
+            "request": 1,
+            "fields": {
+              "owner": true,
+              "rollback": true,
+              "gate": true
+            }
+          },
+          {
+            "request": 2,
+            "fields": {
+              "owner": false,
+              "rollback": false,
+              "gate": false
+            }
+          },
+          {
+            "request": 3,
+            "fields": {
+              "owner": true,
+              "rollback": true,
+              "gate": true
+            }
+          }
+        ]
+      },
+      "window": {
+        "count": 1,
+        "timings": [
+          {
+            "generation": 1,
+            "preStepBoundaryMs": 20,
+            "firstForegroundAfterCommitMs": 15,
+            "handoffs": [
+              {
+                "classification": "covered",
+                "pendingAfterCommitMs": 12,
+                "readyAfterCommitMs": 4701,
+                "deliveryAfterCommitMs": 4712
+              }
+            ]
+          }
+        ],
+        "handoffClassifications": [
+          "covered"
+        ],
+        "await": {
+          "count": 1,
+          "userVisibleWaitMs": 1910,
+          "waitedMsFallback": 1904
+        },
+        "peak": {
+          "summaryInFlight": 1,
+          "totalInFlight": 2,
+          "foregroundSerial": true
+        },
+        "streamOverlapMs": 5801
+      },
+      "archive": {
+        "appendOnly": true,
+        "currentInputProtected": true,
+        "toolPairsBalanced": true,
+        "bytesVerified": true,
+        "restoredBytes": 79324,
+        "pages": 23
+      },
+      "usage": {
+        "calls": 4,
+        "states": {
+          "reported": 4,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 55045,
+          "outputTokens": 719,
+          "totalTokens": 90279,
+          "cacheReadTokens": 34515
+        }
+      }
+    },
+    {
+      "name": "deferred-windowed-91542",
+      "task": "web",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "7ae69d6ec21c69d36c3157d5ab82d48ea6fb2417294816caf3cc1f5e5e24993f",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "strategy": "windowed",
+        "windowBudget": 47844,
+        "pressure": 32000,
+        "effective": 35556,
+        "maxTokens": 8192
+      },
+      "result": {
+        "completed": true,
+        "originalError": null,
+        "score": null
+      },
+      "strictPassed": true,
+      "allQualityPassed": true,
+      "scores": {
+        "facts": {
+          "correct": 24,
+          "total": 24
+        },
+        "corrections": {
+          "correct": 6,
+          "total": 6
+        },
+        "verbatim": {
+          "correct": 3,
+          "total": 3
+        },
+        "deliverablePassed": true
+      },
+      "quality": {
+        "strictPassed": true,
+        "allQualityPassed": true,
+        "auditStructuralPassed": true,
+        "cloudCompleted": true
+      },
+      "window": {
+        "count": 4,
+        "compactions": [
+          {
+            "kind": "window"
+          },
+          {
+            "kind": "window"
+          },
+          {
+            "kind": "window"
+          },
+          {
+            "kind": "window"
+          }
+        ],
+        "timings": [
+          {
+            "preStepBoundaryMs": 32,
+            "backgroundBefore": "pending",
+            "backgroundAfter": "pending"
+          },
+          {
+            "preStepBoundaryMs": 28,
+            "backgroundBefore": "pending",
+            "backgroundAfter": "pending"
+          },
+          {
+            "preStepBoundaryMs": 22,
+            "backgroundBefore": "pending",
+            "backgroundAfter": "pending"
+          },
+          {
+            "preStepBoundaryMs": 20,
+            "backgroundBefore": "ready",
+            "backgroundAfter": "delivering"
+          }
+        ],
+        "handoffs": [
+          {
+            "classification": "covered-pending-crossed-window",
+            "ordering": true,
+            "sourceComplete": true,
+            "sourceHashVerified": true,
+            "appendWithoutGenerationChange": true,
+            "recoveryNotificationValid": null
+          },
+          {
+            "classification": "terminated-interrupted",
+            "ordering": null,
+            "sourceComplete": true,
+            "sourceHashVerified": true,
+            "appendWithoutGenerationChange": null,
+            "recoveryNotificationValid": true
+          },
+          {
+            "classification": "covered-ready-before-window",
+            "ordering": true,
+            "sourceComplete": true,
+            "sourceHashVerified": true,
+            "appendWithoutGenerationChange": true,
+            "recoveryNotificationValid": null
+          },
+          {
+            "classification": "uncovered-source-still-current",
+            "ordering": null,
+            "sourceComplete": null,
+            "sourceHashVerified": null,
+            "appendWithoutGenerationChange": null,
+            "recoveryNotificationValid": null
+          }
+        ],
+        "handoffClassifications": [
+          "covered-pending-crossed-window",
+          "terminated-interrupted",
+          "covered-ready-before-window",
+          "uncovered-source-still-current"
+        ],
+        "await": {
+          "count": 0,
+          "calls": [],
+          "userVisibleWaitMs": null,
+          "waitedMsFallback": null
+        },
+        "peak": {
+          "summaryInFlight": 1,
+          "totalInFlight": 2,
+          "foregroundSerial": null
+        },
+        "streamOverlapMs": 45390
+      },
+      "archive": {
+        "appendOnly": null,
+        "currentInputProtected": null,
+        "toolPairsBalanced": null,
+        "bytesVerified": true,
+        "restoredBytes": 577654,
+        "pages": null
+      },
+      "usage": {
+        "calls": 29,
+        "states": {
+          "reported": 28,
+          "zero": 1,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 194889,
+          "outputTokens": 6443,
+          "totalTokens": 751372,
+          "cacheReadTokens": 550040
+        }
+      },
+      "execution": {
+        "calls": 29,
+        "reportedTokens": 751372,
+        "modelElapsedMs": 129676,
+        "elapsedSeconds": 92
+      }
+    },
+    {
+      "name": "deferred-inplace-91542",
+      "task": "web",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "7ae69d6ec21c69d36c3157d5ab82d48ea6fb2417294816caf3cc1f5e5e24993f",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "strategy": "in-place",
+        "windowBudget": 47844,
+        "pressure": 32000,
+        "effective": 35556,
+        "maxTokens": 8192
+      },
+      "result": {
+        "completed": true,
+        "originalError": null,
+        "score": null
+      },
+      "strictPassed": true,
+      "allQualityPassed": true,
+      "scores": {
+        "facts": {
+          "correct": 24,
+          "total": 24
+        },
+        "corrections": {
+          "correct": 6,
+          "total": 6
+        },
+        "verbatim": {
+          "correct": 3,
+          "total": 3
+        },
+        "deliverablePassed": true
+      },
+      "quality": {
+        "strictPassed": true,
+        "allQualityPassed": true,
+        "auditStructuralPassed": true,
+        "cloudCompleted": true
+      },
+      "window": {
+        "count": 0,
+        "compactions": [
+          {
+            "kind": "in-place-fallback"
+          },
+          {
+            "kind": "in-place-fallback"
+          },
+          {
+            "kind": "in-place-fallback"
+          }
+        ],
+        "timings": [
+          {
+            "preStepBoundaryMs": 26,
+            "backgroundBefore": null,
+            "backgroundAfter": null
+          },
+          {
+            "preStepBoundaryMs": 23,
+            "backgroundBefore": null,
+            "backgroundAfter": null
+          },
+          {
+            "preStepBoundaryMs": 18,
+            "backgroundBefore": null,
+            "backgroundAfter": null
+          }
+        ],
+        "handoffs": [],
+        "handoffClassifications": [],
+        "await": {
+          "count": 0,
+          "calls": [],
+          "userVisibleWaitMs": null,
+          "waitedMsFallback": null
+        },
+        "peak": {
+          "summaryInFlight": 0,
+          "totalInFlight": 1,
+          "foregroundSerial": null
+        },
+        "streamOverlapMs": 0
+      },
+      "archive": {
+        "appendOnly": null,
+        "currentInputProtected": null,
+        "toolPairsBalanced": null,
+        "bytesVerified": true,
+        "restoredBytes": 336410,
+        "pages": null
+      },
+      "usage": {
+        "calls": 17,
+        "states": {
+          "reported": 17,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 84081,
+          "outputTokens": 3318,
+          "totalTokens": 463351,
+          "cacheReadTokens": 375952
+        }
+      },
+      "execution": {
+        "calls": 17,
+        "reportedTokens": 463351,
+        "modelElapsedMs": 55793,
+        "elapsedSeconds": 64
+      }
+    },
+    {
+      "name": "deferred-native-91542",
+      "task": "web",
+      "hostVersion": "0.1.2-rc.1",
+      "candidateHash": "7ae69d6ec21c69d36c3157d5ab82d48ea6fb2417294816caf3cc1f5e5e24993f",
+      "model": {
+        "name": "muse-spark-1.3-contributor",
+        "reasoningEffort": "minimal"
+      },
+      "geometry": {
+        "strategy": "Basic",
+        "windowBudget": 47844,
+        "pressure": 32000,
+        "effective": 35556,
+        "maxTokens": 8192
+      },
+      "result": {
+        "completed": true,
+        "originalError": null,
+        "score": null
+      },
+      "strictPassed": true,
+      "allQualityPassed": false,
+      "scores": {
+        "facts": {
+          "correct": 24,
+          "total": 24
+        },
+        "corrections": {
+          "correct": 6,
+          "total": 6
+        },
+        "verbatim": {
+          "correct": 1,
+          "total": 3
+        },
+        "deliverablePassed": true
+      },
+      "quality": {
+        "strictPassed": true,
+        "allQualityPassed": false,
+        "auditStructuralPassed": true,
+        "cloudCompleted": true
+      },
+      "window": {
+        "count": 0,
+        "compactions": [
+          {
+            "kind": "native-basic"
+          }
+        ],
+        "timings": [
+          {
+            "preStepBoundaryMs": 13335,
+            "backgroundBefore": null,
+            "backgroundAfter": null
+          }
+        ],
+        "handoffs": [],
+        "handoffClassifications": [],
+        "await": {
+          "count": 0,
+          "calls": [],
+          "userVisibleWaitMs": null,
+          "waitedMsFallback": null
+        },
+        "peak": {
+          "summaryInFlight": 1,
+          "totalInFlight": 1,
+          "foregroundSerial": null
+        },
+        "streamOverlapMs": 0
+      },
+      "archive": {
+        "appendOnly": null,
+        "currentInputProtected": null,
+        "toolPairsBalanced": null,
+        "bytesVerified": true,
+        "restoredBytes": 106902,
+        "pages": null
+      },
+      "usage": {
+        "calls": 20,
+        "states": {
+          "reported": 20,
+          "zero": 0,
+          "missing-or-null": 0
+        },
+        "reportedFieldSums": {
+          "inputTokens": 84419,
+          "outputTokens": 8403,
+          "totalTokens": 561386,
+          "cacheReadTokens": 468564
+        }
+      },
+      "execution": {
+        "calls": 20,
+        "reportedTokens": 561386,
+        "modelElapsedMs": 96090,
+        "elapsedSeconds": 103
+      }
+    }
+  ],
+  "limitations": [
+    "Fixed named single-run cohort; this is mechanism evidence, not a statistical latency or cost claim.",
+    "Usage is accounting evidence only. Missing/null and zero usage are kept distinct.",
+    "Raw request bodies, event logs, paths, session IDs, operation IDs, source hashes, fixture facts, and current tokens are excluded."
+  ]
+}

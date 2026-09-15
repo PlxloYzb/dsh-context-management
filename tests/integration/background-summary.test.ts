@@ -11,7 +11,7 @@ import { Config, validateContextConfig } from '../../src/index.ts'
 import { host, newSession, oldWork, newInput } from './runtime.ts'
 import { appendAssistant, appendToolCall, appendToolResult } from '../helpers.ts'
 
-const archive = resolveArchiveConfig(), config = resolveBackgroundSummary({ provider: 'independent', model: 'summary', reasoningEffort: 'minimal' })!
+const archive = resolveArchiveConfig(), config = resolveBackgroundSummary({ provider: 'independent', model: 'summary', reasoningEffort: 'minimal', delivery: 'seed' })!
 const incoming = () => createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: 'Current instruction overrides history.' }] })
 async function setup(id: string, generate: (request: GenerateOptions) => AsyncIterable<StreamChunk>) {
   const h = await host(); h.ctx.provide('llm', { stream: generate })

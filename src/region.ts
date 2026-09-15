@@ -1,4 +1,5 @@
 import { resolveSources } from './archive.ts'
+import { validWindowMetadata } from './archive-health.ts'
 /**
  * M5 — durable region transaction and the log-rebuilt block ledger.
  *
@@ -13,7 +14,7 @@ import { resolveSources } from './archive.ts'
  */
 
 import { SessionSeq } from '@deepseek-ai/dsh-session'
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import type { Session, SessionEvent, SessionEventMap } from '@deepseek-ai/dsh-session'
 import {
   CompactionId,
@@ -28,6 +29,68 @@ import { createUserMessage, type ContentBlock } from '@deepseek-ai/dsh-llm'
 import { defaultCountTokens } from 'acp-kernel'
 import { extractEventText, extractText, regeneratedSnapshotSeqs } from './messages.ts'
 
+/** A supplemental handoff is an append, not another compaction or shadow price.
+ * Prepare it here; the host commits the returned message with the other
+ * pre-step messages through its normal append/persistence path. */
+export interface ContextHandoffReceipt {
+  readonly schemaVersion: 1
+  readonly operationId: string
+  readonly status: 'pending' | 'delivered' | 'unavailable'
+  readonly sourceHash: string
+  readonly sourceSeqs: readonly number[]
+  readonly throughSeq: number
+  readonly sourceGeneration: number
+  readonly windowGeneration: number
+  readonly provider: string
+  readonly model: string
+  readonly reasoningEffort?: string
+  readonly reason?: string
+}
+export type PendingContextHandoff = ContextHandoffReceipt & { readonly status: 'pending' }
+export function validContextHandoffReceipt(value: unknown): value is ContextHandoffReceipt {
+  if (!value || typeof value !== 'object') return false
+  const receipt = value as Partial<ContextHandoffReceipt>
+  return receipt.schemaVersion === 1 && typeof receipt.operationId === 'string' && receipt.operationId.length > 0
+    && ['pending', 'delivered', 'unavailable'].includes(receipt.status ?? '') && typeof receipt.sourceHash === 'string' && /^[a-f0-9]{64}$/.test(receipt.sourceHash)
+    && Array.isArray(receipt.sourceSeqs) && receipt.sourceSeqs.length > 0 && receipt.sourceSeqs.every(seq => Number.isSafeInteger(seq) && seq >= 0)
+    && new Set(receipt.sourceSeqs).size === receipt.sourceSeqs.length && receipt.throughSeq === receipt.sourceSeqs.at(-1)
+    && Number.isSafeInteger(receipt.sourceGeneration) && receipt.sourceGeneration! >= 0
+    && Number.isSafeInteger(receipt.windowGeneration) && receipt.windowGeneration! >= 0
+    && typeof receipt.provider === 'string' && typeof receipt.model === 'string'
+    && (receipt.reasoningEffort === undefined || typeof receipt.reasoningEffort === 'string')
+    && (receipt.reason === undefined || typeof receipt.reason === 'string')
+}
+export function readContextHandoff(event: SessionEvent): ContextHandoffReceipt | undefined {
+  if (event.type !== 'user/message' || event.data.source.kind !== 'plugin' || event.data.source.plugin !== 'dsh-context-management/handoff') return undefined
+  const source = event.data.source as typeof event.data.source & { handoff?: ContextHandoffReceipt }
+  const receipt = source.handoff
+  return validContextHandoffReceipt(receipt) ? receipt : undefined
+}
+/** A window transaction records pending work before a later pre-step can append
+ * its notice. Only a closed, applied transaction may supply this restart record. */
+export function readWindowContextHandoff(session: Session, event: SessionEvent): PendingContextHandoff | undefined {
+  if (event.type !== 'compaction/summary') return undefined
+  const data = readCompactionSummary(event), metadata = data.contextManagement, receipt = metadata?.pendingHandoff
+  if (!validWindowMetadata(metadata, data.compactionId)
+    || !validContextHandoffReceipt(receipt) || receipt.status !== 'pending' || receipt.windowGeneration !== metadata.generationAfter
+    || !Number.isSafeInteger(metadata.generationAfter) || metadata.generationAfter <= 0) return undefined
+  const start = event.seq > 0 ? session.eventAt(SessionSeq(event.seq - 1)) : undefined
+  const replacement = session.eventAt(SessionSeq(event.seq + 1)), end = session.eventAt(SessionSeq(event.seq + 2))
+  if (start?.type !== 'compaction/start' || start.data.compactionId !== data.compactionId
+    || replacement?.type !== 'user/message' || !validCompactionReplacement(event, replacement) || !replacement.sourceEventSeqs?.includes(start.seq)
+    || end?.type !== 'compaction/end' || end.data.compactionId !== data.compactionId || end.data.turn !== start.data.turn || end.data.error !== undefined) return undefined
+  const sourceSeqs = data.shadowedSeqs
+  if (!sourceSeqs || !receipt.sourceSeqs.every((seq, index) => seq < event.seq && sourceSeqs[index] === seq && session.eventAt(SessionSeq(seq)) !== undefined)) return undefined
+  const hash = createHash('sha256').update(JSON.stringify(receipt.sourceSeqs.map(seq => session.eventAt(SessionSeq(seq))))).digest('hex')
+  return hash === receipt.sourceHash ? receipt as PendingContextHandoff : undefined
+}
+export function prepareContextHandoff(session: Session, receipt: ContextHandoffReceipt, text: string): import('@deepseek-ai/dsh-llm').UserMessage {
+  assertNoActiveCompaction(session.snapshotEvents())
+  if (!text.trim()) throw new Error('empty-context-handoff')
+  if (session.snapshotEvents().some(event => { const prior = readContextHandoff(event); return prior?.operationId === receipt.operationId && prior.status === receipt.status })) throw new Error('duplicate-context-handoff')
+  return createUserMessage({ source: { kind: 'plugin', plugin: 'dsh-context-management/handoff', handoff: receipt }, content: [{ type: 'text', text }] })
+}
+
 export interface WindowMetadata {
   readonly schemaVersion: 1
   readonly kind: 'window'
@@ -39,6 +102,7 @@ export interface WindowMetadata {
   readonly toWindowId: string
   readonly generationAfter: number
   readonly parentBlockIds: readonly string[]
+  readonly pendingHandoff?: PendingContextHandoff
   readonly route: { readonly provider: string; readonly model: string }
   readonly seed: { readonly incomplete: boolean; readonly formatVersion: 1; readonly mode?: 'extractive' | 'model-assisted'; readonly rejected?: string
     readonly prepared?: { readonly throughSeq: number; readonly sourceHash: string; readonly provider: string; readonly model: string; readonly reasoningEffort?: string } }

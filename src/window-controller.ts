@@ -5,7 +5,7 @@ import { SessionSeq, type Session } from '@deepseek-ai/dsh-session'
 import type { UserMessage } from '@deepseek-ai/dsh-llm'
 import { CompactionId, toolPairingBalancedAfter, toolPairingBalancedBefore, type CompactionAgentContext, type CompactionResult } from '@deepseek-ai/dsh-compaction'
 import { buildManualFallbackSummary, resolveShadowedTokenCount, resolveCompactionInputBenefit, resolveSummaryTokenCount } from './fallback.ts'
-import { BlockLedgerIndex, findOpenTurn, rebuildBlockLedger, runCompactionTransaction, type ArcBlockLedgerEntry, type WindowMetadata } from './region.ts'
+import { BlockLedgerIndex, findOpenTurn, rebuildBlockLedger, runCompactionTransaction, type ArcBlockLedgerEntry, type PendingContextHandoff, type WindowMetadata } from './region.ts'
 
 import { userHistoryIndex, windowEvidenceIndex } from './evidence-index.ts'
 import { foregroundRoute, sourceHash, type PreparedSummary } from './background-summary.ts'
@@ -139,12 +139,12 @@ export class WindowController {
       throw error
     } finally { state.busy = false }
   }
-  async commitPending(agent: CompactionAgentContext, signal: AbortSignal, config: ArchiveConfig, flush: () => Promise<void>, incomingUser?: UserMessage): Promise<CompactionResult | null> {
+  async commitPending(agent: CompactionAgentContext, signal: AbortSignal, config: ArchiveConfig, flush: () => Promise<void>, incomingUser?: UserMessage, deferredSnapshot?: PreparedSummary): Promise<CompactionResult | null> {
     const state = this.state(agent.session), pending = state.pending
     if (!pending) return null
     delete state.pending
     if (signal.aborted || pending.turn !== findOpenTurn(agent.session.snapshotEvents()) || pending.generation !== this.identity(agent.session).generation) { state.last = { status: 'no-op', code: 'cancelled', requestId: pending.requestId }; return null }
-    const result = await this.turnover(agent, 'model', signal, config, flush, pending, undefined, incomingUser)
+    const result = await this.turnover(agent, 'model', signal, config, flush, pending, undefined, incomingUser, undefined, 0, deferredSnapshot)
     if (!result) {
       state.last = { ...state.last, requestId: pending.requestId, generation: this.identity(agent.session).generation }
       state.notice = state.last
@@ -157,7 +157,7 @@ export class WindowController {
     delete state.notice
     return notice
   }
-  async turnover(agent: CompactionAgentContext, trigger: WindowMetadata['trigger'], signal: AbortSignal, config: ArchiveConfig, flush: () => Promise<void>, pending?: Pending, beforePrepare?: () => boolean | void, incomingUser?: UserMessage, prepared?: PreparedSummary, requiredReduction = 0): Promise<CompactionResult | null> {
+  async turnover(agent: CompactionAgentContext, trigger: WindowMetadata['trigger'], signal: AbortSignal, config: ArchiveConfig, flush: () => Promise<void>, pending?: Pending, beforePrepare?: () => boolean | void, incomingUser?: UserMessage, prepared?: PreparedSummary, requiredReduction = 0, deferredSnapshot?: PreparedSummary): Promise<CompactionResult | null> {
     return this.exclusive(agent.session, async () => {
       signal.throwIfAborted()
       if (beforePrepare?.() === false) { this.state(agent.session).last = { status: 'no-op', code: 'pruner-relieved-pressure' }; return null }
@@ -176,6 +176,19 @@ export class WindowController {
           else if (resolveCompactionInputBenefit(agent, prepared.seqs) - resolveSummaryTokenCount(agent, [{ type: 'text', text: layout.prefix + prepared.text }]) < Math.max(1, requiredReduction)) { rejected = 'insufficient-relief'; prepared = undefined }
           else seqs = [...prepared.seqs]
         }
+      }
+      const validDeferred = !prepared && deferredSnapshot && deferredSnapshot.sessionId === session.id
+        && deferredSnapshot.replaceGeneration === session.surface.replaceGeneration
+        && deferredSnapshot.route === foregroundRoute(agent) && deferredSnapshot.seqs.length > 0
+        && deferredSnapshot.seqs.every((seq, i) => seqs[i] === seq)
+        && sourceHash(session, deferredSnapshot.seqs) === deferredSnapshot.hash
+        && toolPairingBalancedAfter(session, SessionSeq(deferredSnapshot.seqs.at(-1)!))
+      if (validDeferred && deferredSnapshot && !pending) {
+        // Retain work after the frozen summary snapshot whenever that older
+        // prefix alone provides the required pressure relief. The initial
+        // seed remains deterministic and never waits for the summary.
+        const layout = seedLayout(session, deferredSnapshot.seqs, config, identity.generation + 1, deferredSnapshot.operationId, false)
+        if (resolveCompactionInputBenefit(agent, deferredSnapshot.seqs) - resolveSummaryTokenCount(agent, [{ type: 'text', text: layout.prefix }]) >= Math.max(1, requiredReduction)) seqs = [...deferredSnapshot.seqs]
       }
       const ledger = rebuildBlockLedger(session.snapshotEvents())
       const windowSeeds = new Set(ledger.filter(block => block.contextManagement !== undefined).map(block => block.summarySeq))
@@ -202,9 +215,16 @@ export class WindowController {
       const shadowedTokenCount = resolveShadowedTokenCount(agent, seqs)
       if (resolveCompactionInputBenefit(agent, seqs) <= resolveSummaryTokenCount(agent, [{ type: 'text', text }])) { state.last = { status: 'no-op', code: 'no-net-reduction' }; return null }
       const route = session.requestHeader()?.config ?? agent.options
+      const pendingHandoff: PendingContextHandoff | undefined = validDeferred && deferredSnapshot ? {
+        schemaVersion: 1, operationId: deferredSnapshot.operationId, status: 'pending', sourceHash: deferredSnapshot.hash,
+        sourceSeqs: [...deferredSnapshot.seqs], throughSeq: deferredSnapshot.seqs.at(-1)!, sourceGeneration: deferredSnapshot.replaceGeneration,
+        windowGeneration: identity.generation + 1, provider: deferredSnapshot.provider, model: deferredSnapshot.model,
+        ...(deferredSnapshot.reasoningEffort ? { reasoningEffort: deferredSnapshot.reasoningEffort } : {}),
+      } : undefined
       const metadata: Omit<WindowMetadata, 'operationId'> = {
         schemaVersion: 1, kind: 'window', trigger, fromWindowId: identity.windowId, toWindowId,
         generationAfter: identity.generation + 1, parentBlockIds: parents,
+        ...(pendingHandoff ? { pendingHandoff } : {}),
         route: { provider: route.provider ?? '', model: route.model ?? '' }, seed: { incomplete, formatVersion: 1, mode: handoff ? 'model-assisted' : 'extractive',
           ...(prepared ? { prepared: { throughSeq: prepared.seqs.at(-1)!, sourceHash: prepared.hash, provider: prepared.provider, model: prepared.model, ...(prepared.reasoningEffort ? { reasoningEffort: prepared.reasoningEffort } : {}) } } : {}),
           ...(rejected ? { rejected } : {}) },

@@ -2,6 +2,8 @@
 
 ## Unreleased (post-0.1.1, driven by the 400k experiment close-out findings)
 
+- 后台摘要默认采用 `delivery: deferred`：先用确定性上下文换窗，允许同一任务跨窗继续；就绪后经 Harness 的安全 pre-step 追加，持久化回执后才算交付。新增按依赖等待的 `await_context` 与独立摘要字节预算，覆盖取消、预算拒绝、重复交付及窗口已落盘但通知未追加时的重启恢复。保留 `delivery: seed` 对照。真实 Muse minimal 验证独立工作零等待与历史依赖点剩余等待；同时修复 pruner 已解除压力后仍额外归档的问题。见[中文](docs/ITERATION-DEFERRED-HANDOFF.zh-CN.md) / [English](docs/ITERATION-DEFERRED-HANDOFF.en.md)。
+
 - 后台摘要新增 `allowSameProvider` 显式开关（默认 false），支持前台与摘要同用 Muse minimal；仍按会话/代次限流并拥有取消与迟到结果。双云端小步验证观察到宿主流重叠和准备充足时的模型种子采用；真实短分页在 60%/40% 准备线均为 0/4 采用，迟到与超预算安全回退，未修改默认调度。测试工具新增仅记账成本模式、HTTP 归属诊断和按实际工具结果的检索计数；保留指令失败并勘误此前“允许即成功”的统计。见[中文](docs/ITERATION-MUSE-CLOUD.zh-CN.md) / [English](docs/ITERATION-MUSE-CLOUD.en.md)。
 - 新增显式可选的独立路由后台摘要：使用最终请求路由、绑定完整来源快照、按实际 UTF-8 余量生成、只在安全边界消费就绪结果并保留快照后的原文；取消/超时/过期/超限立即回退，超预算手写 handoff 整体回退并报告原因。Muse 后续验证统一 minimal。详见[中文](docs/ITERATION-MUSE-ENGINE.zh-CN.md) / [English](docs/ITERATION-MUSE-ENGINE.en.md)。
 - 第一阶段新增 Muse 双路换窗验证与测试层摘要调度原型：固定来源快照、提前准备/同步等待/确定性回退对照、迟到与取消状态机、种子预算压力测试及完整归档审计；运行时保持不变。真实 Web 执行器支持 `--route=muse`，按该路由容量计算匹配阈值，并使用私有 settings 副本隔离 rc.1 选模型 API 的全局默认项写入，禁用实验宿主的额外标题生成。协议与结果见 [中文](docs/ITERATION-MUSE.zh-CN.md) / [English](docs/ITERATION-MUSE.en.md)。
