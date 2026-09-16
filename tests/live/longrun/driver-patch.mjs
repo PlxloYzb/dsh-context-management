@@ -1,0 +1,58 @@
+// Host patch composition for one arm. The plugin under test is never modified;
+// this only selects the frozen arm configuration and mounts observation tools.
+import { writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
+import { createRequire } from 'node:module'
+
+// The host parses --patch overlays as YAML; serialize through the pinned host's
+// own YAML implementation so the dialect always matches.
+const yaml = createRequire(import.meta.url)(resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/yaml'))
+
+export async function writeArmPatch({ root, command, control, runRoot, arm, route, mainMaxTokens, bare = false }) {
+  const patchPath = resolve(root, 'host.patch.yml')
+  const insert = []
+  if (!bare) {
+    insert.push({
+      id: 'experiment-fixture-tools',
+      name: resolve('tests/live/longrun/fixture-tools.mjs'),
+      config: { controlRoot: control, fixturePath: resolve(runRoot, 'fixture.json') },
+    })
+    insert.push({
+      id: 'experiment-observer',
+      name: resolve('tests/live/longrun/observer.mjs'),
+      config: {
+        // The observer writes requests.jsonl plus the full snapshot and JSONL
+        // event streams into one directory; the driver reads that directory as
+        // its observed root. usage.jsonl lives in its own evidence subdirectory.
+        output: resolve(runRoot, 'observed'),
+        eventRoot: resolve(runRoot, 'observed'),
+        usageRoot: resolve(runRoot, 'usage'),
+        jobRoot: resolve(runRoot),
+        route,
+        mainMaxTokens,
+        expectedContextWindow: 1048576,
+        sessionMarker: 'dsh-context-experiment-',
+        stopFile: resolve(runRoot, 'control', 'stop'),
+      },
+    })
+    if (command.compaction.kind === 'native-basic') {
+      insert.push({
+        id: 'experiment-arm',
+        name: resolve('tests/live/longrun/arm.mjs'),
+        config: { output: resolve(runRoot), arm, compaction: command.compaction.config, mainMaxTokens, expectedContextWindow: 1048576 },
+      })
+    }
+  }
+  // The session-title model stream must be absent, and the model-facing skill
+  // catalog is a large user-message blob unrelated to the experiment workload;
+  // both are disabled without touching any shipped preset file.
+  const patches = [
+    { id: 'settings', config: { path: resolve(runRoot, 'private-settings.yaml') } },
+    { id: 'session-title-llm', disabled: true },
+    { id: 'tool-skill', disabled: true },
+  ]
+  if (command.pluginBundle) patches.push({ id: 'compaction-context-management-bridge', config: command.compaction.config })
+  patches.push({ insert })
+  await writeFile(patchPath, yaml.stringify(patches), { mode: 0o600 })
+  return patchPath
+}

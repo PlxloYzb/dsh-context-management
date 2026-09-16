@@ -64,7 +64,8 @@
     "test:release": "node tests/release/audit.mjs",
     "test:install": "node tests/release/package-name.mjs",
     "test:live:local": "node tests/live/local-short.mjs",
-    "test:live:local:unit": "node --test tests/live/local/*.test.mjs"
+    "test:live:local:unit": "node --test tests/live/local/*.test.mjs",
+    "test:live:longrun:unit": "node --test tests/live/longrun/*.test.mjs"
   },
   "dependencies": {
     "acp-kernel": "0.0.24"
