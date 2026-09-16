@@ -144,3 +144,11 @@ The index covers archived originals only. When a source is restored out of the a
 ## 13. Rollback
 
 The index sits behind a switch whose state appears in the response. Any violated invariant falls back to scanning. **A fallback must be observable; silent degradation is not allowed.**
+
+**Implementation record (2026-09-16)**: metering is exposed through `ArchiveReader.indexState(session)`. It carries index size (`events`/`entries`/`common`/`chars`) and the **work of the most recent search**: `lastColdChars` (characters spent indexing), `lastIndexedEvents`/`lastExaminedEvents`, `lastBlocksVisited` (blocks walked, i.e. source-graph roots), `lastResolvedSources` (sources resolved, i.e. source-graph output), `lastCandidatesExamined`/`lastCandidatesSkipped` (candidate processing) and `lastCancellationChecks`.
+
+Cold versus hot: `lastColdChars === 0` means the query was hot. Measured per probe on the sealed archive (see CHANGELOG 0.5.0).
+
+**Temporary memory** is bounded by construction rather than by a peak-allocation counter: text is always handled in bounded chunks, and index size is constrained by `INDEX_ENTRY_BUDGET` together with the 64-session retention limit. Both are readable.
+
+**One deviation from the contract**: metering and switch state are exposed through accessors and do **not** enter the response envelope. That envelope has a fixed 1220-byte minimum grant, and these readings would displace hits or `nextCursor`/`hint` - which is what the model uses to keep searching. The cost is that **the model itself cannot see these numbers**, only the caller can. The deviation is recorded in 0.5.0 and 0.6.0; **putting them in the envelope would require reworking response packing to free the bytes**.

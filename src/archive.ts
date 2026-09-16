@@ -212,8 +212,18 @@ export class ArchiveReader {
    * sessions, and nothing is persisted to disk.
    */
   private readonly historyIndexes = new Map<string, { session: Session; index: HistoryIndex }>()
-  /** Cold/hot accounting for the most recent search on a session. */
-  private readonly lastIndexUse = new WeakMap<Session, { coldChars: number; indexedEvents: number; examinedEvents: number }>()
+  /**
+   * Work accounting for the most recent search on a session. Text read is only
+   * part of what a search costs, so the source graph it walked, the candidates
+   * it resolved and the ones the index let it skip are recorded separately.
+   * Temporary memory is bounded by construction: text is handled in bounded
+   * chunks and index size is bounded by INDEX_ENTRY_BUDGET.
+   */
+  private readonly lastIndexUse = new WeakMap<Session, {
+    coldChars: number; indexedEvents: number; examinedEvents: number
+    blocksVisited: number; resolvedSources: number; candidatesExamined: number; candidatesSkipped: number
+    cancellationChecks: number
+  }>()
 
   /**
    * Returns this session's index, creating it if absent and marking it most
@@ -255,6 +265,8 @@ export class ArchiveReader {
   indexState(session: Session): {
     events: number; entries: number; common: number; chars: number
     lastColdChars: number; lastIndexedEvents: number; lastExaminedEvents: number
+    lastBlocksVisited: number; lastResolvedSources: number
+    lastCandidatesExamined: number; lastCandidatesSkipped: number; lastCancellationChecks: number
     sessions: number
   } | null {
     const index = this.peekIndex(session)
@@ -263,6 +275,9 @@ export class ArchiveReader {
     return {
       events: index?.grams.size ?? 0, entries: index?.entries ?? 0, common: index?.common.size ?? 0, chars: index?.chars ?? 0,
       lastColdChars: last?.coldChars ?? 0, lastIndexedEvents: last?.indexedEvents ?? 0, lastExaminedEvents: last?.examinedEvents ?? 0,
+      lastBlocksVisited: last?.blocksVisited ?? 0, lastResolvedSources: last?.resolvedSources ?? 0,
+      lastCandidatesExamined: last?.candidatesExamined ?? 0, lastCandidatesSkipped: last?.candidatesSkipped ?? 0,
+      lastCancellationChecks: last?.cancellationChecks ?? 0,
       sessions: this.historyIndexes.size,
     }
   }
@@ -404,13 +419,13 @@ export class ArchiveReader {
    * evidence of absence. Progress persists across calls, so a cold query pays
    * for what it indexes and a hot query does not.
    */
-  private indexSources(session: Session, sources: Sources, events: readonly SessionEvent[], budget: number, signal?: AbortSignal): { spent: number; indexed: number; examined: number } {
+  private indexSources(session: Session, sources: Sources, events: readonly SessionEvent[], budget: number, signal?: AbortSignal): { spent: number; indexed: number; examined: number; checks: number } {
     const state = this.indexFor(session)
-    let spent = 0, indexed = 0, examined = 0
+    let spent = 0, indexed = 0, examined = 0, checks = 0
     for (const seq of sources.seqs) {
       examined += 1
       if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET) continue
-      signal?.throwIfAborted()
+      checks += 1; signal?.throwIfAborted()
       const parts = eventTextParts(events[seq]!).texts
       let size = 0
       for (const part of parts) size += part.text.length
@@ -438,7 +453,7 @@ export class ArchiveReader {
       state.chars += size
       for (const hash of grams) state.counts.set(hash, (state.counts.get(hash) ?? 0) + 1)
     }
-    return { spent, indexed, examined }
+    return { spent, indexed, examined, checks }
   }
 
   /**
@@ -476,6 +491,7 @@ export class ArchiveReader {
     let [b, s, p, o] = offset as [number, number, number, number]
     let scanned = 0, incomplete = false, inspected = 0
     let coldChars = 0, indexedEvents = 0, examinedEvents = 0
+    let blocksVisited = 0, resolvedSources = 0, candidatesSkipped = 0, cancellationChecks = 0
     const hits: object[] = []
     // Reserve the complete envelope, including the longest cursor/boolean
     // forms, then price each hit's actual serialized bytes. A fixed 600-byte
@@ -483,10 +499,11 @@ export class ArchiveReader {
     const envelope = { status: 'success', boundary, hits, incomplete: false, scanBudgetReached: false, nextCursor: 'x'.repeat(60) }
     let remaining = available - Buffer.byteLength(JSON.stringify(envelope))
     outer: for (; b < ledger.length; b++, s = 0, p = 0, o = 0) {
-      signal?.throwIfAborted()
+      cancellationChecks += 1; signal?.throwIfAborted()
       const block = ledger[b]!
       if (block.contextManagement !== undefined && !validWindowMetadata(block.contextManagement, block.blockId)) { incomplete = true; continue }
       const sources = this.sources(session, block, ledger, signal)
+      blocksVisited += 1; resolvedSources += sources.seqs.length
       incomplete ||= sources.incomplete
       if (scanned >= WORK_BUDGET) break
       // Charging indexing to the same budget keeps one search call bounded by
@@ -496,6 +513,7 @@ export class ArchiveReader {
         const built = this.indexSources(session, sources, events, WORK_BUDGET - scanned, signal)
         scanned += built.spent
         coldChars += built.spent; indexedEvents += built.indexed; examinedEvents += built.examined
+        cancellationChecks += built.checks
       }
       for (; s < sources.seqs.length; s++, p = 0, o = 0) {
         const seq = sources.seqs[s]!
@@ -507,7 +525,7 @@ export class ArchiveReader {
         inspected += 1
         // Skipping happens here, after claiming, so a skipped original is still
         // owned and still counted: only the text read is saved.
-        if (needleGrams !== null && this.indexEnabled && !this.seqMayContain(session, seq, needleGrams)) continue
+        if (needleGrams !== null && this.indexEnabled && !this.seqMayContain(session, seq, needleGrams)) { candidatesSkipped += 1; continue }
         const parts = eventTextParts(events[seq]!).texts
         for (; p < parts.length; p++, o = 0) {
         const part = parts[p]!, text = part.text
@@ -568,7 +586,7 @@ export class ArchiveReader {
     }
     // Recorded for `indexState`, which is how a caller tells a cold query from a
     // hot one without paying bytes in the response envelope.
-    if (needleGrams !== null && this.indexEnabled) this.lastIndexUse.set(session, { coldChars, indexedEvents, examinedEvents })
+    if (needleGrams !== null && this.indexEnabled) this.lastIndexUse.set(session, { coldChars, indexedEvents, examinedEvents, blocksVisited, resolvedSources, candidatesExamined: inspected, candidatesSkipped, cancellationChecks })
     const scanBudgetReached = scanned >= WORK_BUDGET
     const nextCursor = b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null
     const base = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor }

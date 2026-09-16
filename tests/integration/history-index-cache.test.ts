@@ -115,3 +115,29 @@ test('C5: a cursor survives an index disposal and resumes correctly', async t =>
   assert.equal(resumed.status, 'success', 'the cursor is not bound to the index cache generation')
   assert.equal(resumed.hits.length, 1, 'the resumed page still finds the late original')
 })
+
+test('C6: a search reports the work it did beyond reading text', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-index-work-accounting')
+  session.append('turn/start', { turn: 1 })
+  archive(h, session, `WORK_MARKER = "present"\n${'v'.repeat(300_000)}`, 'work-accounting')
+  archive(h, session, `${'u'.repeat(200_000)}\nUNRELATED = "other"`, 'work-accounting-2')
+  const reader = new ArchiveReader()
+  // An absent needle: with a complete index every inspected candidate can be
+  // skipped, so no block text is read at all.
+  const miss = reader.search(session, { query: 'NEVER_PRESENT_WORK_MARKER' }, 4096) as Page
+  assert.equal(miss.hits.length, 0)
+  const work = reader.indexState(session)!
+  assert.ok(work.lastBlocksVisited >= 2, 'both blocks were walked')
+  assert.ok(work.lastResolvedSources >= 2, 'the source graph resolved their sources')
+  assert.equal(work.lastCandidatesExamined, work.lastResolvedSources, 'every resolved candidate was accounted for')
+  assert.equal(work.lastCandidatesSkipped, work.lastCandidatesExamined, 'the index skipped every one of them')
+  // A present needle has to read the block that holds it, so some candidates
+  // survive the index.
+  const hit = reader.search(session, { query: 'WORK_MARKER' }, 4096) as Page
+  assert.equal(hit.hits.length, 1)
+  const after = reader.indexState(session)!
+  assert.ok(after.lastCandidatesSkipped < after.lastCandidatesExamined, 'a present literal stops being skipped')
+  assert.equal(after.lastColdChars, 0, 'and the second search is warm')
+  assert.ok(after.lastCancellationChecks >= after.lastBlocksVisited, 'cancellation was checked at every block it walked')
+})

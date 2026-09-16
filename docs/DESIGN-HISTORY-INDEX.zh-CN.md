@@ -144,3 +144,12 @@
 ## 13. 回退
 
 索引置于开关之后，开关状态出现在响应中。任一不变量被违反时回退扫描。**回退必须可观测，不允许静默降级。**
+
+
+**实现记录（2026-09-16）**：计量经 `ArchiveReader.indexState(session)` 提供，含索引规模（`events`/`entries`/`common`/`chars`）与**最近一次搜索的工作量**：`lastColdChars`（为建索引付出的字符）、`lastIndexedEvents`/`lastExaminedEvents`、`lastBlocksVisited`（走过的归档块=来源图遍历的根）、`lastResolvedSources`（解析出的来源总数=来源图遍历的产出）、`lastCandidatesExamined`/`lastCandidatesSkipped`（候选处理）、`lastCancellationChecks`（取消检查次数）。
+
+冷/热判定：`lastColdChars === 0` 即热查询。已在封存归档上逐探针实测（见 CHANGELOG 0.5.0）。
+
+**临时内存**按构造有界而非用峰值计数器：文本始终按有界分块处理，索引规模由 `INDEX_ENTRY_BUDGET` 与保留 64 份会话的上限共同约束，二者都可读。
+
+**与合同的一处偏离**：计量与开关状态走访问器，**不进入响应信封**。信封有固定的 1220 字节最小授予，塞入这些读数会挤掉命中或 `nextCursor`/`hint`——而后者正是模型继续检索的依据。代价是**模型本身看不到这些数字**，只有调用方能看到。此偏离已在 0.5.0/0.6.0 记录，**如需进信封则必须重做应答打包以腾出字节**。
