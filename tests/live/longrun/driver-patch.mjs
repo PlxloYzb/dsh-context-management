@@ -36,6 +36,13 @@ export async function writeArmPatch({ root, command, control, runRoot, arm, rout
       },
     })
     if (command.compaction.kind === 'native-basic') {
+      // Probe only: measures whether our ledger reads the blocks the native
+      // engine produces. It observes, never modifies, the session.
+      insert.push({
+        id: 'experiment-ledger-probe',
+        name: resolve('tests/live/longrun/ledger-probe.mjs'),
+        config: { output: resolve(runRoot, 'ledger-probe.json'), sessionId: null, ledgerModule: resolve('dist/chunk-HFVS3Y5Y.js') },
+      })
       insert.push({
         id: 'experiment-arm',
         name: resolve('tests/live/longrun/arm.mjs'),
