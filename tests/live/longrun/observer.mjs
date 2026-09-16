@@ -27,6 +27,36 @@ export function sha256Json(value) {
 }
 
 /** Owned-session predicate, identical in behaviour to the short harness by default. */
+/**
+ * Job statuses that mean the product still owns the preparation. Anything else
+ * the product reports (superseded, stale, timeout, oversize, no-net-reduction,
+ * invalid-output, ...) is a terminal reason we must record rather than drop.
+ */
+export const ACTIVE_JOB_STATUSES = Object.freeze(['pending', 'ready', 'delivering'])
+
+/**
+ * Decide what terminal event a job-status observation implies.
+ *
+ * The product cancels a prepared job with a reason that becomes the job status,
+ * and a superseding prepare replaces the job outright. Both end a preparation
+ * that had already started, so both must leave a durable record; the previous
+ * ledger only wrote `started` rows and silently lost the outcome.
+ *
+ * @param previous - last observation for this session, or null.
+ * @param current - current observation, or null when the product reports none.
+ * @returns the termination record to append, or null when nothing changed.
+ */
+export function jobTerminationOf(previous, current) {
+  if (!previous || !ACTIVE_JOB_STATUSES.includes(previous.status)) return null
+  const sameJob = current !== null && current !== undefined && current.operationId === previous.operationId
+  if (sameJob && ACTIVE_JOB_STATUSES.includes(current.status)) return null
+  // A different operation replacing an active one, or the job disappearing
+  // entirely, both happen when a window-modifying operation supersedes it; the
+  // product exposes no reason in that path, so the record says exactly that.
+  const terminationReason = sameJob ? current.status : 'cleared-without-terminal-record'
+  return { operationId: previous.operationId, lastActiveStatus: previous.status, terminationReason }
+}
+
 export function ownedSession(session, marker = 'dsh-context-experiment-') {
   return String(session?.header?.cwd ?? '').includes(marker)
 }
@@ -101,6 +131,10 @@ export function apply(ctx, config = {}) {
   const openCompactions = new Map() // sessionId -> { compactionId, seq, provider, model, maxTokens, shadowedSeqs }
   const retryPending = new Map() // sessionId -> { retry, provider, failure }
   const observedSessions = new Set()
+  const jobStatusSeen = new Map() // sessionId -> { operationId, status }
+  // Status is polled only at boundaries that can observe a cancellation, so the
+  // watcher stays cheap on long transcripts.
+  const JOB_STATUS_EVENTS = new Set(['turn/end', 'step/end', 'compaction/summary', 'compaction/end', 'user/message'])
 
   const snapshot = session => {
     if (typeof session?.snapshotEvents !== 'function') return
@@ -196,6 +230,49 @@ export function apply(ctx, config = {}) {
     // Incremental capture: every event is appended; snapshots only at boundaries.
     appendFileSync(join(eventRoot, `${session.id}.events.jsonl`), JSON.stringify(event) + '\n', { mode: 0o600 })
     if (SNAPSHOT_EVENTS.has(event.type)) snapshot(session)
+
+    if (JOB_STATUS_EVENTS.has(event.type)) {
+      const seen = jobStatusSeen.get(session.id) ?? null
+      let current = null
+      try {
+        const observed = productJobStatus(session)?.status ?? null
+        if (observed?.operationId) current = { operationId: observed.operationId, status: observed.status }
+      } catch { current = null }
+      const termination = jobTerminationOf(seen, current)
+      if (termination) {
+        appendJob({
+          schemaVersion: OBSERVER_SCHEMA_VERSION,
+          runId,
+          phase: 'termination',
+          time: now(),
+          sessionId: session.id,
+          operationId: termination.operationId,
+          streamId: jobStreams.get(termination.operationId)?.streamId ?? null,
+          sourceSeqs: null,
+          sourceHash: null,
+          sourceGeneration: null,
+          targetGeneration: null,
+          route: null,
+          status: termination.terminationReason,
+          startedAt: null,
+          readyAt: null,
+          offeredAt: null,
+          receiptSeq: null,
+          deliveredAt: null,
+          consumedByRequestId: null,
+          terminationReason: termination.terminationReason,
+          lastActiveStatus: termination.lastActiveStatus,
+          associationEvidence: {
+            kind: 'product-metadata',
+            source: 'agentPresets.serviceFor(agent,"compaction").summaries.status(session)',
+            operationId: termination.operationId,
+            matchedFields: ['sessionId', 'operationId'],
+          },
+        })
+      }
+      if (current) jobStatusSeen.set(session.id, current)
+      else jobStatusSeen.delete(session.id)
+    }
 
     if (event.type === 'llm/retry') {
       retryPending.set(session.id, { retry: event.data?.retry ?? null, provider: event.data?.provider ?? null, failure: event.data?.failure ?? null })

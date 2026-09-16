@@ -20,7 +20,7 @@ import {
   summarizeUsage,
   uniqueExposedSourceTokens,
 } from './usage.mjs'
-import { apply as applyObserver, handoffOperationIds } from './observer.mjs'
+import { apply as applyObserver, handoffOperationIds, jobTerminationOf } from './observer.mjs'
 import {
   LIMITS,
   assertLeaseAllowsNewWork,
@@ -628,4 +628,39 @@ test('atomicJson files used for lease and supervisor state are small and valid J
   const resources = readRows(join(runDir, 'resources.jsonl'))
   assert.equal(resources.length, 1)
   assert.ok('eventLoopLagMs' in resources[0])
+})
+
+// --- job terminal-state recording -------------------------------------------
+// The ledger used to write only `started` rows, so a preparation that the
+// product superseded or cancelled vanished without a trace. These cases pin the
+// decision that turns a status observation into a durable termination record.
+
+test('an active job that stays active records nothing', () => {
+  const previous = { operationId: 'op-1', status: 'pending' }
+  assert.equal(jobTerminationOf(previous, { operationId: 'op-1', status: 'pending' }), null)
+  assert.equal(jobTerminationOf({ operationId: 'op-1', status: 'ready' }, { operationId: 'op-1', status: 'delivering' }), null)
+})
+
+test('an explicit product cancellation reason is recorded verbatim', () => {
+  for (const reason of ['superseded', 'stale', 'timeout', 'oversize', 'no-net-reduction', 'invalid-output']) {
+    const record = jobTerminationOf({ operationId: 'op-1', status: 'pending' }, { operationId: 'op-1', status: reason })
+    assert.equal(record?.terminationReason, reason)
+    assert.equal(record?.operationId, 'op-1')
+    assert.equal(record?.lastActiveStatus, 'pending')
+  }
+})
+
+test('a job replaced by a new operation or cleared outright is recorded as unexplained', () => {
+  const replaced = jobTerminationOf({ operationId: 'op-1', status: 'ready' }, { operationId: 'op-2', status: 'pending' })
+  assert.equal(replaced?.terminationReason, 'cleared-without-terminal-record')
+  assert.equal(replaced?.operationId, 'op-1')
+  const cleared = jobTerminationOf({ operationId: 'op-1', status: 'pending' }, null)
+  assert.equal(cleared?.terminationReason, 'cleared-without-terminal-record')
+})
+
+test('a job that already left the active set is never reported twice', () => {
+  assert.equal(jobTerminationOf({ operationId: 'op-1', status: 'superseded' }, { operationId: 'op-2', status: 'pending' }), null)
+  assert.equal(jobTerminationOf(null, { operationId: 'op-1', status: 'pending' }), null)
+  // A delivered job reaching a later phase is not a termination.
+  assert.equal(jobTerminationOf({ operationId: 'op-1', status: 'delivered' }, null), null)
 })
