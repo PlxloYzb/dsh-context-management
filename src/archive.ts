@@ -408,7 +408,12 @@ export class ArchiveReader {
       for (const part of parts) {
         const hashes = ArchiveReader.gramHashes(foldCase(part.text))
         if (hashes === null) continue
-        for (const hash of hashes) grams.add(hash)
+        // A gram already promoted to a stop-key is not stored: it is the one
+        // case where a set may be missing a gram its text actually contains, and
+        // `seqMayContain` treats exactly that as non-evidential. Without this
+        // omission the stop-key rule would never be load-bearing, and without
+        // the rule the omission would turn a present literal into an absence.
+        for (const hash of hashes) if (!state.common.has(hash)) grams.add(hash)
       }
       // Promote a gram to a stop-key once enough indexed events carry it. A
       // stop-key is dropped as evidence, never as a source: skipping still
