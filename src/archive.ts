@@ -144,8 +144,35 @@ export function eventTextParts(event: SessionEvent, attachmentState?: (ref: unkn
   return { texts, nonText }
 }
 
-/** Total 3-grams one session may index before further blocks are left unfiltered. */
-const GRAM_BUDGET = 4_000_000
+/** Distinct gram entries one session index may hold before it stops growing. */
+const INDEX_ENTRY_BUDGET = 4_000_000
+/** Above this share of indexed events a gram stops being evidence of absence. */
+const STOP_KEY_SHARE = 0.2
+
+/**
+ * Session-local candidate index over unique original events.
+ *
+ * Keyed by `seq`, not by block: an original reached through several parent
+ * blocks is read once. That is the whole point - block-keyed indexing processed
+ * 74.3M characters for 2.68M of unique text on the sealed archive, because every
+ * nesting level re-indexed the same originals.
+ *
+ * The index only ever decides whether a source may be skipped. It never decides
+ * what a hit is, never touches ownership, and never speaks for a source it has
+ * not indexed.
+ */
+interface HistoryIndex {
+  /** Folded 3-grams of each indexed original event, keyed by seq. */
+  grams: Map<number, Set<number>>
+  /** How many indexed events carry each gram, used to promote stop-keys. */
+  counts: Map<number, number>
+  /** Grams too common to prove absence. They are never used to skip a source. */
+  common: Set<number>
+  /** Sum of stored gram entries, which bounds memory. */
+  entries: number
+  /** Characters read while indexing, for metering. */
+  chars: number
+}
 
 /** Reader-local authentication prevents forged cursor offsets; restarts invalidate cursors. */
 export class ArchiveReader {
@@ -160,21 +187,11 @@ export class ArchiveReader {
   private readonly sourceIndexes = new WeakMap<ArcBlockLedgerEntry[], ReturnType<typeof sourceIndex>>()
   private readonly searchOwners = new WeakMap<Session, Map<number, number>>()
   /**
-   * Per-block 3-gram filters, built lazily from the same source text the scan
-   * reads, folded with the same function the scan uses. The filter decides
-   * whether the block's text can contain the needle; it never affects ownership
-   * bookkeeping, so a pruned block still claims its sequences exactly as a
-   * scanned one does and the documented dedup and repeat behaviour is unchanged.
-   *
-   * Two properties keep the `absent` answer trustworthy. Folding is
-   * context-free, so the grams of every chunk the scan reads are a subset of
-   * the grams indexed for the part containing it: a hash collision costs an
-   * unnecessary read and can never drop a hit. And a block is only filtered
-   * from a *complete* index - indexing is charged to the same work budget as
-   * scanning, so a build that runs out of budget leaves the block unfiltered
-   * instead of answering from a partial index.
+   * Per-session candidate indexes. Session-isolated, built on demand and
+   * extended across calls; the original session events stay the source of
+   * truth, so an index can be dropped and rebuilt at any time.
    */
-  private readonly blockGrams = new WeakMap<Session, { grams: Map<string, Set<number>>; used: number; oversized: Set<string> }>()
+  private readonly historyIndexes = new WeakMap<Session, HistoryIndex>()
   ledger(session: Session): ArcBlockLedgerEntry[] {
     let index = this.cache.get(session)
     if (!index) { index = new BlockLedgerIndex(); this.cache.set(session, index) }
@@ -304,60 +321,63 @@ export class ArchiveReader {
   }
 
   /**
-   * Whether this block's text can contain the needle, and what the attempt cost
-   * in characters. Builds the filter on first use from the resolved source set
-   * the scan would visit. Indexing reads real text, so it is charged to the same
-   * budget as scanning: when the remaining budget cannot cover the build the
-   * block is left unfiltered rather than answered from a partial index, and the
-   * cost is still returned so the caller records that the budget was consumed.
+   * Extends the session index to cover these sources, spending at most `budget`
+   * characters, and returns what it spent. Indexing reads real text, so it is
+   * charged to the same work budget as scanning.
+   *
+   * Affordability is measured from lengths before anything is folded: a source
+   * that does not fit is left unindexed, which costs a later scan and is never
+   * evidence of absence. Progress persists across calls, so a cold query pays
+   * for what it indexes and a hot query does not.
    */
-  private blockMayContain(
-    session: Session,
-    block: ArcBlockLedgerEntry,
-    sources: Sources,
-    events: readonly SessionEvent[],
-    needleGrams: readonly number[],
-    budget: number,
-    signal?: AbortSignal,
-  ): { verdict: boolean; cost: number } {
-    let state = this.blockGrams.get(session)
-    if (!state) { state = { grams: new Map(), used: 0, oversized: new Set() }; this.blockGrams.set(session, state) }
-    // A block whose own text exceeds the entire budget can never be indexed, so
-    // remember that instead of re-paying the attempt on every later search.
-    if (state.oversized.has(block.blockId)) return { verdict: true, cost: 0 }
-    const cached = state.grams.get(block.blockId)
-    if (cached) {
-      for (const hash of needleGrams) if (!cached.has(hash)) return { verdict: false, cost: 0 }
-      return { verdict: true, cost: 0 }
-    }
-    // Decide affordability before doing the work. Indexing lowercases and hashes
-    // real text, so a build that cannot finish must not start: charging a
-    // half-built index would spend the whole page budget and leave the caller
-    // with no progress at all - measured on a 1.1M-character block, the first
-    // page advanced only one chunk. Measuring lengths is free by comparison, and
-    // a discarded partial index is unthinkable anyway because a subset would
-    // prune blocks that do contain the needle.
-    let total = 0
-    for (const seq of sources.seqs) for (const part of eventTextParts(events[seq]!).texts) total += part.text.length
-    if (total > budget) {
-      if (total > WORK_BUDGET) state.oversized.add(block.blockId)
-      return { verdict: true, cost: 0 }
-    }
-    const built = new Set<number>()
+  private indexSources(session: Session, sources: Sources, events: readonly SessionEvent[], budget: number, signal?: AbortSignal): number {
+    let index = this.historyIndexes.get(session)
+    if (!index) { index = { grams: new Map(), counts: new Map(), common: new Set(), entries: 0, chars: 0 }; this.historyIndexes.set(session, index) }
+    const state = index
+    let spent = 0
     for (const seq of sources.seqs) {
+      if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET) continue
       signal?.throwIfAborted()
-      for (const part of eventTextParts(events[seq]!).texts) {
+      const parts = eventTextParts(events[seq]!).texts
+      let size = 0
+      for (const part of parts) size += part.text.length
+      if (spent + size > budget) continue
+      spent += size
+      const grams = new Set<number>()
+      for (const part of parts) {
         const hashes = ArchiveReader.gramHashes(foldCase(part.text))
         if (hashes === null) continue
-        for (const hash of hashes) built.add(hash)
+        for (const hash of hashes) grams.add(hash)
       }
+      // Promote a gram to a stop-key once enough indexed events carry it. A
+      // stop-key is dropped as evidence, never as a source: skipping still
+      // requires a missing gram that is NOT common.
+      const share = Math.max(8, state.grams.size * STOP_KEY_SHARE)
+      for (const hash of grams) if ((state.counts.get(hash) ?? 0) >= share) state.common.add(hash)
+      state.grams.set(seq, grams)
+      state.entries += grams.size
+      state.chars += size
+      for (const hash of grams) state.counts.set(hash, (state.counts.get(hash) ?? 0) + 1)
     }
-    const cost = total
-    if (state.used + built.size > GRAM_BUDGET) { state.oversized.add(block.blockId); return { verdict: true, cost } }
-    state.used += built.size
-    state.grams.set(block.blockId, built)
-    for (const hash of needleGrams) if (!built.has(hash)) return { verdict: false, cost }
-    return { verdict: true, cost }
+    return spent
+  }
+
+  /**
+   * Whether the index still permits reading this original for the needle. A
+   * gram that is missing and not a stop-key proves the literal cannot occur in
+   * the indexed text, because folding is context-free and every chunk the scan
+   * reads is a substring of the part that was indexed. An unindexed source, or
+   * a needle touching a stop-key, is simply unknown and is always read.
+   */
+  private seqMayContain(session: Session, seq: number, needleGrams: readonly number[]): boolean {
+    const index = this.historyIndexes.get(session)
+    const grams = index?.grams.get(seq)
+    if (index === undefined || grams === undefined) return true
+    for (const hash of needleGrams) {
+      if (grams.has(hash) || index.common.has(hash)) continue
+      return false
+    }
+    return true
   }
 
   search(session: Session, args: { query: string; limit?: number; cursor?: string }, available = 4096, signal?: AbortSignal): object {
@@ -388,20 +408,11 @@ export class ArchiveReader {
       if (block.contextManagement !== undefined && !validWindowMetadata(block.contextManagement, block.blockId)) { incomplete = true; continue }
       const sources = this.sources(session, block, ledger, signal)
       incomplete ||= sources.incomplete
+      if (scanned >= WORK_BUDGET) break
       // Charging indexing to the same budget keeps one search call bounded by
       // WORK_BUDGET characters of text work, whether it reads them scanning or
-      // indexing. A build that cannot fit consumes what it read and leaves the
-      // block unfiltered, so the page reports the budget instead of absence.
-      if (scanned >= WORK_BUDGET) break
-      // Decide once per block, but never act before ownership bookkeeping below:
-      // a filtered block must still claim and inspect its sequences so the dedup
-      // and repeat behaviour stays identical to a full scan.
-      let filtered = false
-      if (needleGrams !== null) {
-        const probe = this.blockMayContain(session, block, sources, events, needleGrams, WORK_BUDGET - scanned, signal)
-        scanned += probe.cost
-        filtered = !probe.verdict
-      }
+      // indexing. Incremental progress is not lost when the budget runs out.
+      if (needleGrams !== null && scanned < WORK_BUDGET) scanned += this.indexSources(session, sources, events, WORK_BUDGET - scanned, signal)
       for (; s < sources.seqs.length; s++, p = 0, o = 0) {
         const seq = sources.seqs[s]!
         const owner = owners.get(seq)
@@ -410,7 +421,9 @@ export class ArchiveReader {
         // At the memory cap, untracked sources may repeat but are never omitted.
         if ((owner === undefined && owners.size < 200_000) || (owner !== undefined && b < owner)) owners.set(seq, b)
         inspected += 1
-        if (filtered) continue
+        // Skipping happens here, after claiming, so a skipped original is still
+        // owned and still counted: only the text read is saved.
+        if (needleGrams !== null && !this.seqMayContain(session, seq, needleGrams)) continue
         const parts = eventTextParts(events[seq]!).texts
         for (; p < parts.length; p++, o = 0) {
         const part = parts[p]!, text = part.text

@@ -24,7 +24,7 @@ type Page = { status: string; hits: { seq: number; textBlockPath: number[]; offs
 
 function scanOnly(): ArchiveReader {
   const reader = new ArchiveReader()
-  ;(reader as unknown as { blockMayContain: () => { verdict: boolean; cost: number } }).blockMayContain = () => ({ verdict: true, cost: 0 })
+  ;(reader as unknown as { seqMayContain: () => boolean }).seqMayContain = () => true
   return reader
 }
 
