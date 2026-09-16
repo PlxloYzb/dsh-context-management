@@ -1,6 +1,6 @@
 {
   "name": "dsh-context-management",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Windowed, reversible context management for DeepSeek Harness; replaces Basic compaction.",
   "keywords": [
     "deepseek",

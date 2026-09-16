@@ -108,7 +108,11 @@ Existing behaviour, **unchanged this round**:
 
 ## 10. Archive-scope invalidation
 
-The index covers archived originals only. When a source is restored out of the archive (window rollback, window restore), its index entries must be invalidated or invalidated wholesale; **silent retention is not allowed**. The exact mechanism is decided during implementation, but invalidation must be observable.
+The index covers archived originals only. When a source is restored out of the archive (window rollback, window restore), its index entries must be invalidated or invalidated wholesale.
+
+**Implementation finding (2026-09-16)**: invalidation is **not needed for correctness**, only for memory. Index lookups are driven by the source set the **current ledger** resolves - `seqMayContain` is only ever called for a `seq` in this call's `sources.seqs` - so an entry retained for a `seq` that no longer belongs to any block source is **never consulted**. It changes neither hits nor ownership; it only occupies memory. Release is therefore `disposeIndex(session)`, which serves as both the memory mechanism and the observable one.
+
+**Verification not yet constructed**: no public un-shadow or rollback API was found in `region.ts`, so "behaviour is unchanged after a source leaves the archive" **cannot currently be written as a test**. This is recorded as unverified rather than claimed.
 
 ## 11. Acceptance
 

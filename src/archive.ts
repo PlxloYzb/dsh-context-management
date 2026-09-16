@@ -182,7 +182,19 @@ interface HistoryIndex {
 
 /** Reader-local authentication prevents forged cursor offsets; restarts invalidate cursors. */
 export class ArchiveReader {
-  constructor(private readonly attachmentState?: (ref: unknown) => NonTextPart['status']) {}
+  /**
+   * Whether candidate indexing may skip reading a source at all.
+   *
+   * This is the rollback switch, and it is deliberately public: when an
+   * invariant is in doubt the index can be turned off and every search then
+   * behaves exactly as the pure scan did. A fallback that cannot be observed is
+   * indistinguishable from a silent degradation, so the state is readable here
+   * rather than inferred from behaviour.
+   */
+  readonly indexEnabled: boolean
+  constructor(private readonly attachmentState?: (ref: unknown) => NonTextPart['status'], options: { index?: boolean } = {}) {
+    this.indexEnabled = options.index !== false
+  }
   private readonly secret = randomBytes(32)
   private readonly cursors = new WeakMap<Session, Map<string, Cursor>>()
   private readonly cache = new WeakMap<Session, BlockLedgerIndex>()
@@ -480,7 +492,7 @@ export class ArchiveReader {
       // Charging indexing to the same budget keeps one search call bounded by
       // WORK_BUDGET characters of text work, whether it reads them scanning or
       // indexing. Incremental progress is not lost when the budget runs out.
-      if (needleGrams !== null && scanned < WORK_BUDGET) {
+      if (needleGrams !== null && this.indexEnabled && scanned < WORK_BUDGET) {
         const built = this.indexSources(session, sources, events, WORK_BUDGET - scanned, signal)
         scanned += built.spent
         coldChars += built.spent; indexedEvents += built.indexed; examinedEvents += built.examined
@@ -495,7 +507,7 @@ export class ArchiveReader {
         inspected += 1
         // Skipping happens here, after claiming, so a skipped original is still
         // owned and still counted: only the text read is saved.
-        if (needleGrams !== null && !this.seqMayContain(session, seq, needleGrams)) continue
+        if (needleGrams !== null && this.indexEnabled && !this.seqMayContain(session, seq, needleGrams)) continue
         const parts = eventTextParts(events[seq]!).texts
         for (; p < parts.length; p++, o = 0) {
         const part = parts[p]!, text = part.text
@@ -556,7 +568,7 @@ export class ArchiveReader {
     }
     // Recorded for `indexState`, which is how a caller tells a cold query from a
     // hot one without paying bytes in the response envelope.
-    if (needleGrams !== null) this.lastIndexUse.set(session, { coldChars, indexedEvents, examinedEvents })
+    if (needleGrams !== null && this.indexEnabled) this.lastIndexUse.set(session, { coldChars, indexedEvents, examinedEvents })
     const scanBudgetReached = scanned >= WORK_BUDGET
     const nextCursor = b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null
     const base = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor }
