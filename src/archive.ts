@@ -146,6 +146,18 @@ export function eventTextParts(event: SessionEvent, attachmentState?: (ref: unkn
 
 /** Distinct gram entries one session index may hold before it stops growing. */
 const INDEX_ENTRY_BUDGET = 4_000_000
+/**
+ * Original events one session index may hold containers for.
+ *
+ * INDEX_ENTRY_BUDGET alone does not bound this: an event whose text yields no
+ * 3-gram - empty text, fewer than three code points, or every gram dropped as a
+ * stop-key - stored a container while adding nothing to `entries`, so it could
+ * allocate without ever tripping the entry budget. Containers with no grams are
+ * therefore not stored at all (an absent container already means "unknown", and
+ * an empty one could only ever prove the same thing), and this cap bounds the
+ * rest independently of that reasoning.
+ */
+const INDEX_EVENT_LIMIT = 200_000
 /** Above this share of indexed events a gram stops being evidence of absence. */
 const STOP_KEY_SHARE = 0.2
 /**
@@ -216,8 +228,9 @@ export class ArchiveReader {
    * Work accounting for the most recent search on a session. Text read is only
    * part of what a search costs, so the source graph it walked, the candidates
    * it resolved and the ones the index let it skip are recorded separately.
-   * Temporary memory is bounded by construction: text is handled in bounded
-   * chunks and index size is bounded by INDEX_ENTRY_BUDGET.
+   * Temporary memory is bounded: text is handled in bounded chunks, and index
+   * size is bounded by INDEX_ENTRY_BUDGET on stored grams plus INDEX_EVENT_LIMIT
+   * on containers. Containers that would hold no grams are not stored.
    */
   private readonly lastIndexUse = new WeakMap<Session, {
     coldChars: number; indexedEvents: number; examinedEvents: number
@@ -424,7 +437,7 @@ export class ArchiveReader {
     let spent = 0, indexed = 0, examined = 0, checks = 0
     for (const seq of sources.seqs) {
       examined += 1
-      if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET) continue
+      if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET || state.grams.size >= INDEX_EVENT_LIMIT) continue
       checks += 1; signal?.throwIfAborted()
       const parts = eventTextParts(events[seq]!).texts
       let size = 0
@@ -445,6 +458,10 @@ export class ArchiveReader {
       // Promote a gram to a stop-key once enough indexed events carry it. A
       // stop-key is dropped as evidence, never as a source: skipping still
       // requires a missing gram that is NOT common.
+      // A container with no grams carries no filtering power, and its absence is
+      // already read as unknown, so it is not stored. This is what keeps the
+      // container count under the entry budget instead of under session length.
+      if (grams.size === 0) { state.chars += size; continue }
       const share = Math.max(8, state.grams.size * STOP_KEY_SHARE)
       for (const hash of grams) if ((state.counts.get(hash) ?? 0) >= share) state.common.add(hash)
       state.grams.set(seq, grams)

@@ -15,15 +15,16 @@
 
 ## 0.7.2
 
-- **证据口径更正（无产品改动）。** 此前记为「观测流中 archive 266 次 / search 796 次 / decompress 240 次」，那是**跨 `observed/` 各文件的原始大小写不敏感子串出现次数**，既**重复计算**了事件流（同一份内容以 `.json` 与 `.jsonl` 各存一份），也把**工具定义、schema、结果回显**算了进去——**不是模型调用次数**。逐 `tool/call` 事件重新统计：本次短宿主流程共 **37 次真实工具调用**，其中检索相关 **9 次**（`search_context` 5 次、`decompress` 4 次），其余 28 次为 `experiment_read_page`（实验夹具读取，非检索）。结论「检索路径确实被走到」成立，但量级是 **9 次模型检索调用**，不是几百次。
+- **证据口径更正（无产品改动）。** 此前记为「观测流中 archive 266 次 / search 796 次 / decompress 240 次」，**该口径明确作废**：那是**跨 `observed/` 各文件的原始大小写不敏感子串出现次数**，既**重复计算**了事件流（同一份内容以 `.json` 与 `.jsonl` 各存一份），也把**工具定义、schema、结果回显**算了进去——**不是模型调用次数**。逐 `tool/call` 事件重新统计：本次短宿主流程共 **37 次真实工具调用**，其中检索相关 **9 次**（`search_context` 5 次、`decompress` 4 次），其余 28 次为 `experiment_read_page`（实验夹具读取，非检索）。结论「检索路径确实被走到」成立，但量级是 **9 次模型检索调用**，不是几百次。
 - **候选身份口径统一。** 短宿主流程实际运行的是 `sourceCommit b6621d4`、profile `ctx-v012-smoke-c`、**安装版本 0.7.0**、`candidateDistHash 8edcf9b1c451dd1e…`，且 `candidateDistHash === installedCandidateDistHash`、`candidateDistLoaded: true`。与当前 0.7.1 的 dist 差异经核实**仅为版本字符串及其派生文件名**：chunk 文件**大小完全相同（307,715 字节）**、**仅 9 个字节不同**（`0.7.0`→`0.7.1` 1 字节 + 内嵌 chunk 文件名 8 字节），`index.js`/`bridge.js` 的差异同样只是 chunk 名引用；`git diff b6621d4 140749b --stat` 显示期间**只改了 `CHANGELOG.md` 与 `package.json`**。故宿主验证的代码与 0.7.1 **一致**。
 - **profile 名更正**：正确为 `ctx-v012-smoke-c`（0.7.1 的提交信息误写为 `ctx-v12-smoke-c`，CHANGELOG 中的记录正确）。
 - **测试 profile 已重新对齐**：短宿主流程运行当时 `ctx-v012-smoke-c` 装的是 0.7.0（`file:` 指向当时的 tgz）；该 tgz 在打 0.7.1 时被删除，导致再次安装时 pnpm 报 `ENOENT ... dsh-context-management-0.7.0.tgz`。先 `dsh plugin --profile ctx-v012-smoke-c remove dsh-context-management` 再 add 0.7.2 后恢复一致，现装 **0.7.2** 且其 `dist/index.js` 与仓库构建相同。**注意**：删除已安装候选对应的 tgz 会让该 profile 的 `file:` 依赖悬空，后续安装需先 remove。
-- **合同 §10 补源码依据**（两种语言同步）：残留索引条目在**当前模型下不可达**——`resolveIndexedSources` 对被遮蔽 `seq` 递归展开至叶子，ledger 每次从不可变压缩事件重建且会话只追加，故条目不会失去其块；**适用前提是只追加历史**，即便前提被打破，正确性仍由「查找只针对本次 `sources.seqs`」保证，残留条目只占内存。同时如实记录计量缺口：`entries` 不含每事件固定开销、会话内条目从不收缩，且该结论**来自源码阅读而非测试**。
+- **合同 §10 补源码依据，并撤回一处推断**（两种语言同步）：残留索引条目在**当前模型下不可达**——`resolveIndexedSources` 对被遮蔽 `seq` 递归展开至叶子，ledger 每次从不可变压缩事件重建且会话只追加，故条目不会失去其块；**适用前提是只追加历史**，即便前提被打破，正确性仍由「查找只针对本次 `sources.seqs`」保证，残留条目只占内存。论证**仅适用于当前只追加模型**；此前「即便将来支持截断、回滚，正确性仍成立」是**推断，现已撤回**——seq 重用、同 seq 内容变化、ledger 缓存失效均未被本轮论证覆盖。
+- **内存有界性的声称修正（此前是错的）。** 原先写「索引规模由 `INDEX_ENTRY_BUDGET` 约束」并不成立：`grams.set(seq, grams)` 曾无条件执行，而 `entries += grams.size` 在 gram 为空时加 0，因此**空文本、少于 3 码点、或 gram 全被停用键吃掉的事件会持续创建 `Map<seq, Set>` 容器而条目预算永不触发**，容器数只受会话长度约束。现在 **gram 为空的容器不再存储**，并新增 `INDEX_EVENT_LIMIT`（20 万）作为独立的容器数上界。新增回归 M1：10 个无 gram 事件 + 1 个真实字面量事件后，容器数**只等于产生过 gram 的事件数**，且真实字面量仍被找到（未知≠排除）；去掉该跳过逻辑时 M1 失败。M2 锁住嵌套归档前提：仅能经父归档展开到的原文**仍可检索**，且索引路径与扫描路径结果一致。**仍未消除的缺口**：会话内条目从不收缩，只有整会话释放。
 
 ## 0.7.1
 
-- **短宿主流程验证通过（真实宿主 + 真实模型路由）。** 用 pin 的 `dsh 0.1.2-rc.1` 宿主、`B_IN_PLACE` 臂（插件接管原生 Basic）、Muse 路由、24 页 / 最低压力跑完四阶段：`strictPassed: true`、24 facts、6 corrections、verbatim 3、**12 次压缩**、28 次调用、629,270 tokens、88 秒、`error: null`。
+- **真实短宿主验证归属 0.7.0。** 准确表述是：**0.7.0 已完成真实短宿主验证**；0.7.2 经代码差异核对**运行逻辑相同**（仅版本字符串及其派生文件名不同），并完成安装、构建一致性与回归检查。**不要读成 0.7.2 实际跑过该宿主流程。** 用 pin 的 `dsh 0.1.2-rc.1` 宿主、`B_IN_PLACE` 臂（插件接管原生 Basic）、Muse 路由、24 页 / 最低压力跑完四阶段：`strictPassed: true`、24 facts、6 corrections、verbatim 3、**12 次压缩**、28 次调用、629,270 tokens、88 秒、`error: null`。
 - **身份可核对，不是"跑通了"而已**：`summary.json` 记录 `candidateDistHash === installedCandidateDistHash` 且 `candidateDistLoaded: true`，并把 34 个 dist 文件的逐个 sha256 都写进 `candidateDistFiles`——**宿主加载的正是本次提交的候选 dist**，`sourceCommit` 亦记录在案。
 - **归档检索确实被走到**：观测流中出现 `archive` 266 次、`search` 796 次、`decompress` 240 次，说明这次宿主流程不是只跑压缩路径。
 - 前置条件（本次踩到并记录）：跑插件臂前必须先把当前候选**安装**进隔离测试 profile（`dsh plugin --profile ctx-v012-smoke-c add ./dsh-context-management-<v>.tgz`），否则驱动器以「Install the complete current dist candidate before running a plugin arm」拒绝启动。
