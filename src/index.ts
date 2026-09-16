@@ -379,6 +379,24 @@ export class ArcCompactionEngine extends CompactionEngine {
   private readonly lifetime = new AbortController()
   private readonly assembled = new WeakMap<CompactionAgentContext, Pick<EpochHeader, 'system' | 'tools'>>()
   private readonly admissions = new WeakMap<Session, { agent: Agent; signal: AbortSignal; incomingUser?: UserMessage }>()
+  // Foreground agent-loop requests, identified by the step signal the host
+  // passes through our own `agent/request` waterfall. The host's
+  // `isAgentLoopRequest` keeps its marks in a module-private WeakSet, so a
+  // second installed copy of @deepseek-ai/dsh-llm always reports false; the
+  // signal object crosses module boundaries by reference and stays observable.
+  private readonly foregroundRequestSignals = new WeakSet<AbortSignal>()
+
+  /**
+   * Whether one `llm/stream` request is the foreground agent-loop request for a
+   * turn. Recorded from the step signal the host hands to our own
+   * `agent/request` waterfall, so this holds even when the plugin and the agent
+   * loop resolve different copies of `@deepseek-ai/dsh-llm` and the host's
+   * `isAgentLoopRequest` mark is unobservable here. Auxiliary streams (title,
+   * background summary) never pass through `agent/request` and stay excluded.
+   */
+  private isForegroundAgentRequest(request: { signal?: AbortSignal }): boolean {
+    return request.signal !== undefined && this.foregroundRequestSignals.has(request.signal)
+  }
   private readonly lastOverflowTurn = new WeakMap<Agent, number>()
   private readonly nudgedGeneration = new WeakMap<Agent, number>()
   private readonly lastNudgeTurn = new WeakMap<Session, number>()
@@ -507,6 +525,7 @@ export class ArcCompactionEngine extends CompactionEngine {
     if (this.adaptiveGovernor.enabled) {
       ctx.on('agent/request', async (payload, next) => contextBoundary(this.ctx, async () => {
         this.assertActiveBackend(payload.agent)
+        if (payload.signal !== undefined) this.foregroundRequestSignals.add(payload.signal)
         const request = await next()
         AbortSignal.any([payload.signal, this.lifetime.signal]).throwIfAborted()
         const detected = await detectContextWindow(payload.agent, request.provider ?? '', request.model ?? '')
@@ -544,7 +563,7 @@ export class ArcCompactionEngine extends CompactionEngine {
     ctx.on('llm/stream', async function* (request, next) {
       const session = request.sessionId && engine.ctx.get('sessions')?.get(request.sessionId)
       const admission = session && engine.admissions.get(session)
-      if (engine.backgroundSummary && admission && isAgentLoopRequest(request)) {
+      if (engine.backgroundSummary && admission && (isAgentLoopRequest(request) || engine.isForegroundAgentRequest(request))) {
         // Stream entry has the final route and persisted header/context. Web
         // model selection can override earlier agent/request waterfall values.
         const pressure = engine.projectedContext(admission.agent)

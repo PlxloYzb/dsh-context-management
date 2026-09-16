@@ -2,6 +2,8 @@
 
 ## Unreleased (post-0.1.1, driven by the 400k experiment close-out findings)
 
+- 修复后台摘要准备在已安装布局下从不启动的问题：`llm/stream` 的门此前只认宿主 `isAgentLoopRequest` 的标记，而该判据读的是 `@deepseek-ai/dsh-llm` 模块内部的 `WeakSet`；插件与 agent loop 各自解析到不同的模块副本时，插件侧永远是 false，准备调用被静默跳过——真实 0.1.2-rc.1 宿主上探针实测 `isAgentLoopRequest === false` 而标记确实存在。现在额外接受经我们自己的 `agent/request` 瀑布传入的 step signal：该对象按引用跨模块边界，第二份模块副本也能观察；标题与摘要等辅助流不经过 `agent/request`，仍然不会开门。两条 ≥3M token 的 ARC 正式 run 在同一位置一直报 `backgroundSummary: null`，装上修复后同样的压力路径报出带真实 `operationId`/`sourceHash`/`readyAt` 的 ready 任务。新增 `tests/integration/foreground-request-identity.test.ts`：把门改回旧实现则该用例失败。typecheck 与 188 单测、135 集成全绿。见[长程实验报告](docs/EXPERIMENT-LONGRUN-3M.zh-CN.md)。
+
 - 修复 Basic 接管的生命周期边界：桥接层启用时接入已有 Agent，后续边界重新核验实际服务，支持同一 Include 晚加载 Basic、移除运行时补丁后再接管；按宿主 Include 的当前配置回滚，保留外部重载的补丁。已验证的 Basic 回退保持可用，未确认的回滚持续拒绝请求。静态 preset 审计支持行尾注释和常见内联 isolate 映射。新增真实 Basic/Loader/AgentPresets 契约、独立 profile 安装卸载和 Web 原生 `/compact` 验证。见[中文](docs/RELIABILITY-HARNESS.zh-CN.md) / [English](docs/RELIABILITY-HARNESS.en.md)。
 
 - 后台摘要默认采用 `delivery: deferred`：先用确定性上下文换窗，允许同一任务跨窗继续；就绪后经 Harness 的安全 pre-step 追加，持久化回执后才算交付。新增按依赖等待的 `await_context` 与独立摘要字节预算，覆盖取消、预算拒绝、重复交付及窗口已落盘但通知未追加时的重启恢复。保留 `delivery: seed` 对照。真实 Muse minimal 验证独立工作零等待与历史依赖点剩余等待；同时修复 pruner 已解除压力后仍额外归档的问题。见[中文](docs/ITERATION-DEFERRED-HANDOFF.zh-CN.md) / [English](docs/ITERATION-DEFERRED-HANDOFF.en.md)。
