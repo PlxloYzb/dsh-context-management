@@ -13,6 +13,13 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.7.2
+
+- **证据口径更正（无产品改动）。** 此前记为「观测流中 archive 266 次 / search 796 次 / decompress 240 次」，那是**跨 `observed/` 各文件的原始大小写不敏感子串出现次数**，既**重复计算**了事件流（同一份内容以 `.json` 与 `.jsonl` 各存一份），也把**工具定义、schema、结果回显**算了进去——**不是模型调用次数**。逐 `tool/call` 事件重新统计：本次短宿主流程共 **37 次真实工具调用**，其中检索相关 **9 次**（`search_context` 5 次、`decompress` 4 次），其余 28 次为 `experiment_read_page`（实验夹具读取，非检索）。结论「检索路径确实被走到」成立，但量级是 **9 次模型检索调用**，不是几百次。
+- **候选身份口径统一。** 短宿主流程实际运行的是 `sourceCommit b6621d4`、profile `ctx-v012-smoke-c`、**安装版本 0.7.0**、`candidateDistHash 8edcf9b1c451dd1e…`，且 `candidateDistHash === installedCandidateDistHash`、`candidateDistLoaded: true`。与当前 0.7.1 的 dist 差异经核实**仅为版本字符串及其派生文件名**：chunk 文件**大小完全相同（307,715 字节）**、**仅 9 个字节不同**（`0.7.0`→`0.7.1` 1 字节 + 内嵌 chunk 文件名 8 字节），`index.js`/`bridge.js` 的差异同样只是 chunk 名引用；`git diff b6621d4 140749b --stat` 显示期间**只改了 `CHANGELOG.md` 与 `package.json`**。故宿主验证的代码与 0.7.1 **一致**。
+- **profile 名更正**：正确为 `ctx-v012-smoke-c`（0.7.1 的提交信息误写为 `ctx-v12-smoke-c`，CHANGELOG 中的记录正确）。
+- **合同 §10 补源码依据**（两种语言同步）：残留索引条目在**当前模型下不可达**——`resolveIndexedSources` 对被遮蔽 `seq` 递归展开至叶子，ledger 每次从不可变压缩事件重建且会话只追加，故条目不会失去其块；**适用前提是只追加历史**，即便前提被打破，正确性仍由「查找只针对本次 `sources.seqs`」保证，残留条目只占内存。同时如实记录计量缺口：`entries` 不含每事件固定开销、会话内条目从不收缩，且该结论**来自源码阅读而非测试**。
+
 ## 0.7.1
 
 - **短宿主流程验证通过（真实宿主 + 真实模型路由）。** 用 pin 的 `dsh 0.1.2-rc.1` 宿主、`B_IN_PLACE` 臂（插件接管原生 Basic）、Muse 路由、24 页 / 最低压力跑完四阶段：`strictPassed: true`、24 facts、6 corrections、verbatim 3、**12 次压缩**、28 次调用、629,270 tokens、88 秒、`error: null`。

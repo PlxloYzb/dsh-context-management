@@ -110,9 +110,17 @@ Existing behaviour, **unchanged this round**:
 
 The index covers archived originals only. When a source is restored out of the archive (window rollback, window restore), its index entries must be invalidated or invalidated wholesale.
 
-**Implementation finding (2026-09-16)**: invalidation is **not needed for correctness**, only for memory. Index lookups are driven by the source set the **current ledger** resolves - `seqMayContain` is only ever called for a `seq` in this call's `sources.seqs` - so an entry retained for a `seq` that no longer belongs to any block source is **never consulted**. It changes neither hits nor ownership; it only occupies memory. Release is therefore `disposeIndex(session)`, which serves as both the memory mechanism and the observable one.
+**Implementation finding (2026-09-16, with source evidence)**
 
-**Verification not yet constructed**: no public un-shadow or rollback API was found in `region.ts`, so "behaviour is unchanged after a source leaves the archive" **cannot currently be written as a test**. This is recorded as unverified rather than claimed.
+*Correctness: a stale entry cannot enter the current ledger's candidate set, so the state is **unreachable** under the current model.* The evidence is `resolveIndexedSources` (`src/archive.ts:26`-`:63`): for any shadowed `seq` it pushes that block's children (or the `sourceEventSeqs` of a `surfaceOp.replace`) and recurses, writing to `out.seqs` only when it reaches a real leaf (`user/message`, `assistant/message`, `tool/result`). The ledger is rebuilt every call by `rebuildBlockLedger(session.snapshotEvents())` from **immutable compaction events**, and sessions are **append-only**, so a `seq` that ever entered a block's source set can always be expanded to through that block. An index entry therefore never loses its block.
+
+*Precondition*: **append-only session history**. If a host ever allowed truncation, rewind or block removal, entries could outlive their block. **Even then correctness would hold**: `seqMayContain` is only ever called for a `seq` in **this call's** `sources.seqs`, so a stale entry is never consulted - it only occupies memory.
+
+*Memory: always budget-bounded, with an explicit release path.* `INDEX_ENTRY_BUDGET` (4M gram entries) stops new events from being indexed once exceeded; release is by LRU eviction (64 sessions retained) or `disposeIndex(session)`.
+
+*Metering gap recorded honestly*: `entries` counts gram entries only and **excludes** the fixed per-`seq` cost of one `Set` plus its `Map` entry, so the real footprint is bounded but larger than `entries` by a per-event constant. Entries also **never shrink** within a session; there is no per-entry eviction. Neither point was measured - both follow from the code structure.
+
+*Verification status*: the conclusions above come from reading the source, **not from a test**. No public un-shadow or rollback API exists in `region.ts`, so the scenario is **neither constructed nor covered**.
 
 ## 11. Acceptance
 
