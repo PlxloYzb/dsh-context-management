@@ -13,6 +13,13 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.7.1
+
+- **短宿主流程验证通过（真实宿主 + 真实模型路由）。** 用 pin 的 `dsh 0.1.2-rc.1` 宿主、`B_IN_PLACE` 臂（插件接管原生 Basic）、Muse 路由、24 页 / 最低压力跑完四阶段：`strictPassed: true`、24 facts、6 corrections、verbatim 3、**12 次压缩**、28 次调用、629,270 tokens、88 秒、`error: null`。
+- **身份可核对，不是"跑通了"而已**：`summary.json` 记录 `candidateDistHash === installedCandidateDistHash` 且 `candidateDistLoaded: true`，并把 34 个 dist 文件的逐个 sha256 都写进 `candidateDistFiles`——**宿主加载的正是本次提交的候选 dist**，`sourceCommit` 亦记录在案。
+- **归档检索确实被走到**：观测流中出现 `archive` 266 次、`search` 796 次、`decompress` 240 次，说明这次宿主流程不是只跑压缩路径。
+- 前置条件（本次踩到并记录）：跑插件臂前必须先把当前候选**安装**进隔离测试 profile（`dsh plugin --profile ctx-v012-smoke-c add ./dsh-context-management-<v>.tgz`），否则驱动器以「Install the complete current dist candidate before running a plugin arm」拒绝启动。
+
 ## 0.6.1
 
 - **补齐合同 §8 要求的三种游标情形**：此前只有 C5 覆盖「索引被销毁后继续旧游标」。新增 G1–G3——**构建进行中**（首页撞预算时索引尚未完成，断言 `lastExaminedEvents > events` 以证明该状态确实被构造出来，而非碰巧完整）、**淘汰后**（用 65 个会话把索引挤出保留窗口，断言 `events === 0` 后旧游标仍可续页）、**销毁并重建后**（另一个查询重建索引，原游标仍有效）。三者都要求续页找到那条晚到的原文，且游标不因缓存状态改变而失效——落实「索引只是加速器，其状态不得渗入游标语义」。
