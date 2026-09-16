@@ -63,6 +63,9 @@ const rows = []
 for (const probe of probes) {
   // Single un-cursored search, exactly what the model gets by default.
   const single = reader.search(session, { query: probe.literal, limit: 5 }, 8000)
+  // Read immediately: the walk below shares the reader and would otherwise be
+  // credited with indexing this probe paid for.
+  const singleIndex = reader.indexState(session)
   // Full walk along nextCursor until the archive is exhausted.
   let cursor, pagesWalked = 0, hits = 0, absent = null
   for (let i = 0; i < 40; i++) {
@@ -78,6 +81,8 @@ for (const probe of probes) {
     singleShotHits: single.hits?.length ?? 0,
     singleShotScanCapped: single.scanBudgetReached === true,
     walkHits: hits, walkPages: pagesWalked, walkAbsent: absent,
+    singleShotColdChars: singleIndex?.lastColdChars ?? 0,
+    singleShotIndexedEvents: singleIndex?.lastIndexedEvents ?? 0,
   })
 }
 await rm(await mkdtemp(join(tmpdir(), 'unused-')), { recursive: true, force: true })
@@ -85,6 +90,11 @@ console.log(JSON.stringify({
   run, sessionId: id, events: events.length, summaries, exposedPages: exposed,
   ledgerBlocks: events.filter(e => e.user?.message).length,
   probed: rows.length,
+  // Probe 1 runs against an empty index; the rest inherit its work, so this
+  // separates a genuinely cold query from a warmed one.
+  firstProbeColdChars: rows[0]?.singleShotColdChars ?? 0,
+  warmProbeColdChars: rows.slice(1).reduce((total, row) => total + row.singleShotColdChars, 0),
+  indexEventsAtEnd: reader.indexState(session)?.events ?? 0,
   singleShotFound: rows.filter(r => r.singleShotHits > 0).length,
   singleShotCapped: rows.filter(r => r.singleShotScanCapped).length,
   walkFound: rows.filter(r => r.walkHits > 0).length,
