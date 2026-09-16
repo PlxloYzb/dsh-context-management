@@ -67,10 +67,14 @@ for (const probe of probes) {
   // credited with indexing this probe paid for.
   const singleIndex = reader.indexState(session)
   // Full walk along nextCursor until the archive is exhausted.
-  let cursor, pagesWalked = 0, hits = 0, absent = null
+  let cursor, pagesWalked = 0, hits = 0, absent = null, walkCold = 0
   for (let i = 0; i < 40; i++) {
     const step = reader.search(session, { query: probe.literal, limit: 5, ...(cursor === undefined ? {} : { cursor }) }, 8000)
     pagesWalked += 1
+    // Full-pagination cost is reported separately from the single-shot cost:
+    // the walk continues from a warm index, so anything it pays for is indexing
+    // the single shot did not already cover.
+    walkCold += reader.indexState(session)?.lastColdChars ?? 0
     hits += step.hits?.length ?? 0
     if (step.absent === true) absent = true
     if (step.nextCursor === null || step.nextCursor === undefined) break
@@ -83,6 +87,7 @@ for (const probe of probes) {
     walkHits: hits, walkPages: pagesWalked, walkAbsent: absent,
     singleShotColdChars: singleIndex?.lastColdChars ?? 0,
     singleShotIndexedEvents: singleIndex?.lastIndexedEvents ?? 0,
+    walkColdChars: walkCold,
   })
 }
 await rm(await mkdtemp(join(tmpdir(), 'unused-')), { recursive: true, force: true })
@@ -92,6 +97,7 @@ console.log(JSON.stringify({
   probed: rows.length,
   // Probe 1 runs against an empty index; the rest inherit its work, so this
   // separates a genuinely cold query from a warmed one.
+  walkColdCharsTotal: rows.reduce((total, row) => total + row.walkColdChars, 0),
   firstProbeColdChars: rows[0]?.singleShotColdChars ?? 0,
   warmProbeColdChars: rows.slice(1).reduce((total, row) => total + row.singleShotColdChars, 0),
   indexEventsAtEnd: reader.indexState(session)?.events ?? 0,
