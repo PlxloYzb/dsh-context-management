@@ -94,6 +94,32 @@ function originalCaseOffset(text: string, folded: string, index: number): number
   }
   return original
 }
+/** Work budget for one search call, covering text read by the scan and by indexing. */
+const WORK_BUDGET = 1_000_000
+/**
+ * Case folding shared by the scan, the needle and the block filter.
+ *
+ * Bulk `toLowerCase` applies the Unicode Final_Sigma condition, so its result
+ * depends on context: a capital sigma lowercases to the final form ς only when a
+ * cased letter precedes it, making `'\u039f\u03a3 xyz'` fold to `'\u03bf\u03c2 xyz'` while
+ * `'\u03a3 xyz'` folds to `'\u03c3 xyz'`. The scan reads bounded chunks, so a
+ * context-sensitive fold made a match depend on where the chunk boundary fell,
+ * and a filter indexed from whole parts could disagree with the scan, prune the
+ * block and report a present literal as absent.
+ *
+ * Folding per code point is context-free, so it commutes with concatenation:
+ * the grams of any chunk are a subset of the grams of the part containing it,
+ * which is exactly the superset property that makes filtering safe. It also
+ * makes a match independent of chunk alignment. Bulk folding stays for text
+ * that cannot be affected, which is every text without a conditional mapping.
+ */
+const CONDITIONAL_CASE = /[\u00df\u0130\u0131\u01c4-\u01cc\u01f1-\u01f3\u0345\u0390\u03a3\u03b0\u03c2\u0587\u1e9e\u1f80-\u1fff\ufb00-\ufb17]/u
+function foldCase(text: string): string {
+  if (!CONDITIONAL_CASE.test(text)) return text.toLowerCase()
+  let out = ''
+  for (const point of text) out += point.toLowerCase()
+  return out
+}
 export interface TextPart { path: number[]; text: string }
 export interface NonTextPart { type: string; status: 'not-restored' | 'available-reference' | 'missing-attachment' | 'unverified-reference'; attachmentId?: string }
 /** Text blocks remain separate: no invented newline or whitespace normalization. */
@@ -118,7 +144,7 @@ export function eventTextParts(event: SessionEvent, attachmentState?: (ref: unkn
   return { texts, nonText }
 }
 
-/** Total 3-grams one session may index before filtering is switched off. */
+/** Total 3-grams one session may index before further blocks are left unfiltered. */
 const GRAM_BUDGET = 4_000_000
 
 /** Reader-local authentication prevents forged cursor offsets; restarts invalidate cursors. */
@@ -135,13 +161,20 @@ export class ArchiveReader {
   private readonly searchOwners = new WeakMap<Session, Map<number, number>>()
   /**
    * Per-block 3-gram filters, built lazily from the same source text the scan
-   * reads. The filter decides whether the block's text can contain the needle;
-   * it never affects ownership bookkeeping, so a pruned block still claims its
-   * sequences exactly as a scanned one does and the documented dedup and repeat
-   * behaviour is unchanged. Hash collisions only ever cost an unnecessary read,
-   * never a missed hit, which keeps the `absent` answer trustworthy.
+   * reads, folded with the same function the scan uses. The filter decides
+   * whether the block's text can contain the needle; it never affects ownership
+   * bookkeeping, so a pruned block still claims its sequences exactly as a
+   * scanned one does and the documented dedup and repeat behaviour is unchanged.
+   *
+   * Two properties keep the `absent` answer trustworthy. Folding is
+   * context-free, so the grams of every chunk the scan reads are a subset of
+   * the grams indexed for the part containing it: a hash collision costs an
+   * unnecessary read and can never drop a hit. And a block is only filtered
+   * from a *complete* index - indexing is charged to the same work budget as
+   * scanning, so a build that runs out of budget leaves the block unfiltered
+   * instead of answering from a partial index.
    */
-  private readonly blockGrams = new WeakMap<Session, { grams: Map<string, Set<number>>; used: number; disabled: boolean }>()
+  private readonly blockGrams = new WeakMap<Session, { grams: Map<string, Set<number>>; used: number; oversized: Set<string> }>()
   ledger(session: Session): ArcBlockLedgerEntry[] {
     let index = this.cache.get(session)
     if (!index) { index = new BlockLedgerIndex(); this.cache.set(session, index) }
@@ -271,9 +304,12 @@ export class ArchiveReader {
   }
 
   /**
-   * Whether this block's text can contain the needle. Builds the filter on
-   * first use from the resolved source set the scan would visit. Returns true
-   * when filtering is unavailable, which only costs speed.
+   * Whether this block's text can contain the needle, and what the attempt cost
+   * in characters. Builds the filter on first use from the resolved source set
+   * the scan would visit. Indexing reads real text, so it is charged to the same
+   * budget as scanning: when the remaining budget cannot cover the build the
+   * block is left unfiltered rather than answered from a partial index, and the
+   * cost is still returned so the caller records that the budget was consumed.
    */
   private blockMayContain(
     session: Session,
@@ -281,29 +317,47 @@ export class ArchiveReader {
     sources: Sources,
     events: readonly SessionEvent[],
     needleGrams: readonly number[],
+    budget: number,
     signal?: AbortSignal,
-  ): boolean {
+  ): { verdict: boolean; cost: number } {
     let state = this.blockGrams.get(session)
-    if (!state) { state = { grams: new Map(), used: 0, disabled: false }; this.blockGrams.set(session, state) }
-    if (state.disabled) return true
-    let grams = state.grams.get(block.blockId)
-    if (!grams) {
-      const built = new Set<number>()
-      for (const seq of sources.seqs) {
-        signal?.throwIfAborted()
-        for (const part of eventTextParts(events[seq]!).texts) {
-          const hashes = ArchiveReader.gramHashes(part.text.toLowerCase())
-          if (hashes === null) continue
-          for (const hash of hashes) built.add(hash)
-        }
-      }
-      state.used += built.size
-      if (state.used > GRAM_BUDGET) { state.disabled = true; return true }
-      state.grams.set(block.blockId, built)
-      grams = built
+    if (!state) { state = { grams: new Map(), used: 0, oversized: new Set() }; this.blockGrams.set(session, state) }
+    // A block whose own text exceeds the entire budget can never be indexed, so
+    // remember that instead of re-paying the attempt on every later search.
+    if (state.oversized.has(block.blockId)) return { verdict: true, cost: 0 }
+    const cached = state.grams.get(block.blockId)
+    if (cached) {
+      for (const hash of needleGrams) if (!cached.has(hash)) return { verdict: false, cost: 0 }
+      return { verdict: true, cost: 0 }
     }
-    for (const hash of needleGrams) if (!grams.has(hash)) return false
-    return true
+    // Decide affordability before doing the work. Indexing lowercases and hashes
+    // real text, so a build that cannot finish must not start: charging a
+    // half-built index would spend the whole page budget and leave the caller
+    // with no progress at all - measured on a 1.1M-character block, the first
+    // page advanced only one chunk. Measuring lengths is free by comparison, and
+    // a discarded partial index is unthinkable anyway because a subset would
+    // prune blocks that do contain the needle.
+    let total = 0
+    for (const seq of sources.seqs) for (const part of eventTextParts(events[seq]!).texts) total += part.text.length
+    if (total > budget) {
+      if (total > WORK_BUDGET) state.oversized.add(block.blockId)
+      return { verdict: true, cost: 0 }
+    }
+    const built = new Set<number>()
+    for (const seq of sources.seqs) {
+      signal?.throwIfAborted()
+      for (const part of eventTextParts(events[seq]!).texts) {
+        const hashes = ArchiveReader.gramHashes(foldCase(part.text))
+        if (hashes === null) continue
+        for (const hash of hashes) built.add(hash)
+      }
+    }
+    const cost = total
+    if (state.used + built.size > GRAM_BUDGET) { state.oversized.add(block.blockId); return { verdict: true, cost } }
+    state.used += built.size
+    state.grams.set(block.blockId, built)
+    for (const hash of needleGrams) if (!built.has(hash)) return { verdict: false, cost }
+    return { verdict: true, cost }
   }
 
   search(session: Session, args: { query: string; limit?: number; cursor?: string }, available = 4096, signal?: AbortSignal): object {
@@ -315,7 +369,7 @@ export class ArchiveReader {
     const scope = `search:${args.query}:${limit}`
     let offset: number[]
     try { offset = this.decode(session, scope, args.cursor, [0, 0, 0, 0]) } catch (e) { return fail((e as Error).message) }
-    const ledger = this.ledger(session), events = session.snapshotEvents(), needle = args.query.toLowerCase(), queryPoints = [...args.query].length
+    const ledger = this.ledger(session), events = session.snapshotEvents(), needle = foldCase(args.query), queryPoints = [...args.query].length
     // Filtering needs at least one full 3-gram; shorter needles scan as before.
     const needleGrams = ArchiveReader.gramHashes(needle)
     let owners = this.searchOwners.get(session)
@@ -334,10 +388,20 @@ export class ArchiveReader {
       if (block.contextManagement !== undefined && !validWindowMetadata(block.contextManagement, block.blockId)) { incomplete = true; continue }
       const sources = this.sources(session, block, ledger, signal)
       incomplete ||= sources.incomplete
+      // Charging indexing to the same budget keeps one search call bounded by
+      // WORK_BUDGET characters of text work, whether it reads them scanning or
+      // indexing. A build that cannot fit consumes what it read and leaves the
+      // block unfiltered, so the page reports the budget instead of absence.
+      if (scanned >= WORK_BUDGET) break
       // Decide once per block, but never act before ownership bookkeeping below:
       // a filtered block must still claim and inspect its sequences so the dedup
       // and repeat behaviour stays identical to a full scan.
-      const filtered = needleGrams !== null && !this.blockMayContain(session, block, sources, events, needleGrams, signal)
+      let filtered = false
+      if (needleGrams !== null) {
+        const probe = this.blockMayContain(session, block, sources, events, needleGrams, WORK_BUDGET - scanned, signal)
+        scanned += probe.cost
+        filtered = !probe.verdict
+      }
       for (; s < sources.seqs.length; s++, p = 0, o = 0) {
         const seq = sources.seqs[s]!
         const owner = owners.get(seq)
@@ -353,7 +417,7 @@ export class ArchiveReader {
         while (o < text.length) {
           const end = textEnd(text, o, 16_384)
           const chunk = text.slice(o, Math.min(text.length, end + args.query.length))
-          const folded = chunk.toLowerCase(), lowerMatch = folded.indexOf(needle)
+          const folded = foldCase(chunk), lowerMatch = folded.indexOf(needle)
           const match = lowerMatch < 0 ? -1 : originalCaseOffset(chunk, folded, lowerMatch)
           scanned += chunk.length
           if (match >= 0 && o + match < end) {
@@ -400,12 +464,12 @@ export class ArchiveReader {
           } else {
             o = end
           }
-          if (hits.length >= limit || scanned >= 1_000_000) break outer
+          if (hits.length >= limit || scanned >= WORK_BUDGET) break outer
         }
         }
       }
     }
-    const scanBudgetReached = scanned >= 1_000_000
+    const scanBudgetReached = scanned >= WORK_BUDGET
     const nextCursor = b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null
     const base = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor }
     // Two different empty pages need different model reactions, and the raw

@@ -104,7 +104,10 @@ test('R10e: a long absent needle covers the whole archive without the scan budge
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'experiment-filtered-empty-search')
   session.append('turn/start', { turn: 1 })
-  appendUser(session, `${'y'.repeat(1_100_000)}\nFILTERED_SOURCE = "original-value"`)
+  // Inside the work budget: indexing this block is charged like scanning, so a
+  // larger source would exhaust the budget and correctly report a capped page
+  // instead of absence (R10g pins that half).
+  appendUser(session, `${'y'.repeat(600_000)}\nFILTERED_SOURCE = "original-value"`)
   const source = session.surface.nodes[0]!
   appendUser(session, 'Protected current input')
   runCompactionTransaction(session, {
@@ -124,10 +127,68 @@ test('R10e: a long absent needle covers the whole archive without the scan budge
   assert.equal(miss.nextCursor, null, 'the whole archive is covered in one page')
   assert.equal(miss.absent, true, 'a complete filtered scan establishes absence')
   assert.ok((miss.inspectedMessages ?? 0) > 0, 'the absence claim reports its coverage')
-  // A needle too short to filter must still take the scanning path.
-  const short = reader.search(session, { query: 'zz' }, 1100) as { scanBudgetReached: boolean; nextCursor: string | null }
-  assert.equal(short.scanBudgetReached, true, 'short needles still scan and reach the budget')
-  assert.ok(short.nextCursor)
+})
+
+test('R10f: case folding is context-free so a present literal is never pruned away', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-case-fold-boundary')
+  session.append('turn/start', { turn: 1 })
+  // Bulk toLowerCase applies the Unicode Final_Sigma condition, so its result
+  // depends on context: 'ΟΣ xyz' folds to 'ος xyz' (final sigma) while 'Σ xyz'
+  // folds to 'σ xyz' (no preceding cased letter). The scan reads bounded chunks,
+  // so a context-sensitive fold made the answer depend on where the boundary
+  // fell: only the chunk starting exactly at the sigma produced the needle's
+  // 'σ'. A filter indexed from the whole part produced 'ς' instead, pruned the
+  // block, and reported this present literal as absent. Placing the sigma on the
+  // 16384-code-point boundary pins that alignment.
+  appendUser(session, `${'x'.repeat(16_383)}ΟΣ xyz`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Long original is archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'case-fold-boundary',
+  })
+  const page = new ArchiveReader().search(session, { query: 'Σ xyz' }, 1100) as {
+    status: string; hits: { seq: number; offset: number }[]; absent?: boolean; inspectedMessages?: number
+  }
+  assert.equal(page.status, 'success')
+  assert.notEqual(page.absent, true, 'a present literal must never be reported absent')
+  assert.equal(page.hits.length, 1, 'the archived original is found')
+  assert.equal(page.hits[0]!.seq, source, 'the hit names the archived record')
+})
+
+test('R10g: indexing is charged to the work budget so absence never comes from a partial index', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-index-budget')
+  session.append('turn/start', { turn: 1 })
+  // Indexing this block costs more than the whole per-call work budget. The
+  // filter must be abandoned rather than answered from, and the attempt must be
+  // charged: otherwise the query looks free while it lowercases and hashes
+  // megabytes that the scan budget never saw.
+  appendUser(session, `${'z'.repeat(1_200_000)}\nBUDGET_SOURCE = "original-value"`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Long original is archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'index-budget',
+  })
+  // Count the hashing the filter does, so "never started" is measured rather than
+  // inferred from the response. The needle is hashed once by definition; any
+  // further characters would be block text.
+  const query = 'NEVER_PRESENT_LITERAL'
+  let hashedChars = 0
+  const original = ArchiveReader.gramHashes
+  ArchiveReader.gramHashes = function (text: string) { hashedChars += text.length; return original(text) }
+  let page: { status: string; hits: unknown[]; scanBudgetReached: boolean; absent?: boolean; nextCursor: string | null }
+  try { page = new ArchiveReader().search(session, { query }, 1100) as typeof page }
+  finally { ArchiveReader.gramHashes = original }
+  assert.equal(hashedChars, query.length, 'a block too large for the budget is never indexed')
+  assert.equal(page.status, 'success'); assert.deepEqual(page.hits, [])
+  assert.equal(page.scanBudgetReached, true, 'the page still reports the scan budget it spent')
+  assert.equal(page.absent, undefined, 'a block without an index cannot be called absent')
+  assert.ok(page.nextCursor, 'the page continues from a cursor')
 })
 
 test('R10d: a mid-line hit names the record it belongs to without growing the snippet', async t => {
