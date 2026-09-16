@@ -61,6 +61,15 @@ test('retrieval over native Basic compaction blocks in a sealed session', { time
   assert.equal(ledger.length, replacements, 'every native Basic replacement is indexed as a block')
   assert.ok(ledger.length > 0, 'the sealed Basic run has indexed blocks')
   assert.equal(ledger.filter(b => b.contextManagement !== undefined).length, 0, 'native Basic blocks carry no ARC metadata')
+  // Materialise a Session from the faithfully loaded events so search can run.
+  // This is the host's own restore path, not a hand-rolled replay.
+  if (!session) {
+    // A fresh identity: the loaded events keep their own sequence numbers, and
+    // search reads content, so this stays faithful while avoiding the identity
+    // the persistence backend already owns.
+    session = ctx.sessions.create(SessionId(`sealed-check`), { seed: events as never }) as Session
+    console.log('session restored from loaded events:', session?.snapshotEvents?.().length ?? 0)
+  }
   if (!session) { console.log('no Session object available; search skipped, ledger claim above holds'); return }
   const reader = new ArchiveReader()
   const results = literals.map(query => {
@@ -69,5 +78,14 @@ test('retrieval over native Basic compaction blocks in a sealed session', { time
     return { query, sourcePages: found, hits: result.hits?.length ?? 0, absent: result.absent ?? null, scanCapped: result.scanBudgetReached ?? null, firstHitBlock: result.hits?.[0]?.blockId ?? null }
   })
   for (const row of results) console.log('search', JSON.stringify(row))
-  assert.ok(results.some(r => r.hits > 0), 'at least one literal from the archived pages is retrievable')
+  // Every literal exists in exactly one archived page. Retrieval must reach the
+  // native Basic blocks: a hit inside a ledger block proves the block is both
+  // indexed and searchable. A zero-hit page that stopped at the scan budget is
+  // untested rather than absent, so it is not counted as a failure.
+  assert.ok(results.every(row => row.sourcePages === 1), 'each probe literal occurs in exactly one source page')
+  const found = results.filter(row => row.hits > 0)
+  assert.ok(found.length > 0, 'retrieval reaches text compacted by the native Basic engine')
+  assert.ok(found.every(row => row.firstHitBlock !== null), 'hits are located inside native Basic blocks')
+  assert.ok(results.filter(row => row.hits === 0).every(row => row.scanCapped === true && row.absent === null),
+    'a zero-hit page reports a truncated scan, never a false absence')
 })
