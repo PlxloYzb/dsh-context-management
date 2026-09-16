@@ -148,6 +148,12 @@ export function eventTextParts(event: SessionEvent, attachmentState?: (ref: unkn
 const INDEX_ENTRY_BUDGET = 4_000_000
 /** Above this share of indexed events a gram stops being evidence of absence. */
 const STOP_KEY_SHARE = 0.2
+/**
+ * Sessions whose index is retained before the least recently used is dropped.
+ * The indexes are session-isolated caches, not state: the session events remain
+ * the source of truth, so dropping one only costs a later rebuild.
+ */
+const HISTORY_INDEX_SESSION_LIMIT = 64
 
 /**
  * Session-local candidate index over unique original events.
@@ -187,11 +193,67 @@ export class ArchiveReader {
   private readonly sourceIndexes = new WeakMap<ArcBlockLedgerEntry[], ReturnType<typeof sourceIndex>>()
   private readonly searchOwners = new WeakMap<Session, Map<number, number>>()
   /**
-   * Per-session candidate indexes. Session-isolated, built on demand and
-   * extended across calls; the original session events stay the source of
-   * truth, so an index can be dropped and rebuilt at any time.
+   * Per-session candidate indexes, least-recently-used first. Bounded so a
+   * long-lived process cannot accumulate them, and droppable at any time: the
+   * original session events stay the source of truth, so an evicted index is
+   * simply rebuilt on demand. Nothing here is global or shared between
+   * sessions, and nothing is persisted to disk.
    */
-  private readonly historyIndexes = new WeakMap<Session, HistoryIndex>()
+  private readonly historyIndexes = new Map<string, { session: Session; index: HistoryIndex }>()
+  /** Cold/hot accounting for the most recent search on a session. */
+  private readonly lastIndexUse = new WeakMap<Session, { coldChars: number; indexedEvents: number; examinedEvents: number }>()
+
+  /**
+   * Returns this session's index, creating it if absent and marking it most
+   * recently used. Eviction is only ever a cache miss, never a correctness
+   * event, because an evicted index rebuilds into the same content.
+   */
+  private indexFor(session: Session): HistoryIndex {
+    const held = this.historyIndexes.get(session.id)
+    if (held && held.session === session) {
+      this.historyIndexes.delete(session.id)
+      this.historyIndexes.set(session.id, held)
+      return held.index
+    }
+    const index: HistoryIndex = { grams: new Map(), counts: new Map(), common: new Set(), entries: 0, chars: 0 }
+    this.historyIndexes.set(session.id, { session, index })
+    while (this.historyIndexes.size > HISTORY_INDEX_SESSION_LIMIT) {
+      const oldest = this.historyIndexes.keys().next().value!
+      this.historyIndexes.delete(oldest)
+    }
+    return index
+  }
+
+  /** Looks up an index without creating one, so a read never populates a cache. */
+  private peekIndex(session: Session): HistoryIndex | undefined {
+    const held = this.historyIndexes.get(session.id)
+    return held && held.session === session ? held.index : undefined
+  }
+
+  /** Drops a session's index. The next search rebuilds whatever it needs. */
+  disposeIndex(session: Session): boolean { return this.historyIndexes.delete(session.id) }
+
+  /**
+   * Reports the index state for a session, or null when nothing has been
+   * indexed. `lastColdChars` is the indexing work the most recent search paid
+   * for, which is what separates a cold query from a hot one; it is reported
+   * here rather than in the response envelope because that envelope has a fixed
+   * byte grant.
+   */
+  indexState(session: Session): {
+    events: number; entries: number; common: number; chars: number
+    lastColdChars: number; lastIndexedEvents: number; lastExaminedEvents: number
+    sessions: number
+  } | null {
+    const index = this.peekIndex(session)
+    const last = this.lastIndexUse.get(session)
+    if (index === undefined && last === undefined) return null
+    return {
+      events: index?.grams.size ?? 0, entries: index?.entries ?? 0, common: index?.common.size ?? 0, chars: index?.chars ?? 0,
+      lastColdChars: last?.coldChars ?? 0, lastIndexedEvents: last?.indexedEvents ?? 0, lastExaminedEvents: last?.examinedEvents ?? 0,
+      sessions: this.historyIndexes.size,
+    }
+  }
   ledger(session: Session): ArcBlockLedgerEntry[] {
     let index = this.cache.get(session)
     if (!index) { index = new BlockLedgerIndex(); this.cache.set(session, index) }
@@ -330,12 +392,11 @@ export class ArchiveReader {
    * evidence of absence. Progress persists across calls, so a cold query pays
    * for what it indexes and a hot query does not.
    */
-  private indexSources(session: Session, sources: Sources, events: readonly SessionEvent[], budget: number, signal?: AbortSignal): number {
-    let index = this.historyIndexes.get(session)
-    if (!index) { index = { grams: new Map(), counts: new Map(), common: new Set(), entries: 0, chars: 0 }; this.historyIndexes.set(session, index) }
-    const state = index
-    let spent = 0
+  private indexSources(session: Session, sources: Sources, events: readonly SessionEvent[], budget: number, signal?: AbortSignal): { spent: number; indexed: number; examined: number } {
+    const state = this.indexFor(session)
+    let spent = 0, indexed = 0, examined = 0
     for (const seq of sources.seqs) {
+      examined += 1
       if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET) continue
       signal?.throwIfAborted()
       const parts = eventTextParts(events[seq]!).texts
@@ -355,11 +416,12 @@ export class ArchiveReader {
       const share = Math.max(8, state.grams.size * STOP_KEY_SHARE)
       for (const hash of grams) if ((state.counts.get(hash) ?? 0) >= share) state.common.add(hash)
       state.grams.set(seq, grams)
+      indexed += 1
       state.entries += grams.size
       state.chars += size
       for (const hash of grams) state.counts.set(hash, (state.counts.get(hash) ?? 0) + 1)
     }
-    return spent
+    return { spent, indexed, examined }
   }
 
   /**
@@ -370,7 +432,7 @@ export class ArchiveReader {
    * a needle touching a stop-key, is simply unknown and is always read.
    */
   private seqMayContain(session: Session, seq: number, needleGrams: readonly number[]): boolean {
-    const index = this.historyIndexes.get(session)
+    const index = this.peekIndex(session)
     const grams = index?.grams.get(seq)
     if (index === undefined || grams === undefined) return true
     for (const hash of needleGrams) {
@@ -396,6 +458,7 @@ export class ArchiveReader {
     if (!owners) { owners = new Map(); this.searchOwners.set(session, owners) }
     let [b, s, p, o] = offset as [number, number, number, number]
     let scanned = 0, incomplete = false, inspected = 0
+    let coldChars = 0, indexedEvents = 0, examinedEvents = 0
     const hits: object[] = []
     // Reserve the complete envelope, including the longest cursor/boolean
     // forms, then price each hit's actual serialized bytes. A fixed 600-byte
@@ -412,7 +475,11 @@ export class ArchiveReader {
       // Charging indexing to the same budget keeps one search call bounded by
       // WORK_BUDGET characters of text work, whether it reads them scanning or
       // indexing. Incremental progress is not lost when the budget runs out.
-      if (needleGrams !== null && scanned < WORK_BUDGET) scanned += this.indexSources(session, sources, events, WORK_BUDGET - scanned, signal)
+      if (needleGrams !== null && scanned < WORK_BUDGET) {
+        const built = this.indexSources(session, sources, events, WORK_BUDGET - scanned, signal)
+        scanned += built.spent
+        coldChars += built.spent; indexedEvents += built.indexed; examinedEvents += built.examined
+      }
       for (; s < sources.seqs.length; s++, p = 0, o = 0) {
         const seq = sources.seqs[s]!
         const owner = owners.get(seq)
@@ -482,6 +549,9 @@ export class ArchiveReader {
         }
       }
     }
+    // Recorded for `indexState`, which is how a caller tells a cold query from a
+    // hot one without paying bytes in the response envelope.
+    if (needleGrams !== null) this.lastIndexUse.set(session, { coldChars, indexedEvents, examinedEvents })
     const scanBudgetReached = scanned >= WORK_BUDGET
     const nextCursor = b < ledger.length ? this.encode(session, scope, [b, s, p, o]) : null
     const base = { status: 'success', boundary, hits, incomplete, scanBudgetReached, nextCursor }
