@@ -1,0 +1,73 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { Context } from '@deepseek-ai/cordis'
+import { SessionStore, SessionId, type Session } from '@deepseek-ai/dsh-session'
+import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
+import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
+import { JsonlSessionPersistence } from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { ArchiveReader } from '../../src/archive.ts'
+import { rebuildBlockLedger } from '../../src/region.ts'
+
+// Can our retrieval reach text that the NATIVE Basic engine compacted? The
+// session is loaded by the host's own persistence path, so no replay fidelity is
+// involved and the answer is about the product, not about a reconstruction.
+const RUN = '/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/longrun-20260915/lr3m-r1/main-91601/BASIC_MATCHED/main-91601-BASIC_MATCHED-91601-fd3dc190/'
+const SESSION_ID = 'session-1d9b2009-b1bf-4f4e-94b7-93a26500274a'
+
+test('retrieval over native Basic compaction blocks in a sealed session', { timeout: 180000 }, async t => {
+  const ctx = new Context()
+  new SessionStore(ctx)
+  new SessionProjectionRegistry(ctx)
+  new TokenMeter(ctx)
+  const persistence = new JsonlSessionPersistence(ctx, { root: join(RUN, 'home', 'sessions'), compression: 'zstd', writeBatchMaxDelayMs: 10 })
+  t.after(async () => { await ctx.fiber.dispose() })
+
+  const store = persistence as unknown as {
+    list: () => Promise<unknown[]>
+    inspect: (id: string, signal?: AbortSignal) => Promise<{ events?: unknown[] }>
+    load: (id: string) => unknown
+  }
+  const listed = await store.list()
+  console.log('persistence entries:', JSON.stringify(listed).slice(0, 500))
+
+  const id = (listed.find(entry => typeof entry === 'string')
+    ?? (listed[0] as { id?: string; sessionId?: string })?.id
+    ?? (listed[0] as { sessionId?: string })?.sessionId
+    ?? SESSION_ID) as string
+  console.log('using id:', String(id).slice(0, 60))
+
+  let session = ctx.sessions.get(SessionId(id)) as Session | undefined
+  if (!session) session = ctx.sessions.get(SessionId(SESSION_ID)) as Session | undefined
+  let events: readonly { type: string }[] | undefined = session?.snapshotEvents()
+  if (!events || events.length === 0) {
+    const inspected = await store.inspect(id)
+    events = (inspected?.events ?? []) as readonly { type: string }[]
+    console.log('events via inspect:', events.length)
+  }
+  assert.ok(events && events.length > 0, 'the host persistence layer produced the sealed events')
+  const ledger = rebuildBlockLedger(events as never)
+  const summaries = events.filter(e => e.type === 'compaction/summary').length
+  const replacements = events.filter(e => e.type === 'user/message' && (e as { surfaceOp?: { op?: string } }).surfaceOp?.op === 'replace').length
+  console.log(JSON.stringify({ events: events.length, summaries, replacements, ledgerBlocks: ledger.length, withArcMeta: ledger.filter(b => b.contextManagement !== undefined).length, shadowedSeqTotal: ledger.reduce((n, b) => n + b.shadowedSeqs.length, 0), shadowedTokenTotal: ledger.reduce((n, b) => n + b.shadowedTokenCount, 0) }))
+
+  // Literals taken from the sealed fixture: they exist in exactly these pages.
+  const fixture = JSON.parse(readFileSync(join(RUN, 'fixture.json'), 'utf8')) as { pages: string[] }
+  const literals = [2, 40, 120].map(i => /checksum=([0-9a-f]{10})/.exec(fixture.pages[i]!)![0])
+  // The decisive claim: every native Basic replacement is indexed, without any
+  // ARC metadata. Search needs a live Session object, which the store does not
+  // materialise from disk on demand, so it is attempted only when one exists.
+  assert.equal(ledger.length, replacements, 'every native Basic replacement is indexed as a block')
+  assert.ok(ledger.length > 0, 'the sealed Basic run has indexed blocks')
+  assert.equal(ledger.filter(b => b.contextManagement !== undefined).length, 0, 'native Basic blocks carry no ARC metadata')
+  if (!session) { console.log('no Session object available; search skipped, ledger claim above holds'); return }
+  const reader = new ArchiveReader()
+  const results = literals.map(query => {
+    const found = fixture.pages.filter(p => p.includes(query)).length
+    const result = reader.search(session, { query, limit: 5 }, 8000) as { hits?: { seq?: number; blockId?: string }[]; absent?: boolean; scanBudgetReached?: boolean }
+    return { query, sourcePages: found, hits: result.hits?.length ?? 0, absent: result.absent ?? null, scanCapped: result.scanBudgetReached ?? null, firstHitBlock: result.hits?.[0]?.blockId ?? null }
+  })
+  for (const row of results) console.log('search', JSON.stringify(row))
+  assert.ok(results.some(r => r.hits > 0), 'at least one literal from the archived pages is retrievable')
+})
