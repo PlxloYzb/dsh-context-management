@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
 import { SessionStore, SessionId, type Session } from '@deepseek-ai/dsh-session'
@@ -13,10 +13,25 @@ import { rebuildBlockLedger } from '../../src/region.ts'
 // Can our retrieval reach text that the NATIVE Basic engine compacted? The
 // session is loaded by the host's own persistence path, so no replay fidelity is
 // involved and the answer is about the product, not about a reconstruction.
-const RUN = '/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management/.test-runtime/longrun-20260915/lr3m-r1/main-91601/BASIC_MATCHED/main-91601-BASIC_MATCHED-91601-fd3dc190/'
+const BASE = join('.test-runtime', 'longrun-20260915', 'lr3m-r1', 'main-91601', 'BASIC_MATCHED')
+// The sealed run directory carries a generated id, so it is discovered rather
+// than hard-coded, and the test skips cleanly when the evidence tree is absent.
+function sealedRun(): string | null {
+  if (!existsSync(BASE)) return null
+  for (const entry of readdirSync(BASE)) {
+    const candidate = join(BASE, entry)
+    if (existsSync(join(candidate, 'fixture.json'))) return candidate
+  }
+  return null
+}
+const RUN = sealedRun() ?? BASE
 const SESSION_ID = 'session-1d9b2009-b1bf-4f4e-94b7-93a26500274a'
 
-test('retrieval over native Basic compaction blocks in a sealed session', { timeout: 180000 }, async t => {
+// The sealed run lives under the ignored evidence tree, so this test skips
+// cleanly on a checkout that does not have it instead of failing the suite.
+const sealedAvailable = () => sealedRun() !== null
+
+test('retrieval over native Basic compaction blocks in a sealed session', { timeout: 180000, skip: !sealedAvailable() ? 'sealed long-run evidence not present' : false }, async t => {
   const ctx = new Context()
   new SessionStore(ctx)
   new SessionProjectionRegistry(ctx)

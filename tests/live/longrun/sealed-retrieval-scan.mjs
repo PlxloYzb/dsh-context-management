@@ -4,7 +4,7 @@
 // Runs against the session the host's own persistence layer loaded, so no model
 // call and no replay reconstruction are involved.
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { tmpdir } from 'node:os'
 import { Context } from '@deepseek-ai/cordis'
@@ -14,7 +14,15 @@ import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
 import { JsonlSessionPersistence } from '@deepseek-ai/dsh-session-persistence-jsonl'
 import { ArchiveReader } from '../../../src/archive.ts'
 
-const run = resolve(process.argv[2])
+const base = resolve(process.argv[2] ?? join('.test-runtime', 'longrun-20260915', 'lr3m-r1', 'main-91601', 'BASIC_MATCHED'))
+// Discover the generated run id directory, or skip when the evidence is absent.
+const run = existsSync(join(base, 'fixture.json'))
+  ? base
+  : (existsSync(base) ? readdirSync(base).map(entry => join(base, entry)).find(candidate => existsSync(join(candidate, 'fixture.json'))) ?? base : base)
+if (!existsSync(join(run, 'fixture.json'))) {
+  console.log(JSON.stringify({ status: 'SKIPPED', reason: 'sealed long-run evidence not present', run }))
+  process.exit(0)
+}
 const ctx = new Context()
 new SessionStore(ctx)
 new SessionProjectionRegistry(ctx)
