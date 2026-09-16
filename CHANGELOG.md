@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.0
+
+- 检索新增按块的 3-gram 过滤：块内文本无法覆盖查询的全部 3-gram 时跳过该块的文本扫描。过滤只影响是否读取文本，**不参与归属记账**——被过滤的块仍然照常认领并计入检视，因此既有的跨父归档去重与重复语义逐字不变（R11/ADV5/R10b 均保持通过）。哈希碰撞只会多读一块，绝不会漏命中，`absent` 结论因此仍然可信。整档超过扫描预算时，长查询现在可在一页内扫完并给出 `absent: true`（此前会停在预算上限、无法作答）；短于 3 字符的查询走原路径不变。真实封存归档（64 块 / 75.3 万被遮蔽字符）实测：过滤生效，缺失字面量 `capped=false, absent=true, inspected=690`。
+- **已知局限**：与语料共享公共前缀的查询无法被过滤。模型常用的 `checksum=…`/`trace=…` 形状中，`che`、`cks`、`sum`、`um=` 等 3-gram 几乎每个块都有，因此这类查询仍是逐块扫描。要改善典型检索定位，需要按**有区分度的值**建索引（token 级），而不是按整串的 3-gram。
+
 ## 0.2.0 (post-0.1.1, driven by the 400k experiment close-out findings)
 
 - 修复后台摘要准备在已安装布局下从不启动的问题：`llm/stream` 的门此前只认宿主 `isAgentLoopRequest` 的标记，而该判据读的是 `@deepseek-ai/dsh-llm` 模块内部的 `WeakSet`；插件与 agent loop 各自解析到不同的模块副本时，插件侧永远是 false，准备调用被静默跳过——真实 0.1.2-rc.1 宿主上探针实测 `isAgentLoopRequest === false` 而标记确实存在。现在额外接受经我们自己的 `agent/request` 瀑布传入的 step signal：该对象按引用跨模块边界，第二份模块副本也能观察；标题与摘要等辅助流不经过 `agent/request`，仍然不会开门。两条 ≥3M token 的 ARC 正式 run 在同一位置一直报 `backgroundSummary: null`，装上修复后同样的压力路径报出带真实 `operationId`/`sourceHash`/`readyAt` 的 ready 任务。新增 `tests/integration/foreground-request-identity.test.ts`：把门改回旧实现则该用例失败。typecheck 与 188 单测、135 集成全绿。见[长程实验报告](docs/EXPERIMENT-LONGRUN-3M.zh-CN.md)。

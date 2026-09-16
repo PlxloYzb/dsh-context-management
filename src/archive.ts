@@ -118,6 +118,9 @@ export function eventTextParts(event: SessionEvent, attachmentState?: (ref: unkn
   return { texts, nonText }
 }
 
+/** Total 3-grams one session may index before filtering is switched off. */
+const GRAM_BUDGET = 4_000_000
+
 /** Reader-local authentication prevents forged cursor offsets; restarts invalidate cursors. */
 export class ArchiveReader {
   constructor(private readonly attachmentState?: (ref: unknown) => NonTextPart['status']) {}
@@ -130,6 +133,15 @@ export class ArchiveReader {
   // bounded per-block source cache evicts entries during a broad search.
   private readonly sourceIndexes = new WeakMap<ArcBlockLedgerEntry[], ReturnType<typeof sourceIndex>>()
   private readonly searchOwners = new WeakMap<Session, Map<number, number>>()
+  /**
+   * Per-block 3-gram filters, built lazily from the same source text the scan
+   * reads. The filter decides whether the block's text can contain the needle;
+   * it never affects ownership bookkeeping, so a pruned block still claims its
+   * sequences exactly as a scanned one does and the documented dedup and repeat
+   * behaviour is unchanged. Hash collisions only ever cost an unnecessary read,
+   * never a missed hit, which keeps the `absent` answer trustworthy.
+   */
+  private readonly blockGrams = new WeakMap<Session, { grams: Map<string, Set<number>>; used: number; disabled: boolean }>()
   ledger(session: Session): ArcBlockLedgerEntry[] {
     let index = this.cache.get(session)
     if (!index) { index = new BlockLedgerIndex(); this.cache.set(session, index) }
@@ -247,6 +259,53 @@ export class ArchiveReader {
     const result = { status: 'success', boundary, blockId: block.blockId, tier: block.tier, generation: block.contextManagement?.generationAfter ?? 0, segments, missing: sources.missing.slice(0, 8), incomplete: sources.incomplete || segments.some(s => s.nonText.length > 0), nextCursor: index < sources.seqs.length ? this.encode(session, scope, [index, partIndex, position]) : null }
     return Buffer.byteLength(JSON.stringify(result)) <= budget ? result : fail('insufficient-headroom')
   }
+  /** Hashed 3-grams of a lowercased string, or null when too short to filter. */
+  private static gramHashes(lower: string): number[] | null {
+    const points = [...lower]
+    if (points.length < 3) return null
+    const out: number[] = []
+    for (let i = 0; i + 3 <= points.length; i++) {
+      out.push(((points[i]!.codePointAt(0)! * 31 + points[i + 1]!.codePointAt(0)!) * 31 + points[i + 2]!.codePointAt(0)!) | 0)
+    }
+    return out
+  }
+
+  /**
+   * Whether this block's text can contain the needle. Builds the filter on
+   * first use from the resolved source set the scan would visit. Returns true
+   * when filtering is unavailable, which only costs speed.
+   */
+  private blockMayContain(
+    session: Session,
+    block: ArcBlockLedgerEntry,
+    sources: Sources,
+    events: readonly SessionEvent[],
+    needleGrams: readonly number[],
+    signal?: AbortSignal,
+  ): boolean {
+    let state = this.blockGrams.get(session)
+    if (!state) { state = { grams: new Map(), used: 0, disabled: false }; this.blockGrams.set(session, state) }
+    if (state.disabled) return true
+    let grams = state.grams.get(block.blockId)
+    if (!grams) {
+      const built = new Set<number>()
+      for (const seq of sources.seqs) {
+        signal?.throwIfAborted()
+        for (const part of eventTextParts(events[seq]!).texts) {
+          const hashes = ArchiveReader.gramHashes(part.text.toLowerCase())
+          if (hashes === null) continue
+          for (const hash of hashes) built.add(hash)
+        }
+      }
+      state.used += built.size
+      if (state.used > GRAM_BUDGET) { state.disabled = true; return true }
+      state.grams.set(block.blockId, built)
+      grams = built
+    }
+    for (const hash of needleGrams) if (!grams.has(hash)) return false
+    return true
+  }
+
   search(session: Session, args: { query: string; limit?: number; cursor?: string }, available = 4096, signal?: AbortSignal): object {
     signal?.throwIfAborted()
     available = Math.min(Number.isFinite(available) ? available : 0, 4096)
@@ -257,6 +316,8 @@ export class ArchiveReader {
     let offset: number[]
     try { offset = this.decode(session, scope, args.cursor, [0, 0, 0, 0]) } catch (e) { return fail((e as Error).message) }
     const ledger = this.ledger(session), events = session.snapshotEvents(), needle = args.query.toLowerCase(), queryPoints = [...args.query].length
+    // Filtering needs at least one full 3-gram; shorter needles scan as before.
+    const needleGrams = ArchiveReader.gramHashes(needle)
     let owners = this.searchOwners.get(session)
     if (!owners) { owners = new Map(); this.searchOwners.set(session, owners) }
     let [b, s, p, o] = offset as [number, number, number, number]
@@ -273,6 +334,10 @@ export class ArchiveReader {
       if (block.contextManagement !== undefined && !validWindowMetadata(block.contextManagement, block.blockId)) { incomplete = true; continue }
       const sources = this.sources(session, block, ledger, signal)
       incomplete ||= sources.incomplete
+      // Decide once per block, but never act before ownership bookkeeping below:
+      // a filtered block must still claim and inspect its sequences so the dedup
+      // and repeat behaviour stays identical to a full scan.
+      const filtered = needleGrams !== null && !this.blockMayContain(session, block, sources, events, needleGrams, signal)
       for (; s < sources.seqs.length; s++, p = 0, o = 0) {
         const seq = sources.seqs[s]!
         const owner = owners.get(seq)
@@ -281,6 +346,7 @@ export class ArchiveReader {
         // At the memory cap, untracked sources may repeat but are never omitted.
         if ((owner === undefined && owners.size < 200_000) || (owner !== undefined && b < owner)) owners.set(seq, b)
         inspected += 1
+        if (filtered) continue
         const parts = eventTextParts(events[seq]!).texts
         for (; p < parts.length; p++, o = 0) {
         const part = parts[p]!, text = part.text

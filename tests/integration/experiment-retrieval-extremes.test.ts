@@ -80,7 +80,10 @@ test('R10c: a cursor-resumed page that exhausts the archive does not claim absen
     shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
     provider: 'fixture', model: 'resumed-empty-search',
   })
-  const reader = new ArchiveReader(), query = 'NEVER_PRESENT_LITERAL'
+  // Deliberately shorter than a 3-gram so the locator filter cannot skip the
+  // block: this test needs a page that genuinely stops at the scan budget, which
+  // is exactly what the filter now avoids for longer needles.
+  const reader = new ArchiveReader(), query = 'zz'
   type Page = {
     status: string; hits: unknown[]; incomplete: boolean; nextCursor: string | null
     scanBudgetReached: boolean; absent?: boolean; inspectedMessages?: number; hint?: string
@@ -95,6 +98,36 @@ test('R10c: a cursor-resumed page that exhausts the archive does not claim absen
   assert.equal(rest.absent, undefined, 'a resumed page cannot speak for the pages it never saw')
   assert.equal(rest.inspectedMessages, undefined)
   assert.ok(Buffer.byteLength(JSON.stringify(rest)) <= 1100)
+})
+
+test('R10e: a long absent needle covers the whole archive without the scan budget', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-filtered-empty-search')
+  session.append('turn/start', { turn: 1 })
+  appendUser(session, `${'y'.repeat(1_100_000)}\nFILTERED_SOURCE = "original-value"`)
+  const source = session.surface.nodes[0]!
+  appendUser(session, 'Protected current input')
+  runCompactionTransaction(session, {
+    start: source, end: source, shadowedSeqs: [source], summary: [{ type: 'text', text: 'Long original is archived' }],
+    shadowedTokenCount: h.ctx.tokenMeter.measure(session).nodes.find(node => node.seq === source)!.heuristicTokens,
+    provider: 'fixture', model: 'filtered-empty-search',
+  })
+  const reader = new ArchiveReader()
+  // The block filter proves a 21-character needle absent from a source larger
+  // than the whole scan budget, so absence is established in one page. Before
+  // the filter this query stopped at the budget and could not answer at all.
+  const miss = reader.search(session, { query: 'NEVER_PRESENT_LITERAL' }, 1100) as {
+    status: string; hits: unknown[]; scanBudgetReached: boolean; nextCursor: string | null; absent?: boolean; inspectedMessages?: number
+  }
+  assert.equal(miss.status, 'success'); assert.deepEqual(miss.hits, [])
+  assert.equal(miss.scanBudgetReached, false, 'the filter avoids the scan budget')
+  assert.equal(miss.nextCursor, null, 'the whole archive is covered in one page')
+  assert.equal(miss.absent, true, 'a complete filtered scan establishes absence')
+  assert.ok((miss.inspectedMessages ?? 0) > 0, 'the absence claim reports its coverage')
+  // A needle too short to filter must still take the scanning path.
+  const short = reader.search(session, { query: 'zz' }, 1100) as { scanBudgetReached: boolean; nextCursor: string | null }
+  assert.equal(short.scanBudgetReached, true, 'short needles still scan and reach the budget')
+  assert.ok(short.nextCursor)
 })
 
 test('R10d: a mid-line hit names the record it belongs to without growing the snippet', async t => {
