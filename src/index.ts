@@ -806,7 +806,16 @@ export class ArcCompactionEngine extends CompactionEngine {
         this.windows.recordOvershoot(agent.session, pressure.projectedTokens, capacity.effectiveInputLimit, physicalInputLimit)
         return
       }
-      throw new ContextManagementError('CONTEXT_BUDGET_EXHAUSTED', `context-budget-exhausted: retained input (${pressure.projectedTokens} tokens) exceeds the physical input limit (${physicalInputLimit}; effective processing line ${capacity.effectiveInputLimit}). No safe reduction remains; reduce the input or increase windowBudgetTokens.`)
+      // With nothing archived there is no reduction mechanism in reach at all:
+      // the window is smaller than the plugin's own fixed baseline (system
+      // prompt, tool schemas, skill catalogs, the current step). Saying "reduce
+      // the input" then sends the operator looking in the wrong place, which is
+      // what a 144-page journey at the minimum window did before failing here.
+      const archived = this.reader.ledger(agent.session).length
+      const diagnosis = archived === 0
+        ? `nothing has been archived yet, so no reduction mechanism is available: the window cannot hold its own fixed baseline. Raise modelContextLimit or adaptiveGovernor.windowBudgetTokens, or reduce the per-step payload (fewer parallel tool calls per step).`
+        : `${archived} archived block(s) exist but the retained remainder is irreducible: reduce the protected or current input, or increase windowBudgetTokens.`
+      throw new ContextManagementError('CONTEXT_BUDGET_EXHAUSTED', `context-budget-exhausted: retained input (${pressure.projectedTokens} tokens) exceeds the physical input limit (${physicalInputLimit}; effective processing line ${capacity.effectiveInputLimit}). ${diagnosis}`)
     }
   }
   async contextStatus(agent: Agent): Promise<object> {

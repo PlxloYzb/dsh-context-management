@@ -13,6 +13,11 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.7.4
+
+- **让 `CONTEXT_BUDGET_EXHAUSTED` 的措辞反映真实状态。** 此前无论有没有归档，消息一律是「No safe reduction remains; reduce the input or increase windowBudgetTokens」——但几何过小这一真实场景下，操作者设的是 `pressure`/`batch`，从未设过 `windowBudgetTokens`，这句话把人指向了错的地方。现在按归档数量分支：**没有任何归档**时说清「窗口装不下自身的固定基线（system prompt、工具 schema、技能目录、当前步）」，并给出真正的杠杆（`modelContextLimit`/`windowBudgetTokens`，或减少每步并行工具调用）；**已有归档**时说明「剩余部分不可压缩」，指向受保护输入或窗口预算。新增 `W04f` 锁零归档分支，并**已验证判别力**（把消息改回通用版本则该用例失败）。
+- **活体验证**（`B_IN_PLACE`/F3/pressure=24000/batch=2，隔离 profile 装 0.7.3）：消息变为 `... 1 archived block(s) exist but the retained remainder is irreducible: reduce the protected or current input, or increase windowBudgetTokens.`——即 0.7.3 的守卫先跑了一次回退、归档 1 块，随后如实报告剩余不可压缩。两个分支都可达：零归档分支对应回退无可折叠内容的情形。
+
 ## 0.7.3
 
 - **修复 in-place 应急回退在一回合内无限重复。** `compactIfNeeded` 的 in-place 分支此前对每次 admission **无条件**调用 `runEmergencyFallback`，既不校验它是否真的降低了 retained input，也没有回合内频率上限（对比 windowed 分支至少有 `requiredReduction` 与 `shouldRunEmergencyFallback` 检查）。后果在最小窗口下被实测放大：**一次运行在同一回合内跑了 114 次完全相同的 in-place 检查点，312 次调用、711 秒，最终撞 600 秒回合超时**——而第二次之后什么也没reclaim。现在记录同一回合内上一次回退留下的 retained input，**仅当上一次确实降低了才允许再次回退**；一旦停滞就立即给出预算裁决，不再为同一个检查点重复付费。

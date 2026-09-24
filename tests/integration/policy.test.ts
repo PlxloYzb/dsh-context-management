@@ -79,6 +79,23 @@ test('lifetime disposal aborts a new maintenance operation before appending', as
   assert.equal(session.seq, before)
 })
 
+test('W04f: an unfittable turn names the fixed baseline when nothing is archived', async t => {
+  const h = await host(); t.after(h.close)
+  // A 144-page journey at the minimum window failed here with a message about a
+  // knob the operator never set. With no archive there is no reduction mechanism
+  // in reach at all, so the diagnosis has to say that instead of "reduce the
+  // input", which points at the wrong thing.
+  const engine = new ContextManagementEngine(h.ctx, config)
+  const session = newSession(h.ctx, 'baseline-diagnosis')
+  const agent = { session, ctx: h.ctx, options: {} }
+  newInput(session, 'Unfitting protected input. '.repeat(5000))
+  assert.equal((engine.reader.ledger(session) as unknown[]).length, 0, 'this fixture archives nothing')
+  await assert.rejects(
+    engine.compactIfNeeded(agent, 'pressure', signal()),
+    /nothing has been archived yet, so no reduction mechanism is available/,
+  )
+})
+
 test('W04b: bounded overshoot between the effective line and the physical limit no longer kills the turn (400k-experiment regression)', async t => {
   const h = await host(); t.after(h.close)
   // Geometry: C=W=32768, R=8192, S=4096 → effective line 20480, physical limit 24576.
