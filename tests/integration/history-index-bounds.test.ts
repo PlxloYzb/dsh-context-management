@@ -90,3 +90,44 @@ test('B8: the entry budget stops gram storage, and the defaults keep indexing', 
   const normal = indexed(session, dflt, 'needle-3')
   assert.ok(normal.state.entries > 0, 'the default reader must still store grams')
 })
+
+test('B9: within a session the index only grows, and the budget is what stops it', async t => {
+  // docs/DESIGN-HISTORY-INDEX section 10 records two things as source-reading
+  // conclusions rather than measurements: entries never shrink inside a session,
+  // because there is no per-entry eviction, only whole-session release; and the
+  // budget is what bounds that growth. Both are measured here.
+  //
+  // The budget is a pre-add check on the running total, so the stored figure can
+  // pass it by at most the gram count of the one container that crossed it. That
+  // overshoot is bounded by a single event, which is the point of the bound.
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'experiment-index-bound-growth')
+  seed(h, session, 6)
+
+  const reader = new ArchiveReader(undefined, { entryBudget: 6 })
+  const first = indexed(session, reader, 'needle-0')
+  const grown = first.state.entries
+  assert.ok(grown > 0, 'the first search stores grams')
+
+  // More history arrives, with a literal that can only ever be reached by
+  // scanning: the budget was spent before it existed, so the index cannot hold
+  // it. Entries neither shrink nor run on.
+  for (let i = 0; i < 6; i += 1) archive(h, session, `late-needle-${i} payload body ${i}`, `late-${i}`)
+  const second = indexed(session, reader, 'late-needle-3')
+  assert.equal(second.state.entries, grown, 'entries changed after the budget was reached')
+  assert.equal(second.state.events, first.state.events, 'another container was indexed past the budget')
+
+  // Growth stopping is not loss: the answer is still found, by scanning the
+  // sources the index refused to hold.
+  assert.equal(second.page.hits.length, 1, 'an unindexed source is still found')
+
+  // Repeating the search adds nothing either way.
+  const third = indexed(session, reader, 'late-needle-3')
+  assert.equal(third.state.entries, grown, 'a repeat search changed the entry count')
+
+  // And the bound is not a one-off: the same reader on a fresh session stops at
+  // the same place, so the overshoot is a property of the check, not of timing.
+  const other = newSession(h.ctx, 'experiment-index-bound-growth-second')
+  seed(h, other, 6)
+  assert.equal(indexed(other, reader, 'needle-0').state.entries, grown, 'the bound is not reproducible')
+})
