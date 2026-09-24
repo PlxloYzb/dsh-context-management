@@ -51,13 +51,20 @@ async function arm(name, profile, port, patch, observer) {
   return manifest
 }
 await mkdir(`${root}/live`, { recursive: true })
+// A profile with no packageManager field lets Corepack resolve the newest pnpm,
+// which is currently 12.x - and pnpm 12 no longer ships bin/pnpm.cjs, the entry
+// point the host's `plugin` command invokes. The install then dies with
+// MODULE_NOT_FOUND and every plugin arm fails before a server ever starts. Pin
+// the profile to a pnpm that still provides that file so the cohort does not
+// depend on whatever Corepack happens to default to on the day it runs.
+const profilePackageManager = process.env.EXPERIMENT_PROFILE_PACKAGE_MANAGER ?? 'pnpm@11.7.0'
 // Create all fixture profiles and overlays explicitly; no old development files are required.
 const profileNames = Object.fromEntries(['A', 'B', 'C'].map(arm => [arm, `ctx-v011-${arm.toLowerCase()}-${suffix}`]))
 for (const name of ['A', 'B', 'C']) {
   if (name === 'A' && process.argv[3]) continue
   const profileRoot = join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'profiles', profileNames[name])
   await mkdir(profileRoot, { recursive: false })
-  await writeFile(join(profileRoot, 'package.json'), JSON.stringify({ name: `dsh-profile-${profileNames[name]}`, private: true, dependencies: {}, dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'], patchReload: 'live' } } }))
+  await writeFile(join(profileRoot, 'package.json'), JSON.stringify({ name: `dsh-profile-${profileNames[name]}`, private: true, packageManager: profilePackageManager, dependencies: {}, dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app'], patchReload: 'live' } } }))
   if (name !== 'A') {
     const code = await run('tests/live/install-candidate.mjs', [profileNames[name]], resolve(`.test-runtime/install-${name}-${suffix}.log`))
     if (code !== 0) throw new Error(`Candidate installation failed for arm ${name}`)
