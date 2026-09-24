@@ -8,7 +8,7 @@ import {startHost} from './local/runtime.mjs'
 import {atomicJson} from './local/protocol.mjs'
 import {promptControlled,requestRecords} from './local/request-client.mjs'
 import {makeFixture,familyBrief,correctionMessage,familyUpdate} from './local/fixtures.mjs'
-import {scoreAnswer,finalQuestion,jsonObjects} from './local/scoring.mjs'
+import {scoreAnswer,finalQuestion,jsonObjects,pageValue} from './local/scoring.mjs'
 import {responseText} from './client.mjs'
 import assert from 'node:assert/strict'
 import {observedEvents} from './local/observed-events.mjs'
@@ -241,8 +241,12 @@ try{
  const targetPages=[Math.max(1,Math.floor(pageCount*0.08)),Math.floor(pageCount*0.32),Math.floor(pageCount*0.62)]
  const truth=Object.fromEntries(targetPages.map(p=>[`PAGE-${p}`,fixture.pages[p-1].match(/checksum=([0-9a-f]+)/)?.[1]]))
  const beforeP2=await historyCalls(),p2=await prompt('verbatim-probe',`Independent blind probe: from ORIGINAL historical source pages, report the exact checksum= hexadecimal value of the FIRST observation line on ${targetPages.map(p=>`PAGE-${p}`).join(', ')}. Recover exact evidence with installed search_context/decompress if needed. Return JSON with these page IDs as keys and checksum strings as values. Unavailable values must be null.`)
- const answer=jsonObjects(responseText(p2.recent)).map(x=>x.value).findLast(o=>Object.keys(truth).some(k=>Object.hasOwn(o,k)))
- summary.score2={verbatimCorrect:Object.keys(truth).filter(k=>answer?.[k]===truth[k]).length,verbatimTotal:3,answer:answer??null}
+ // The probe names pages PAGE-<n>. A reply keyed by the bare page number answers
+ // the same question, and used to score zero purely on the key's spelling, so
+ // resolve either form. Presence is tested with hasOwn rather than truthiness, so
+ // an honest null still reads as "the model said unavailable" and never as a match.
+ const answer=jsonObjects(responseText(p2.recent)).map(x=>x.value).findLast(o=>Object.keys(truth).some(k=>pageValue(o,k)!==undefined))
+ summary.score2={verbatimCorrect:Object.keys(truth).filter(k=>pageValue(answer,k)===truth[k]).length,verbatimTotal:3,answer:answer??null}
  summary.retrievalsDuringP2=(await historyCalls())-beforeP2;summary.p2ElapsedMs=p2.elapsedMs
  if(probeMode==='absence'){
   // Two look-alike literals: one real trace= value (must resolve to its one
