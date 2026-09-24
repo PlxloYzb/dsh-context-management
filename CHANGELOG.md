@@ -13,6 +13,25 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.8.2
+
+- **压测发现：几何地板还取决于 `batch`，机制是"受保护尾部"。** 之前把地板只当作 pressure 的函数，这是不完整的。`runEmergencyFallback` 用 `preserveRecentSteps: 2` 保护最近两步永不入压；而 batch 决定**每步读多少页**，所以受保护尾部 ≈ `2 × batch × 页tokens`。batch=12 时该尾部 ≈ 42k tokens，与基线叠加后所需物理上限 ≈ 82k，**远超 pressure=40000/50000 给出的 48.5k/59.7k**，于是首轮即失败。这解释了为什么此前成功的 144 页长跑用的是 **batch=6**。
+- **证据链（同一 144 页、muse 路由，物理上限 = ceil(pressure/0.9) + 4096，已逐条核对）**：
+
+  | 几何 | 结果 | 观测 |
+  |---|---|---|
+  | P=40000 batch=12 | 失败 reading-1 | 60,744 对 59,652（超 1,092），0 归档 |
+  | P=50000 batch=12 (B) | 失败 reading-1 | 60,744 对 59,652，1 归档 |
+  | P=50000 batch=12 (C) | 失败 reading-2 | 76,725 对 59,652（超 17,073），3 归档 |
+  | P=40000 batch=6 (F1) | 失败 reading-1 | 54,666 对 48,541（超 6,125） |
+  | **P=90000 batch=12 (B)** | **通过** | strict=True，3 次压缩，27 calls，1,914,935 tokens |
+  | **P=90000 batch=12 (C)** | **通过** | strict=True，4 次压缩，30 calls，2,182,212 tokens |
+  | **P=90000 batch=6 (B)** | **通过** | strict=True，3 次压缩，37 calls，2,543,307 tokens |
+
+  抬到 90000（物理上限 ≈104k）后 batch=12 与 batch=6 **全部通过**，与"受保护尾部 + 基线"模型一致。
+- **最大规模压测下检索保真度无损**：三条 144 页运行全部 `facts 24/24`、`corrections 6/6`、**`verbatim 3/3`**（三个原始校验和逐字节还原）、`deliverablePassed: true`、`strictPassed: true`。这是本插件在最大页数、两个插件臂、两种 batch 下的完整通过记录。
+- **`local-short.mjs` 的前置校验值得一提**：它会比对 profile 内已安装 dist 与仓库 dist，不一致直接拒绝运行（"Install the complete current dist candidate"）。本轮因此暴露了 smoke-c profile 仍装 0.7.6 的问题，重装 0.8.1 后压测才得以进行——这个防护是有效的。
+
 ## 0.8.1
 
 - **三臂 Web/model 门禁首次跑通并全部通过。** 此前 `test:live` 从未运行过；本次在隔离 `DSH_HOME` 下用 pin 住的 host 0.1.2-rc.1 跑完整编排（`tests/live/gates.mjs`，suffix `arm080-015737`）：三臂各自建 profile、起 server、跑 9 样本队列、**真实重启**、resume 召回、archive 分页校验。
