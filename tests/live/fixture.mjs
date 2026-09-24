@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { salvageObjects } from './local/scoring.mjs'
 export const seeds = [1701, 2903, 4307]
 export function corpus(seed) {
   if (!seeds.includes(seed)) throw new Error('Use a fixed release corpus seed')
@@ -26,6 +27,15 @@ export function score(text, expected) {
       if (count > coverage) { selected = values; coverage = count }
     } catch { /* prose/code fences may precede the final object */ }
   }
+  // A reply cut off mid-object matches no flat-brace regex, so every value it did
+  // emit used to be discarded and the run scored zero. Recover the complete
+  // leading pairs of an unterminated object rather than reporting nothing.
+  if (selected === null) {
+    for (const { value } of salvageObjects(text)) {
+      const count = Object.keys(expected).filter(key => Object.hasOwn(value, key)).length
+      if (count > coverage) { selected = value; coverage = count }
+    }
+  }
   const matched = selected === null ? [] : Object.keys(expected).filter(key => selected[key] === expected[key])
-  return { scorerVersion:2, correct: matched.length, total: Object.keys(expected).length, matched, values:selected }
+  return { scorerVersion:3, correct: matched.length, total: Object.keys(expected).length, matched, values:selected }
 }
