@@ -13,6 +13,24 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.8.3
+
+- **144 页最大规模压测矩阵全部通过，且检索保真度满分。** 在 muse 路由、`pressure=90000`、144 页（本夹具上限）下，把插件臂的所有关键路径都压了一遍，**六种配置无一失败**：
+
+  | 配置 | 臂 | 结果 | 保真度 |
+  |---|---|---|---|
+  | batch=12 | B in-place | strict=True，3 次压缩，27 calls | facts 24/24、verbatim **3/3** |
+  | batch=12 | C windowed | strict=True，4 次压缩，30 calls | facts 24/24、verbatim **3/3** |
+  | batch=6 | B in-place | strict=True，3 次压缩，37 calls | facts 24/24、verbatim **3/3** |
+  | batch=12 **+ 重启** | B in-place | strict=True，**restartVerified=True** | verbatim **3/3** |
+  | batch=12 **+ 重启** | C windowed | strict=True，**restartVerified=True** | verbatim **3/3** |
+  | batch=12 **+ background 摘要** | C windowed | strict=True，**backgroundSummaryEnabled=True** | facts 24/24、verbatim **3/3** |
+
+  其中重启两项最关键：此前**重启持久性只在 8 页（三臂门禁）上验过**，从未在最大规模上验过；本轮在 144 页 + 3–4 次压缩后重启，两臂均 `restartVerified=True` 且三个原始校验和仍逐字节还原。
+- **`--background=true` 只允许 Muse windowed 臂**（`local-short.mjs:32`）。我第一次用 `B_IN_PLACE` 跑 background 被夹具正确拒绝——是参数错误，不是插件缺陷；改用 `C400_WINDOWED` 后通过。
+- **工作流摩擦（本轮撞到两次，如实记录）**：`local-short.mjs` 会比对 profile 内已安装 dist 与仓库 dist，不一致直接拒绝运行。因此**每次改动源码或仅 bump 版本号，都必须 `npm run build` + 重装候选**，否则所有插件臂在开跑前即被拒。这个防护本身是有效的（它拦住了真实的不一致），但版本号变更也会触发它，值得在文档里写明。
+- 全量门禁保持全绿：unit 188、integration 170、reliability 15、live:local:unit 22，0 失败 0 跳过。
+
 ## 0.8.2
 
 - **压测发现：几何地板还取决于 `batch`，机制是"受保护尾部"。** 之前把地板只当作 pressure 的函数，这是不完整的。`runEmergencyFallback` 用 `preserveRecentSteps: 2` 保护最近两步永不入压；而 batch 决定**每步读多少页**，所以受保护尾部 ≈ `2 × batch × 页tokens`。batch=12 时该尾部 ≈ 42k tokens，与基线叠加后所需物理上限 ≈ 82k，**远超 pressure=40000/50000 给出的 48.5k/59.7k**，于是首轮即失败。这解释了为什么此前成功的 144 页长跑用的是 **batch=6**。
