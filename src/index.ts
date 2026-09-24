@@ -796,6 +796,43 @@ export class ArcCompactionEngine extends CompactionEngine {
     if (physicalHeadroom >= 1100) return Math.min(1536, physicalHeadroom)
     return 0
   }
+  /**
+   * Admit at most a bounded number of emergency cold-storage fallbacks per turn,
+   * and only while they are demonstrably reducing the retained input.
+   *
+   * Both strategies pay the same price per attempt and both can treadmill when a
+   * turn keeps adding input, so they share one budget. The in-place path was
+   * bounded first; the windowed strategy's graceful degradation ran the same
+   * fallback with no bound at all, and a measured journey took 126 of them inside
+   * a single turn - 131 fallbacks against 2 real window turnovers - and ended in
+   * the 600-second turn timeout.
+   *
+   * Progress is judged from the previous attempt's own readings rather than by
+   * comparing the current input against where it left things: a turn that keeps
+   * reading always climbs back above that level, so the latter test would refuse
+   * every repeat in exactly the situation where another attempt still helps.
+   */
+  private admitFallback(agent: CompactionAgentContext): boolean {
+    const turn = findOpenTurn(agent.session.snapshotEvents()) ?? -1
+    const sameTurn = this.fallbackTurn.get(agent) === turn
+    const previousBefore = sameTurn ? this.fallbackBefore.get(agent) : undefined
+    const previousAfter = sameTurn ? this.fallbackProjected.get(agent) : undefined
+    if (!fallbackRepeatAllowed(previousBefore, previousAfter)) return false
+    const attempts = sameTurn ? (this.fallbackCount.get(agent) ?? 0) : 0
+    if (attempts >= MAX_FALLBACKS_PER_TURN) return false
+    const before = this.projectedContext(agent)?.projectedTokens
+    this.fallbackTurn.set(agent, turn)
+    this.fallbackCount.set(agent, attempts + 1)
+    if (before !== undefined) this.fallbackBefore.set(agent, before)
+    return true
+  }
+
+  /** Record where an admitted fallback left the retained input. */
+  private recordFallbackResult(agent: CompactionAgentContext): void {
+    const after = this.projectedContext(agent)?.projectedTokens
+    if (after !== undefined) this.fallbackProjected.set(agent, after)
+  }
+
   private boundaryPressure(agent: CompactionAgentContext, incomingUser?: UserMessage, admissionTokens?: number) {
     const pressure = this.projectedContext(agent)
     if (!pressure) return pressure
@@ -940,10 +977,18 @@ export class ArcCompactionEngine extends CompactionEngine {
       // experiment's CONTEXT_BUDGET_EXHAUSTED failures). Degrade through the same
       // local reversible cold-storage fallback the in-place strategy uses before
       // the remaining-budget check can fail the turn.
-      const degraded = await this.windows.exclusive(agent.session, async () => {
-        pruner?.pruneSession(agent.session)
-        return runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
-      }, () => this.flush(agent))
+      //
+      // This path ran unbounded, and a measured journey took 126 of these inside
+      // one turn against only two real turnovers, ending in the 600-second turn
+      // timeout. It now draws on the same per-turn budget as the in-place path.
+      let degraded: CompactionResult | null = null
+      if (this.admitFallback(agent)) {
+        degraded = await this.windows.exclusive(agent.session, async () => {
+          pruner?.pruneSession(agent.session)
+          return runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
+        }, () => this.flush(agent))
+        this.recordFallbackResult(agent)
+      }
       if (degraded) this.store.delete(agent.session)
       this.checkRemainingBudget(agent, !!degraded, incomingUser, admissionTokens)
       return degraded
@@ -954,45 +999,18 @@ export class ArcCompactionEngine extends CompactionEngine {
     // one turn and ended in a turn timeout, having reclaimed nothing the second
     // time onward. Repeat only while the previous attempt actually lowered the
     // retained input; once an attempt stalls, surface the budget verdict instead
-    // of paying for the same checkpoint again.
-    //
-    // Progress is judged from that attempt's own readings, not by comparing the
-    // current input against where the last attempt left it. A turn that keeps
-    // reading pushes the input back above the post-fallback level every time, so
-    // the latter test refuses every repeat in exactly the situation where another
-    // attempt still helps: a measured journey crossed the physical line twice in
-    // one turn, was refused the second attempt, and failed with the retained
-    // remainder still reclaimable.
-    const turn = findOpenTurn(agent.session.snapshotEvents()) ?? -1
-    const before = this.projectedContext(agent)?.projectedTokens
-    const previousBefore = this.fallbackTurn.get(agent) === turn ? this.fallbackBefore.get(agent) : undefined
-    const previousAfter = this.fallbackTurn.get(agent) === turn ? this.fallbackProjected.get(agent) : undefined
-    if (!fallbackRepeatAllowed(previousBefore, previousAfter)) {
+    // of paying for the same checkpoint again. The same budget covers the windowed
+    // strategy's graceful degradation; see admitFallback.
+    if (!this.admitFallback(agent)) {
       this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
       return null
     }
-    // Progress is necessary but not sufficient. A turn that keeps reading fresh
-    // pages adds input faster than one checkpoint reclaims it, so every attempt
-    // can show a small reduction while the turn never converges: a real restart
-    // journey ran 126 in-place fallbacks inside turn 3 against 568 page reads,
-    // 314 calls and 690 seconds, and ended in the 600-second turn timeout. Bound
-    // the attempts and surface the budget verdict, so a treadmill fails fast and
-    // legibly instead of grinding the turn away.
-    const attempts = this.fallbackTurn.get(agent) === turn ? (this.fallbackCount.get(agent) ?? 0) : 0
-    if (attempts >= MAX_FALLBACKS_PER_TURN) {
-      this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
-      return null
-    }
-    this.fallbackTurn.set(agent, turn)
-    this.fallbackCount.set(agent, attempts + 1)
-    if (before !== undefined) this.fallbackBefore.set(agent, before)
     const result = await this.windows.exclusive(agent.session, async () => {
       pruner?.pruneSession(agent.session)
       const result = runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
       return result
     }, () => this.flush(agent))
-    const after = this.projectedContext(agent)?.projectedTokens
-    if (after !== undefined) this.fallbackProjected.set(agent, after)
+    this.recordFallbackResult(agent)
     this.checkRemainingBudget(agent, !!result, incomingUser, admissionTokens)
     return result
   }
