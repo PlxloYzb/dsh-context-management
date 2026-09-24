@@ -27,6 +27,21 @@ import {
 } from './region.ts'
 
 export const PRESERVE_RECENT_SURFACE_NODES = 5
+/**
+ * Whether another emergency fallback may run in this turn, given the readings
+ * around the previous one.
+ *
+ * Progress is judged from that attempt's own before/after pair. Comparing the
+ * current input against where the last attempt left it instead would refuse every
+ * repeat in a turn that keeps reading, because fresh content always pushes the
+ * input back above the post-fallback level - which is precisely when another
+ * attempt still helps. An attempt that did not lower the input at all is the case
+ * worth refusing, and the per-turn cap bounds the rest.
+ */
+export function fallbackRepeatAllowed(previousBefore: number | undefined, previousAfter: number | undefined): boolean {
+  if (previousBefore === undefined || previousAfter === undefined) return true
+  return previousAfter < previousBefore
+}
 const PREVIEW_CHARS = 180
 const MAX_SIGNAL_MATCHES = 8
 const MAX_STRUCTURED_MATCHES = 64

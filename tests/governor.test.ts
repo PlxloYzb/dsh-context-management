@@ -16,7 +16,7 @@ import {
   shouldRunEmergencyFallback,
 } from '../src/governor.ts'
 import { kernelConfigFor } from '../src/config.ts'
-import { buildEmergencyFallbackSummary, resolveShadowedTokenCount } from '../src/fallback.ts'
+import { buildEmergencyFallbackSummary, resolveShadowedTokenCount, fallbackRepeatAllowed } from '../src/fallback.ts'
 import { rebuildBlockLedger, runCompactionTransaction } from '../src/region.ts'
 import { appendToolCall, appendToolResult, appendUser, buildTextSession, longText } from './helpers.ts'
 
@@ -830,4 +830,22 @@ test('governor: emergency fallback remains off when governor mode is disabled', 
   )
   assert.equal(result, null)
   assert.equal(rebuildBlockLedger(session.snapshotEvents()).length, 0)
+})
+
+test('fallbackRepeatAllowed judges progress from the attempt, not from the rebound', () => {
+  // No previous attempt in this turn: the first one is always allowed.
+  assert.equal(fallbackRepeatAllowed(undefined, undefined), true)
+  assert.equal(fallbackRepeatAllowed(100_000, undefined), true)
+  // The attempt lowered the input: another is allowed even though the turn's own
+  // fresh content has since pushed the input back up. Judging by the rebound
+  // instead would refuse here, which is the defect this rule exists to prevent:
+  // a measured journey crossed the physical line twice in one turn, was refused
+  // the second attempt, and failed with the remainder still reclaimable.
+  assert.equal(fallbackRepeatAllowed(110_000, 46_000), true)
+  // The attempt reclaimed nothing at all: repeating it would pay for the same
+  // checkpoint again, which is the treadmill the per-turn cap also bounds.
+  assert.equal(fallbackRepeatAllowed(110_000, 110_000), false)
+  assert.equal(fallbackRepeatAllowed(110_000, 110_001), false)
+  // A tiny reduction is still progress; the per-turn cap bounds how far that goes.
+  assert.equal(fallbackRepeatAllowed(101_396, 101_186), true)
 })

@@ -73,6 +73,7 @@ import {
   prepareLocalCompaction,
   runEmergencyFallback,
   runLocalCompactionRegion,
+  fallbackRepeatAllowed,
   PRESERVE_RECENT_SURFACE_NODES,
 } from './fallback.ts'
 import {
@@ -412,11 +413,12 @@ export class ArcCompactionEngine extends CompactionEngine {
   /** One provider-overflow recovery is allowed per step; pre-step resets it. */
   private readonly overflowFallbackUsed = new WeakSet<Agent>()
   /**
-   * Turn and retained-input reading of the last emergency cold-storage fallback.
-   * The fallback may repeat inside one turn only while it is demonstrably making
-   * progress; see the in-place path for why.
+   * Turn and retained-input readings around the last emergency cold-storage
+   * fallback. The fallback may repeat inside one turn only while it is
+   * demonstrably making progress; see the in-place path for why.
    */
   private readonly fallbackTurn = new WeakMap<CompactionAgentContext, number>()
+  private readonly fallbackBefore = new WeakMap<CompactionAgentContext, number>()
   private readonly fallbackProjected = new WeakMap<CompactionAgentContext, number>()
   private readonly fallbackCount = new WeakMap<CompactionAgentContext, number>()
   /** Per provider/model route the resolved window (probe failures cached too). */
@@ -953,10 +955,19 @@ export class ArcCompactionEngine extends CompactionEngine {
     // time onward. Repeat only while the previous attempt actually lowered the
     // retained input; once an attempt stalls, surface the budget verdict instead
     // of paying for the same checkpoint again.
+    //
+    // Progress is judged from that attempt's own readings, not by comparing the
+    // current input against where the last attempt left it. A turn that keeps
+    // reading pushes the input back above the post-fallback level every time, so
+    // the latter test refuses every repeat in exactly the situation where another
+    // attempt still helps: a measured journey crossed the physical line twice in
+    // one turn, was refused the second attempt, and failed with the retained
+    // remainder still reclaimable.
     const turn = findOpenTurn(agent.session.snapshotEvents()) ?? -1
     const before = this.projectedContext(agent)?.projectedTokens
-    const previous = this.fallbackTurn.get(agent) === turn ? this.fallbackProjected.get(agent) : undefined
-    if (previous !== undefined && before !== undefined && before >= previous) {
+    const previousBefore = this.fallbackTurn.get(agent) === turn ? this.fallbackBefore.get(agent) : undefined
+    const previousAfter = this.fallbackTurn.get(agent) === turn ? this.fallbackProjected.get(agent) : undefined
+    if (!fallbackRepeatAllowed(previousBefore, previousAfter)) {
       this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
       return null
     }
@@ -974,6 +985,7 @@ export class ArcCompactionEngine extends CompactionEngine {
     }
     this.fallbackTurn.set(agent, turn)
     this.fallbackCount.set(agent, attempts + 1)
+    if (before !== undefined) this.fallbackBefore.set(agent, before)
     const result = await this.windows.exclusive(agent.session, async () => {
       pruner?.pruneSession(agent.session)
       const result = runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
