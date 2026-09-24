@@ -8,7 +8,7 @@ import {startHost} from './local/runtime.mjs'
 import {atomicJson} from './local/protocol.mjs'
 import {promptControlled,requestRecords} from './local/request-client.mjs'
 import {makeFixture,familyBrief,correctionMessage,familyUpdate} from './local/fixtures.mjs'
-import {scoreAnswer,finalQuestion,jsonObjects,pageValue} from './local/scoring.mjs'
+import {scoreAnswer,finalQuestion,pageValue,findAnswer} from './local/scoring.mjs'
 import {responseText} from './client.mjs'
 import assert from 'node:assert/strict'
 import {observedEvents} from './local/observed-events.mjs'
@@ -245,7 +245,7 @@ try{
  // the same question, and used to score zero purely on the key's spelling, so
  // resolve either form. Presence is tested with hasOwn rather than truthiness, so
  // an honest null still reads as "the model said unavailable" and never as a match.
- const answer=jsonObjects(responseText(p2.recent)).map(x=>x.value).findLast(o=>Object.keys(truth).some(k=>pageValue(o,k)!==undefined))
+ const answer=findAnswer(responseText(p2.recent),o=>Object.keys(truth).some(k=>pageValue(o,k)!==undefined))
  summary.score2={verbatimCorrect:Object.keys(truth).filter(k=>pageValue(answer,k)===truth[k]).length,verbatimTotal:3,answer:answer??null}
  summary.retrievalsDuringP2=(await historyCalls())-beforeP2;summary.p2ElapsedMs=p2.elapsedMs
  if(probeMode==='absence'){
@@ -273,7 +273,7 @@ try{
   assert.ok(!fixture.pages.some(text=>text.includes(absent)),'Absent probe literal must occur nowhere')
   const beforeP3=await historyCalls()
   const p3=await prompt('absence-probe',`Independent blind probe, second question set. Two literals were reported by a previous analyst. For each, determine from the ORIGINAL archived historical source whether it exists, and if it does, the page ID of its source. Literal A: ${present}\nLiteral B: ${absent}\nRecover exact evidence with installed search_context/decompress; do not guess, and do not read pages directly. Return one JSON object: {"literals":{"${present}":"PAGE-<n>" or null,"${absent}":"PAGE-<n>" or null}}. An existing literal's value must be its exact source page ID; a literal that occurs nowhere must be null.`)
-  const lit=jsonObjects(responseText(p3.recent)).map(x=>x.value).findLast(o=>o?.literals&&(Object.hasOwn(o.literals,present)||Object.hasOwn(o.literals,absent)))?.literals??null
+  const lit=findAnswer(responseText(p3.recent),o=>o?.literals&&(Object.hasOwn(o.literals,present)||Object.hasOwn(o.literals,absent)))?.literals??null
   summary.score3={presentLiteralPage:`PAGE-${sourcePage}`,absentLiteral:absent,presentCorrect:lit?.[present]===`PAGE-${sourcePage}`,absentCorrect:lit?.[absent]===null,answer:lit}
   summary.score3.passed=summary.score3.presentCorrect&&summary.score3.absentCorrect
   summary.retrievalsDuringP3=(await historyCalls())-beforeP3;summary.p3ElapsedMs=p3.elapsedMs

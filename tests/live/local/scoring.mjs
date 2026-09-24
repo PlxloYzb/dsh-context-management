@@ -32,8 +32,7 @@ export function jsonObjects(text) {
  */
 export function salvageObjects(text) {
   const salvaged = []
-  let depth = 0, quoted = false, escaped = false
-  const starts = []
+  let depth = 0, quoted = false, escaped = false, root = null
   const cuts = new Map()
   for (let i = 0; i < text.length; i++) {
     const char = text[i]
@@ -45,15 +44,17 @@ export function salvageObjects(text) {
     }
     if (char === '"') { quoted = true; continue }
     if (char === '{' || char === '[') {
-      if (char === '{') { starts.push(i); cuts.set(i, []) }
+      // Only a brace opened at depth 0 starts a candidate object. A depth-1 comma
+      // is a direct child of that object, not of the innermost brace opened since,
+      // so the boundary must be attributed to the root rather than the last start.
+      if (depth === 0 && char === '{') { root = i; cuts.set(i, []) }
       depth += 1
       continue
     }
-    if (char === '}' || char === ']') { depth -= 1; continue }
-    if (char === ',' && depth === 1 && starts.length) cuts.get(starts[starts.length - 1]).push(i)
+    if (char === '}' || char === ']') { depth -= 1; if (depth === 0) root = null; continue }
+    if (char === ',' && depth === 1 && root !== null) cuts.get(root).push(i)
   }
-  for (const start of starts) {
-    const boundaries = cuts.get(start) ?? []
+  for (const [start, boundaries] of cuts) {
     for (let i = boundaries.length - 1; i >= 0; i -= 1) {
       try { salvaged.push({ start, value: JSON.parse(`${text.slice(start, boundaries[i])}}`) }); break } catch { /* keep shortening */ }
     }
@@ -73,6 +74,19 @@ export function pageValue(reply, key) {
   if (Object.hasOwn(reply, key)) return reply[key]
   const bare = /^PAGE-(\d+)$/.exec(key)?.[1]
   return bare !== undefined && Object.hasOwn(reply, bare) ? reply[bare] : undefined
+}
+/**
+ * Find the last object satisfying `predicate`, preferring complete objects.
+ *
+ * Both probes read a single object out of a reply. A reply truncated mid-object
+ * matches nothing under jsonObjects, so a probe used to report a missing answer
+ * the model had in fact given. Salvage is consulted only when no complete object
+ * satisfied the predicate, so well-formed replies resolve exactly as before.
+ */
+export function findAnswer(text, predicate) {
+  const complete = jsonObjects(text).map(x => x.value).findLast(predicate)
+  if (complete !== undefined) return complete
+  return salvageObjects(text).map(x => x.value).findLast(predicate)
 }
 export function selectAnswer(text) {
   const keys = Array.from({ length: 24 }, (_, i) => `F${String(i+1).padStart(2,'0')}`)

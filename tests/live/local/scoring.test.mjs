@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { jsonObjects, salvageObjects, selectAnswer, pageValue } from './scoring.mjs'
+import { jsonObjects, salvageObjects, selectAnswer, pageValue, findAnswer } from './scoring.mjs'
 
 /**
  * Answer extraction for the live probes.
@@ -75,4 +75,28 @@ test('S8: a wrong value is still wrong, whichever key form it uses', () => {
   assert.equal(verbatimScore({ '11': 'deadbeef00', '46': 'deadbeef00', '89': 'deadbeef00' }), 0)
   assert.equal(pageValue(null, 'PAGE-11'), undefined)
   assert.equal(pageValue(undefined, 'PAGE-11'), undefined)
+})
+
+// Both probes read one object out of a reply through findAnswer.
+test('S9: findAnswer prefers a complete object and falls back only when none matches', () => {
+  const wants = o => o && Object.hasOwn(o, 'literals')
+  const complete = '{"literals": {"a": "b"}}'
+  assert.deepEqual(findAnswer(complete, wants), { literals: { a: 'b' } })
+  // A complete object that does not satisfy the predicate must not block salvage.
+  const mixed = '{"other": 1}\n{"literals": {"a": "b"},'
+  assert.deepEqual(findAnswer(mixed, wants), { literals: { a: 'b' } })
+  assert.equal(findAnswer('nothing useful', wants), undefined)
+})
+
+test('S10: a truncated probe reply no longer reads as a missing answer', () => {
+  // The absence probe's shape, cut off inside the object. The inner literals
+  // object is complete, so the complete-object path does return something - just
+  // not the object the probe asked for, which is why the fallback is what saves it.
+  const truncated = '{"literals": {"trace=abc": "PAGE-63", "trace=def": null},</arg_value>'
+  const wants = o => o?.literals
+  assert.equal(jsonObjects(truncated).map(x => x.value).findLast(wants), undefined,
+    'the complete-object path alone cannot satisfy the probe')
+  const lit = findAnswer(truncated, wants)?.literals
+  assert.equal(lit?.['trace=abc'], 'PAGE-63')
+  assert.equal(lit?.['trace=def'], null, 'a stated null survives as null')
 })
