@@ -13,6 +13,23 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.8.5
+
+- **absence 探针通过：检索在最大规模下"不虚构、不歧义"。** 该探针从真实源页取一个字面量 `trace=0ee4ff56e04c`，再把其中**一位十六进制**改成全夹具都不存在的 `trace=1ee4ff56e04c`，要求模型对**存在的**给出唯一源页、对**不存在的**返回 `null`。在 144 页 + 3 次归档 + 已高度压缩的历史上（`B_IN_PLACE`、`pressure=90000`、batch=12、从已审计父运行 fork）：
+
+  ```json
+  { "presentLiteralPage": "PAGE-63", "absentLiteral": "trace=1ee4ff56e04c",
+    "presentCorrect": true, "absentCorrect": true,
+    "answer": { "trace=0ee4ff56e04c": "PAGE-63", "trace=1ee4ff56e04c": null },
+    "passed": true }
+  ```
+
+  即：存在的解析到 PAGE-63（其唯一源页），**不存在的返回 `null` 而非编造或返回歧义结果**，且 `deniedTools: []`、`retrievalsDuringP2: 6`（确实走了检索）。这直接对应 AGENTS.md 的"无静默丢失、无歧义 ID 选择"。
+- **verbatim-only 探针通过**：`verbatimOnlyPassed: true`，`verbatim 3/3`（同规模、同 fork）。
+- **fork 链与审计**：探针需要"已审计的完整读取父运行"，且父运行必须与当前 dist 一致。为此重建当前候选、重跑 144 页父运行 `str-parent2` 并离线审计（`exactPagesInRequests: 144`、`toolReadPages: 144`、`archives: 3`、`restoredBytes: 1,619,946`、`segments: 686`、`requestObjectsVerified: 191`、`archiveBytesVerified: true`），随后两次 fork 均通过。审计是**离线**的，不产生 provider 调用。
+- **再次印证 dist 漂移约束**：第一次 fork 因"Fork candidate dist changed"被拒——父运行与当前 dist 必须完全一致，**任何版本号变更都会使旧父运行不可 fork**。这不是缺陷，是夹具的完整性保护；但它把"版本号变更 → 必须重建+重装+重跑父运行"的成本显式化了。
+- 全量门禁保持全绿：unit 188、integration 170、reliability 15、live:local:unit 22。
+
 ## 0.8.4
 
 - **家族覆盖补齐：全部六个家族在 144 页最大规模下满分通过。** 上一轮压测只覆盖 F3 与 F1；本轮把 **F4、F5、F6** 补上（同为 144 页、`pressure=90000`、batch=12、`B_IN_PLACE`、muse 路由），三条**全部** `strictPassed: true`、3 次压缩、`facts 24/24`、`corrections 6/6`、**`verbatim 3/3`**、`deliverablePassed: true`。
