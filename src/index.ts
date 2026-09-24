@@ -85,6 +85,15 @@ import {
 } from './region.ts'
 
 const ARC_BACKEND_BRAND = Symbol.for('dsh-context-management.backend')
+/**
+ * Emergency cold-storage fallbacks allowed inside one turn.
+ *
+ * The fallback is cheap enough to be worth repeating a few times when a turn
+ * genuinely keeps growing, and expensive enough that an unbounded run is a
+ * defect: a restart journey reached 126 attempts in a single turn. Four leaves
+ * room for real growth spurts while keeping a treadmill from consuming the turn.
+ */
+const MAX_FALLBACKS_PER_TURN = 4
 
 /**
  * True when `value` is an ARC compaction backend (or a Cordis service facade
@@ -409,6 +418,7 @@ export class ArcCompactionEngine extends CompactionEngine {
    */
   private readonly fallbackTurn = new WeakMap<CompactionAgentContext, number>()
   private readonly fallbackProjected = new WeakMap<CompactionAgentContext, number>()
+  private readonly fallbackCount = new WeakMap<CompactionAgentContext, number>()
   /** Per provider/model route the resolved window (probe failures cached too). */
   private readonly windowCache = new Map<string, ArcWindow>()
 
@@ -950,7 +960,20 @@ export class ArcCompactionEngine extends CompactionEngine {
       this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
       return null
     }
+    // Progress is necessary but not sufficient. A turn that keeps reading fresh
+    // pages adds input faster than one checkpoint reclaims it, so every attempt
+    // can show a small reduction while the turn never converges: a real restart
+    // journey ran 126 in-place fallbacks inside turn 3 against 568 page reads,
+    // 314 calls and 690 seconds, and ended in the 600-second turn timeout. Bound
+    // the attempts and surface the budget verdict, so a treadmill fails fast and
+    // legibly instead of grinding the turn away.
+    const attempts = this.fallbackTurn.get(agent) === turn ? (this.fallbackCount.get(agent) ?? 0) : 0
+    if (attempts >= MAX_FALLBACKS_PER_TURN) {
+      this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
+      return null
+    }
     this.fallbackTurn.set(agent, turn)
+    this.fallbackCount.set(agent, attempts + 1)
     const result = await this.windows.exclusive(agent.session, async () => {
       pruner?.pruneSession(agent.session)
       const result = runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
