@@ -204,8 +204,20 @@ export class ArchiveReader {
    * rather than inferred from behaviour.
    */
   readonly indexEnabled: boolean
-  constructor(private readonly attachmentState?: (ref: unknown) => NonTextPart['status'], options: { index?: boolean } = {}) {
+  /**
+   * The two index bounds, kept per reader so a test can lower them and watch the
+   * caps actually trip. Defaults are the module constants; production never
+   * passes anything, so the shipped geometry is unchanged.
+   */
+  private readonly indexEntryBudget: number
+  private readonly indexEventLimit: number
+  constructor(
+    private readonly attachmentState?: (ref: unknown) => NonTextPart['status'],
+    options: { index?: boolean; entryBudget?: number; eventLimit?: number } = {},
+  ) {
     this.indexEnabled = options.index !== false
+    this.indexEntryBudget = options.entryBudget ?? INDEX_ENTRY_BUDGET
+    this.indexEventLimit = options.eventLimit ?? INDEX_EVENT_LIMIT
   }
   private readonly secret = randomBytes(32)
   private readonly cursors = new WeakMap<Session, Map<string, Cursor>>()
@@ -437,7 +449,7 @@ export class ArchiveReader {
     let spent = 0, indexed = 0, examined = 0, checks = 0
     for (const seq of sources.seqs) {
       examined += 1
-      if (state.grams.has(seq) || state.entries > INDEX_ENTRY_BUDGET || state.grams.size >= INDEX_EVENT_LIMIT) continue
+      if (state.grams.has(seq) || state.entries > this.indexEntryBudget || state.grams.size >= this.indexEventLimit) continue
       checks += 1; signal?.throwIfAborted()
       const parts = eventTextParts(events[seq]!).texts
       let size = 0
