@@ -13,6 +13,22 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.9.8
+
+- **收束验证：`npm run check` 之外的四项门禁此前从未跑过，本轮全部跑通。** `check` 只覆盖 typecheck + unit + integration + reliability + live:local:unit + build；以下四项在其之外：
+
+  | 门禁 | 结果 |
+  |---|---|
+  | `test:release`（发布审计） | ✅ 42 文件，导入全为宿主包或内置模块，`completed: true` |
+  | `test:install`（安装/卸载命令） | ✅ `failures: []` |
+  | `test:performance`（性能） | ✅ `failures: []` |
+  | `test:live`（三臂 Web 门禁） | ✅ 0.9.5 已跑（插件臂 18/18 满分） |
+
+- **安装门禁的实质验证（AGENTS.md 关键要求）**：`dsh plugin --profile web add/remove dsh-context-management` 两条文档化命令均正确——添加后 `bundleEnabled`、`nativeContextCommand`、`nativeCompactAvailable` 全为 true；**移除后 `dependencyRemoved`、`bundleRemoved`、`nativeCompactRestored` 全为 true**，即**原生压缩被正确还原**。`prepackPassed: true`，其内嵌测试计数 `[189, 171, 15, 36]` 与本地实测一致。
+- **性能画像**（`--max-old-space-size=512`）：heapUsed **186 MB**（上限 512）、cold **397ms**、search P95 **161ms**、search max 163ms、**热查询 0.00025ms**（几乎零成本）、取消 0.15ms。
+- **产物**：`artifacts/dsh-context-management-0.9.7.tgz`（349,133 字节）。其 SHA-256 前缀 `16eb7f2def2f667eedcb…` 与安装门禁记录的 `tarballHash` **完全一致**——即打包出的产物**就是**门禁验证过的那个，逐字节相同。
+- 全量 `check`：unit 189、integration 171、reliability 15、live:local:unit 36，0 失败 0 跳过。
+
 ## 0.9.7
 
 - **补上了设计文档明确记载为"未做实测"的那个缺口。** `docs/DESIGN-HISTORY-INDEX` §10 原文写着：*"会话内条目**从不收缩**——没有单条目淘汰，只有整会话释放。这一条是结构事实，**未做实测**。"* 本轮把它测了，并顺带精确了上界的语义。
