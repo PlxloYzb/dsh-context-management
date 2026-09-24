@@ -402,6 +402,13 @@ export class ArcCompactionEngine extends CompactionEngine {
   private readonly lastNudgeTurn = new WeakMap<Session, number>()
   /** One provider-overflow recovery is allowed per step; pre-step resets it. */
   private readonly overflowFallbackUsed = new WeakSet<Agent>()
+  /**
+   * Turn and retained-input reading of the last emergency cold-storage fallback.
+   * The fallback may repeat inside one turn only while it is demonstrably making
+   * progress; see the in-place path for why.
+   */
+  private readonly fallbackTurn = new WeakMap<CompactionAgentContext, number>()
+  private readonly fallbackProjected = new WeakMap<CompactionAgentContext, number>()
   /** Per provider/model route the resolved window (probe failures cached too). */
   private readonly windowCache = new Map<string, ArcWindow>()
 
@@ -920,11 +927,28 @@ export class ArcCompactionEngine extends CompactionEngine {
       this.checkRemainingBudget(agent, !!degraded, incomingUser, admissionTokens)
       return degraded
     }
+    // The fallback is expensive, and when a turn's own fresh content keeps the
+    // input above the physical line, repeating it reduces nothing. A real
+    // journey at the minimum window ran 114 identical in-place checkpoints in
+    // one turn and ended in a turn timeout, having reclaimed nothing the second
+    // time onward. Repeat only while the previous attempt actually lowered the
+    // retained input; once an attempt stalls, surface the budget verdict instead
+    // of paying for the same checkpoint again.
+    const turn = findOpenTurn(agent.session.snapshotEvents()) ?? -1
+    const before = this.projectedContext(agent)?.projectedTokens
+    const previous = this.fallbackTurn.get(agent) === turn ? this.fallbackProjected.get(agent) : undefined
+    if (previous !== undefined && before !== undefined && before >= previous) {
+      this.checkRemainingBudget(agent, false, incomingUser, admissionTokens)
+      return null
+    }
+    this.fallbackTurn.set(agent, turn)
     const result = await this.windows.exclusive(agent.session, async () => {
       pruner?.pruneSession(agent.session)
       const result = runEmergencyFallback(this.metered(agent), { incomingUser, maxSummaryBytes: this.archive.seedMaxTokens, includeCheckpoints: true })
       return result
     }, () => this.flush(agent))
+    const after = this.projectedContext(agent)?.projectedTokens
+    if (after !== undefined) this.fallbackProjected.set(agent, after)
     this.checkRemainingBudget(agent, !!result, incomingUser, admissionTokens)
     return result
   }
