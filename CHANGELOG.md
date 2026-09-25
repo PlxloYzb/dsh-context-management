@@ -13,6 +13,26 @@
   三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
 - 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
+## 0.9.11
+
+- **插件已在真实 DSH 0.1.7-rc.1 上完成端到端验证：可安装、完全接管、可卸载且无残留。**
+
+  | 契约项 | 证据 |
+  |---|---|
+  | 可安装 | `dsh plugin --profile <p> add <tarball>` 成功；依赖登记、**bundle 启用** |
+  | **完全接管** | 真实会话中 **6 次 `in-place-fallback` 压缩**（ARC 引擎在跑）；`strictPassed: true`、facts **24/24**、corrections **6/6**、**verbatim 3/3**、`deniedTools: []` |
+  | **可卸载无残留** | 移除后：依赖 `[]`、`node_modules` **空**、组合树中 `context-management` **0 处**、`compaction-basic` **仍在**（原生压缩完好） |
+
+  这不是夹具，是真实宿主：profile 由宿主自己启动、自己建会话、自己跑完。
+
+- **安装的两个宿主行为（如实记录，未绕过）**：
+  1. **必须给 profile 固定 `packageManager: pnpm@11.7.0`**。否则 corepack 解析到 pnpm 12，而它只提供 `pnpm.mjs`，宿主的 plugin 命令却调用 `bin/pnpm.cjs`——安装直接失败。
+  2. **宿主在首次启动时把 `settings.yaml` 导入自己的存储，并将原文件改名为 `settings.yaml.imported`**。这解释了真实 `~/.dsh` 中 `settings.yaml` 为何缺失：**是宿主迁移了它，没有任何东西丢失**。驱动的"设置未被改动"校验原先因此报 ENOENT，已改为读取宿主留下的那一个。
+
+- **桌面端（0.1.7-rc.2）的结论是明确的限制**：`dsh plugin --profile desktop add` 被宿主拒绝——**`profile "desktop" is managed exclusively by the Electron application`**。桌面端 profile 只能由应用自身管理，其内置 `dsh-plugin-manager` / `dsh-client-ui-settings-plugins` 即官方安装入口（设置 → 插件）。**CLI 无法代劳**；我对该 profile 的临时改动已还原。
+
+- 几何说明：48 页 / pressure 32000 在该宿主上停在 `CONTEXT_BUDGET_EXHAUSTED`（保留余量不可再压缩），属**几何选择**而非接管失败；144 页 / pressure 90000 **通过**。
+
 ## 0.9.10
 
 - **两个引擎修复各重复验证一次，均复现——此前各只验证过一次，而模型方差是实际存在的，单次通过可能是运气。**
