@@ -121,7 +121,12 @@ async function fixture(compositions: Record<string, string> = { standard: basicY
     const scope = createScope(ctx, agent)
     Object.assign(agent, { ctx: scope.ctx })
     await ctx.agentPresets.mount(scope.ctx, presetId)
-    if (announce) ctx.agents.register(agent)
+    if (announce) {
+      ctx.agents.register(agent)
+      // register() announces through an effect generator, and the bridge attaches
+      // on agent/created; let that settle before the caller drives a boundary.
+      for (let tick = 0; tick < 4; tick += 1) await new Promise(resolve => setImmediate(resolve))
+    }
     return agent
   }
   const enableBridge = () => ctx.plugin((context: Context) => applyBridge(context, { autoNudge: false }))
@@ -228,19 +233,22 @@ test('RC03: enabling the bridge after an agent was created takes over at its nex
   assert.ok(isArcBackend(h.backend(agent)), 'an already-live agent must not retain Basic after bridge activation')
 })
 
-test('RC04: a native Basic row appearing later in the same mounted Include is retried at a boundary', async t => {
+test('RC04: a native Basic row appearing later in the mounted tree is retried at a boundary', async t => {
   const h = await fixture({ minimal: '[]' }); t.after(h.close)
   await h.enableBridge()
   const agent = await h.createAgent('minimal')
   await h.boundary(agent)
   assert.equal(h.backend(agent), undefined)
   const mount = standingMountFor(agent.ctx)!
-  const child = join(h.root, 'late-basic.yml')
-  await writeFile(child, basicYaml)
-  const config = mount.fiber.config as { path: string; patches?: unknown[] }
-  config.patches = [{ insert: [{ id: 'late-include', name: 'cordis:include', config: { path: pathToFileURL(child).href } }] }]
-  await mount.fiber.update(config, true)
-  assert.ok(h.backend(agent) instanceof BasicCompactionEngine)
+  // A later composition adds a native backend in a realm of its own. The bridge
+  // cached "no backend here" for this mount, and that must not survive the
+  // composition changing under it.
+  await mount.tree.create({
+    name: '@deepseek-ai/dsh-compaction-basic',
+    config: { thresholdRatio: 0.71, retainTokens: 4096, summarizationProvider: 'synthetic', summarizationModel: 'fixture', maxTokens: 1024, compactionRetries: 2, maxOverflowRetries: 0, auto: true },
+  })
+  await mount.tree.await()
+  assert.ok(h.backend(agent) instanceof BasicCompactionEngine, 'the late native backend serves')
   await h.boundary(agent)
   assert.ok(isArcBackend(h.backend(agent)), 'a cached no-basic result must not survive changed live composition')
 })
@@ -276,40 +284,46 @@ test('RC06: compatibility audit recognizes valid YAML comments and inline isolat
   assert.equal(report.inheritsHostCompaction, false)
 })
 
-test('RC07: real Basic in a nested Include keeps its actual realm with renamed rows and an occupied ARC id', async t => {
-  const parent = `- id: wrapper
+test('RC07: a renamed Basic row in a nested group is taken over beside the ids the preset already uses', async t => {
+  // DSH 0.1.7 mounts a preset as an entry tree, so the row ids and the group
+  // nesting are the preset author's, and the engine row has to find a free id
+  // beside whatever the preset already declared.
+  const nested = `- id: wrapper
   name: cordis:group
   group: true
+  isolate:
+    compaction: true
   config:
-    - id: child-carrier
-      name: cordis:include
-      config:
-        path: child.yml
+    - id: native-custom-id
+      name: '@deepseek-ai/dsh-compaction-basic'
+    - id: compaction-arc
+      name: cordis:replacement-probe
 `
-  const h = await fixture({ nested: parent }); t.after(h.close)
-  const path = join(h.paths.get('nested')!, '..', 'child.yml')
-  const child = basicYaml.replace('id: consumer\n', 'id: compaction-arc\n')
-  await writeFile(path, child)
+  const h = await fixture({ nested }); t.after(h.close)
   const agent = await h.createAgent('nested', false)
   const mount = standingMountFor(agent.ctx)!
   const before = h.backend(agent)
   assert.ok(before instanceof BasicCompactionEngine)
   const realm = serviceKeys(h.ctx, before)
+  const rows = () => [...mount.tree.entries()].map(row => `${row.options.id}:${row.options.name}`)
+  const rowsBefore = rows()
+  assert.ok(rowsBefore.some(row => row.startsWith('compaction-arc:')), 'the preset already uses the engine id')
   h.ctx.loader.builtins['dsh-context-management'] = ArcCompactionEngine
   const tracked = new Map()
   assert.equal(await takeoverMount(h.ctx, { autoNudge: false }, mount, tracked), 'taken-over')
   const arc = h.backend(agent)
   assert.ok(isArcBackend(arc))
-  assert.deepEqual(serviceKeys(h.ctx, arc), realm)
+  assert.deepEqual(serviceKeys(h.ctx, arc), realm, 'the engine takes over the same private realm')
   assert.equal(tracked.size, 1)
-  const carrier = [...tracked.keys()][0]!
-  assert.notEqual(carrier.uid, mount.fiber.uid, 'patch belongs to nested Include namespace')
-  const config = carrier.config as { patches?: Array<{ insert?: Array<{ id?: string }> }> }
-  assert.ok(config.patches?.some(patch => patch.insert?.some(row => row.id === 'compaction-arc-1')))
+  const after = rows()
+  assert.ok(after.some(row => row.startsWith('compaction-arc:')), 'the pre-existing row keeps its own id')
+  // The tree mints its own id for a row created without one, so an id the preset
+  // already uses cannot collide with the engine row.
+  assert.ok(after.some(row => row.endsWith(':cordis:dsh-context-management')), 'the engine row is created')
+  assert.equal(after.filter(row => row.endsWith(':cordis:dsh-context-management')).length, 1, 'exactly one engine row')
   for (const fiber of tracked.keys()) await rollbackMount(fiber, tracked)
   assert.ok(h.backend(agent) instanceof BasicCompactionEngine)
-  assert.equal(await readFile(path, 'utf8'), child)
-  assert.equal(await readFile(h.paths.get('nested')!, 'utf8'), parent)
+  assert.deepEqual(rows(), rowsBefore, 'the original row set returns')
 })
 
 test('RC08: an earlier successful takeover is verified again after runtime patches are reloaded', async t => {
