@@ -368,14 +368,17 @@ test('M3: compress expands a lone multi-tool-call boundary to the clean pair', a
   const env = makeEnv()
   const session = buildMultiCallSession()
   const compress = toolOf(env, 'compress')
-  // seq 2 is a multi-tool-call assistant message: it has NO bare '2' ref (the
-  // projection keys are '2#c1' / '2#c2'), so a naive byRaw lookup fails. A lone
-  // request on it expands outward to the smallest clean enclosing pair — the
-  // whole call/result round (1..4) — whose edges are plain-ref messages.
+  // The multi-tool-call assistant message has NO bare ref (the projection keys
+  // are '<seq>#c1' / '<seq>#c2'), so a naive byRaw lookup fails. A lone request
+  // on it expands outward to the smallest clean enclosing pair — the whole
+  // call/result round — whose edges are plain-ref messages. Positions come from
+  // the surface because a real session also records `tool/call` rows.
+  const round = session.surface.nodes.slice(0, 4)
+  const multiCall = round[1]!
   const result = await compress.execute({
     content: [{
-      startSeq: 2,
-      endSeq: 2,
+      startSeq: multiCall,
+      endSeq: multiCall,
       summary: 'This summary is long enough to pass the kernel minimum length threshold of fifty characters for the compressible content range.',
     }],
   } as never, fakeExec(session))
@@ -383,20 +386,20 @@ test('M3: compress expands a lone multi-tool-call boundary to the clean pair', a
   assert.match((result as { text: string }).text, /Compressed 1 block/)
   const ledger = rebuildBlockLedger(session.snapshotEvents())
   assert.equal(ledger.length, 1)
-  assert.deepEqual(ledger[0]!.shadowedSeqs, [1, 2, 3, 4])
+  assert.deepEqual(ledger[0]!.shadowedSeqs, round)
 })
 
 test('M3: compress shadows multi-tool-call messages inside a clean range', async () => {
   const env = makeEnv()
   const session = buildMultiCallSession()
   const compress = toolOf(env, 'compress')
-  // Both edges (1, 5) are plain-ref messages; the multi-call round (2..4) sits
-  // inside the span and is shadowed with it — the real "nudge gave me a range"
-  // scenario.
+  // Both edges are plain-ref messages; the multi-call round sits inside the span
+  // and is shadowed with it — the real "nudge gave me a range" scenario.
+  const span = session.surface.nodes.slice(0, 5)
   const result = await compress.execute({
     content: [{
-      startSeq: 1,
-      endSeq: 5,
+      startSeq: span[0]!,
+      endSeq: span.at(-1)!,
       summary: 'This summary is long enough to pass the kernel minimum length threshold of fifty characters for the compressible content range.',
     }],
   } as never, fakeExec(session))
@@ -404,7 +407,7 @@ test('M3: compress shadows multi-tool-call messages inside a clean range', async
   assert.match((result as { text: string }).text, /Compressed 1 block/)
   const ledger = rebuildBlockLedger(session.snapshotEvents())
   assert.equal(ledger.length, 1)
-  assert.deepEqual(ledger[0]!.shadowedSeqs, [1, 2, 3, 4, 5])
+  assert.deepEqual(ledger[0]!.shadowedSeqs, span)
 })
 
 test('M3: nudge range-table edges compress successfully (plain-ref boundaries)', async () => {

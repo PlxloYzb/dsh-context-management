@@ -49,6 +49,9 @@ export function appendToolCall(session: Session, text: string, callId: string, t
     }),
     stream: [],
   }, { surfaceOp: 'append' })
+  // A real session advertises every call before its result; the stored-log reader
+  // rejects a tool/result whose call was never advertised.
+  session.append('tool/call', { turn, step, callId, name: 'bash', arguments: '{"command":"ls"}' })
 }
 
 export function appendToolResult(session: Session, text: string, callId: string, turn = 1, step = 1): void {
@@ -79,6 +82,7 @@ export function appendMultiToolCall(session: Session, text: string, callIds: rea
     }),
     stream: [],
   }, { surfaceOp: 'append' })
+  for (const id of callIds) session.append('tool/call', { turn, step, callId: id, name: 'bash', arguments: '{"command":"ls"}' })
 }
 
 /** A session with `count` alternating user/assistant text messages inside one open turn. */

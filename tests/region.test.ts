@@ -221,18 +221,20 @@ test('M5: tool-call ranges are auto-adjusted to balanced edges', () => {
   appendToolCall(session, 'calling', 'call_1')
   appendToolResult(session, 'result text', 'call_1')
   appendUser(session, longText('q2', 1))
-  // surface: [1 user, 2 tool-call, 3 tool/result, 4 user]
+  // Read the edges off the surface: a real session also records `tool/call`
+  // between the message and its result, so the seqs are not adjacent numbers.
+  const [user1, callSeq, resultSeq] = session.surface.nodes
   // A range whose end sits inside the pair (…, tool-call) nudges the end back
   // to the nearest balanced cut.
-  assert.deepEqual(resolveSurfaceRange(session, 1, 2), { start: 1, end: 1 })
+  assert.deepEqual(resolveSurfaceRange(session, user1, callSeq), { start: user1, end: user1 })
   // A complete call/result pair is balanced and unchanged.
-  assert.deepEqual(resolveSurfaceRange(session, 2, 3), { start: 2, end: 3 })
-  assert.deepEqual(resolveSurfaceRange(session, 1, 3), { start: 1, end: 3 })
-  // A lone tool message (2 or 3 alone) expands outward to its balanced pair.
-  assert.deepEqual(resolveSurfaceRange(session, 2, 2), { start: 2, end: 3 }, 'lone tool-call expands to include its result')
-  assert.deepEqual(resolveSurfaceRange(session, 3, 3), { start: 2, end: 3 }, 'lone tool-result expands to include its call')
+  assert.deepEqual(resolveSurfaceRange(session, callSeq, resultSeq), { start: callSeq, end: resultSeq })
+  assert.deepEqual(resolveSurfaceRange(session, user1, resultSeq), { start: user1, end: resultSeq })
+  // A lone tool message (call or result alone) expands outward to its balanced pair.
+  assert.deepEqual(resolveSurfaceRange(session, callSeq, callSeq), { start: callSeq, end: resultSeq }, 'lone tool-call expands to include its result')
+  assert.deepEqual(resolveSurfaceRange(session, resultSeq, resultSeq), { start: callSeq, end: resultSeq }, 'lone tool-result expands to include its call')
   // A range that can neither shrink nor expand still fails with guidance.
-  assert.throws(() => resolveSurfaceRange(session, 99, 100), /not in the current surface/)
+  assert.throws(() => resolveSurfaceRange(session, 999, 1000), /not in the current surface/)
 })
 
 test('M5: multi-tool-call boundaries are shifted to plain-ref cuts', () => {
@@ -243,18 +245,20 @@ test('M5: multi-tool-call boundaries are shifted to plain-ref cuts', () => {
   appendToolResult(session, longText('res', 0), 'c1', 1, 1)  // seq 3
   appendToolResult(session, longText('res', 1), 'c2', 1, 1)  // seq 4
   appendUser(session, longText('msg', 1))                     // seq 5
-  // surface: [1 user, 2 multi-call, 3 res, 4 res, 5 user]
-  // An edge on the multi-call message (2) is NOT a valid boundary: it has no
-  // bare-seq ref. The start shrinks inward to the nearest clean cut (5); the
-  // request collapses to a single plain-ref message rather than crossing the
-  // unresolved multi-call round.
-  assert.deepEqual(resolveSurfaceRange(session, 2, 5), { start: 5, end: 5 })
-  assert.deepEqual(resolveSurfaceRange(session, 3, 5), { start: 5, end: 5 })
+  // Edges come from the surface: `tool/call` rows sit between the multi-call
+  // message and its results, so the positions are not consecutive integers.
+  const [msg1, multiCall, res1, res2, msg2] = session.surface.nodes
+  // An edge on the multi-call message is NOT a valid boundary: it has no
+  // bare-seq ref. The start shrinks inward to the nearest clean cut (the last
+  // user message); the request collapses to a single plain-ref message rather
+  // than crossing the unresolved multi-call round.
+  assert.deepEqual(resolveSurfaceRange(session, multiCall, msg2), { start: msg2, end: msg2 })
+  assert.deepEqual(resolveSurfaceRange(session, res1, msg2), { start: msg2, end: msg2 })
   // A lone multi-call message cannot shrink at all, so it EXPANDS outward to
-  // the smallest clean enclosing pair — the whole call/result round (1..4).
-  assert.deepEqual(resolveSurfaceRange(session, 2, 2), { start: 1, end: 4 })
+  // the smallest clean enclosing pair — the whole call/result round.
+  assert.deepEqual(resolveSurfaceRange(session, multiCall, multiCall), { start: msg1, end: res2 })
   // A clean text range that merely CONTAINS the multi-call round is unchanged.
-  assert.deepEqual(resolveSurfaceRange(session, 1, 5), { start: 1, end: 5 })
+  assert.deepEqual(resolveSurfaceRange(session, msg1, msg2), { start: msg1, end: msg2 })
 })
 
 test('M5: pass-2 expansion must not cross a checkpoint into value-reversed seqs', () => {
@@ -273,19 +277,21 @@ test('M5: pass-2 expansion must not cross a checkpoint into value-reversed seqs'
     content: [{ type: 'text', text: longText('summary', 0) }],
     source: { kind: 'compact-checkpoint', compactionId: 'nonmono-1' },
   } as never), { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 1 }, sourceEventSeqs: [1] })
-  // nodes: [8, 2, 3, 4, 5, 6, 7] — NON-monotonic: the newer checkpoint seq 8
-  // sits ahead of the older residual nodes 2..7 (the live production shape
-  // behind the '110295..106762' reversed nudge range).
-  // The whole multi-call round 2..6 has no clean inward cut, so pass-2 expands
-  // the start toward the checkpoint; the resulting span 8..6 is value-reversed
-  // and must be rejected instead of being shadowed.
-  assert.throws(() => resolveSurfaceRange(session, 2, 6), /balanced range|reversed/)
-  // The residual round alone (3..6) collapses too and must not cross the
-  // checkpoint either.
-  assert.throws(() => resolveSurfaceRange(session, 3, 6), /balanced range|reversed/)
+  // The surface is NON-monotonic: the checkpoint sits ahead of the older
+  // residual nodes (the live production shape behind the '110295..106762'
+  // reversed nudge range). Positions are read off the surface because a real
+  // session also records `tool/call` rows between the messages.
+  const [checkpoint, multiCall, firstResult, , , lastResult, trailing] = session.surface.nodes
+  assert.ok(checkpoint > multiCall, 'the checkpoint node leads the residual round')
+  // The whole multi-call round has no clean inward cut, so pass-2 expands the
+  // start toward the checkpoint; the resulting span is value-reversed and must
+  // be rejected instead of being shadowed.
+  assert.throws(() => resolveSurfaceRange(session, multiCall, lastResult), /balanced range|reversed/)
+  // The residual round alone collapses too and must not cross the checkpoint.
+  assert.throws(() => resolveSurfaceRange(session, firstResult, lastResult), /balanced range|reversed/)
   // A span that does not touch the unresolved round still resolves cleanly:
   // the trailing user message is a plain-ref boundary on both sides.
-  assert.deepEqual(resolveSurfaceRange(session, 6, 7), { start: 7, end: 7 })
+  assert.deepEqual(resolveSurfaceRange(session, lastResult, trailing), { start: trailing, end: trailing })
 })
 
 test('M5: ledger backfills shadowedTokenCount for legacy blocks written as 0', () => {
