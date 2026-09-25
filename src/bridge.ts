@@ -225,6 +225,11 @@ async function takeoverEntryMount(
   const backend = serviceWithin(ctx, mount, 'compaction') as { ctx?: Context } | undefined
   const entry: Entry | undefined = backend?.ctx?.fiber.entry
   if (!entry || entry.options.name !== BASIC_ROW_NAME) return 'no-basic-row'
+  // A mount can be replaced between resolution and this write: selecting another
+  // preset builds a new generation and retires the tree this entry came from.
+  // Writing into a detached tree would disable Basic in a composition nothing
+  // serves, so the mount is refused instead.
+  if (entry.parent.tree !== tree || (tree.store[entry.id] !== entry && tree.store[entry.options.id] !== entry)) return 'unrecognized-carrier'
   const { id: basicId, name: _rowName, ...basicOptions } = entry.options
   const parent = entry.parent
   const groupId = parent === tree.root ? null : parent.ctx.fiber.entry?.options.id ?? null
@@ -366,6 +371,9 @@ export async function rollbackMount(fiber: Fiber, tracked: Map<Fiber, TrackedMou
       record.tree.remove(record.arcId)
       await record.tree.await()
     }
+    // A retired tree has no composition left to restore; its own disposal already
+    // dropped the rows, so there is nothing to re-enable.
+    if (record.tree.store[record.basicId] === undefined) return
     await record.tree.update(record.basicId, record.basicOptions)
     await record.tree.await()
     return
