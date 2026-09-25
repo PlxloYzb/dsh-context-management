@@ -30,6 +30,9 @@ test('prepared summary commits only its snapshot; fresh paired work and current 
   let request: GenerateOptions | undefined
   const h = await setup('prepared-suffix', options => { request = options; return good() }); t.after(h.close)
   const before = h.session.snapshotEvents(), seqs = [...h.session.surface.nodes]
+  // Surface node 0 is the system prompt: DSH 0.1.7 lets only a system/message
+  // over exactly that node rewrite it, so no compaction range may shadow it.
+  const head = seqs[0]!, archived = seqs.slice(1)
   const prepared = await ready(h)
   assert.equal(request?.reasoningEffort, 'minimal')
   assert.equal(request?.purpose, 'compaction')
@@ -44,10 +47,11 @@ test('prepared summary commits only its snapshot; fresh paired work and current 
   const measured = h.ctx.tokenMeter.measure(h.session)
   const result = await h.windows.turnover(h.agent, 'pressure', new AbortController().signal, archive, async () => { await h.ctx.sessions.flush(h.session) }, undefined, undefined, incoming(), prepared)
   assert.ok(result)
-  assert.deepEqual(result.shadowedSeqs, seqs)
+  assert.deepEqual(result.shadowedSeqs, archived)
+  assert.ok(h.session.surface.nodes.includes(head), 'the protected system head survives the turnover')
   assert.ok(suffix.every(seq => h.session.surface.nodes.includes(seq)))
   assert.equal(toolPairingBalancedAfter(h.session, h.session.surface.nodes.at(-1)!), true)
-  assert.equal(result.shadowedTokenCount, measured.nodes.filter(n => seqs.includes(n.seq)).reduce((s, n) => s + n.heuristicTokens, 0))
+  assert.equal(result.shadowedTokenCount, measured.nodes.filter(n => archived.includes(n.seq)).reduce((s, n) => s + n.heuristicTokens, 0))
   assert.match(JSON.stringify(h.session.deriveMessages()), /FRESH-SUFFIX-8cd1/)
   assert.deepEqual(h.session.snapshotEvents().slice(0, before.length), before)
   const metadata = rebuildBlockLedger(h.session.snapshotEvents())[0]!.contextManagement!

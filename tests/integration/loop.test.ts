@@ -36,7 +36,7 @@ async function runtime(adapter: ControlledAdapter, governor: { windowBudgetToken
   new SystemPrompt(h.ctx, { includeHarnessIdentity: false, includeRuntimeContext: false })
   new ToolRuntime(h.ctx)
   h.ctx.llm.registerAdapter(['controlled-test'], adapter)
-  new AgentLoop(h.ctx, { agents: [], maxParallelToolCalls: 10 })
+  new AgentLoop(h.ctx, AgentLoop.Config({ agents: [], maxParallelToolCalls: 10 }))
   const engine = new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { maxOutputTokens: 8192, ...governor } })
   return { ...h, engine }
 }
@@ -59,7 +59,7 @@ test('background preparation starts on the first admitted request, survives a co
     yield* response([{ type: 'text', text: index === 1 ? 'FRESH-LOOP-SUFFIX-821' : 'continued' }])
   })
   h.ctx.llm.registerAdapter(['controlled-test'], local); h.ctx.llm.registerAdapter(['independent-test'], cloud)
-  new AgentLoop(h.ctx, { agents: [] })
+  new AgentLoop(h.ctx, AgentLoop.Config({ agents: [] }))
   const engine = new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'independent-test', model: 'summary', reasoningEffort: 'minimal', delivery: 'seed', prepareAtEffectiveCapacityPct: 0.01 } })
   h.ctx.on('agent/request', async (_payload, next) => ({ ...await next(), provider: 'controlled-test', model: 'fixture' }))
   const handle = await h.ctx.agents.create({ sessionId: SessionId('first-request-background'), seed: seeded(), agentOptions: { provider: 'independent-test', model: 'summary' } })
@@ -120,7 +120,7 @@ for (const scenario of ['independent', 'dependent', 'model'] as const) test(`def
       new AgentRegistry(ctx); new LlmRuntime(ctx)
       new SystemPrompt(ctx, { includeHarnessIdentity: false, includeRuntimeContext: false }); new ToolRuntime(ctx)
       ctx.llm.registerAdapter(['controlled-test'], adapter)
-      new AgentLoop(ctx, { agents: [] })
+      new AgentLoop(ctx, AgentLoop.Config({ agents: [] }))
       engine = new ContextManagementEngine(ctx, { autoNudge: false, adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 }, backgroundSummary: { provider: 'controlled-test', model: 'fixture', allowSameProvider: true, delivery: 'deferred', prepareAtEffectiveCapacityPct: 0.01 } })
       ctx.tools.register(defineTool({ name: 'current_payload', description: 'Current independent data', parameters: {}, output: { schema: { type: 'object', properties: { text: { type: 'string' } }, additionalProperties: false }, render: (_args, value: { text: string }) => [{ type: 'text', text: value.text }] },
         async execute() { return { text: 'CURRENT-PAYLOAD-783\n' + 'Current diagnostic row, no historical decision. '.repeat(scenario === 'model' ? 10 : 2000) } } }))

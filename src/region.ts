@@ -408,10 +408,30 @@ export function shadowedSeqsOf(session: Session, start: number, end: number): nu
   return nodes.slice(startIdx, endIdx + 1)
 }
 
+/**
+ * The protected system-prompt head: surface node 0 when that node is a
+ * `system/message`.
+ *
+ * DSH 0.1.7 allows node 0 to be rewritten only by a `system/message` over
+ * exactly that node — the host rejects any other replacement covering it with
+ * "surface replace: node 0 holds the system prompt". Compaction therefore has
+ * to start after it. Later system nodes carry no protection and may be
+ * shadowed like ordinary history.
+ */
+export function protectedSystemHead(session: Session): number | undefined {
+  const head = session.surface.nodes[0]
+  if (head === undefined) return undefined
+  return session.eventAt(SessionSeq(head))?.type === 'system/message' ? head : undefined
+}
+
 export function validateExactRange(session: Session, start: number, end: number, incomingUser?: import('@deepseek-ai/dsh-llm').UserMessage): number[] {
   const nodes = session.surface.nodes
   const first = nodes.indexOf(SessionSeq(start)), last = nodes.indexOf(SessionSeq(end))
   if (first < 0 || last < first) throw new Error('invalid positional range')
+  const head = protectedSystemHead(session)
+  if (head !== undefined && first === 0) {
+    throw new Error(`protected-system-head: surface node ${head} holds the system prompt and cannot be archived; start the range after it`)
+  }
   if (incomingUser && (incomingUser.source.kind !== 'user' || session.snapshotEvents().some(event => event.type === 'user/message' && event.data.id === incomingUser.id))) throw new Error('invalid-incoming-user-boundary')
   if (!incomingUser && findOpenTurn(session.snapshotEvents()) !== null) {
     for (let i = nodes.length - 1; i >= 0; i--) {
@@ -571,10 +591,27 @@ export function runCompactionTransaction(
   seqs.push(session.append('compaction/end', { compactionId, turn }).seq)
   return { compactionId, seqs }
   } catch (error) {
-    try { session.append('compaction/end', { compactionId, turn, error: String(error) }) }
-    catch (closeError) { throw new AggregateError([error, closeError], 'recovery-required: transaction closure failed') }
+    // A failed append can still have committed its event: the fault may land
+    // after the durable write, so a successful compaction/end may already be in
+    // the log. DSH 0.1.7 permits exactly one compaction/end per
+    // compaction/start, so close only a bracket that is genuinely still open —
+    // appending a second closure would make the stored log unreadable.
+    if (compactionOpen(session, compactionId)) {
+      try { session.append('compaction/end', { compactionId, turn, error: String(error) }) }
+      catch (closeError) { throw new AggregateError([error, closeError], 'recovery-required: transaction closure failed') }
+    }
     throw error
   }
+}
+
+/** Whether this compaction still has an open bracket in the durable log. */
+function compactionOpen(session: Session, compactionId: CompactionId): boolean {
+  let open = false
+  for (const event of session.snapshotEvents()) {
+    if (event.type === 'compaction/start' && event.data.compactionId === compactionId) open = true
+    else if (event.type === 'compaction/end' && event.data.compactionId === compactionId) open = false
+  }
+  return open
 }
 
 function sameSeqs(left: readonly number[], right: readonly number[]): boolean {
@@ -847,6 +884,14 @@ export function buildCompressibleSeqRanges(
   const nodes = session.surface.nodes
   const preserve = opts.preserveRecent ?? 5
   const protectedSeqs = new Set<number>()
+  // Node 0's system prompt is host-protected: only a system/message over exactly
+  // that node may rewrite it, so no compaction range may include it. The
+  // enforcing refusal is `validateExactRange`; this keeps every self-computed and
+  // advertised range correct by construction instead of relying on that refusal
+  // (today `resolveSurfaceRange`'s balancing pass already cannot anchor a range on
+  // a system node, so this line is belt-and-braces rather than the sole guard).
+  const head = protectedSystemHead(session)
+  if (head !== undefined) protectedSeqs.add(head)
   if (opts.preserveRecentSteps !== undefined && opts.preserveRecentSteps > 0) {
     // Step-aligned recency: a fixed node count can split a tool call/result
     // pair at the boundary (the call stays free, the result protected), which

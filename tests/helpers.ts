@@ -4,7 +4,7 @@
  */
 
 import { Session } from '@deepseek-ai/dsh-session'
-import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createSystemMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 
 /** One message template: long enough to pass acp-kernel's 5000-char threshold. */
 const LONG = 'Authentication uses JWT access tokens with 15 minute expiry and refresh tokens stored in Redis with 30 day TTL, implemented in src/auth/login.ts with sliding-window rate limiting at 10 requests per minute. '.repeat(20)
@@ -15,6 +15,21 @@ export function longText(label: string, seed: number): string {
 
 export function appendTurn(session: Session, turn: number): void {
   session.append('turn/start', { turn })
+}
+
+/**
+ * Append the protected system head exactly the way the real agent loop does:
+ * inside an open step, before that step's user messages. DSH 0.1.7 requires the
+ * FIRST surface node to be a `system/message` append — any other surface event
+ * ahead of it makes the stored log unreadable — so every fixture that models a
+ * resumable session must open with this call.
+ */
+export function appendSystem(session: Session, text: string, turn = 1, step = 1): void {
+  session.append('system/message', {
+    turn,
+    step,
+    message: createSystemMessage(text),
+  }, { surfaceOp: 'append' })
 }
 
 export function appendUser(session: Session, text: string): void {

@@ -36,7 +36,7 @@ test('R15 controlled host loop limits overflow recovery across steps in one turn
     new ToolRuntime(h.ctx)
     const adapter = new ScopeAdapter()
     h.ctx.llm.registerAdapter(['controlled-scope'], adapter)
-    new AgentLoop(h.ctx, { agents: [], maxParallelToolCalls: 10 })
+    new AgentLoop(h.ctx, AgentLoop.Config({ agents: [], maxParallelToolCalls: 10 }))
     new ContextManagementEngine(h.ctx, { autoNudge: false, adaptiveGovernor: { maxOutputTokens: 8192 } })
     h.ctx.tools.register(defineTool({ name: 'scope_probe', description: 'Return synthetic source material in this controlled loop.', parameters: {},
       output: { schema: { type: 'object', properties: {}, additionalProperties: false }, render: () => [{ type: 'text', text: 'Synthetic scope telemetry remains historical data. '.repeat(3000) }] },

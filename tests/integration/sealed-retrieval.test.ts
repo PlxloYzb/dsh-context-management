@@ -43,12 +43,20 @@ test('retrieval over native Basic compaction blocks in a sealed session', { time
     list: () => Promise<unknown[]>
     resolveCurrentLog: (id: string, signal?: AbortSignal) => Promise<string | undefined>
     readStoredLog: (path: string, expectedId: string, signal?: AbortSignal) => Promise<{ events?: unknown[] }>
+    open: (id: string, access: 'read') => Promise<{ read: () => Promise<{ events: readonly unknown[] }>; close: () => Promise<void> }>
   }
-  /** DSH 0.1.7 splits the old single read into a path lookup and a decode. */
+  /**
+   * DSH 0.1.7 answers `resolveCurrentLog` only for a log already at the current
+   * format. The sealed run predates 0.1.7, so it needs the upgrade path: opening
+   * a read handle primes the migrated prefix and `read()` returns the events the
+   * host's own persistence layer derives from that file.
+   */
   const inspectStored = async (id: string): Promise<{ events?: unknown[] }> => {
     const path = await store.resolveCurrentLog(id)
-    if (path === undefined) return {}
-    return store.readStoredLog(path, id)
+    if (path !== undefined) return store.readStoredLog(path, id)
+    const handle = await store.open(id, 'read')
+    try { return { events: (await handle.read()).events as unknown[] } }
+    finally { await handle.close() }
   }
   const listed = await store.list()
   console.log('persistence entries:', JSON.stringify(listed).slice(0, 500))

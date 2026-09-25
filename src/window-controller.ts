@@ -5,7 +5,7 @@ import { SessionSeq, type Session } from '@deepseek-ai/dsh-session'
 import type { UserMessage } from '@deepseek-ai/dsh-llm'
 import { CompactionId, toolPairingBalancedAfter, toolPairingBalancedBefore, type CompactionAgentContext, type CompactionResult } from '@deepseek-ai/dsh-compaction'
 import { buildManualFallbackSummary, resolveShadowedTokenCount, resolveCompactionInputBenefit, resolveSummaryTokenCount } from './fallback.ts'
-import { BlockLedgerIndex, findOpenTurn, rebuildBlockLedger, runCompactionTransaction, type ArcBlockLedgerEntry, type PendingContextHandoff, type WindowMetadata } from './region.ts'
+import { BlockLedgerIndex, findOpenTurn, protectedSystemHead, rebuildBlockLedger, runCompactionTransaction, type ArcBlockLedgerEntry, type PendingContextHandoff, type WindowMetadata } from './region.ts'
 
 import { userHistoryIndex, windowEvidenceIndex } from './evidence-index.ts'
 import { foregroundRoute, sourceHash, type PreparedSummary } from './background-summary.ts'
@@ -38,16 +38,20 @@ export function seedLayout(session: Session, seqs: readonly number[], config: Ar
 /** The largest balanced prefix before the latest real user request, including old seeds. */
 export function frozenPrefix(session: Session, incomingUser?: UserMessage): number[] {
   const nodes = session.surface.nodes, events = session.snapshotEvents()
+  // Node 0's system prompt is host-protected: a replacement over it must be a
+  // system/message over exactly that node, so the compressible prefix starts
+  // after it.
+  const base = protectedSystemHead(session) === nodes[0] ? 1 : 0
   let fence = incomingUser?.source.kind === 'user' ? nodes.length : -1
-  for (let i = nodes.length - 1; fence < 0 && i >= 0; i--) {
+  for (let i = nodes.length - 1; fence < 0 && i >= base; i--) {
     const event = events[nodes[i]!]
     if (event?.type === 'user/message' && event.data.source.kind === 'user') { fence = i; break }
   }
-  if (fence <= 0) return []
-  if (!toolPairingBalancedBefore(session, nodes[0]!)) return []
+  if (fence <= base) return []
+  if (!toolPairingBalancedBefore(session, nodes[base]!)) return []
   // Building host pairing cache also rejects orphan results anywhere on the surface.
-  for (let end = fence - 1; end >= 0; end--) {
-    if (toolPairingBalancedAfter(session, nodes[end]!)) return nodes.slice(0, end + 1)
+  for (let end = fence - 1; end >= base; end--) {
+    if (toolPairingBalancedAfter(session, nodes[end]!)) return nodes.slice(base, end + 1)
   }
   return []
 }

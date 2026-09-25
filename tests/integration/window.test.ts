@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { Session, SessionSeq } from '@deepseek-ai/dsh-session'
-import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
+import { isCompactCheckpointSource, toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
 import { createUserMessage } from '@deepseek-ai/dsh-llm'
 import { WindowController, frozenPrefix, resolveArchiveConfig, windowEvidenceIndex, windowIdentity } from '../../src/window-controller.ts'
 import { ArcStateStore } from '../../src/state.ts'
@@ -80,7 +80,12 @@ test('W03/L03/L04: three windows replace old seeds, retain originals, survive ac
     assert.ok(result)
     assert.ok(session.surface.nodes.includes(currentUser))
     assert.equal(windowIdentity(session).generation, generation)
-    assert.equal(session.surface.nodes.filter(seq => session.eventAt(seq)?.type === 'user/message' && (session.eventAt(seq)!.data as {source?:{plugin?:string}}).source?.plugin === 'compact').length, 1)
+    // DSH 0.1.7 marks a checkpoint with the backend-independent
+    // `{ kind: 'compact-checkpoint' }` source, not a `plugin: 'compact'` field.
+    assert.equal(session.surface.nodes.filter(seq => {
+      const event = session.eventAt(seq)
+      return event?.type === 'user/message' && isCompactCheckpointSource(event.data.source)
+    }).length, 1)
     for (let step = 1; step <= 16; step++) {
       session.append('step/start', { turn: generation + 1, step })
       appendAssistant(session, `generation ${generation}: ${'completed synthetic work; preserve constraints. '.repeat(80)}`, generation + 1, step)
@@ -95,7 +100,10 @@ test('W03/L03/L04: three windows replace old seeds, retain originals, survive ac
   assert.deepEqual(restored.deriveMessages(), session.deriveMessages())
   assert.deepEqual(windowIdentity(restored), windowIdentity(session))
   assert.deepEqual(new ArcStateStore().stateFor(restored).blocks, [])
-  assert.equal(allLogMessages(restored).length, restored.surface.nodes.length, 'window originals stay out of the active ARC work set')
+  // The protected system head projects to no ARC message: it is never part of
+  // the compressible work set, so it is excluded from the expected count.
+  const compressible = restored.surface.nodes.filter(seq => restored.eventAt(seq)?.type !== 'system/message')
+  assert.equal(allLogMessages(restored).length, compressible.length, 'window originals stay out of the active ARC work set')
 })
 
 for (const phase of ['compaction/start', 'compaction/summary', 'user/message', 'compaction/end'] as const) {
@@ -149,7 +157,7 @@ test('B03/C03: request image price differs from the persisted heuristic price; n
   const h = await host(); t.after(h.close)
   const session = newSession(h.ctx, 'nonmonotonic')
   oldWork(session); newInput(session, 'Protect this')
-  const first = session.surface.nodes.slice(0, 3)
+  const first = session.surface.nodes.slice(1, 4)
   const agent = { session, ctx: h.ctx, options: {} }
   const tx = runCompactionTransaction(session, { start:first[0]!, end:first.at(-1)!, shadowedSeqs:first, summary:[{type:'text',text:'older summary'}], shadowedTokenCount:resolveShadowedTokenCount(agent,first),provider:'local',model:'local',kernelBlockId:'b1' })
   const prefix = frozenPrefix(session)
@@ -269,6 +277,9 @@ test('emergency fallback takes multiple net-reducing bites and anchors recent wo
   appendToolResult(session, 'page 217 content', 'call-live', 2, 1)
   session.append('step/end', { turn: 2, step: 1 })
   const agent = { session, ctx: h.ctx, options: {} }
+  // Surface layout: [old user, pair0 call, pair0 result, pair1 call, pair1
+  // result, pair2 call, pair2 result, live call, live result].
+  const surface = [...session.surface.nodes]
   const summariesBefore = session.snapshotEvents().filter(event => event.type === 'compaction/summary').length
   const result = runEmergencyFallback(agent, { includeCheckpoints: true })
   assert.ok(result, 'fallback produced a transaction')
@@ -277,12 +288,45 @@ test('emergency fallback takes multiple net-reducing bites and anchors recent wo
   // Step-aligned recency must take WHOLE historical steps (both completed tool
   // pairs) in one bite instead of splitting a pair at the recency boundary.
   const shadowed = new Set<number>(result!.shadowedSeqs)
-  assert.ok(shadowed.has(3) && shadowed.has(4) && shadowed.has(7) && shadowed.has(8), `bite should cover both complete historical pairs, got ${[...shadowed]}`)
-  assert.ok(!shadowed.has(11) && !shadowed.has(12), 'the preserved recent steps survive')
+  assert.ok([1, 2, 3, 4].every(index => shadowed.has(surface[index]!)),
+    `bite should cover both complete historical pairs, got ${[...shadowed]}`)
+  assert.ok([5, 6].every(index => !shadowed.has(surface[index]!)), 'the preserved recent steps survive')
   const checkpoint = JSON.stringify(summaries.map(event => session.eventAt(SessionSeq(event.seq + 1))))
   assert.match(checkpoint, /RECENT WORK STILL VISIBLE/, 'checkpoint anchors the still-visible recent tool calls')
   assert.match(checkpoint, /bash\(/, 'the surviving tool call is enumerated in the anchor')
   assert.ok(session.surface.nodes.includes(session.surface.nodes.at(-1)!), 'latest surface node survives')
+})
+
+test('compaction may never shadow the protected system head, while a later system node stays compressible', async t => {
+  const h = await host(); t.after(h.close)
+  const session = newSession(h.ctx, 'protected-head-range')
+  oldWork(session, 1, 6)
+  // A second turn carries a second, UNPROTECTED system node: DSH 0.1.7 protects
+  // only surface node 0, so the guard must not over-reach to later ones.
+  oldWork(session, 2, 6)
+  await h.ctx.sessions.flush(session)
+  const nodes = [...session.surface.nodes]
+  const head = nodes[0]!
+  assert.equal(session.eventAt(head)?.type, 'system/message', 'node 0 is the protected head')
+  const laterSystem = nodes.find((seq, index) => index > 0 && session.eventAt(seq)?.type === 'system/message')
+  assert.ok(laterSystem !== undefined, 'the fixture also carries a later system node')
+  const agent = { session, ctx: h.ctx, options: {} }
+  const input = (shadowedSeqs: readonly number[]) => ({
+    start: shadowedSeqs[0]!, end: shadowedSeqs.at(-1)!, shadowedSeqs,
+    summary: [{ type: 'text' as const, text: 'older summary' }],
+    shadowedTokenCount: resolveShadowedTokenCount(agent, shadowedSeqs), provider: 'local', model: 'local',
+  })
+  // The decisive refusal: a range that swallows the head would make the host
+  // reject the replacement and leave an unreadable log behind.
+  assert.throws(() => runCompactionTransaction(session, input(nodes.slice(0, 3))), /protected-system-head/)
+  assert.equal(session.snapshotEvents().filter(event => event.type === 'compaction/start').length, 0, 'a refused range opens no transaction')
+  assert.ok(session.surface.nodes.includes(head), 'the protected head is untouched')
+  const start = nodes.indexOf(laterSystem!)
+  const range = nodes.slice(start - 1, start + 1)
+  assert.ok(runCompactionTransaction(session, input(range)).compactionId, 'a later system node is still compressible')
+  assert.ok(session.surface.nodes.includes(head), 'the head survives an ordinary transaction')
+  const stored = await inspectPersisted(h.ctx, session.id)
+  assert.deepEqual(stored.events, session.snapshotEvents(), 'the stored log stays readable')
 })
 
 test('window seed evidence index keeps quoted identifier=value records, and emergency checkpoints keep early fact-dense lines under budget pressure (150k adaptive v9 regression)', async t => {

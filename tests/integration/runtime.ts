@@ -6,7 +6,7 @@ import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
-import { appendUser, appendAssistant } from '../helpers.ts'
+import { appendSystem, appendUser, appendAssistant } from '../helpers.ts'
 
 export async function host(compression: 'none' | 'zstd' = 'none') {
   const root = await mkdtemp(join(tmpdir(), 'ctx-v010-host-'))
@@ -17,11 +17,22 @@ export async function host(compression: 'none' | 'zstd' = 'none') {
   new JsonlSessionPersistence(ctx, { root, compression, writeBatchMaxDelayMs: 10 })
   return { ctx, root, async close() { await ctx.fiber.dispose(); await rm(root, { recursive: true, force: true }) } }
 }
+/** The rendered prompt a fixture session carries as its protected surface head. */
+export const FIXTURE_SYSTEM_PROMPT = 'You are a synthetic fixture agent. Follow the current user instruction and preserve stated constraints.'
+/**
+ * One completed historical turn shaped like a real DSH 0.1.7 log: the first step
+ * opens with the protected `system/message` head, then the user request, then the
+ * assistant work. The head is load-bearing — the host refuses to read a stored
+ * log whose first surface node is anything else — so fixtures must model it.
+ */
 export function oldWork(session: Session, turn = 1, size = 24) {
   session.append('turn/start', { turn })
-  appendUser(session, `Original task ${turn}: preserve 12 factual constraints.`)
   for (let step = 1; step <= size; step++) {
     session.append('step/start', { turn, step })
+    if (step === 1) {
+      appendSystem(session, FIXTURE_SYSTEM_PROMPT, turn, step)
+      appendUser(session, `Original task ${turn}: preserve 12 factual constraints.`)
+    }
     appendAssistant(session, `FACT_${turn}_${step} = verified-${step}.\r\n${'Synthetic telemetry row: status=ok; user requirement remains unchanged. '.repeat(40)}`, turn, step)
     session.append('step/end', { turn, step })
   }
@@ -57,9 +68,14 @@ export async function inspectPersisted(ctx: Context, id: SessionId): Promise<{ e
   const session = ctx.sessions.get(id)
   if (session !== undefined && !materialized.has(id)) {
     materialized.add(id)
-    const handle = await persistence.create(session.header, { inheritedEventCount: session.inheritedEventCount })
-    const events = session.snapshotEvents()
-    if (events.length > 0) await handle.append(events)
+    try {
+      const handle = await persistence.create(session.header, { inheritedEventCount: session.inheritedEventCount })
+      const events = session.snapshotEvents()
+      if (events.length > 0) await handle.append(events)
+    } catch {
+      // A real agent loop already opened the write handle and stored the log, so
+      // there is nothing to materialize and appending again would duplicate it.
+    }
   }
   await persistence.flush()
   const path = await persistence.resolveCurrentLog(id)

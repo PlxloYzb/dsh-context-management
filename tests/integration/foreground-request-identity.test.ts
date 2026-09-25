@@ -50,7 +50,7 @@ async function runtime(id: string) {
   // per-route dedup without disturbing the real foreground route.
   h.ctx.llm.registerAdapter(['probe-test'], foreground)
   h.ctx.llm.registerAdapter(['summary-test'], summary)
-  new AgentLoop(h.ctx, { agents: [], maxParallelToolCalls: 10 })
+  new AgentLoop(h.ctx, AgentLoop.Config({ agents: [], maxParallelToolCalls: 10 }))
   const engine = new ContextManagementEngine(h.ctx, {
     autoNudge: false,
     adaptiveGovernor: { windowBudgetTokens: 40000, maxOutputTokens: 2048 },

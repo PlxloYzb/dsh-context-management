@@ -14,6 +14,16 @@ const ctx = new Context(); new SessionStore(ctx); new SessionProjectionRegistry(
 new JsonlSessionPersistence(ctx, { root, compression: 'none', writeBatchMaxDelayMs: 10000 })
 const session = ctx.sessions.create(SessionId(`kill-${phase}`))
 oldWork(session); newInput(session, 'Current requirement before process interruption')
+// DSH 0.1.7 stores a session only through an open write handle: `session/flush`
+// with no handle is a no-op and leaves no artifact behind. The agent loop's
+// creation transaction opens that handle before it publishes the session, so the
+// crash fixture has to do the same — otherwise the SIGKILL would leave nothing on
+// disk for the parent to inspect.
+const persistence = ctx.sessionPersistence as unknown as {
+  create(header: unknown, options?: unknown): Promise<{ append(events: readonly unknown[]): Promise<void> }>
+}
+const handle = await persistence.create(session.header, { inheritedEventCount: session.inheritedEventCount })
+await handle.append(session.snapshotEvents())
 await ctx.sessions.flush(session)
 writeFileSync(`${root}/witness.json`, JSON.stringify({ phase, baselineCount: session.seq, baselineHash: createHash('sha256').update(JSON.stringify(session.snapshotEvents())).digest('hex') }))
 function kill(): never { process.kill(process.pid, 'SIGKILL'); throw new Error('SIGKILL unexpectedly returned') }

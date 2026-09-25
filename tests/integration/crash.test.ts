@@ -42,7 +42,7 @@ test('L03: SIGKILL at transaction boundaries preserves the durable prefix; offic
       if (phase === 'before-start') assert.equal(diskBlocks.length, 0)
       new AgentRegistry(ctx); new LlmRuntime(ctx)
       new SystemPrompt(ctx, { includeHarnessIdentity: false, includeRuntimeContext: false }); new ToolRuntime(ctx)
-      new AgentLoop(ctx, { agents: [], maxParallelToolCalls: 10 })
+      new AgentLoop(ctx, AgentLoop.Config({ agents: [], maxParallelToolCalls: 10 }))
       const handle = await ctx.agents.resume({ resumeSessionId: id, agentOptions: { provider: 'fixture', model: 'unused' } })
       const session = handle.agent.session, windows = new WindowController()
       assert.equal(windowIdentity(session).generation, diskBlocks.length)
