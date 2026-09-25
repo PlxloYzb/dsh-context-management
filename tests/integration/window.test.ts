@@ -8,7 +8,7 @@ import { ArcStateStore } from '../../src/state.ts'
 import { blockRegistry, rebuildBlockLedger, runCompactionTransaction, assertNoActiveCompaction } from '../../src/region.ts'
 import { resolveShadowedTokenCount, runEmergencyFallback } from '../../src/fallback.ts'
 import { allLogMessages } from '../../src/messages.ts'
-import { host, newSession, oldWork, newInput } from './runtime.ts'
+import { host, newSession, oldWork, newInput, inspectPersisted } from './runtime.ts'
 import { appendAssistant, appendToolCall, appendToolResult, appendUser } from '../helpers.ts'
 
 const config = resolveArchiveConfig()
@@ -89,7 +89,7 @@ test('W03/L03/L04: three windows replace old seeds, retain originals, survive ac
     session.append('turn/end', { turn: generation + 1, reason: {kind:'completed'} })
   }
   await h.ctx.sessions.flush(session)
-  const stored = await h.ctx.sessionPersistence.inspect(session.id)
+  const stored = await inspectPersisted(h.ctx, session.id)
   assert.deepEqual(stored.events.slice(0, origin.length), origin)
   const restored = Session.create(session.id, stored.events)
   assert.deepEqual(restored.deriveMessages(), session.deriveMessages())
@@ -125,7 +125,7 @@ for (const phase of ['compaction/start', 'compaction/summary', 'user/message', '
       if (applied) assert.throws(() => windows.assertReady(session), /recovery-required/)
       else windows.assertReady(session)
       await h.ctx.sessions.flush(session)
-      const stored = await h.ctx.sessionPersistence.inspect(session.id)
+      const stored = await inspectPersisted(h.ctx, session.id)
       assert.deepEqual(stored.events.slice(0, original.length), original)
       const restored = Session.create(session.id, stored.events)
       assert.equal(windowIdentity(restored).generation, applied ? 1 : 0)

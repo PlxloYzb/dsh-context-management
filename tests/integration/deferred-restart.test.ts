@@ -7,7 +7,7 @@ import { BackgroundSummaries, sourceHash, type PreparedSummary } from '../../src
 import { archiveHealth, validWindowMetadata } from '../../src/archive-health.ts'
 import { prepareContextHandoff, readCompactionSummary, readContextHandoff, readWindowContextHandoff } from '../../src/region.ts'
 import { WindowController, frozenPrefix, resolveArchiveConfig } from '../../src/window-controller.ts'
-import { host, newSession, newInput, oldWork } from './runtime.ts'
+import { host, newSession, newInput, oldWork, inspectPersisted } from './runtime.ts'
 
 const signal = () => new AbortController().signal
 const archive = resolveArchiveConfig()
@@ -48,7 +48,7 @@ for (const trigger of ['pressure', 'model', 'manual'] as const) {
     assert.deepEqual(h.session.snapshotEvents().slice(0, before.length), before)
     assert.equal(h.session.snapshotEvents().some(event => readContextHandoff(event) !== undefined), false)
 
-    const persisted = await h.ctx.sessionPersistence.inspect(h.session.id)
+    const persisted = await inspectPersisted(h.ctx, h.session.id)
     assert.deepEqual(persisted.events, h.session.snapshotEvents())
     const restored = Session.create(h.session.id, persisted.events)
     const summary = summaryEvent(restored), metadata = readCompactionSummary(summary).contextManagement
@@ -143,7 +143,7 @@ test('a later committed window pending record supersedes an older delivered rece
   const snapshot = { ...h.snapshot, operationId: randomUUID(), replaceGeneration: 1, seqs, hash: sourceHash(h.session, seqs) }
   const second = await h.windows.turnover(h.agent, 'pressure', signal(), archive, h.flush, undefined, undefined, undefined, undefined, 0, snapshot)
   assert.ok(second)
-  const persisted = await h.ctx.sessionPersistence.inspect(h.session.id)
+  const persisted = await inspectPersisted(h.ctx, h.session.id)
   const restored = Session.create(h.session.id, persisted.events)
   const status = new BackgroundSummaries().status(restored) as { status: string; operationId: string; targetGeneration: number }
   assert.equal(status.status, 'interrupted')

@@ -10,6 +10,7 @@ import { SessionStore, SessionId } from '@deepseek-ai/dsh-session'
 import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
 import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
 import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
+import { inspectPersisted } from './runtime.ts'
 import { AgentRegistry } from '@deepseek-ai/dsh-agent'
 import { AgentLoop } from '@deepseek-ai/dsh-agent-loop'
 import { LlmRuntime } from '@deepseek-ai/dsh-llm'
@@ -34,7 +35,7 @@ test('L03: SIGKILL at transaction boundaries preserves the durable prefix; offic
       new SessionStore(ctx); new SessionProjectionRegistry(ctx); new TokenMeter(ctx)
       new JsonlSessionPersistence(ctx, { root, compression: 'none' })
       const id = SessionId(`kill-${phase}`)
-      const disk = await ctx.sessionPersistence.inspect(id)
+      const disk = await inspectPersisted(ctx, id)
       assert.equal(createHash('sha256').update(JSON.stringify(disk.events.slice(0, witness.baselineCount))).digest('hex'), witness.baselineHash)
       const diskBlocks = rebuildBlockLedger(disk.events), integrity = archiveHealth(disk.events)
       if (phase === 'applied-no-end' || phase === 'after-flush') assert.equal(diskBlocks.length, 1)

@@ -4,7 +4,7 @@ import type { Session } from '@deepseek-ai/dsh-session'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
 import { ContextManagementEngine } from '../../src/index.ts'
 import { rebuildBlockLedger, readCompactionSummary, type WindowMetadata } from '../../src/region.ts'
-import { host, newSession, newInput, oldWork } from './runtime.ts'
+import { host, newSession, newInput, oldWork, inspectPersisted } from './runtime.ts'
 import { appendToolCall, appendToolResult } from '../helpers.ts'
 
 const config = {
@@ -76,7 +76,7 @@ for (const scenario of ['relief', 'still-pressure', 'overflow'] as const) {
     assert.equal(toolPairingBalancedAfter(session, session.surface.nodes.at(-1)!), true)
     // Both the early return and the successful window must already have
     // flushed their replacement, without relying on a follow-up request.
-    assert.deepEqual((await h.ctx.sessionPersistence.inspect(session.id)).events, session.snapshotEvents())
+    assert.deepEqual((await inspectPersisted(h.ctx, session.id)).events, session.snapshotEvents())
   })
 }
 
@@ -96,5 +96,5 @@ test('pressure without a safe window prefix retains the in-place emergency fallb
   assert.ok(blocks.length > 0)
   assert.ok(blocks.every(block => block.contextManagement === undefined))
   assert.ok(session.surface.nodes.includes(currentUser))
-  assert.deepEqual((await h.ctx.sessionPersistence.inspect(session.id)).events, session.snapshotEvents())
+  assert.deepEqual((await inspectPersisted(h.ctx, session.id)).events, session.snapshotEvents())
 })

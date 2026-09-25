@@ -9,7 +9,7 @@ import { ContextManagementEngine } from '../../src/index.ts'
 import { ArchiveReader, resolveSources } from '../../src/archive.ts'
 import { BlockLedgerIndex, rebuildBlockLedger, runCompactionTransaction } from '../../src/region.ts'
 import { WindowController, resolveArchiveConfig, windowIdentity } from '../../src/window-controller.ts'
-import { host, newSession, oldWork, newInput } from './runtime.ts'
+import { host, newSession, oldWork, newInput, inspectPersisted } from './runtime.ts'
 import { appendToolCall, appendToolResult, appendUser } from '../helpers.ts'
 
 test('R05: a real local attachment can disappear while the durable source and missing-attachment explanation remain', async t => {
@@ -30,7 +30,7 @@ test('R05: a real local attachment can disappear while the durable source and mi
   assert.match(after, /missing-attachment/); assert.match(after, /"incomplete":true/)
   assert.doesNotMatch(after, /iVBORw0KGgo/)
   assert.equal(await h.ctx.sessions.flush(session), true)
-  const stored = await h.ctx.sessionPersistence.inspect(session.id)
+  const stored = await inspectPersisted(h.ctx, session.id)
   assert.deepEqual(stored.events[source], session.eventAt(source))
 })
 

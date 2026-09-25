@@ -13,7 +13,7 @@ import { ArchiveReader } from '../../src/archive.ts'
 import { windowIdentity } from '../../src/window-controller.ts'
 import { rebuildBlockLedger, readContextHandoff } from '../../src/region.ts'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
-import { host, oldWork } from './runtime.ts'
+import { host, oldWork, inspectPersisted } from './runtime.ts'
 
 class ControlledAdapter extends LlmAdapter {
   readonly calls: GenerateOptions[] = []
@@ -142,7 +142,7 @@ for (const scenario of ['independent', 'dependent', 'model'] as const) test(`def
   assert.equal((engine.summaries.status(agent.session) as { waitCount: number }).waitCount, dependent ? 1 : 0)
   assert.equal(toolPairingBalancedAfter(agent.session, agent.session.surface.nodes.at(-1)!), true)
   await scopeFiber.ctx.sessions.flush(agent.session)
-  assert.deepEqual((await scopeFiber.ctx.sessionPersistence.inspect(agent.session.id)).events, events)
+  assert.deepEqual((await inspectPersisted(scopeFiber.ctx, agent.session.id)).events, events)
 })
 
 test('O01/O02: real agent loop retries normalized overflow once after durable progress; ordinary provider error is terminal', async t => {

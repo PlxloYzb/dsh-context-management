@@ -8,7 +8,7 @@ import { WindowController, seedLayout, resolveArchiveConfig } from '../../src/wi
 import { rebuildBlockLedger } from '../../src/region.ts'
 import { validWindowMetadata } from '../../src/archive-health.ts'
 import { Config, validateContextConfig } from '../../src/index.ts'
-import { host, newSession, oldWork, newInput } from './runtime.ts'
+import { host, newSession, oldWork, newInput, inspectPersisted } from './runtime.ts'
 import { appendAssistant, appendToolCall, appendToolResult } from '../helpers.ts'
 
 const archive = resolveArchiveConfig(), config = resolveBackgroundSummary({ provider: 'independent', model: 'summary', reasoningEffort: 'minimal', delivery: 'seed' })!
@@ -54,7 +54,7 @@ test('prepared summary commits only its snapshot; fresh paired work and current 
   assert.equal(metadata.seed.prepared?.throughSeq, seqs.at(-1))
   assert.equal(validWindowMetadata(metadata, metadata.operationId), true)
   assert.equal(validWindowMetadata({ ...metadata, seed: { ...metadata.seed, prepared: null } }, metadata.operationId), false)
-  const stored = await h.ctx.sessionPersistence.inspect(h.session.id)
+  const stored = await inspectPersisted(h.ctx, h.session.id)
   assert.deepEqual(stored.events, h.session.snapshotEvents())
 })
 

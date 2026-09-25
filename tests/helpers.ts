@@ -32,6 +32,7 @@ export function appendAssistant(session: Session, text: string, turn = 1, step =
       content: [{ type: 'text', text }],
       source: { provider: 'test-provider', model: 'test-model' },
     }),
+    stream: [],
   }, { surfaceOp: 'append' })
 }
 
@@ -46,6 +47,7 @@ export function appendToolCall(session: Session, text: string, callId: string, t
       ],
       source: { provider: 'test-provider', model: 'test-model' },
     }),
+    stream: [],
   }, { surfaceOp: 'append' })
 }
 
@@ -78,6 +80,7 @@ export function appendMultiToolCall(session: Session, text: string, callIds: rea
       ],
       source: { provider: 'test-provider', model: 'test-model' },
     }),
+    stream: [],
   }, { surfaceOp: 'append' })
 }
 
