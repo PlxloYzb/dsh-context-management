@@ -90,7 +90,7 @@ export async function prepareIsolatedHome({ root, arm, command, tarball, seedSet
   }
   // The host's shipped presets live beside the pinned package; copy them
   // byte-identically into the isolated home so shipped files stay read-only.
-  const shippedPresets = resolve(dirname(dirname(dshBin)), '@deepseek-ai/dsh-agent-presets/presets')
+  const shippedPresets = resolve(dirname(dirname(dshBin)), '@deepseek-ai/dsh-agent-preset-registry/presets')
   const presetHashes = {}
   for (const id of ['standard', 'minimal', 'ptc', 'cordis']) {
     const source = join(shippedPresets, id, 'agent.cordis.yml')

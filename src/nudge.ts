@@ -163,7 +163,7 @@ export function buildNudge(
   const text = buildNudgeText(nudge, emergency, session, env.prompts)
   const message = createUserMessage({
     content: [{ type: 'text', text }],
-    source: { kind: 'plugin', plugin: 'arc-nudge' },
+    source: { kind: 'context-management', plugin: 'arc-nudge' },
   })
   return { message, emergency }
 }

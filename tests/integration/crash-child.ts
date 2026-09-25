@@ -4,7 +4,7 @@ import { Context } from '@deepseek-ai/cordis'
 import { SessionStore, SessionId } from '@deepseek-ai/dsh-session'
 import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
 import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
-import { JsonlSessionPersistence } from '@deepseek-ai/dsh-session-persistence-jsonl'
+import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
 import { WindowController, resolveArchiveConfig } from '../../src/window-controller.ts'
 import { oldWork, newInput } from './runtime.ts'
 

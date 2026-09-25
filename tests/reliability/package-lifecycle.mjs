@@ -14,7 +14,7 @@ const profile = 'ctx-v012-reliability-lifecycle'
 const other = 'ctx-v012-reliability-other'
 const dsh = resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
 const tarball = resolve('artifacts/dsh-context-management-0.1.1.tgz')
-const presets = resolve(dirname(dirname(dsh)), '@deepseek-ai/dsh-agent-presets/presets')
+const presets = resolve(dirname(dirname(dsh)), '@deepseek-ai/dsh-agent-preset-registry/presets')
 const env = { ...process.env, DSH_HOME: home, COREPACK_ENABLE_AUTO_PIN: '0', npm_config_cache: join(root, 'npm-cache'), npm_config_userconfig: join(root, 'npmrc') }
 const sha = text => createHash('sha256').update(text).digest('hex')
 const report = { startedAt: new Date().toISOString(), runName, dsh, dshHome: home, profile, otherProfile: other, port: 3336, tarballSha256: sha(await readFile(tarball)), stages: [], failures: [], completed: false }

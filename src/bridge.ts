@@ -10,7 +10,7 @@
  *     registry, the same registry app-boot itself uses for `cordis:group`;
  *  2. on agent creation, preset selection and request boundaries, the agent's
  *     scope is located through the public `standingMountFor()` export of
- *     `@deepseek-ai/dsh-agent-presets`;
+ *     `@deepseek-ai/dsh-agent-preset-registry`;
  *  3. the mount's Include config gains runtime patches — disable the
  *     actual Basic row (guarded by its official package name) and
  *     insert the ARC engine row into its unchanged parent/isolate
@@ -30,7 +30,7 @@
  * @module dsh-context-management/bridge
  */
 
-import { standingMountFor } from '@deepseek-ai/dsh-agent-presets'
+import { standingMountFor } from '@deepseek-ai/dsh-agent-preset-registry'
 import { symbols, type Context, type Fiber } from '@deepseek-ai/cordis'
 import type { Entry, EntryTree } from '@deepseek-ai/cordis-plugin-loader'
 import type { Agent } from '@deepseek-ai/dsh-agent'
@@ -161,6 +161,22 @@ function serviceWithin(ctx: Context, mount: PresetMountHandle, name: string): un
 }
 
 /**
+ * Wait for an Include update to finish starting the rows it added.
+ *
+ * DSH 0.1.7 starts an inserted row's fiber asynchronously: `update()` resolves
+ * before the new plugin has run, so a service read taken immediately after it
+ * still describes the previous composition and the inserted backend looks
+ * absent. 0.1.2 settled the start within the update. Awaiting the Loader's
+ * settle restores the ordering the checks below rely on.
+ *
+ * @param ctx - context carrying the Loader that owns the composition.
+ */
+async function settleComposition(ctx: Context): Promise<void> {
+  const loader = ctx.get('loader') as { await?(): unknown } | undefined
+  await loader?.await?.()
+}
+
+/**
  * Swap one standing preset mount's compaction backend in-realm. The mount's
  * live Include config object is mutated in place — never replaced — so the
  * tree keeps its original config identity (the harness-base record for bare
@@ -226,6 +242,7 @@ export async function takeoverMount(
   tracked.set(carrier, { tree: entry.parent.tree, config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
   try {
     await carrier.update(include, true)
+    await settleComposition(ctx)
     // The name guard did not match: a foreign backend still owns the realm,
     // and inserting ARC beside it would collide. Leave the preset untouched.
     const serving = serviceWithin(ctx, mount, 'compaction')
@@ -235,6 +252,7 @@ export async function takeoverMount(
     }
     include.patches = [...(include.patches ?? []), mountArc]
     await carrier.update(include, true)
+    await settleComposition(ctx)
   } catch (error) {
     try { await revert() } catch (rollbackError) { throw new AggregateError([error, rollbackError], 'context takeover and rollback failed') }
     throw error
@@ -274,11 +292,13 @@ export async function rollbackMount(fiber: Fiber, tracked: Map<Fiber, TrackedMou
   try {
     config.patches = config.patches?.filter(patch => patch !== owned[1]) ?? []
     await fiber.update(config, true)
+    await settleComposition(fiber.ctx)
   } finally {
     const remaining = config.patches?.filter(patch => !owned.includes(patch)) ?? []
     if (remaining.length === (originalPatches?.length ?? 0) && remaining.every((p, i) => p === originalPatches?.[i])) restorePatches(config, hadPatches, originalPatches)
     else config.patches = remaining
     await fiber.update(config, true)
+    await settleComposition(fiber.ctx)
   }
 }
 
@@ -298,7 +318,7 @@ export { Config }
  * @param config - ARC configuration applied to every replaced Basic row.
  */
 /** Resolve through the host-owned service instance when package copies differ.
- * dsh-agent-presets keeps its mount registry module-local, so a peer installed
+ * dsh-agent-preset-registry keeps its mount registry module-local, so a peer installed
  * next to this package may expose an empty standingMountFor registry.
  */
 async function hostMountFor(ctx: Context, agent: Agent): Promise<PresetMountHandle | undefined> {
@@ -307,7 +327,7 @@ async function hostMountFor(ctx: Context, agent: Agent): Promise<PresetMountHand
   // Resolve the host's public registry even when this installed package has a
   // different peer-module instance. Works for presets with no backend too.
   try {
-    const module: unknown = await ctx.loader.import('@deepseek-ai/dsh-agent-presets')
+    const module: unknown = await ctx.loader.import('@deepseek-ai/dsh-agent-preset-registry')
     if (module && typeof module === 'object' && 'standingMountFor' in module && typeof module.standingMountFor === 'function') {
       const resolve = module.standingMountFor as typeof standingMountFor
       const mount = resolve(agent.ctx)
@@ -450,7 +470,7 @@ export function apply(ctx: Context, config: ArcConfig): void {
     }))
     void ensure(agent).catch(error => ctx.logger.error(String(error)))
   }
-  ctx.on('agent/created', ({ agent }) => attach(agent))
+  ctx.on('agent/created', ({ agent }) => { attach(agent) })
   // Hot enabling the bundle must cover agents created before this bridge.
   for (const agent of ctx.get('agents')?.list() ?? []) attach(agent)
 }

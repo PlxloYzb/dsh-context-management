@@ -47,6 +47,25 @@ export interface ContextHandoffReceipt {
   readonly reason?: string
 }
 export type PendingContextHandoff = ContextHandoffReceipt & { readonly status: 'pending' }
+/**
+ * Messages this package authors carry their own source kind.
+ *
+ * The host's `MessageSourceMap` is merge-extensible, and every package that
+ * authors messages declares its kind that way - `compact-checkpoint`,
+ * `model-selection`, `runtime-context`, `tool-registry`. DSH 0.1.7 dropped the
+ * generic `plugin` kind this package used before, so the marker is declared here
+ * rather than borrowed from another producer's vocabulary.
+ */
+declare module '@deepseek-ai/dsh-llm' {
+  interface MessageSourceMap {
+    'context-management': {
+      readonly kind: 'context-management'
+      /** Which producer of this package wrote the message. */
+      readonly plugin: string
+      readonly handoff?: ContextHandoffReceipt
+    }
+  }
+}
 export function validContextHandoffReceipt(value: unknown): value is ContextHandoffReceipt {
   if (!value || typeof value !== 'object') return false
   const receipt = value as Partial<ContextHandoffReceipt>
@@ -61,7 +80,7 @@ export function validContextHandoffReceipt(value: unknown): value is ContextHand
     && (receipt.reason === undefined || typeof receipt.reason === 'string')
 }
 export function readContextHandoff(event: SessionEvent): ContextHandoffReceipt | undefined {
-  if (event.type !== 'user/message' || event.data.source.kind !== 'plugin' || event.data.source.plugin !== 'dsh-context-management/handoff') return undefined
+  if (event.type !== 'user/message' || event.data.source.kind !== 'context-management' || event.data.source.plugin !== 'dsh-context-management/handoff') return undefined
   const source = event.data.source as typeof event.data.source & { handoff?: ContextHandoffReceipt }
   const receipt = source.handoff
   return validContextHandoffReceipt(receipt) ? receipt : undefined
@@ -88,7 +107,7 @@ export function prepareContextHandoff(session: Session, receipt: ContextHandoffR
   assertNoActiveCompaction(session.snapshotEvents())
   if (!text.trim()) throw new Error('empty-context-handoff')
   if (session.snapshotEvents().some(event => { const prior = readContextHandoff(event); return prior?.operationId === receipt.operationId && prior.status === receipt.status })) throw new Error('duplicate-context-handoff')
-  return createUserMessage({ source: { kind: 'plugin', plugin: 'dsh-context-management/handoff', handoff: receipt }, content: [{ type: 'text', text }] })
+  return createUserMessage({ source: { kind: 'context-management', plugin: 'dsh-context-management/handoff', handoff: receipt }, content: [{ type: 'text', text }] })
 }
 
 export interface WindowMetadata {
@@ -545,7 +564,7 @@ export function runCompactionTransaction(
     source: compactCheckpointSource(compactionId),
   })
   seqs.push(session.append('user/message', message, {
-    surfaceOp: { op: 'replace', start: SessionSeq(input.start), end: SessionSeq(input.end) },
+    surfaceOp: { op: 'replace', startSeq: SessionSeq(input.start), endSeq: SessionSeq(input.end) },
     sourceEventSeqs: [seqs[0]!, seqs[1]!, ...input.shadowedSeqs.map(SessionSeq)],
   }).seq)
 
@@ -639,7 +658,7 @@ export async function runManualCompactionTransaction(
       source: compactCheckpointSource(compactionId, sourceCommandId),
     })
     session.append('user/message', message, {
-      surfaceOp: { op: 'replace', start: SessionSeq(input.start), end: SessionSeq(input.end) },
+      surfaceOp: { op: 'replace', startSeq: SessionSeq(input.start), endSeq: SessionSeq(input.end) },
       sourceEventSeqs: [startEvent.seq, summaryEvent.seq, ...input.shadowedSeqs.map(SessionSeq)],
     })
     const endEvent = session.append('compaction/end', lifecycle)
@@ -691,8 +710,8 @@ export async function runManualCompactionTransaction(
 function summarySeqOfCompaction(events: readonly SessionEvent[], compactionId: string): number | null {
   for (const event of events) {
     if (event.type !== 'user/message') continue
-    const source = (event.data as { source?: { plugin?: string; compactionId?: string } }).source
-    if (source?.plugin === 'compact' && source.compactionId === compactionId) return event.seq
+    const source = (event.data as { source?: { kind?: string; compactionId?: string } }).source
+    if (source?.kind === 'compact-checkpoint' && source.compactionId === compactionId) return event.seq
   }
   return null
 }
@@ -742,11 +761,13 @@ export function validCompactionReplacement(summary: SessionEvent, event: Session
   if (summary.type !== 'compaction/summary' || event.type !== 'user/message'
     || typeof event.surfaceOp !== 'object' || event.surfaceOp.op !== 'replace' || summary.seq >= event.seq) return false
   const data = readCompactionSummary(summary)
-  const source = event.data.source as { plugin?: string; compactionId?: string }
-  if (source.plugin !== 'compact' || source.compactionId !== data.compactionId) return false
+  // DSH 0.1.7 names a compaction replacement by its checkpoint kind; 0.1.2
+  // spelled the same producer as a catch-all plugin source named 'compact'.
+  const source = event.data.source as { kind?: string; compactionId?: string }
+  if (source.kind !== 'compact-checkpoint' || source.compactionId !== data.compactionId) return false
   if (data.contextManagement === undefined) return true // legacy ARC protocol
   const sources = new Set(event.sourceEventSeqs ?? [])
-  return event.seq === summary.seq + 1 && event.surfaceOp.start === data.shadowedRange.start && event.surfaceOp.end === data.shadowedRange.end
+  return event.seq === summary.seq + 1 && event.surfaceOp.startSeq === data.shadowedRange.start && event.surfaceOp.endSeq === data.shadowedRange.end
     && sources.has(summary.seq) && data.shadowedSeqs.every(seq => sources.has(SessionSeq(seq)))
 }
 
@@ -767,8 +788,8 @@ export class BlockLedgerIndex {
         continue
       }
       if (event.type !== 'user/message' || typeof event.surfaceOp !== 'object' || event.surfaceOp.op !== 'replace') continue
-      const source = event.data.source as { plugin?: string; compactionId?: string }
-      if (source.plugin !== 'compact' || !source.compactionId || this.applied.has(source.compactionId)) continue
+      const source = event.data.source as { kind?: string; compactionId?: string }
+      if (source.kind !== 'compact-checkpoint' || !source.compactionId || this.applied.has(source.compactionId)) continue
       const summary = this.summaries.get(source.compactionId)
       if (!summary || !validCompactionReplacement(summary, event)) continue
       this.applied.add(source.compactionId)
@@ -807,8 +828,8 @@ export interface SeqCompressibleRange {
 /** Whether a surface user message is a compaction checkpoint node (already compressed). */
 function isCheckpointNode(event: SessionEvent): boolean {
   if (event.type !== 'user/message') return false
-  const source = (event.data as { source?: { plugin?: string } }).source
-  return source?.plugin === 'compact'
+  const source = (event.data as { source?: { kind?: string } }).source
+  return source?.kind === 'compact-checkpoint'
 }
 
 /**
@@ -994,8 +1015,8 @@ export function blockRegistry(session: Session): ArcBlockRegistryEntry[] {
 export function blockRefForSummarySeq(session: Session, seq: number): string | null {
   const event = session.snapshotEvents()[seq]
   if (event?.type !== 'user/message') return null
-  const source = (event.data as { source?: { plugin?: string; compactionId?: string } }).source
-  if (source?.plugin !== 'compact' || source.compactionId === undefined) return null
+  const source = (event.data as { source?: { kind?: string; compactionId?: string } }).source
+  if (source?.kind !== 'compact-checkpoint' || source.compactionId === undefined) return null
   const entry = blockRegistry(session).find((r) => r.blockId === source.compactionId)
   if (entry === undefined) return null
   return entry.kernelBlockId
@@ -1020,8 +1041,8 @@ export function summarySeqOfKernelBlock(session: Session, kernelBlockId: string)
 function checkpointBlockIdOf(events: readonly SessionEvent[], seq: number): string | null {
   const event = events[seq]
   if (event?.type !== 'user/message') return null
-  const source = (event.data as { source?: { plugin?: string; compactionId?: string } }).source
-  if (source?.plugin !== 'compact' || source.compactionId === undefined) return null
+  const source = (event.data as { source?: { kind?: string; compactionId?: string } }).source
+  if (source?.kind !== 'compact-checkpoint' || source.compactionId === undefined) return null
   return source.compactionId
 }
 

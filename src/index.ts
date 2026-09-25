@@ -268,7 +268,7 @@ export type Config = Omit<Partial<ArcConfig>, 'countTokens'>
 const positiveInteger = () => Schema.number().step(1).min(1)
 const fraction = () => Schema.number().min(0.000001).max(0.999999)
 
-const BackgroundSummarySchema: Schema<BackgroundSummaryInput | undefined> = Schema.object({ provider: Schema.string().required(), model: Schema.string().required(), reasoningEffort: Schema.string(),
+const BackgroundSummarySchema = Schema.object({ provider: Schema.string().required(), model: Schema.string().required(), reasoningEffort: Schema.string(),
     allowSameProvider: Schema.boolean().default(false), delivery: Schema.union(['seed', 'deferred']).default('deferred'), maxSummaryBytes: positiveInteger().default(4096), prepareAtEffectiveCapacityPct: fraction().default(0.6), maxInputBytes: positiveInteger().default(262144), maxOutputTokens: positiveInteger().default(2048), timeoutMs: positiveInteger().default(60000) })
 
 /**
@@ -299,7 +299,11 @@ const ConfigFields: Schema<Config> = Schema.object({
     systemPrompt: Schema.string(),
   }).description('Prompt templates; unknown slots and placeholders fail validation.'),
   archive: Schema.object({ seedMaxTokens: positiveInteger().default(4096), retrievalDefaultMaxTokens: positiveInteger().default(2048), retrievalMaxTokens: positiveInteger().default(4096) }),
-  backgroundSummary: BackgroundSummarySchema.default(undefined),
+  // Optional by absence: an undeclared background summary is the disabled state.
+  // DSH 0.1.7's Schemastery rejects `default(undefined)` for an object schema and
+  // resolves an absent object field by building it from nothing, which then fails
+  // its required inner fields. The union admits the absent case explicitly.
+  backgroundSummary: Schema.union([BackgroundSummarySchema, Schema.const(undefined)]),
   adaptiveGovernor: Schema.object({
     strategy: Schema.union(['windowed', 'in-place']).default('windowed'),
     windowBudgetTokens: positiveInteger(),
@@ -387,7 +391,9 @@ export class ArcCompactionEngine extends CompactionEngine {
   })
   readonly archive: ArchiveConfig
   private readonly lifetime = new AbortController()
-  private readonly assembled = new WeakMap<CompactionAgentContext, Pick<EpochHeader, 'system' | 'tools'>>()
+  // DSH 0.1.7 retired `EpochHeader.system` ("system prompts belong to system/message
+  // events"), so only the tool schemas are cached to price a proposed request.
+  private readonly assembled = new WeakMap<CompactionAgentContext, Pick<EpochHeader, 'tools'>>()
   private readonly admissions = new WeakMap<Session, { agent: Agent; signal: AbortSignal; incomingUser?: UserMessage }>()
   // Foreground agent-loop requests, identified by the step signal the host
   // passes through our own `agent/request` waterfall. The host's
@@ -492,7 +498,7 @@ export class ArcCompactionEngine extends CompactionEngine {
     this.store = new ArcStateStore()
     ctx.on('system-prompt/assemble', async (_assembly, context, next) => {
       const assembly = await next()
-      if (context.agent) this.assembled.set(context.agent, { system: renderPrompt(assembly), tools: assembly.tools })
+      if (context.agent) this.assembled.set(context.agent, { tools: assembly.tools })
       return assembly
     })
 
@@ -627,7 +633,7 @@ export class ArcCompactionEngine extends CompactionEngine {
       finally { finishPending(pendingResult !== null, this.windows.identity(agent.session).generation) }
       const notice = this.windows.takeNotice(agent.session)
       if (notice) messages = [...messages, createUserMessage({
-        source: { kind: 'plugin', plugin: 'dsh-context-management' },
+        source: { kind: 'context-management', plugin: 'dsh-context-management' },
         content: [{ type: 'text', text: `Context operation result: ${JSON.stringify(notice)}. The accepted request did not create a new window. Continue from the current generation; do not repeat the same request without new history.` }],
       })]
       const admissionTokens = messages.reduce((sum, message) => sum + (this.ctx.get('tokenMeter')?.estimateMessage(message) ?? 0), 0)
@@ -648,7 +654,7 @@ export class ArcCompactionEngine extends CompactionEngine {
       }) : undefined
       if (handoff) messages = [...messages, handoff]
       return handoff || agent.session.surface.replaceGeneration > generation
-        ? { ...decision, startsRequestSeries: true, messages: messages.filter(message => !(message.source.kind === 'plugin' && message.source.plugin === 'arc-nudge')) } : { ...decision, messages }
+        ? { ...decision, startsRequestSeries: true, messages: messages.filter(message => !(message.source.kind === 'context-management' && message.source.plugin === 'arc-nudge')) } : { ...decision, messages }
     }))
     if (this.adaptiveGovernor.enabled && this.adaptiveGovernor.emergencyFallback) {
       ctx.on('agent/request-error', async ({ agent, failure, signal }, next) => {

@@ -15,7 +15,7 @@ const root = join(process.env.DSH_HOME ?? join(homedir(), '.dsh'), 'profiles', p
 const privateRoot = resolve('.test-runtime', profile), observed = join(privateRoot, 'observed')
 const sha = value => createHash('sha256').update(value).digest('hex')
 const binary = await realpath(execFileSync('which', ['dsh'], { encoding: 'utf8' }).trim())
-const presets = join(dirname(dirname(binary)), 'node_modules/@deepseek-ai/dsh-agent-presets/presets')
+const presets = join(dirname(dirname(binary)), 'node_modules/@deepseek-ai/dsh-agent-preset-registry/presets')
 async function presetHashes() {
   return Object.fromEntries(await Promise.all(['standard','minimal','ptc','cordis'].map(async name => [name, sha(await readFile(join(presets, name, 'agent.cordis.yml')))])))
 }

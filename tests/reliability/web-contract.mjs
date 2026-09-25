@@ -19,7 +19,7 @@ const save = (file, value) => writeFile(join(directory, file), JSON.stringify(va
 const settingsPath = join(homedir(), '.dsh/settings.yaml'), settings = await readFile(settingsPath), settingsHash = hash(settings)
 const pinnedRoot = resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1'), dshBin = join(pinnedRoot, 'node_modules/.bin/dsh')
 assert.equal(JSON.parse(await readFile(join(pinnedRoot, 'node_modules/@deepseek-ai/dsh/package.json'))).version, '0.1.2-rc.1')
-const presets = join(pinnedRoot, 'node_modules/@deepseek-ai/dsh-agent-presets/presets')
+const presets = join(pinnedRoot, 'node_modules/@deepseek-ai/dsh-agent-preset-registry/presets')
 const presetHashes = async () => Object.fromEntries(await Promise.all(['standard', 'minimal', 'ptc', 'cordis'].map(async name => [name, hash(await readFile(join(presets, name, 'agent.cordis.yml')))])))
 const candidateHash = hash(await readFile('dist/index.js'))
 const distHashes = async root => Object.fromEntries(await Promise.all((await readdir(root)).sort().map(async file => [file, hash(await readFile(join(root, file)))])))

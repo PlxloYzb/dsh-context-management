@@ -14,7 +14,7 @@ export function apply(ctx, config) {
     return false
   }
   async function snapshot(agent, stage) {
-    const api = await ctx.loader.import('@deepseek-ai/dsh-agent-presets')
+    const api = await ctx.loader.import('@deepseek-ai/dsh-agent-preset-registry')
     const mount = api.standingMountFor(agent.ctx), backend = raw(ctx.agentPresets.serviceFor(agent, 'compaction'))
     const rows = mount ? [...mount.tree.entries()] : []
     const relevant = rows.filter(row => /compaction|command-compact|dsh-context-management/.test(row.options.name ?? ''))

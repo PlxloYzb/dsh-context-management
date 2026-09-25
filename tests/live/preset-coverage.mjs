@@ -22,7 +22,7 @@ if (!manifest.dsh.profile.bundles.includes('@deepseek-ai/dsh-web-app')) {
 
 const hash = data => createHash('sha256').update(data).digest('hex')
 const binary = await realpath(execFileSync('which', ['dsh'], { encoding: 'utf8' }).trim())
-const officialRoot = join(dirname(dirname(binary)), 'node_modules/@deepseek-ai/dsh-agent-presets/presets')
+const officialRoot = join(dirname(dirname(binary)), 'node_modules/@deepseek-ai/dsh-agent-preset-registry/presets')
 const official = ['standard', 'ptc', 'cordis', 'minimal']
 const source = await readFile(join(officialRoot, 'standard/agent.cordis.yml'), 'utf8')
 const report = { pluginVersion: installation.pluginVersion, hostVersion: '0.1.2-rc.1', profile,

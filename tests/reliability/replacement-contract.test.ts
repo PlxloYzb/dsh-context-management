@@ -1,6 +1,6 @@
 /**
  * Replacement contract probes for candidate a607d1c.
- * Real published Cordis, Loader, AgentPresets and Basic packages; synthetic
+ * Real published Cordis, Loader, AgentPresetRegistry and Basic packages; synthetic
  * sessions and a consumer probe. No adapter, network request or daily profile.
  * Run: node --import tsx --test tests/reliability/replacement-contract.test.ts
  */
@@ -14,14 +14,14 @@ import { Context, Service, symbols } from '@deepseek-ai/cordis'
 import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Group from '@deepseek-ai/cordis-plugin-group'
-import { AgentPresets, standingMountFor, serviceForAgent } from '@deepseek-ai/dsh-agent-presets'
+import { AgentPresetRegistry, standingMountFor, serviceForAgent } from '@deepseek-ai/dsh-agent-preset-registry'
 import { AgentRegistry, agentCarrier, agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
 import BasicCompactionEngine from '@deepseek-ai/dsh-compaction-basic'
 import { LlmRuntime } from '@deepseek-ai/dsh-llm'
 import { createScope } from '@deepseek-ai/dsh-scope'
 import { SessionId, SessionStore } from '@deepseek-ai/dsh-session'
 import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
-import { JsonlSessionPersistence } from '@deepseek-ai/dsh-session-persistence-jsonl'
+import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
 import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
 import ArcCompactionEngine, { isArcBackend } from '../../src/index.ts'
 import { apply as applyBridge, rollbackMount, takeoverMount } from '../../src/bridge.ts'
@@ -94,7 +94,7 @@ async function fixture(compositions: Record<string, string> = { standard: basicY
     version: 'v2',
     async import(specifier: string) {
       if (specifier === '@deepseek-ai/dsh-compaction-basic') return BasicCompactionEngine
-      if (specifier === '@deepseek-ai/dsh-agent-presets') return import('@deepseek-ai/dsh-agent-presets')
+      if (specifier === '@deepseek-ai/dsh-agent-preset-registry') return import('@deepseek-ai/dsh-agent-preset-registry')
       throw new Error(`unexpected component import: ${specifier}`)
     },
   } as unknown as NonNullable<typeof ctx.loader.internal>
@@ -106,7 +106,7 @@ async function fixture(compositions: Record<string, string> = { standard: basicY
     await writeFile(path, yaml)
     paths.set(id, path)
   }
-  await ctx.plugin(AgentPresets, {
+  await ctx.plugin(AgentPresetRegistry, {
     default: Object.keys(compositions)[0]!,
     roots: [{ path: root, trust: 'user' }],
     includeShippedRoot: false,
@@ -173,7 +173,7 @@ test('RC01: real Basic retires its fiber and automatic listeners; ARC owns the s
   assert.deepEqual(serviceKeys(h.ctx, arc), realmKeys, 'the same private compaction symbol is reused')
   assert.equal(basicFiber.uid, null, 'the exact original Basic fiber has disposed')
   assert.equal(beforeConsumer.disposed, true)
-  assert.ok(h.consumers.at(-1)!.resolved === arc, 'consumer and AgentPresets resolve the identical original backend')
+  assert.ok(h.consumers.at(-1)!.resolved === arc, 'consumer and AgentPresetRegistry resolve the identical original backend')
   assert.equal(h.ctx.get('compaction'), undefined)
   events.forEach((event, index) => {
     const after = h.ctx.events._hooks[event] ?? []
@@ -193,7 +193,7 @@ test('RC01: real Basic retires its fiber and automatic listeners; ARC owns the s
   assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
 })
 
-test('RC02: real AgentPresets switches one blank agent through Basic, minimal, third-party and another Basic realm', async t => {
+test('RC02: real AgentPresetRegistry switches one blank agent through Basic, minimal, third-party and another Basic realm', async t => {
   const third = basicYaml.replace("name: '@deepseek-ai/dsh-compaction-basic'", 'name: cordis:replacement-third-party')
   const h = await fixture({ standard: basicYaml, minimal: '[]', third, second: basicYaml }); t.after(h.close)
   const bridge = await h.enableBridge()

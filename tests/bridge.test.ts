@@ -435,6 +435,9 @@ test('profile coverage: a Basic row in a nested Include is patched in that Inclu
     const include = preset.fiber.config as { path: string; patches?: unknown[] }
     include.patches = [{ insert: [{ id: 'child', name: 'cordis:include', config: { path: pathToFileURL(childPath).href } }] }]
     await preset.fiber.update(include, true)
+    // DSH 0.1.7 starts an inserted Include's rows asynchronously, so let the
+    // child composition settle before taking it over.
+    await (preset.ctx.loader as unknown as { await(): Promise<unknown> }).await()
     const tracked = new Map()
     assert.equal(await takeoverMount(preset.ctx, {}, { presetId: 'nested-include', fiber: preset.fiber }, tracked), 'taken-over')
     assert.ok(isArcBackend(latestConsumer().resolved))

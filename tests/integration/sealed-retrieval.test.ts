@@ -6,7 +6,7 @@ import { Context } from '@deepseek-ai/cordis'
 import { SessionStore, SessionId, type Session } from '@deepseek-ai/dsh-session'
 import { SessionProjectionRegistry } from '@deepseek-ai/dsh-session-projection'
 import { TokenMeter } from '@deepseek-ai/dsh-token-meter'
-import { JsonlSessionPersistence } from '@deepseek-ai/dsh-session-persistence-jsonl'
+import JsonlSessionPersistence from '@deepseek-ai/dsh-session-persistence-jsonl'
 import { ArchiveReader } from '../../src/archive.ts'
 import { rebuildBlockLedger } from '../../src/region.ts'
 

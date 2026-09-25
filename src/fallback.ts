@@ -402,7 +402,7 @@ export function resolveSummaryTokenCount(
   if (meter?.estimateMessage !== undefined) {
     const message = createUserMessage({
       content: [...summary],
-      source: { kind: 'plugin', plugin: 'dsh-context-management' },
+      source: { kind: 'context-management', plugin: 'dsh-context-management' },
     })
     return meter.estimateMessage(message)
   }
@@ -470,7 +470,7 @@ function recentWorkAnchor(agent: CompactionAgentContext, shadowed: readonly numb
   for (const seq of agent.session.surface.nodes) {
     const event = agent.session.eventAt(seq)
     if (event?.type !== 'assistant/message' || excluded.has(seq)) continue
-    const content = (event.data as { message?: { content?: Array<{ type?: string; name?: string; arguments?: unknown }> } }).message?.content ?? []
+    const content = (event.data as { message?: { content?: readonly { type?: string; name?: string; arguments?: unknown }[] } }).message?.content ?? []
     for (const item of content) {
       if (item?.type !== 'tool-call') continue
       const args = JSON.stringify(item.arguments ?? {}).slice(0, 90)

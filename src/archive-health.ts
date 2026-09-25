@@ -34,8 +34,8 @@ export function archiveHealth(events: readonly SessionEvent[]): { incomplete: bo
         else if (!validWindowMetadata(data.contextManagement, data.compactionId)) corruptMetadata++
       }
     } else if (event.type === 'user/message') {
-      const source = event.data.source as { plugin?: string; compactionId?: string }
-      if (typeof event.surfaceOp === 'object' && source.plugin === 'compact' && source.compactionId) {
+      const source = event.data.source as { kind?: string; compactionId?: string }
+      if (typeof event.surfaceOp === 'object' && source.kind === 'compact-checkpoint' && source.compactionId) {
         const summary = summaries.get(source.compactionId)
         if (!summary || !validCompactionReplacement(summary, event) || replacements.has(source.compactionId)) corruptMetadata++
         else replacements.add(source.compactionId)

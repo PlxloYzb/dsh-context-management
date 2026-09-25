@@ -194,7 +194,7 @@ export class WindowController {
       const windowSeeds = new Set(ledger.filter(block => block.contextManagement !== undefined).map(block => block.summarySeq))
       const hasNewHistory = seqs.some(seq => {
         const event = session.eventAt(SessionSeq(seq))
-        return event?.type === 'assistant/message' || event?.type === 'tool/result' || (event?.type === 'user/message' && (event.data.source.kind === 'user' || (event.data.source.kind === 'plugin' && event.data.source.plugin === 'compact' && !windowSeeds.has(SessionSeq(seq)))))
+        return event?.type === 'assistant/message' || event?.type === 'tool/result' || (event?.type === 'user/message' && (event.data.source.kind === 'user' || (event.data.source.kind === 'compact-checkpoint' && !windowSeeds.has(SessionSeq(seq)))))
       })
       if (!hasNewHistory) { state.last = { status: 'no-op', code: 'no-new-history' }; return null }
       const parents = ledger.filter(b => b.summarySeq !== undefined && seqs.includes(b.summarySeq)).map(b => b.blockId)
