@@ -145,7 +145,7 @@ test('R01/R02: pruner replacement inside a window remains searchable and recover
   const oldResult=session.surface.nodes.at(-1)!
   session.append('step/end',{turn:1,step:1});session.append('turn/end',{turn:1,reason:{kind:'completed'}})
   const oldEvent=session.eventAt(oldResult)!
-  session.append('tool/result',{...oldEvent.data,message:{...(oldEvent.data as {message:object}).message,content:[{type:'text',text:'Pruned head and tail; full original retained in provenance.'}]}} as never,{surfaceOp:{op:'replace',start:oldResult,end:oldResult},sourceEventSeqs:[oldResult]})
+  session.append('tool/result',{...oldEvent.data,message:{...(oldEvent.data as {message:object}).message,content:[{type:'text',text:'Pruned head and tail; full original retained in provenance.'}]}} as never,{surfaceOp:{op: 'replace', startSeq: oldResult, endSeq: oldResult },sourceEventSeqs:[oldResult]})
   newInput(session,'Continue with the current correction')
   // A small pruned surface still needs enough older material to shrink usefully.
   const selected=session.surface.nodes.slice(0,-1), reader=new ArchiveReader()
