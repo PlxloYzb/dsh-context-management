@@ -45,7 +45,7 @@ for (const scenario of ['relief', 'still-pressure', 'overflow'] as const) {
           ...source.data, message: { ...source.data.message, content: [{
             type: 'tool-result', toolCallId: 'current', content: [{ type: 'text', text: 'Current payload pruned; original remains available.' }],
           }] },
-        }, { surfaceOp: { op: 'replace', start: source.seq, end: source.seq }, sourceEventSeqs: [source.seq] })
+        }, { surfaceOp: { op: 'replace', startSeq: source.seq, endSeq: source.seq }, sourceEventSeqs: [source.seq] })
         postPruneTokens = h.ctx.tokenMeter.measure(target).totalTokens
       },
     })

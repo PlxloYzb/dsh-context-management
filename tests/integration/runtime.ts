@@ -36,9 +36,12 @@ export function newInput(session: Session, text: string, turn = 2): void {
 /**
  * Read back the events a session has already committed to disk.
  *
- * DSH 0.1.7 replaced the single `sessionPersistence.inspect(id)` read with a
- * path lookup plus a stored-log decode, so the two steps are composed here for
- * the tests that assert on what actually reached storage.
+ * DSH 0.1.7 persists a session only through an open write handle: the JSONL
+ * backend routes `session/event` into `writers.get(id)` and drops the event when
+ * no handle is registered. These fixtures append synchronously after creating a
+ * session, before any handle can exist, so the first read materializes the log by
+ * opening the handle and appending what the session already holds. Later reads
+ * reuse it, because a second open would report the session as already owned.
  *
  * @param ctx - host context carrying the persistence service.
  * @param id - session whose stored log is read.
@@ -49,11 +52,19 @@ export async function inspectPersisted(ctx: Context, id: SessionId): Promise<{ e
     flush(): Promise<void>
     resolveCurrentLog(id: SessionId, signal?: AbortSignal): Promise<string | undefined>
     readStoredLog(path: string, expectedId: SessionId, signal?: AbortSignal): Promise<{ events: readonly SessionEvent[] }>
+    create(header: unknown, options?: unknown): Promise<{ append(events: readonly SessionEvent[]): Promise<void> }>
   }
-  // Sessions reach disk lazily in DSH 0.1.7, so a read of what is stored has to
-  // let the pending batch land first.
+  const session = ctx.sessions.get(id)
+  if (session !== undefined && !materialized.has(id)) {
+    materialized.add(id)
+    const handle = await persistence.create(session.header, { inheritedEventCount: session.inheritedEventCount })
+    const events = session.snapshotEvents()
+    if (events.length > 0) await handle.append(events)
+  }
   await persistence.flush()
   const path = await persistence.resolveCurrentLog(id)
   if (path === undefined) return { events: [] }
   return { events: (await persistence.readStoredLog(path, id)).events }
 }
+/** Sessions this runtime has already opened a write handle for. */
+const materialized = new Set<SessionId>()

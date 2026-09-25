@@ -177,7 +177,7 @@ test('unrelated replacement and changed reusable source hash reject a deferred r
   // A replacement not bracketed by beginTurnover is explicitly unrelated.
   const nodes = [...h.session.surface.nodes]
   const replacement = createUserMessage({ source: { kind: 'plugin', plugin: 'fixture' }, content: [{ type: 'text', text: 'unrelated replacement' }] })
-  h.session.append('user/message', replacement, { surfaceOp: { op: 'replace', start: nodes[0]!, end: nodes[0]! }, sourceEventSeqs: [nodes[0]!] })
+  h.session.append('user/message', replacement, { surfaceOp: { op: 'replace', startSeq: nodes[0]!, endSeq: nodes[0]! }, sourceEventSeqs: [nodes[0]!] })
   assert.equal((h.jobs.status(h.session) as { status: string }).status, 'superseded')
   held.release(); await immediate()
   assert.equal(h.jobs.offer(h.agent, h.session.surface.replaceGeneration, () => true), undefined)
