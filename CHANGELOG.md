@@ -1,17 +1,37 @@
 # Changelog
 
-## 0.7.0
+## 0.9.12
 
-- **合同 §7 的工作量计量落地。** `indexState(session)` 除索引规模外，现在还报告**最近一次搜索的真实成本**：为建索引付出的字符（`lastColdChars`，为 0 即热查询）、新建/检视的事件数、**走过的归档块数**（来源图遍历的根）、**解析出的来源总数**（来源图遍历的产出）、**候选检视与跳过数**（候选处理），以及**取消检查次数**。此前只有「索引与扫描的文本量」被计量，来源图遍历与候选处理是黑箱。
-- **临时内存按构造有界而非用峰值计数器**：文本始终按有界分块处理，索引规模由 `INDEX_ENTRY_BUDGET` 与保留 64 份会话共同约束，两者都可读。
-- 新增 C6 用例，用**不变量**而非固定数字断言：缺失字面量且索引完整时，**每一个被检视的候选都被跳过**（`lastCandidatesSkipped === lastCandidatesExamined === lastResolvedSources`，即一个字节的块文本都没读）；换成存在的字面量后，跳过数**必须小于**检视数（必须读那个块）；第二次搜索 `lastColdChars === 0`；取消检查次数不少于走过的块数。
-- **三档成本与命中已分别实测**（封存 BASIC 归档，12 探针，同一 reader 同一会话）：
-  - **冷查询**（探针 1）：建索引 **971,414 字符**、索引 284 个事件、命中 2 次、撞预算；
-  - **热查询**（探针 2–12）：建索引开销 **0**，均未撞预算，其中 10 个各命中 1 次；
-  - **完整分页**（12 次走完游标的累计）：额外建索引 **1,299,693 字符**——即单发撞预算后由遍历补完剩余事件（结束时覆盖全部 **690** 个原始事件），沿游标命中 11/12、中位 **1** 页。
+- **桌面端（0.1.7-rc.2）与本地端（0.1.7-rc.1）都已完成真实端到端验证**，且**同一份包**在两端都可安装、接管、卸载。证据固化在 [docs/data/host-install-0.1.7.json](docs/data/host-install-0.1.7.json)。
 
-  三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
-- 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
+- **一个真实的安装阻断：peer 精确锁定单个预发布版本会被宿主拒绝。** 0.9.10 把 peerDependencies 全部写成 `0.1.7-rc.1`，在 rc.2 宿主上 `dsh plugin list` 直接给出：
+
+  > Plugin dsh-context-management@0.9.10 is incompatible with dsh 0.1.7-rc.2 … profile startup denies it until you grant an exemption
+
+  即**装得上但起不来**。现改为 `^0.1.7-rc.1`：同一 0.1.7 预发布系列内互通（rc.1、rc.2、正式 0.1.7 均满足），跨 minor 仍拒绝。改后 rc.2 上 `plugin list` 无任何不兼容告警。
+
+- **rc.2 端到端（真实云端模型，与 rc.1 同一几何）**：`B_IN_PLACE / F3 / 144 页 / pressure 90000 / batch 12`，hostVersion `0.1.7-rc.2`，`completed: true`、`strictPassed: true`、facts **24/24**、corrections **6/6**、verbatim **3/3**、`error: null`，26 calls / 102s / 1,806,837 tokens，4 个阅读阶段零缺页。
+
+- **接管的判据是插件自己的文本**，不是"跑通了"：会话日志里 6 条 `compaction/summary` 全部 `model: adaptive-governor-extractive-v1`、正文以 `[ARC GOVERNOR EMERGENCY — REVERSIBLE EXTRACTIVE CHECKPOINT]` 开头，6 个替换节点带 `{kind:'compact-checkpoint'}`；请求中广告了 `arc_status` / `compress` / `decompress` / `search_context`；**0 次摘要模型调用**（原生 Basic 每次压缩都要调模型，calls 会是 32+ 而非 26）。注：in-place 策略的压缩是提取式回退，按设计**不带**窗口元数据（只有换窗路径写 `contextManagement`），因此不能拿"有无元数据"当接管判据。
+
+- **rc.2 卸载无残留**：依赖回到 `{}`、bundle 回到 `base + web-app`、`node_modules` 空、组合树中 `context-management` **0 处**、`compaction-basic` 仍在。
+
+- **新增跨宿主回归门 `npm run test:host`**（`tests/live/host-matrix.mjs`）：从 npm 装指定版本的宿主包到 `.test-runtime/host-<版本>/`，用 tsconfig `paths` + `TSX_TSCONFIG_PATH` 把 `@deepseek-ai/*` 映射过去，跑 typecheck 与四套测试，**不改仓库的 `node_modules`**，默认套件仍测开发宿主。rc.2 上：typecheck 0 错误、unit 189/189、integration 172/172、reliability 8/8、live:local:unit 36/36。子路径 `@deepseek-ai/dsh-commands/brand` 必须单独列一条且不带扩展名——`paths` 绕过 package `exports`，只写通配会把该子路径悄悄指回开发宿主，把两棵宿主树混进同一次运行（这个混用一开始就掩盖了一个真实的 rc.2 失败）。
+
+- **桌面端安装只能由应用完成，这不是绕过**：`desktop` profile 由 Electron 应用独占，CLI 报 `profile "desktop" is managed exclusively by the Electron application`；应用内置的插件管理器就是官方入口（**设置 → 插件**）。两版 README 已写明这一点。
+
+- **修复三个被夹具不真实掩盖的真实缺陷**（详见下一节的成因）：
+  1. **受保护的系统头**。0.1.7 把 surface 节点 0 当作系统提示头：存储日志的读取器拒绝"首个 surface 事件不是 `system/message` 追加"的日志，会话拒绝任何覆盖该节点、而不是"恰好覆盖该节点的 `system/message`"的替换。`frozenPrefix` 原先从节点 0 起算，换窗会去遮蔽系统头并被宿主拒绝。现在 `protectedSystemHead` 认定该节点、`validateExactRange` 在任何事务前拒绝覆盖它的范围（`protected-system-head`），`frozenPrefix` 从它之后起算。**它之后的系统节点不受保护，仍可压缩**——宿主明说如此，也有用例守住，避免修复过度。
+  2. **压缩事务的收尾**。注入在 `compaction/end` 成功之后的故障仍会落盘，而恢复路径会再补一个 `compaction/end`——同一个 `compaction/start` 有两个 end，读取器判为 `compaction/end has no matching compaction/start`，日志不可读。现在只在括号确实还开着时才收尾。
+  3. **夹具必须建模真实日志**。`oldWork` 原先以"不在任何 step 内的裸 `user/message`"开头，真实 0.1.7 日志是 `turn/start → step/start → system/message → user/message`（已对照真实会话文件确认）。补齐系统头后，integration 从 162/171 升到 172/172，并暴露出上面两个缺陷；另有两处测试侧的过期假设随之修正（检查点来源是 `{kind:'compact-checkpoint'}` 而非 `plugin:'compact'`；系统节点不投影成 ARC 消息，所以命中数不能按节点数算）。
+
+- **另外两个"读不到自己的证据"的夹具也修好了**：
+  - `crash-child` 从未落盘。0.1.7 只通过打开的写句柄持久化，没有句柄时 `session/flush` 是空操作，于是 SIGKILL 之后磁盘上什么都没有——L03 用例实际在断言空数组。现在它按 agent loop 创建事务的方式打开句柄。
+  - 封存的长跑证据早于 0.1.7，而 `resolveCurrentLog` 只回答"已经是当前格式"的日志。改走宿主自己的升级路径 `open(id, 'read')` 后：**2729 个事件、64 个原生 Basic 替换全部入索引**，三个探针字面量都在 Basic 块内命中。
+
+- **每个新守卫都做了判别性验证**（撤掉守卫，对应用例必须失败）：撤掉 `validateExactRange` 的拒绝 → 受保护头用例失败；撤掉 `frozenPrefix` 的头跳过 → loop 10 个用例失败；撤掉收尾判据 → after-compaction/end 故障用例失败。`buildCompressibleSeqRanges` 也保护了头，但那一行**今天行为中性**（平衡过程本就无法把范围锚在系统节点上），已在代码注释里如实标注为双保险，未当作已验证的守卫。
+
+- `npm pack` 走完整 `prepack`（含全部测试与构建）通过，产物 `artifacts/dsh-context-management-0.9.12.tgz`。
 
 ## 0.9.11
 
@@ -472,6 +492,19 @@
 - **身份可核对，不是"跑通了"而已**：`summary.json` 记录 `candidateDistHash === installedCandidateDistHash` 且 `candidateDistLoaded: true`，并把 34 个 dist 文件的逐个 sha256 都写进 `candidateDistFiles`——**宿主加载的正是本次提交的候选 dist**，`sourceCommit` 亦记录在案。
 - **归档检索确实被走到**：观测流中出现 `archive` 266 次、`search` 796 次、`decompress` 240 次，说明这次宿主流程不是只跑压缩路径。
 - 前置条件（本次踩到并记录）：跑插件臂前必须先把当前候选**安装**进隔离测试 profile（`dsh plugin --profile ctx-v012-smoke-c add ./dsh-context-management-<v>.tgz`），否则驱动器以「Install the complete current dist candidate before running a plugin arm」拒绝启动。
+
+## 0.7.0
+
+- **合同 §7 的工作量计量落地。** `indexState(session)` 除索引规模外，现在还报告**最近一次搜索的真实成本**：为建索引付出的字符（`lastColdChars`，为 0 即热查询）、新建/检视的事件数、**走过的归档块数**（来源图遍历的根）、**解析出的来源总数**（来源图遍历的产出）、**候选检视与跳过数**（候选处理），以及**取消检查次数**。此前只有「索引与扫描的文本量」被计量，来源图遍历与候选处理是黑箱。
+- **临时内存按构造有界而非用峰值计数器**：文本始终按有界分块处理，索引规模由 `INDEX_ENTRY_BUDGET` 与保留 64 份会话共同约束，两者都可读。
+- 新增 C6 用例，用**不变量**而非固定数字断言：缺失字面量且索引完整时，**每一个被检视的候选都被跳过**（`lastCandidatesSkipped === lastCandidatesExamined === lastResolvedSources`，即一个字节的块文本都没读）；换成存在的字面量后，跳过数**必须小于**检视数（必须读那个块）；第二次搜索 `lastColdChars === 0`；取消检查次数不少于走过的块数。
+- **三档成本与命中已分别实测**（封存 BASIC 归档，12 探针，同一 reader 同一会话）：
+  - **冷查询**（探针 1）：建索引 **971,414 字符**、索引 284 个事件、命中 2 次、撞预算；
+  - **热查询**（探针 2–12）：建索引开销 **0**，均未撞预算，其中 10 个各命中 1 次；
+  - **完整分页**（12 次走完游标的累计）：额外建索引 **1,299,693 字符**——即单发撞预算后由遍历补完剩余事件（结束时覆盖全部 **690** 个原始事件），沿游标命中 11/12、中位 **1** 页。
+
+  三档分开报告正是合同 §7 的要求：此前只有一个合并数字，无法判断成本究竟来自冷启动、重复查询还是翻页。
+- 合同两种语言的 §7 已同步实现记录，并**明确记录一处偏离**：计量与开关状态走访问器、不入响应信封（信封的 1220 字节最小授予会被挤掉命中或 `nextCursor`/`hint`）。代价是**模型本身看不到这些数字**，只有调用方能看到。
 
 ## 0.6.1
 
