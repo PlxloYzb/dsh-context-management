@@ -22,13 +22,15 @@ export function regeneratedSnapshotSeqs(session: Session): Set<number> {
     const event = session.eventAt(seq)
     if (event?.type !== 'user/message') continue
     const source: { kind: string; form?: unknown; plugin?: unknown } = event.data.source
-    // A `snapshot`-form source is current state its producer republishes, so a
-    // later one from the same producer supersedes the earlier and those tokens
-    // come back. DSH 0.1.7 declares that on the source itself; 0.1.2 spelled the
-    // same thing as a catch-all plugin source carrying `form: 'snapshot'`, and
-    // named host catalogs with their own `skill-catalog` kind, which no longer
-    // exists. Producer identity is the kind, plus the plugin when one is present.
-    const key = source.form === 'snapshot'
+    // A republished source is current state its producer supersedes: a later one
+    // from the same producer replaces the earlier, so those tokens come back and
+    // are not savings. DSH 0.1.7 declares this on the source itself, and both
+    // documented republishing forms qualify - a `snapshot` is superseded by a
+    // later snapshot, and a `catalog` is "republished as it changes". 0.1.2
+    // spelled the same thing as a catch-all plugin source carrying
+    // `form: 'snapshot'` plus a dedicated `skill-catalog` kind, neither of which
+    // exists now. Producer identity is the kind, plus the plugin when present.
+    const key = source.form === 'snapshot' || source.form === 'catalog'
       ? `${source.kind}${typeof source.plugin === 'string' ? `:${source.plugin}` : ''}`
       : undefined
     if (key) latest.set(key, seq)

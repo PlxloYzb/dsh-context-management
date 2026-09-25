@@ -4,9 +4,13 @@ import { Context } from '@deepseek-ai/cordis'
 import { Session, type EpochHeader } from '@deepseek-ai/dsh-session'
 import { inputPressure } from '../src/host-budget.ts'
 
-test('Equivalent assembled headers keep the validated usage projection; changed route or system uses conservative pricing', () => {
+test('Equivalent assembled headers keep the validated usage projection; changed route or tools use conservative pricing', () => {
   const session = Session.create('equivalent-envelope'), ctx = new Context()
-  const header: EpochHeader = { config: { provider:'synthetic', model:'large', maxTokens:8192 }, system:'Stable system prompt', tools:[] }
+  // DSH 0.1.7 retired `EpochHeader.system`: the system prompt is a system/message
+  // event that the host's own projection already prices, so it is no longer a
+  // header dimension a proposed request can differ in. Route and tools still are.
+  // An empty tool list is omitted rather than stated, which the host enforces.
+  const header: EpochHeader = { config: { provider:'synthetic', model:'large', maxTokens:8192 } }
   session.append('request/header', { header })
   const observed: Array<EpochHeader | undefined> = []
   ctx.provide('tokenMeter', { measure: (_session: Session, override?: EpochHeader) => {
@@ -17,7 +21,6 @@ test('Equivalent assembled headers keep the validated usage projection; changed 
   assert.deepEqual(inputPressure(ctx,session,structuredClone(header)),inputPressure(ctx,session))
   assert.equal(inputPressure(ctx,session,structuredClone(header))?.projectedTokens,18547)
   assert.equal(observed[0],undefined)
-  assert.equal(inputPressure(ctx,session,{...header,system:'Changed instructions'})?.source,'meter-conservative')
   assert.equal(inputPressure(ctx,session,{...header,config:{...header.config,model:'small'}})?.projectedTokens,20546)
   assert.equal(inputPressure(ctx,session,{...header,tools:[{name:'new_tool',description:'New tool',parameters:{type:'object',properties:{}}}]})?.source,'meter-conservative')
 })

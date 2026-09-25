@@ -4,7 +4,7 @@
  */
 
 import { Session } from '@deepseek-ai/dsh-session'
-import { createAssistantMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { createAssistantMessage, createToolResultMessage, createUserMessage } from '@deepseek-ai/dsh-llm'
 
 /** One message template: long enough to pass acp-kernel's 5000-char threshold. */
 const LONG = 'Authentication uses JWT access tokens with 15 minute expiry and refresh tokens stored in Redis with 30 day TTL, implemented in src/auth/login.ts with sliding-window rate limiting at 10 requests per minute. '.repeat(20)
@@ -55,12 +55,9 @@ export function appendToolResult(session: Session, text: string, callId: string,
   session.append('tool/result', {
     turn,
     step,
-    message: {
-      id: `res-${callId}`,
-      role: 'user',
-      content: [{ type: 'tool-result', toolCallId: callId, content: [{ type: 'text', text }] }],
-      source: { kind: 'tool', callId },
-    },
+    // DSH 0.1.7 gives the tool result its own role and carries the answered call
+    // id on the message rather than only inside the content block.
+    message: createToolResultMessage({ callId, content: [{ type: 'text', text }], isError: false }),
   }, { surfaceOp: 'append' })
 }
 

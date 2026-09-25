@@ -59,8 +59,8 @@ test('M5: runCompactionTransaction lands the four events and shadows the range',
   // The summary node carries the checkpoint source.
   const replaceEvent = session.snapshotEvents()[seqs[2]!]!
   assert.equal(replaceEvent.type, 'user/message')
-  const source = (replaceEvent.data as { source?: { plugin?: string } }).source
-  assert.equal(source?.plugin, 'compact')
+  const source = (replaceEvent.data as { source?: { kind?: string } }).source
+  assert.equal(source?.kind, 'compact-checkpoint')
 
   // Derived messages shrank: 6 messages → 2 surviving + 1 summary = 3.
   assert.equal(session.deriveMessages().length, 3)
@@ -271,8 +271,8 @@ test('M5: pass-2 expansion must not cross a checkpoint into value-reversed seqs'
   // A later compaction replaces node 1 with a summary checkpoint at seq 8.
   session.append('user/message', createUserMessage({
     content: [{ type: 'text', text: longText('summary', 0) }],
-    source: { kind: 'user', plugin: 'compact' },
-  }), { surfaceOp: { op: 'replace', start: 1, end: 1 }, sourceEventSeqs: [1] })
+    source: { kind: 'compact-checkpoint', compactionId: 'nonmono-1' },
+  } as never), { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 1 }, sourceEventSeqs: [1] })
   // nodes: [8, 2, 3, 4, 5, 6, 7] — NON-monotonic: the newer checkpoint seq 8
   // sits ahead of the older residual nodes 2..7 (the live production shape
   // behind the '110295..106762' reversed nudge range).
@@ -305,8 +305,8 @@ test('M5: ledger backfills shadowedTokenCount for legacy blocks written as 0', (
     id: 'legacy-repl',
     role: 'user',
     content: [{ type: 'text', text: 'legacy summary' }],
-    source: { kind: 'plugin', plugin: 'compact', compactionId: 'legacy-1' },
-  } as never, { surfaceOp: { op: 'replace', start: 1, end: 3 }, sourceEventSeqs: [1, 2, 3] })
+    source: { kind: 'compact-checkpoint', compactionId: 'legacy-1' },
+  } as never, { surfaceOp: { op: 'replace', startSeq: 1, endSeq: 3 }, sourceEventSeqs: [1, 2, 3] })
   session.append('compaction/end', { compactionId: 'legacy-1', turn: 1 })
   const ledger = rebuildBlockLedger(session.snapshotEvents())
   assert.equal(ledger.length, 1)
