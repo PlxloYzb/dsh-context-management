@@ -3,13 +3,17 @@ const evidenceRoot = '.test-runtime/reports'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readFile, readdir, copyFile, writeFile } from 'node:fs/promises'
-import { resolve, join } from 'node:path'
+import { dirname, resolve, join } from 'node:path'
 import { homedir } from 'node:os'
 
 const profile = process.argv[2] ?? 'ctx-v011-test'
 if (!/^ctx-v01[0-2]-[a-z0-9-]+$/.test(profile)) throw new Error('Candidate installation is restricted to isolated ctx-v010-*/ctx-v011-*/ctx-v012-* profiles')
 const hash = data => createHash('sha256').update(data).digest('hex')
 const dshBin = process.env.EXPERIMENT_DSH_BIN ?? resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
+// The host this gate installs into, read from the package the bin belongs to.
+// The label used to be a hard-coded "0.1.2-rc.1", which stayed wrong after the
+// port and would stay wrong again under any other pin.
+const hostVersion = JSON.parse(await readFile(resolve(dirname(dshBin), '..', '@deepseek-ai/dsh/package.json'), 'utf8')).version
 await mkdir('.test-runtime', { recursive: true })
 execFileSync('npm', ['pack', '--ignore-scripts', '--pack-destination', '.test-runtime'], { stdio: ['ignore', 'pipe', 'pipe'] })
 const { name, version } = JSON.parse(await readFile('package.json', 'utf8'))
@@ -40,7 +44,7 @@ for (const path of await files('dist')) {
   if (actual !== expected) throw new Error(`Installed artifact differs from the candidate: dist/${path}`)
   inventory.push({ path: `dist/${path}`, sha256: actual })
 }
-const report = { schemaVersion: 1, pluginVersion: version, pluginCommit: null, hostVersion: '0.1.2-rc.1',
+const report = { schemaVersion: 1, pluginVersion: version, pluginCommit: null, hostVersion,
   profile, installedAt: new Date().toISOString(), tarballHash, tarball, lockHash: hash(await readFile('package-lock.json')), inventory, installedFilesVerified: true }
 await mkdir(`${evidenceRoot}/install`, { recursive: true })
 await writeFile(`${evidenceRoot}/install/${profile}-${tarballHash.slice(0, 12)}.json`, JSON.stringify(report, null, 2) + '\n')

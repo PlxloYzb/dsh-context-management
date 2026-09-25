@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdtemp, rm, readFile, mkdir, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Context } from '@deepseek-ai/cordis'
@@ -59,6 +60,21 @@ test('L03: SIGKILL at transaction boundaries preserves the durable prefix; offic
   }
   const evidenceDirectory = process.env.CONTEXT_TEST_EVIDENCE_DIR ?? '.test-runtime/recovery'
   await mkdir(evidenceDirectory, { recursive: true })
-  await writeFile(join(evidenceDirectory, 'sigkill.json'), JSON.stringify({ schemaVersion: 1, pluginVersion: PACKAGE_VERSION, pluginCommit: null, hostVersion: '0.1.2-rc.1',
+  await writeFile(join(evidenceDirectory, 'sigkill.json'), JSON.stringify({ schemaVersion: 1, pluginVersion: PACKAGE_VERSION, pluginCommit: null, hostVersion: resolvedHostVersion(),
     lockHash: createHash('sha256').update(await readFile('package-lock.json')).digest('hex'), testedAt: new Date().toISOString(), completed: true, results }, null, 2) + '\n')
 })
+
+/**
+ * The host version these cases actually ran against. The label used to be a
+ * hard-coded "0.1.2-rc.1", which stayed wrong after the port and would stay wrong
+ * again under the cross-host gate, so it is read from the package that resolved.
+ * `createRequire` is what tracks the resolved tree: the cross-host gate remaps
+ * `@deepseek-ai/*` through tsconfig paths, which tsx applies to require and to
+ * import but NOT to `import.meta.resolve`.
+ */
+function resolvedHostVersion(): string {
+  try {
+    const manifest = createRequire(import.meta.url)('@deepseek-ai/dsh-session/package.json') as { version?: string }
+    return manifest.version ?? 'unknown'
+  } catch { return 'unknown' }
+}
