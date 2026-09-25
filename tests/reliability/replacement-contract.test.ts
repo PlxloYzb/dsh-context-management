@@ -15,6 +15,8 @@ import Loader from '@deepseek-ai/cordis-plugin-loader'
 import Include from '@deepseek-ai/cordis-plugin-include'
 import Group from '@deepseek-ai/cordis-plugin-group'
 import { AgentPresetRegistry, standingMountFor, serviceForAgent } from '@deepseek-ai/dsh-agent-preset-registry'
+import type { PresetDefinition } from '@deepseek-ai/dsh-agent-preset-registry'
+import { load as loadYaml } from 'js-yaml'
 import { AgentRegistry, agentCarrier, agentEvents, type Agent } from '@deepseek-ai/dsh-agent'
 import BasicCompactionEngine from '@deepseek-ai/dsh-compaction-basic'
 import { LlmRuntime } from '@deepseek-ai/dsh-llm'
@@ -100,18 +102,17 @@ async function fixture(compositions: Record<string, string> = { standard: basicY
   } as unknown as NonNullable<typeof ctx.loader.internal>
   const root = join(runtime.root, 'presets')
   const paths = new Map<string, string>()
+  // DSH 0.1.7 registers presets as definitions; the registry no longer discovers
+  // them from `roots` on disk. The files are still written so the tests can keep
+  // asserting that a takeover never edits them.
+  await ctx.plugin(AgentPresetRegistry, { default: Object.keys(compositions)[0]! })
   for (const [id, yaml] of Object.entries(compositions)) {
     const path = join(root, id, 'agent.cordis.yml')
     await mkdir(join(root, id), { recursive: true })
     await writeFile(path, yaml)
     paths.set(id, path)
+    await ctx.agentPresets.register({ id, plugins: loadYaml(yaml) as PresetDefinition['plugins'] })
   }
-  await ctx.plugin(AgentPresetRegistry, {
-    default: Object.keys(compositions)[0]!,
-    roots: [{ path: root, trust: 'user' }],
-    includeShippedRoot: false,
-    includeUserRoot: false,
-  })
   let sequence = 0
   const createAgent = async (presetId: string, announce = true) => {
     const id = SessionId(`replacement-contract-${++sequence}`)
@@ -162,14 +163,14 @@ test('RC01: real Basic retires its fiber and automatic listeners; ARC owns the s
   assert.ok(callbacks.every(list => list.length === 1), 'Basic owns exactly one of each automatic listener')
   h.ctx.loader.builtins['dsh-context-management'] = ArcCompactionEngine
   const tracked = new Map()
-  const config = mount.fiber.config as { path: string; patches?: unknown[] }
-  const originalPatch = { id: 'consumer', name: 'cordis:replacement-probe' }
-  config.patches = [originalPatch]
-  const originalPatches = config.patches
+  // DSH 0.1.7 mounts a preset as an entry tree rather than a file-backed
+  // Include, so the pre-existing external element to preserve is a row of that
+  // tree - here the consumer probe the preset declares itself.
+  const rowsBefore = [...mount.tree.entries()].map(row => `${row.options.id}:${row.options.name}`)
+  assert.ok(rowsBefore.some(row => row.startsWith('consumer:')), 'the preset declares an unrelated row')
   assert.equal(await takeoverMount(h.ctx, { autoNudge: false }, mount, tracked), 'taken-over')
   const arc = h.backend(agent)
   assert.ok(arc instanceof ArcCompactionEngine)
-  assert.equal(mount.fiber.config, config, 'Include config identity survives both updates')
   assert.deepEqual(serviceKeys(h.ctx, arc), realmKeys, 'the same private compaction symbol is reused')
   assert.equal(basicFiber.uid, null, 'the exact original Basic fiber has disposed')
   assert.equal(beforeConsumer.disposed, true)
@@ -188,7 +189,7 @@ test('RC01: real Basic retires its fiber and automatic listeners; ARC owns the s
   assert.ok(restored instanceof BasicCompactionEngine)
   assert.notEqual(restored, basic)
   assert.deepEqual(restored.config, basicConfig, 'all original Basic options return unchanged')
-  assert.equal(config.patches, originalPatches, 'pre-existing patch array identity returns')
+  assert.deepEqual([...mount.tree.entries()].map(row => `${row.options.id}:${row.options.name}`), rowsBefore, 'the original row set returns')
   assert.deepEqual(serviceKeys(h.ctx, restored), realmKeys)
   assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
 })

@@ -32,7 +32,7 @@
 
 import { standingMountFor } from '@deepseek-ai/dsh-agent-preset-registry'
 import { symbols, type Context, type Fiber } from '@deepseek-ai/cordis'
-import type { Entry, EntryTree } from '@deepseek-ai/cordis-plugin-loader'
+import type { Entry, EntryOptions, EntryTree } from '@deepseek-ai/cordis-plugin-loader'
 import type { Agent } from '@deepseek-ai/dsh-agent'
 import ArcCompactionEngine, { Config, isArcBackend, validateContextConfig, type Config as ArcConfig } from './index.ts'
 import { ContextManagementError, contextBoundary, waitForContext } from './errors.ts'
@@ -64,7 +64,11 @@ interface PresetIncludeConfig {
 }
 
 /** One patched preset mount, restorable by effect-owned teardown. */
-interface TrackedMount {
+type TrackedMount = TrackedIncludeMount | TrackedEntryMount
+
+/** A mount taken over by patching its Include config (file-backed mounts). */
+interface TrackedIncludeMount {
+  readonly kind: 'include'
   readonly tree: EntryTree
   latestConfig?: PresetIncludeConfig
   readonly config: PresetIncludeConfig
@@ -73,10 +77,29 @@ interface TrackedMount {
   readonly owned: EntryPatch[]
 }
 
+/**
+ * A mount taken over through its entry tree.
+ *
+ * DSH 0.1.7's registry mounts a preset by building an `EntryTree` from the
+ * preset's rows rather than by reading an Include file, so there is no config
+ * object to patch. The tree's own entry API replaces it: disable the Basic row
+ * in place, then create the engine row inside the same group.
+ */
+interface TrackedEntryMount {
+  readonly kind: 'entry'
+  readonly tree: EntryTree
+  readonly basicId: string
+  readonly basicOptions: Omit<EntryOptions, 'id' | 'name'>
+  /** Row created for the engine, once phase two has run. */
+  arcId?: string
+}
+
 /** A standing preset mount as the bridge addresses it. */
 export interface PresetMountHandle {
   readonly presetId: string
   readonly fiber: Fiber
+  /** Entry tree of a registry mount; absent on a file-backed Include mount. */
+  readonly tree?: EntryTree
 }
 
 /** Outcome of one takeover attempt. */
@@ -177,6 +200,62 @@ async function settleComposition(ctx: Context): Promise<void> {
 }
 
 /**
+ * Swap the compaction backend of a registry-mounted preset through its entry
+ * tree.
+ *
+ * The same two-phase ordering as the Include path, for the same reason: retire
+ * Basic first so its realm is vacated, then create the engine row inside it.
+ * The tree's own API keeps this transactional — `update` and `create` reconcile
+ * the composition, and rollback removes the engine row before re-enabling Basic.
+ *
+ * @param ctx - the bridge's Cordis context.
+ * @param config - ARC engine config applied to the created row.
+ * @param mount - the registry mount being taken over.
+ * @param tree - that mount's entry tree.
+ * @param tracked - effect-owned registry of patched mounts.
+ * @returns the takeover outcome.
+ */
+async function takeoverEntryMount(
+  ctx: Context,
+  config: ArcConfig,
+  mount: PresetMountHandle,
+  tree: EntryTree,
+  tracked: Map<Fiber, TrackedMount>,
+): Promise<TakeoverStatus> {
+  const backend = serviceWithin(ctx, mount, 'compaction') as { ctx?: Context } | undefined
+  const entry: Entry | undefined = backend?.ctx?.fiber.entry
+  if (!entry || entry.options.name !== BASIC_ROW_NAME) return 'no-basic-row'
+  const { id: basicId, name: _rowName, ...basicOptions } = entry.options
+  const parent = entry.parent
+  const groupId = parent === tree.root ? null : parent.ctx.fiber.entry?.options.id ?? null
+  if (parent !== tree.root && groupId === null) return 'unrecognized-carrier'
+  // `update` merges into the row rather than replacing it, so the disabled flag
+  // must be stated on every write. Basic is serving here, so it is enabled.
+  const record: TrackedEntryMount = { kind: 'entry', tree, basicId, basicOptions: { ...basicOptions, disabled: entry.options.disabled ?? false } }
+  tracked.set(mount.fiber, record)
+  const revert = async (): Promise<void> => { await rollbackMount(mount.fiber, tracked) }
+  try {
+    await tree.update(basicId, { ...basicOptions, disabled: true })
+    await tree.await()
+    // The name guard did not match: a foreign backend still owns the realm, and
+    // inserting ARC beside it would collide. Leave the preset untouched.
+    const serving = serviceWithin(ctx, mount, 'compaction')
+    if (serving !== undefined && !isArcBackend(serving)) {
+      await revert()
+      return 'no-basic-row'
+    }
+    record.arcId = await tree.create({ name: BUILTIN_ROW_NAME, config: config as Record<string, unknown> }, groupId)
+    await tree.await()
+  } catch (error) {
+    try { await revert() } catch (rollbackError) { throw new AggregateError([error, rollbackError], 'context takeover and rollback failed') }
+    throw error
+  }
+  if (isArcBackend(serviceWithin(ctx, mount, 'compaction'))) return 'taken-over'
+  await revert()
+  return 'no-basic-row'
+}
+
+/**
  * Swap one standing preset mount's compaction backend in-realm. The mount's
  * live Include config object is mutated in place — never replaced — so the
  * tree keeps its original config identity (the harness-base record for bare
@@ -211,6 +290,9 @@ export async function takeoverMount(
   for (const [carrier] of [...tracked]) {
     if (withinContext(carrier.ctx, mount.fiber.ctx)) await rollbackMount(carrier, tracked)
   }
+  // A registry mount carries its own entry tree; a file-backed Include mount is
+  // addressed through the config object on its fiber.
+  if (mount.tree !== undefined) return takeoverEntryMount(ctx, config, mount, mount.tree, tracked)
   if (typeof (mount.fiber.config as { path?: unknown } | undefined)?.path !== 'string') return 'unrecognized-carrier'
   const backend = serviceWithin(ctx, mount, 'compaction') as { ctx?: Context } | undefined
   const entry: Entry | undefined = backend?.ctx?.fiber.entry
@@ -239,7 +321,7 @@ export async function takeoverMount(
   }
 
   include.patches = [...base, retireBasic]
-  tracked.set(carrier, { tree: entry.parent.tree, config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
+  tracked.set(carrier, { kind: 'include', tree: entry.parent.tree, config: include, hadPatches, originalPatches, owned: [retireBasic, mountArc] })
   try {
     await carrier.update(include, true)
     await settleComposition(ctx)
@@ -276,6 +358,18 @@ export async function rollbackMount(fiber: Fiber, tracked: Map<Fiber, TrackedMou
   const record = tracked.get(fiber)
   if (record === undefined) return
   tracked.delete(fiber)
+  if (record.kind === 'entry') {
+    // The tree belongs to the mount, so a torn-down fiber has nothing to undo:
+    // disposing the mount already dropped the whole composition.
+    if (fiber.uid === null) return
+    if (record.arcId !== undefined && record.tree.store[record.arcId] !== undefined) {
+      record.tree.remove(record.arcId)
+      await record.tree.await()
+    }
+    await record.tree.update(record.basicId, record.basicOptions)
+    await record.tree.await()
+    return
+  }
   const { owned } = record
   if (fiber.uid === null) {
     restorePatches(record.config, record.hadPatches, record.originalPatches)
@@ -376,7 +470,7 @@ export function apply(ctx: Context, config: ArcConfig): void {
   ctx.on('internal/update', async function (candidate: unknown, _noSave, next) {
     const record = tracked.get(this)
     await next()
-    if (record && candidate && typeof candidate === 'object' && 'path' in candidate && typeof candidate.path === 'string') {
+    if (record?.kind === 'include' && candidate && typeof candidate === 'object' && 'path' in candidate && typeof candidate.path === 'string') {
       record.latestConfig = candidate as PresetIncludeConfig
     }
   }, { global: true, prepend: true })
