@@ -2,7 +2,7 @@
 
 ## 0.9.12
 
-- **桌面端（0.1.7-rc.2）与本地端（0.1.7-rc.1）都已完成真实端到端验证**，且**同一份包**在两端都可安装、接管、卸载。证据固化在 [docs/data/host-install-0.1.7.json](docs/data/host-install-0.1.7.json)。
+- **桌面端（0.1.7-rc.2）与本地端（0.1.7-rc.1）都已完成真实端到端验证**，且**同一份包**在两端都可安装、接管、卸载。桌面端跑的是应用自带的那份 rc.2 宿主；应用 profile 内的那一次安装见下文（未做，用户选择暂缓）。证据固化在 [docs/data/host-install-0.1.7.json](docs/data/host-install-0.1.7.json)。
 
 - **一个真实的安装阻断：peer 精确锁定单个预发布版本会被宿主拒绝。** 0.9.10 把 peerDependencies 全部写成 `0.1.7-rc.1`，在 rc.2 宿主上 `dsh plugin list` 直接给出：
 
@@ -10,15 +10,19 @@
 
   即**装得上但起不来**。现改为 `^0.1.7-rc.1`：同一 0.1.7 预发布系列内互通（rc.1、rc.2、正式 0.1.7 均满足），跨 minor 仍拒绝。改后 rc.2 上 `plugin list` 无任何不兼容告警。
 
-- **rc.2 端到端（真实云端模型，与 rc.1 同一几何）**：`B_IN_PLACE / F3 / 144 页 / pressure 90000 / batch 12`，hostVersion `0.1.7-rc.2`，`completed: true`、`strictPassed: true`、facts **24/24**、corrections **6/6**、verbatim **3/3**、`error: null`，26 calls / 102s / 1,806,837 tokens，4 个阅读阶段零缺页。
+- **rc.2 端到端（真实云端模型，与 rc.1 同一几何）**：`B_IN_PLACE / F3 / 144 页 / pressure 90000 / batch 12`，hostVersion `0.1.7-rc.2`，`completed: true`、`strictPassed: true`、facts **24/24**、corrections **6/6**、verbatim **3/3**、`error: null`，26 calls / 102s / 1,806,837 tokens，4 个阅读阶段零缺页。这次跑的是**应用自带的那份 rc.2 宿主**（从 `app.asar` 取出，`hostVersion: 0.1.7-rc.2`），不是 npm 上的同名包。
 
-- **接管的判据是插件自己的文本**，不是"跑通了"：会话日志里 6 条 `compaction/summary` 全部 `model: adaptive-governor-extractive-v1`、正文以 `[ARC GOVERNOR EMERGENCY — REVERSIBLE EXTRACTIVE CHECKPOINT]` 开头，6 个替换节点带 `{kind:'compact-checkpoint'}`；请求中广告了 `arc_status` / `compress` / `decompress` / `search_context`；**0 次摘要模型调用**（原生 Basic 每次压缩都要调模型，calls 会是 32+ 而非 26）。注：in-place 策略的压缩是提取式回退，按设计**不带**窗口元数据（只有换窗路径写 `contextManagement`），因此不能拿"有无元数据"当接管判据。
+- **rc.1 用同一份 0.9.12 dist 重跑了一遍**（源码改动落在 `frozenPrefix` 与压缩事务收尾上，都在真实路径上，旧证据不能沿用）：`completed: true`、`strictPassed: true`、facts **24/24**、corrections **6/6**、verbatim **3/3**、6 次压缩、23 calls / 115s / 1,616,169 tokens、`error: null`。
+
+- **接管的判据是插件自己的文本**，不是"跑通了"：两次运行的会话日志里各 6 条 `compaction/summary` 全部 `model: adaptive-governor-extractive-v1`、正文以 `[ARC GOVERNOR EMERGENCY — REVERSIBLE EXTRACTIVE CHECKPOINT]` 开头，各 6 个替换节点带 `{kind:'compact-checkpoint'}`；请求中广告了 `arc_status` / `compress` / `decompress` / `search_context`；**0 次摘要模型调用**（原生 Basic 每次压缩都要调模型，calls 会是 32+ 而非 26）。注：in-place 策略的压缩是提取式回退，按设计**不带**窗口元数据（只有换窗路径写 `contextManagement`），因此不能拿"有无元数据"当接管判据。
 
 - **rc.2 卸载无残留**：依赖回到 `{}`、bundle 回到 `base + web-app`、`node_modules` 空、组合树中 `context-management` **0 处**、`compaction-basic` 仍在。
 
+- **桌面端应用内的那一次安装仍未做，且是刻意的**：`desktop` profile 由 Electron 应用独占，CLI 被硬性拒绝，而按仓库约定不得改动日常 profile；用户已明确选择暂不在应用内安装。因此本版对桌面端的结论是"**在应用自带宿主上完成全部真实验证**"，不是"已装进应用"。要在应用里启用：**设置 → 插件 → 添加插件**，填入 `artifacts/dsh-context-management-0.9.12.tgz` 的绝对路径（插件管理器接受本地绝对路径的压缩包），安装后点"立即启用"。
+
 - **新增跨宿主回归门 `npm run test:host`**（`tests/live/host-matrix.mjs`）：从 npm 装指定版本的宿主包到 `.test-runtime/host-<版本>/`，用 tsconfig `paths` + `TSX_TSCONFIG_PATH` 把 `@deepseek-ai/*` 映射过去，跑 typecheck 与四套测试，**不改仓库的 `node_modules`**，默认套件仍测开发宿主。rc.2 上：typecheck 0 错误、unit 189/189、integration 172/172、reliability 8/8、live:local:unit 36/36。子路径 `@deepseek-ai/dsh-commands/brand` 必须单独列一条且不带扩展名——`paths` 绕过 package `exports`，只写通配会把该子路径悄悄指回开发宿主，把两棵宿主树混进同一次运行（这个混用一开始就掩盖了一个真实的 rc.2 失败）。
 
-- **桌面端安装只能由应用完成，这不是绕过**：`desktop` profile 由 Electron 应用独占，CLI 报 `profile "desktop" is managed exclusively by the Electron application`；应用内置的插件管理器就是官方入口（**设置 → 插件**）。两版 README 已写明这一点。
+- **两版 README 已写明桌面端只能由应用安装**，并给出应用内的入口。
 
 - **修复三个被夹具不真实掩盖的真实缺陷**（详见下一节的成因）：
   1. **受保护的系统头**。0.1.7 把 surface 节点 0 当作系统提示头：存储日志的读取器拒绝"首个 surface 事件不是 `system/message` 追加"的日志，会话拒绝任何覆盖该节点、而不是"恰好覆盖该节点的 `system/message`"的替换。`frozenPrefix` 原先从节点 0 起算，换窗会去遮蔽系统头并被宿主拒绝。现在 `protectedSystemHead` 认定该节点、`validateExactRange` 在任何事务前拒绝覆盖它的范围（`protected-system-head`），`frozenPrefix` 从它之后起算。**它之后的系统节点不受保护，仍可压缩**——宿主明说如此，也有用例守住，避免修复过度。
