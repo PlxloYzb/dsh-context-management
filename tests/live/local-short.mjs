@@ -42,9 +42,14 @@ if(!name||!/^[a-z0-9-]+$/.test(name)||!['A_NATIVE','C400_WINDOWED','B_IN_PLACE']
 if(forkName&&!/^[a-z0-9-]+$/.test(forkName))throw new Error('Fork source must name a retained local run')
 if(![seed,pageCount,pressure,batch].every(Number.isSafeInteger)||pageCount<24||pageCount>(forkName?1152:144)||pressure<24000||pressure>150000||batch<1||batch>12)throw new Error('Outside bounded reading/replay geometry')
 const night=resolve('.test-runtime/nightly-20260915'),root=join(night,name),lock=join(night,port===3311?'active.lock':`active-${port}.lock`),statePath=join(night,port===3311?'state.json':`state-${port}.json`)
-const pinned=resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
-const hostVersion=JSON.parse(await readFile(resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/@deepseek-ai/dsh/package.json'),'utf8')).version
-if(hostVersion!=='0.1.2-rc.1')throw new Error('Host version changed')
+// The pinned host is the experiment's baseline; EXPERIMENT_HOST_PIN selects a
+// different pin so the same geometry can be replayed against a newer host.
+const pinName=process.env.EXPERIMENT_HOST_PIN??'dsh-0.1.2-rc.1'
+const pinRoot=resolve(`.test-runtime/host-pins/${pinName}`)
+const pinned=resolve(`${pinRoot}/node_modules/.bin/dsh`)
+const hostVersion=JSON.parse(await readFile(resolve(`${pinRoot}/node_modules/@deepseek-ai/dsh/package.json`),'utf8')).version
+if(process.env.EXPERIMENT_HOST_PIN===undefined&&hostVersion!=='0.1.2-rc.1')throw new Error('Host version changed')
+if(process.env.EXPERIMENT_HOST_PIN!==undefined&&pinName!==`dsh-${hostVersion}`)throw new Error(`Host pin ${pinName} holds ${hostVersion}`)
 process.env.EXPERIMENT_DSH_BIN=pinned
 if(routeName==='qwen'){
  const modelInfo=await fetch('http://127.0.0.1:18000/v1/models',{signal:AbortSignal.timeout(8000)}).then(r=>{if(!r.ok)throw new Error(`Local route HTTP ${r.status}`);return r.json()})
@@ -72,7 +77,12 @@ async function distManifest(directory,relative=''){
 }
 const canonicalDistEntries=entries=>entries.map(([path,digest])=>`${path}\0${digest}\n`).join('')
 const manifestHash=entries=>hash(canonicalDistEntries(entries))
-const settingsPath=join(homedir(),'.dsh/settings.yaml'),settingsBytes=await readFile(settingsPath),settingsHash=hash(settingsBytes)
+const settingsPath=join(homedir(),'.dsh/settings.yaml')
+// DSH 0.1.7 imports settings.yaml into its own store on first boot and renames
+// the original to settings.yaml.imported, so the file the harness reads back is
+// whichever of the two the host left behind.
+const readSettings=async()=>{try{return await readFile(settingsPath)}catch{return await readFile(`${settingsPath}.imported`)}}
+const settingsBytes=await readSettings(),settingsHash=hash(settingsBytes)
 async function nightState(){
  const text=await readFile(statePath,'utf8').catch(error=>{if(error.code==='ENOENT')return '{}';throw error})
  return JSON.parse(text)
@@ -288,7 +298,7 @@ try{
  finished=true;clearInterval(ticker);clearTimeout(deadlineTimer)
  if(host)await host.stop().catch(()=>{});caffeine?.kill('SIGTERM')
  if(summary){
-  summary.settingsUnchanged=settingsHash===hash(await readFile(settingsPath))
+  summary.settingsUnchanged=settingsHash===hash(await readSettings())
   summary.finishedAt=new Date().toISOString();summary.elapsedSeconds=Math.round((Date.now()-started)/1000);summary.stage='finished'
   try {
    const finalEvents=await observedEvents(spec.observed,sessionId)

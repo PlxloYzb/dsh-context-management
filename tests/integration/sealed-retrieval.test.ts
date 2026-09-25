@@ -41,8 +41,14 @@ test('retrieval over native Basic compaction blocks in a sealed session', { time
 
   const store = persistence as unknown as {
     list: () => Promise<unknown[]>
-    inspect: (id: string, signal?: AbortSignal) => Promise<{ events?: unknown[] }>
-    load: (id: string) => unknown
+    resolveCurrentLog: (id: string, signal?: AbortSignal) => Promise<string | undefined>
+    readStoredLog: (path: string, expectedId: string, signal?: AbortSignal) => Promise<{ events?: unknown[] }>
+  }
+  /** DSH 0.1.7 splits the old single read into a path lookup and a decode. */
+  const inspectStored = async (id: string): Promise<{ events?: unknown[] }> => {
+    const path = await store.resolveCurrentLog(id)
+    if (path === undefined) return {}
+    return store.readStoredLog(path, id)
   }
   const listed = await store.list()
   console.log('persistence entries:', JSON.stringify(listed).slice(0, 500))
@@ -57,7 +63,7 @@ test('retrieval over native Basic compaction blocks in a sealed session', { time
   if (!session) session = ctx.sessions.get(SessionId(SESSION_ID)) as Session | undefined
   let events: readonly { type: string }[] | undefined = session?.snapshotEvents()
   if (!events || events.length === 0) {
-    const inspected = await store.inspect(id)
+    const inspected = await inspectStored(id)
     events = (inspected?.events ?? []) as readonly { type: string }[]
     console.log('events via inspect:', events.length)
   }

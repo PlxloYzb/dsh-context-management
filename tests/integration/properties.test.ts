@@ -67,7 +67,7 @@ test('generated seeds 1..20: append/prune/window replay preserves origins, pairi
       if (random() % 2) {
         const event = session.eventAt(original)!
         assert.equal(event.type, 'tool/result')
-        if (event.type === 'tool/result') session.append('tool/result', { ...event.data, message: { ...event.data.message, content: [{ type: 'tool-result', toolCallId: callId as never, content: [{ type: 'text', text: 'pruned reference' }] }] } }, { surfaceOp: { op: 'replace', startSeq: original, endSeq: original }, sourceEventSeqs: [original] })
+        if (event.type === 'tool/result') session.append('tool/result', { ...event.data, message: { ...event.data.message, content: [{ type: 'text', text: 'pruned reference' }] } }, { surfaceOp: { op: 'replace', startSeq: original, endSeq: original }, sourceEventSeqs: [original] })
       }
       session.append('step/end', { turn: turn + 1, step: 1 })
       session.append('turn/end', { turn: turn + 1, reason: { kind: 'completed' } })
