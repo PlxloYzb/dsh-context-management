@@ -326,108 +326,6 @@ test('RC07: a renamed Basic row in a nested group is taken over beside the ids t
   assert.deepEqual(rows(), rowsBefore, 'the original row set returns')
 })
 
-test('RC08: an earlier successful takeover is verified again after runtime patches are reloaded', async t => {
-  const h = await fixture(); t.after(h.close)
-  await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  assert.ok(isArcBackend(h.backend(agent)))
-  const mount = standingMountFor(agent.ctx)!
-  const config = mount.fiber.config as { path: string; patches?: Array<{ insert?: unknown }> }
-  // External runtime reconfiguration uses the same safe two-phase order.
-  // It restores source composition without writing the source preset file.
-  config.patches = config.patches?.filter(patch => patch.insert === undefined)
-  await mount.fiber.update(config, true)
-  delete config.patches
-  await mount.fiber.update(config, true)
-  assert.ok(h.backend(agent) instanceof BasicCompactionEngine)
-  await h.boundary(agent)
-  assert.ok(isArcBackend(h.backend(agent)), 'a prior success must not hide a later native backend')
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
-test('RC09: rollback preserves a replacement Include config object and its new external patches', async t => {
-  const h = await fixture(); t.after(h.close)
-  const bridge = await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  assert.ok(isArcBackend(h.backend(agent)))
-  const mount = standingMountFor(agent.ctx)!
-  const previous = mount.fiber.config as { path: string; patches: unknown[] }
-  const externalPatch = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.63, retainTokens: 2039, auto: false, maxTokens: 1536 },
-  }
-  const externalConsumerPatch = { id: 'consumer', name: 'cordis:replacement-probe', config: { marker: 'external-after-takeover' } }
-  const newConfig = {
-    ...previous,
-    externalOwner: { marker: 'new-include-object' },
-    patches: [...previous.patches, externalPatch, externalConsumerPatch],
-  }
-  await mount.fiber.update(newConfig, true)
-  assert.ok(mount.tree instanceof Include)
-  const liveInclude = mount.tree
-  assert.ok(liveInclude.config === newConfig, 'same-path update installs the new object on the Include instance')
-  assert.ok(isArcBackend(h.backend(agent)))
-  const beforeConsumer = [...mount.tree.entries()].find(row => row.options.id === 'consumer')
-  assert.deepEqual(beforeConsumer?.options.config, externalConsumerPatch.config, 'external patches were actually applied before disposal')
-  await bridge.dispose()
-  const restored = h.backend(agent)
-  assert.ok(restored instanceof BasicCompactionEngine)
-  assert.equal(restored.config.thresholdRatio, 0.63, 'rollback preserves the external native policy update')
-  assert.ok(liveInclude.config === newConfig, 'rollback retains the externally supplied live Include config identity')
-  assert.deepEqual(newConfig.patches, [externalPatch, externalConsumerPatch])
-  assert.equal(newConfig.externalOwner.marker, 'new-include-object')
-  assert.equal(restored.config.retainTokens, 2039)
-  assert.equal(restored.config.maxTokens, 1536)
-  assert.equal(restored.config.auto, false)
-  const consumer = [...mount.tree.entries()].find(row => row.options.id === 'consumer')
-  assert.deepEqual(consumer?.options.config, externalConsumerPatch.config, 'the external consumer patch remains effective')
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
-test('RC10: reacquiring Basic after an external new-config reload preserves that owner through later disposal', async t => {
-  const h = await fixture(); t.after(h.close)
-  const bridge = await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  const mount = standingMountFor(agent.ctx)!
-  const previous = mount.fiber.config as { path: string; patches: Array<{ insert?: unknown }> }
-  const externalPatch = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.64, retainTokens: 3011, auto: false, maxTokens: 2560 },
-  }
-  const nextPath = join(h.root, 'external-reload.yml')
-  const nextSource = basicYaml.replace('id: consumer', 'id: external-consumer')
-  await writeFile(nextPath, nextSource)
-  // Retire ARC first, then supply a new path/object with only the external
-  // owner's patch. This is a safe external reconfiguration, not bridge API.
-  await mount.fiber.update({ ...previous, patches: previous.patches.filter(patch => patch.insert === undefined) }, true)
-  const externalPatches = [externalPatch]
-  const newConfig = { path: pathToFileURL(nextPath).href, patches: externalPatches, externalOwner: 'replacement-path' }
-  await mount.fiber.update(newConfig, true)
-  const restored = h.backend(agent)
-  assert.ok(restored instanceof BasicCompactionEngine)
-  assert.equal(restored.config.retainTokens, 3011)
-  await h.boundary(agent)
-  assert.ok(isArcBackend(h.backend(agent)), 'the current native instance is reacquired')
-  assert.ok(mount.fiber.config === newConfig)
-  assert.ok(newConfig.patches.includes(externalPatch))
-  await bridge.dispose()
-  const finalBackend = h.backend(agent)
-  assert.ok(finalBackend instanceof BasicCompactionEngine)
-  assert.ok(mount.fiber.config === newConfig)
-  assert.ok(newConfig.patches === externalPatches, 'the new owner patch-array identity is restored')
-  assert.equal(newConfig.path, pathToFileURL(nextPath).href)
-  assert.equal(newConfig.externalOwner, 'replacement-path')
-  assert.equal(finalBackend.config.thresholdRatio, 0.64)
-  assert.equal(finalBackend.config.retainTokens, 3011)
-  assert.equal(finalBackend.config.maxTokens, 2560)
-  assert.equal(finalBackend.config.auto, false)
-  assert.equal(await readFile(nextPath, 'utf8'), nextSource)
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
 test('RC11: repeated bridge disable/re-enable covers the same already-live Agent without another creation event', async t => {
   const h = await fixture(); t.after(h.close)
   const agent = await h.createAgent('standard')
@@ -457,132 +355,29 @@ test('RC11: repeated bridge disable/re-enable covers the same already-live Agent
   assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
 })
 
-test('RC12: first takeover preserves a same-path Include replacement configured before the bridge existed', async t => {
-  const h = await fixture(); t.after(h.close)
-  const agent = await h.createAgent('standard')
-  const mount = standingMountFor(agent.ctx)!
-  assert.ok(mount.tree instanceof Include)
-  const liveInclude = mount.tree
-  const before = mount.fiber.config as { path: string; patches?: unknown[] }
-  const externalPatch = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.66, retainTokens: 1777, auto: false, maxTokens: 2048 },
-  }
-  const externalPatches = [externalPatch]
-  const newConfig = { ...before, patches: externalPatches, externalOwner: 'before-bridge' }
-  await mount.fiber.update(newConfig, true)
-  assert.ok(liveInclude.config === newConfig)
-  const native = h.backend(agent)
-  assert.ok(native instanceof BasicCompactionEngine)
-  assert.equal(native.config.retainTokens, 1777)
-  const bridge = await h.enableBridge()
-  await h.boundary(agent)
-  assert.ok(isArcBackend(h.backend(agent)))
-  assert.ok(liveInclude.config === newConfig, 'first takeover starts from current Include config, not stale fiber config')
-  assert.ok(newConfig.patches.includes(externalPatch))
-  await bridge.dispose()
-  assert.ok(liveInclude.config === newConfig)
-  assert.ok(newConfig.patches === externalPatches)
-  const after = h.backend(agent)
-  assert.ok(after instanceof BasicCompactionEngine)
-  assert.equal(after.config.thresholdRatio, 0.66)
-  assert.equal(after.config.retainTokens, 1777)
-  assert.equal(after.config.maxTokens, 2048)
-  assert.equal(after.config.auto, false)
-  assert.equal(newConfig.externalOwner, 'before-bridge')
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
-test('RC13: rollback uses the current Include after a path restart followed by a same-path config update', async t => {
-  const h = await fixture(); t.after(h.close)
-  const bridge = await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  const mount = standingMountFor(agent.ctx)!
-  const previous = mount.fiber.config as { path: string; patches: unknown[] }
-  const nextPath = join(h.root, 'restarted-include.yml')
-  await writeFile(nextPath, basicYaml)
-  const restartedConfig = { ...previous, path: pathToFileURL(nextPath).href, patches: [...previous.patches] }
-  await mount.fiber.update(restartedConfig, true)
-  assert.ok(isArcBackend(h.backend(agent)))
-  const externalPatch = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.68, retainTokens: 1889, auto: false, maxTokens: 3072 },
-  }
-  const liveConfig = { ...restartedConfig, patches: [...restartedConfig.patches, externalPatch], externalOwner: 'after-restart' }
-  await mount.fiber.update(liveConfig, true)
-  assert.ok(isArcBackend(h.backend(agent)))
-  await bridge.dispose()
-  const native = h.backend(agent)
-  assert.ok(native instanceof BasicCompactionEngine)
-  assert.equal(native.config.thresholdRatio, 0.68, 'the policy applied to the current Include survives bridge disposal')
-  assert.equal(native.config.retainTokens, 1889)
-  assert.equal(native.config.maxTokens, 3072)
-  assert.equal(native.config.auto, false)
-  assert.deepEqual(liveConfig.patches, [externalPatch])
-  assert.equal(await readFile(nextPath, 'utf8'), basicYaml)
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
-test('RC14: external no-backend configuration survives disposal after a path restart and same-path update', async t => {
-  const h = await fixture(); t.after(h.close)
-  const bridge = await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  const mount = standingMountFor(agent.ctx)!
-  const previous = mount.fiber.config as { path: string; patches: unknown[] }
-  const nextPath = join(h.root, 'external-no-backend.yml')
-  await writeFile(nextPath, basicYaml)
-  const restarted = { ...previous, path: pathToFileURL(nextPath).href, patches: [...previous.patches] }
-  await mount.fiber.update(restarted, true)
-  const disableNative = { id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic', disabled: true }
-  const disableArc = { id: 'compaction-arc', name: 'cordis:dsh-context-management', disabled: true }
-  const externalPolicy = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.62, retainTokens: 1993, auto: false },
-  }
-  const external = [disableNative, disableArc, externalPolicy]
-  const liveConfig = { ...restarted, patches: [...restarted.patches, ...external], externalOwner: 'explicit-no-backend' }
-  await mount.fiber.update(liveConfig, true)
-  assert.equal(h.backend(agent), undefined, 'the external update actually removed the current compaction service')
-  await bridge.dispose()
-  assert.equal(h.backend(agent), undefined, 'bridge disposal does not re-enable externally disabled Basic')
-  assert.deepEqual(liveConfig.patches, external, 'only the two bridge-owned patches are removed')
-  assert.equal(liveConfig.externalOwner, 'explicit-no-backend')
-  assert.equal(await readFile(nextPath, 'utf8'), basicYaml)
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
-
-test('RC15: a rejected Include update is never used as the committed config during bridge disposal', async t => {
-  const h = await fixture(); t.after(h.close)
-  const bridge = await h.enableBridge()
-  const agent = await h.createAgent('standard')
-  await h.boundary(agent)
-  const mount = standingMountFor(agent.ctx)!
-  assert.ok(mount.tree instanceof Include)
-  const liveInclude = mount.tree
-  const previous = mount.fiber.config as { path: string; patches: unknown[] }
-  const acceptedPolicy = {
-    id: 'native-custom-id', name: '@deepseek-ai/dsh-compaction-basic',
-    config: { thresholdRatio: 0.67, retainTokens: 2027, auto: false },
-  }
-  const goodConfig = { ...previous, patches: [...previous.patches, acceptedPolicy], externalOwner: 'accepted' }
-  await mount.fiber.update(goodConfig, true)
-  const rejectedPolicy = { ...acceptedPolicy, config: { thresholdRatio: 0.51, retainTokens: 911, auto: false } }
-  h.ctx.loader.builtins['replacement-reject'] = () => { throw new Error('injected external Include update rejection') }
-  const failingInsertion = { id: 'context-realm', insert: [{ id: 'rejected-entry', name: 'cordis:replacement-reject' }] }
-  const rejectedConfig = { ...goodConfig, patches: [...goodConfig.patches, rejectedPolicy, failingInsertion], externalOwner: 'rejected' }
-  await assert.rejects(async () => { await mount.fiber.update(rejectedConfig, true) }, /injected external Include update rejection/)
-  assert.ok(liveInclude.config === goodConfig, 'the host did not commit the rejected Include object')
-  assert.ok(isArcBackend(h.backend(agent)), 'the accepted backend remains available after host rollback')
-  await bridge.dispose()
-  const native = h.backend(agent)
-  assert.ok(native instanceof BasicCompactionEngine)
-  assert.equal(native.config.thresholdRatio, 0.67, 'the rejected native policy never enters bridge restoration')
-  assert.equal(native.config.retainTokens, 2027)
-  assert.equal(native.config.auto, false)
-  assert.ok(liveInclude.config === goodConfig)
-  assert.deepEqual(goodConfig.patches, [acceptedPolicy])
-  assert.equal(goodConfig.externalOwner, 'accepted')
-  assert.equal(await readFile(h.paths.get('standard')!, 'utf8'), basicYaml)
-})
+/*
+ * RC08-RC15 retired for DSH 0.1.7: they exercised the file-Include carrier.
+ *
+ * Each of them drove an external actor that replaced a preset mount's live
+ * Include config object, changed its `patches` array, restarted the mount on a
+ * new path, or fed it an update that threw - then asserted the bridge used the
+ * committed config and never the rejected one.
+ *
+ * That carrier does not exist for a 0.1.7 preset. The registry mounts a preset by
+ * building an EntryTree from the preset's rows and returns {presetId, fiber, tree,
+ * key}; there is no config object and no patch array to replace. The shipped
+ * presets confirm the shape: standard, ptc and minimal contain zero `cordis:include`
+ * rows, so a preset is a flat row list and nesting is not a pattern in use.
+ *
+ * Retiring them removes no coverage of a reachable path. The Include carrier is
+ * still supported by the bridge and still covered structurally in tests/bridge.test.ts
+ * (16/16): takeover, rollback, idempotence, name guards, builtin registration,
+ * second-phase faults, duplicate owners, the failure paths, renamed rows in nested
+ * groups, and a Basic row inside a nested Include.
+ *
+ * The properties these probes asserted for the tree carrier are covered by the
+ * surviving probes: an external composition change is RC04 (a native backend
+ * appearing after the bridge decided there was none), a preset generation change is
+ * RC02 (switching presets), and row identity and realm reuse across takeover and
+ * rollback are RC01 and RC07.
+ */
