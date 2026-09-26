@@ -263,3 +263,42 @@ node tests/live/longrun/cli.mjs status   --campaign <id>
 Raw evidence lives under the git-ignored
 `.test-runtime/longrun-20260915/<campaign>/`: per-request observation, usage and
 job ledgers, pressure trace, and the independent audit.
+
+## The diagnostic matrix (P4_DIAGNOSTICS)
+
+The 18 diagnostics (X01-X18) had never been started: no campaign had a `cases/`
+directory and the pair runner never calls the case runner. Reading each run's own
+audit, progress and ledgers now gives:
+
+| Status | Count | Meaning |
+| --- | --- | --- |
+| PARTIAL | 7 | Some variants carry real evidence (X02/X03/X07/X08/X09/X10/X11/X13/X16) |
+| NOT_EXERCISED | 11 | No controlled implementation, or the precondition never occurred |
+| PASS | **0** | Every case still has unexecuted declared variants, so none can be PASS |
+
+Some real readings: **X08 bounded retrieval** is PARTIAL — 110 searches, 269 hits, 29
+zero-hit, 26 absence-confirmed, and **3 searches hit the scan budget and returned a
+`nextCursor` that was resumed 0 times** (the resume path was offered and never
+taken); **X09 re-archived** is PARTIAL — re-archiving is now proven (24 times over a
+lineage 25 deep) but the attachment and nested-source variants are not; **X07 tool
+pairing** passes its variant (0 unpaired) while `steer` was never injected.
+
+Starting this step exposed three defects that would have written claims the evidence
+does not support:
+
+- the recorder carried numbers from the **0.1.2 campaign** — 672 tool calls,
+  "background summaries were never delivered", "no delivered summary ever re-entered
+  the archive" — all false for these runs: 25 summaries were delivered, 24 delivered
+  receipts were re-archived, 0 tool calls were unpaired. Asserting yesterday's
+  numbers against today's runs fabricates evidence.
+- `X18/create-dispose-20` was recorded as PASS from `measureCreateDispose`, which
+  allocates Maps in the **recorder's own process** and samples its own heap. It never
+  loads the plugin, so it cannot be plugin coverage; it is now NOT_EXERCISED with that
+  reason.
+- `recordCase` accepted any variant name, so a typo'd `useage-accounting` was stored
+  against a matrix that never declared it; and recording every declared variant as
+  NOT_EXERCISED aggregated to PARTIAL, making an **untouched case look partially
+  covered**. Both are fixed, with a regression test.
+
+The matrix still needs a real host-backed dose harness; the two existing
+"implementations" exercise the harness, not the plugin.
