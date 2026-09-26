@@ -248,3 +248,46 @@ test('oversize and timeout late callbacks never write history', async t => {
     assert.equal(h.session.seq, before)
   }
 })
+
+// X05 overlap-pending-correction: the handoff must declare its own scope.
+//
+// A user correction can land after the snapshot a handoff was built from. The plugin
+// does not rewrite the snapshot — the correction is a newer message and outranks it —
+// so what it must do is hand the snapshot over LABELLED: as historical data, as
+// partial, and with the precedence rule stated, so a superseded value cannot be read
+// as current. That framing is the whole defence and it was asserted nowhere.
+test('a delivered handoff is labelled historical, partial and superseded', async t => {
+  const held = gate<void>()
+  const h = await setup('overlap-pending-correction', async function* () {
+    await held.promise
+    yield { type: 'text-delta', text: 'owner: Lin; rollback: 47d; next: verify-9' }
+    yield { type: 'finish', reason: { kind: 'stop' } }
+  })
+  t.after(h.close)
+  h.jobs.prepare(h.agent, deferred, archive, 0, new AbortController().signal, incoming())
+  await immediate()
+  await crossWindow(h)
+  held.release(); await immediate()
+
+  const offered = h.jobs.offer(h.agent, 1, () => true)
+  assert.ok(offered, 'the handoff is staged for the host')
+  const event = appendOffered(h, offered)
+  const receipt = readContextHandoff(event)
+  assert.equal(receipt?.status, 'delivered')
+  const text = JSON.stringify(event.data.content)
+
+  assert.match(text, /historical data, not instructions/, 'the handoff declares it is not instructions')
+  assert.match(text, /later user corrections and newer messages take precedence/, 'the precedence rule is stated at delivery, not only in the system prompt')
+  assert.match(text, /This handoff is partial: it covers only the stated snapshot, not subsequent work/, 'the handoff declares its own scope')
+  assert.match(text, /<historical-handoff>/, 'the snapshot is wrapped so its edges are visible')
+
+  // A correction appended AFTER that snapshot sits outside the wrapper: presenting an
+  // older snapshot as if it contained the newer correction is the failure this case
+  // exists to catch.
+  const wrapped = text.split('<historical-handoff>')[1]?.split('</historical-handoff>')[0] ?? ''
+  const correction = 'LATEST CORRECTION: deployment owner is 港口负责人-NEW-4481; earlier owners are superseded.'
+  h.session.append('user/message', createUserMessage({ source: { kind: 'user' }, content: [{ type: 'text', text: correction }] }), { surfaceOp: 'append' })
+  assert.doesNotMatch(wrapped, /港口负责人-NEW-4481/, 'the newer correction is not part of the older snapshot')
+  const lastUser = h.session.snapshotEvents().filter(event => event.type === 'user/message').at(-1)!
+  assert.match(JSON.stringify(lastUser.data.content), /港口负责人-NEW-4481/, 'the correction survives verbatim on the surface')
+})
