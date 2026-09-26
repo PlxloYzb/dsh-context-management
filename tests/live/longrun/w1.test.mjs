@@ -745,3 +745,29 @@ test('retrieval probes attribute results per call and accept a declared-unfinish
   assert.notDeepEqual(judgeProbe(absence, { hits: [], absent: null, scanBudgetReached: false }), [], 'silence is not absence')
   assert.notDeepEqual(judgeProbe(absence, { hits: [], absent: true, scanBudgetReached: true }), [], 'absence cannot be claimed from a truncated scan')
 })
+
+// A resumed page is judged by whether it advances, not by the scan budget.
+//
+// The first judge demanded `scanBudgetReached` or `absent` on the resumed page and
+// scored a perfectly good next page — 5 fresh hits with a fresh cursor — as a
+// failure. It also treated a cross-query cursor that was REFUSED (status error) as
+// a problem, when refusing is exactly the contract.
+test('cursor probes require advancement and accept a refused misuse', async () => {
+  const { judgeCursor } = await import('./probe-cases.mjs')
+  const first = { status: 'success', hits: [{ seq: 1 }, { seq: 2 }], nextCursor: 'c1', scanBudgetReached: false }
+  const good = { status: 'success', hits: [{ seq: 3 }, { seq: 4 }], nextCursor: 'c2', scanBudgetReached: false }
+  assert.deepEqual(judgeCursor({ first, resumed: good, misused: { status: 'error' }, bogus: { status: 'error' } }), [])
+
+  // Re-serving the same page is a loop, and re-serving its hits is double counting.
+  assert.notDeepEqual(judgeCursor({ first, resumed: { ...good, nextCursor: 'c1' }, misused: { status: 'error' }, bogus: { status: 'error' } }), [])
+  assert.notDeepEqual(judgeCursor({ first, resumed: { ...good, hits: [{ seq: 2 }] }, misused: { status: 'error' }, bogus: { status: 'error' } }), [])
+
+  // A first page with no cursor cannot be resumed, so the case never ran.
+  assert.notDeepEqual(judgeCursor({ first: { ...first, nextCursor: null }, resumed: good, misused: { status: 'error' }, bogus: { status: 'error' } }), [])
+
+  // Answering a cursor from another query with the original hits is the silent
+  // cross-query selection the contract forbids.
+  assert.notDeepEqual(judgeCursor({ first, resumed: good, misused: { status: 'success', hits: good.hits }, bogus: { status: 'error' } }), [])
+  // An invalid cursor answered with hits is the same failure.
+  assert.notDeepEqual(judgeCursor({ first, resumed: good, misused: { status: 'error' }, bogus: { status: 'success', hits: [{ seq: 9 }] } }), [])
+})
