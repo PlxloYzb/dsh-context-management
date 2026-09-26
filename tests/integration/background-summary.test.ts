@@ -235,3 +235,32 @@ test('source identity distinguishes identical bytes at distinct sequence positio
   // And the same range is stable, so the check is not trivially always-unequal.
   assert.equal(sourceHash(session, [first]), stored)
 })
+
+// X06 no-summary: the absent PRECONDITION, which is a different path from a summary
+// that failed.
+//
+// Every failure class is covered elsewhere (timeout, oversize, failed,
+// invalid-output, cancelled, disposed, late). What is not the same thing is a session
+// where no summary was ever requested: nothing must wait for one, and the turnover
+// must still commit from the retained window. A plugin that quietly depended on a
+// summary would look correct in every failure test and still stall here.
+test('no summary was ever requested: nothing waits, and turnover still commits', async t => {
+  const h = await setup('no-summary-ever', () => good()); t.after(h.close)
+
+  // Nothing was prepared, so there is no job state and no receipt to fall back on.
+  assert.equal(h.jobs.status(h.session), null, 'a never-prepared session reports no summary state')
+  assert.equal(h.jobs.take(h.agent), undefined, 'no seed is available to take')
+  assert.equal(h.jobs.offer(h.agent, 0, () => true), undefined, 'no deferred handoff is offered')
+  // `wait` is async and must RESOLVE rather than block on a summary that was never
+  // requested. It answers explicitly instead of hanging: unavailable, reason
+  // no-background-handoff, with the retrieval hint that keeps the model moving.
+  const waited = await h.jobs.wait(h.agent, new AbortController().signal)
+  assert.equal(waited?.status, 'unavailable', 'waiting must not block on a summary that was never requested')
+  assert.equal(waited?.reason, 'no-background-handoff')
+  assert.match(String(waited?.hint), /search_context|decompress/)
+
+  // And the window turnover commits anyway, without any summary input at all.
+  const result = await h.windows.turnover(h.agent, 'pressure', new AbortController().signal, archive, async () => {}, undefined, undefined, incoming(), h.jobs.take(h.agent))
+  assert.ok(result, 'turnover must not depend on a background summary')
+  assert.equal(rebuildBlockLedger(h.session.snapshotEvents()).length, 1, 'the window block is committed from retained history alone')
+})
