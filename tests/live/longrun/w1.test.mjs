@@ -626,23 +626,20 @@ test('fixture tools: operations commit durably and replay without a new effect',
   }
 })
 
-// The oracle must ask about things the corpus actually contains.
+// The oracle must be answerable from the corpus it was sealed against.
 //
-// This is the guard for the defect that made the first executed campaign's
-// quality score meaningless: the sealed oracle belonged to the PILOT seed while
-// the formal pair ran a different seed, so every question named identifiers and
-// values that appeared in NO page, all 96 were unanswerable, and both arms scored
-// the same degenerate 21/96 by answering "absent" everywhere. A question the model
-// cannot reach is not a measurement.
+// This is the guard for the defect that made the first executed campaign's quality
+// score meaningless: the sealed oracle belonged to the PILOT seed while the formal
+// pair ran a different seed, so every question named identifiers and values that
+// appeared in NO page, all 96 were unanswerable, and both arms scored the same
+// degenerate 21/96 by answering "absent" everywhere. A question the model cannot
+// reach is not a measurement.
 //
-// Each category is checked against what the question actually SHOWS the model, and
-// two legitimate designs are respected rather than flagged:
-//   * an absence question names a value that MUST NOT be in the corpus, so its
-//     absence is asserted positively;
-//   * an assembled question splits a documented composite across records, so its
-//     PARTS must be present, not the joined string.
+// It exercises the SAME checker that `prepare` runs against the real per-campaign
+// salt, so the two cannot drift; a unit test cannot use the real salt, because it
+// is generated per campaign.
 test('every sealed oracle question is answerable from the corpus it was sealed against', async () => {
-  const { generateCorpus, generateOracle } = await import('./fixture.mjs')
+  const { generateCorpus, generateOracle, oracleAnswerabilityProblems } = await import('./fixture.mjs')
   const salt = 'a'.repeat(64)
   // The plan's real corpus size and both seeds it uses: the pilot seed AND the
   // formal pair seed. Checking only the pilot seed is what let the campaign seal a
@@ -650,49 +647,10 @@ test('every sealed oracle question is answerable from the corpus it was sealed a
   // corpus than the plan's would miss a size-dependent drift.
   const episodes = 48
   for (const seed of [91561, 91601]) {
-  const corpus = generateCorpus({ seed, salt, episodes })
-  const pages = corpus.pages.join('\n')
-  const oracle = generateOracle({ corpus, endpoint: episodes })
-  const problems = []
-  const require = (condition, label) => { if (!condition) problems.push(label) }
-
-  for (const question of oracle.questions) {
-    const expected = question.oracle.expected ?? {}
-    const query = /\b(short|checksum|value)=([A-Za-z0-9-]+)/.exec(question.question)
-    const namedShort = /short identifier ([A-Za-z0-9]+)/.exec(question.question)?.[1]
-
-    if (question.category === 'source_existence_ambiguity') {
-      require(pages.includes(question.sourceScope), `${question.queryId} collection ${question.sourceScope}`)
-      // The query value is written as `field=value` or as "short identifier X".
-      const literal = query !== null ? `${query[1]}=${query[2]}` : namedShort !== undefined ? `short=${namedShort}` : null
-      require(literal !== null, `${question.queryId} has no recognisable query value`)
-      if (literal !== null) {
-        if (expected.present === true) require(pages.includes(literal), `${question.queryId} present query ${literal}`)
-        else require(!pages.includes(literal), `${question.queryId} absence query ${literal} unexpectedly present`)
-      }
-      if (expected.present === true && typeof expected.recordId === 'string') {
-        require(pages.includes(expected.recordId), `${question.queryId} answer record ${expected.recordId}`)
-      }
-    } else if (question.category === 'state') {
-      require(namedShort !== undefined && pages.includes(`short=${namedShort}`), `${question.queryId} short identifier ${namedShort}`)
-    } else {
-      // exact and timeline questions name the target label; an assembled value is
-      // carried in parts, so each part must exist even though the join does not.
-      require(pages.includes(question.targetLabel), `${question.queryId} targetLabel ${question.targetLabel}`)
-    }
-
-    for (const value of Object.values(expected)) {
-      for (const scalar of Array.isArray(value) ? value : [value]) {
-        // Short scalars (a boolean, "REVOKED", a latency) can legitimately be
-        // reconstructed rather than copied; long verbatim values must exist.
-        if (typeof scalar !== 'string' || scalar.length < 8) continue
-        for (const part of scalar.split(/[|;]/).filter(piece => piece.length >= 8)) {
-          require(pages.includes(part), `${question.queryId} expected part ${part}`)
-        }
-      }
-    }
-  }
-  assert.deepEqual(problems.slice(0, 12), [], `seed ${seed}: oracle references content absent from the corpus (${problems.length} problems)`)
+    const corpus = generateCorpus({ seed, salt, episodes })
+    const oracle = generateOracle({ corpus, endpoint: episodes / 2 })
+    const problems = oracleAnswerabilityProblems(corpus, oracle)
+    assert.deepEqual(problems.slice(0, 12), [], `seed ${seed}: oracle references content absent from the corpus (${problems.length} problems)`)
   }
 })
 

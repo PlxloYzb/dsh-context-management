@@ -1231,6 +1231,51 @@ function answerFormatFor(category) {
   return '{"order": ["<identifier>", "..."]}'
 }
 
+/**
+ * Every reason an oracle question cannot be answered from its corpus.
+ *
+ * This is checked at PREPARE time, not just in a unit test: a sealed oracle whose
+ * questions name identifiers or values the corpus never contains makes the whole
+ * quality gate meaningless, and that is exactly what happened to the first
+ * executed campaign. A per-campaign salt cannot be exercised from a unit test, so
+ * the real guard has to run where the real salt is.
+ *
+ * Two legitimate designs are respected rather than flagged: an absence question
+ * names a value that MUST NOT be present, so its absence is asserted positively;
+ * and an assembled question splits a documented composite across records, so its
+ * parts must be present rather than the joined string.
+ */
+export function oracleAnswerabilityProblems(corpus, oracle) {
+  const pages = corpus.pages.join('\n')
+  const problems = []
+  for (const question of oracle.questions ?? []) {
+    const expected = question.oracle?.expected ?? {}
+    const query = /\b(short|checksum|value)=([A-Za-z0-9-]+)/.exec(question.question)
+    const namedShort = /short identifier ([A-Za-z0-9]+)/.exec(question.question)?.[1]
+    if (question.category === 'source_existence_ambiguity') {
+      if (question.sourceScope && !pages.includes(question.sourceScope)) problems.push(`${question.queryId} collection ${question.sourceScope} is not in the corpus`)
+      const literal = query !== null ? `${query[1]}=${query[2]}` : namedShort !== undefined ? `short=${namedShort}` : null
+      if (literal === null) problems.push(`${question.queryId} has no recognisable query value`)
+      else if (expected.present === true && !pages.includes(literal)) problems.push(`${question.queryId} present query ${literal} is not in the corpus`)
+      else if (expected.present !== true && pages.includes(literal)) problems.push(`${question.queryId} absence query ${literal} is unexpectedly in the corpus`)
+      if (expected.present === true && typeof expected.recordId === 'string' && !pages.includes(expected.recordId)) problems.push(`${question.queryId} answer record ${expected.recordId} is not in the corpus`)
+    } else if (question.category === 'state') {
+      if (namedShort === undefined || !pages.includes(`short=${namedShort}`)) problems.push(`${question.queryId} short identifier ${namedShort} is not in the corpus`)
+    } else if (question.targetLabel && !pages.includes(question.targetLabel)) {
+      problems.push(`${question.queryId} targetLabel ${question.targetLabel} is not in the corpus`)
+    }
+    for (const value of Object.values(expected)) {
+      for (const scalar of Array.isArray(value) ? value : [value]) {
+        if (typeof scalar !== 'string' || scalar.length < 8) continue
+        for (const part of scalar.split(/[|;]/).filter(piece => piece.length >= 8)) {
+          if (!pages.includes(part)) problems.push(`${question.queryId} expected part ${part} is not in the corpus`)
+        }
+      }
+    }
+  }
+  return problems
+}
+
 export function generateOracle({ corpus, endpoint }) {
   if (!corpus || !corpus.state) throw new Error('generateOracle requires a generated corpus')
   episodeCountForEndpoint(endpoint)

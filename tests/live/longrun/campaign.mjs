@@ -17,7 +17,7 @@ export async function prepareCampaign({ campaign, planPath }) {
   await ensurePrivateDirectory(join(root, 'private', 'endpoint-probes'))
   await atomicJson(join(root, 'plan.json'), { planPath, planHash, plan, geometry, sealedAt: new Date().toISOString() })
 
-  const { generateCorpus, generateOracle, fixtureManifest, pageTokens, sentinelQuestions } = await import('./fixture.mjs')
+  const { generateCorpus, generateOracle, fixtureManifest, pageTokens, sentinelQuestions, oracleAnswerabilityProblems } = await import('./fixture.mjs')
   const saltPath = join(root, 'private', 'hidden-salt')
   let salt
   if (existsSync(saltPath)) {
@@ -43,6 +43,13 @@ export async function prepareCampaign({ campaign, planPath }) {
   const probeIndex = {}
   for (const endpoint of plan.probes.endpoints) {
     const oracle = generateOracle({ corpus, endpoint: endpoint.endpointEpisodes })
+    // Seal only an oracle the corpus can actually answer. An unanswerable oracle
+    // turns the quality gate into a measurement of nothing, which is precisely how
+    // the first executed campaign produced a meaningless 21/96 on both arms.
+    const unanswerable = oracleAnswerabilityProblems(corpus, oracle)
+    if (unanswerable.length > 0) {
+      throw new Error(`ORACLE_UNANSWERABLE at endpoint ${endpoint.endpointEpisodes} (${unanswerable.length} problems): ${unanswerable.slice(0, 5).join('; ')}`)
+    }
     await atomicJson(join(root, 'private', 'endpoint-probes', `N${endpoint.endpointEpisodes}.json`), oracle)
     probeIndex[`N${endpoint.endpointEpisodes}`] = { questionCount: oracle.questions.length, oracleHash: sha256(JSON.stringify(oracle)) }
   }
