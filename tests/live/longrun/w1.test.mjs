@@ -625,3 +625,36 @@ test('fixture tools: operations commit durably and replay without a new effect',
     harness.cleanup()
   }
 })
+
+// The oracle must ask about things the corpus actually contains.
+//
+// This is the guard for the defect that made the first executed campaign's
+// quality score meaningless: every endpoint question named a `targetLabel`
+// (`STATE-…`, `TML-…`, `EXACT-ISL-…`, `EXIST-ISL-…`) and expected verbatim values
+// that appeared in NO page, so all 96 questions were unanswerable and both arms
+// scored the same degenerate 21/96 by answering "absent" everywhere. A question
+// the model cannot reach is not a quality measurement.
+test('every sealed oracle question names a target and values the corpus actually contains', async () => {
+  const { generateCorpus, generateOracle } = await import('./fixture.mjs')
+  const salt = 'a'.repeat(64)
+  const episodes = 24
+  const corpus = generateCorpus({ seed: 91561, salt, episodes })
+  const pages = corpus.pages.join('\n')
+  const oracle = generateOracle({ corpus, endpoint: episodes })
+  const missing = []
+  for (const question of oracle.questions) {
+    if (question.targetLabel && !pages.includes(question.targetLabel)) {
+      missing.push(`${question.queryId} targetLabel ${question.targetLabel}`)
+    }
+    for (const value of Object.values(question.oracle.expected ?? {})) {
+      for (const scalar of Array.isArray(value) ? value : [value]) {
+        // Short scalars (a boolean, "REVOKED", a latency) can legitimately be
+        // reconstructed rather than copied; long verbatim values must exist.
+        if (typeof scalar === 'string' && scalar.length >= 8 && !pages.includes(scalar)) {
+          missing.push(`${question.queryId} expected ${scalar}`)
+        }
+      }
+    }
+  }
+  assert.deepEqual(missing.slice(0, 10), [], `oracle references content absent from the corpus (${missing.length} problems)`)
+})

@@ -7,7 +7,7 @@ document remains the specification; this page reports only what actually ran, an
 separates "established" from "failed" from "not exercised". The Chinese page is
 the normative one.
 
-**This execution found no new product defect. It found and fixed thirteen defects in the experiment tooling itself, six of which make a long campaign impossible to finish or its evidence unusable.** Where the run reached, the product behaved correctly: 24 episodes per run, 23 real turnovers, 23 delivered background summaries, one real restart, and **8/8 hard integrity gates passing**. The quality gate failed on both arms at 21/96.
+**This execution found no new product defect. It found and fixed thirteen defects in the experiment tooling itself, six of which make a long campaign impossible to finish or its evidence unusable.** Where the run reached, the product behaved correctly: 24 episodes per run, 23 real turnovers, 23 delivered background summaries, one real restart, and **8/8 hard integrity gates passing**. The quality gate reported 21/96 on both arms, but that result is **invalid** (the oracle and corpus id spaces disagree).
 
 ## Final result
 
@@ -23,7 +23,7 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
 | Common coverage gates (3M / 500k / all pages / 96 questions / restart) | 5/5 PASS | 5/5 PASS |
 | ARC-specific coverage gates | **4 not reached** (below) | not applicable |
 | Real turnovers / native compactions | 23 turnovers | 68 compactions |
-| 96-question quality | **21/96**, `qualityPassed: false` | **21/96**, `qualityPassed: false` |
+| 96-question quality | **21/96 — INVALID evidence** (oracle and corpus id spaces disagree, below) | same 21/96 — invalid evidence |
 | By category | state 0/24, exact 0/24, ambiguity 21/24, timeline 0/24 | identical |
 | `executionCompleted` | true | true |
 
@@ -33,13 +33,26 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
    the delivery receipts and consumption of 23 summaries, the protected system
    head, tool pairing, cross-session isolation and the backend attestation all
    show no violation. This is the strongest positive result of the execution.
-2. **The quality gate failed on both arms, with the same score and the same wrong
-   answers.** Only 21 of 96 questions were correct and all 21 are in the
-   source-existence/ambiguity category; state, exact and timeline scored **0/24** —
-   the model returned empty values or declared the value absent. The two arms are
-   identical, so this is an outcome of **task difficulty**, not of a difference
-   between compaction strategies. The quality gate therefore **cannot distinguish
-   the arms**.
+2. **The quality gate result is INVALID, not failed.** Only 21 of 96 questions were
+   correct, all in the source-existence/ambiguity category, and the two arms are
+   identical. Checking question by question showed this is **not a model or product
+   problem**: every oracle question names a `targetLabel` (`STATE-…`, `TML-…`,
+   `EXACT-ISL-…`, `EXIST-ISL-…`) and expects verbatim values that appear in **no page
+   of the corpus** — none of those identifiers is anywhere in the 576 pages the model
+   read. The model behaved correctly: it searched `search_context` for the literal
+   the question gave it, the plugin **honestly** reported `absent: true` (all 33
+   searches were genuinely absent, not a retrieval defect), and it answered empty or
+   declared the value absent. The 21 "correct" answers are the ambiguity questions
+   whose right answer is absence — that is the baseline of a degenerate
+   "answer absent everywhere" strategy. This page therefore **does not report 21/96
+   as a product-quality result**; it is invalid evidence.
+
+   A permanent invariant test now exists (`w1.test.mjs`, "every sealed oracle question
+   names a target and values the corpus actually contains"). It **currently fails and
+   pinpoints 57 problems**: the `publicLabel` of all 24 state questions is never
+   rendered into a page, the `groupId` of all 24 existence questions likewise, and 9
+   expected verbatim values are absent from the corpus. Repairing the fixture's id
+   spaces is the first task of the next round.
 3. **Four ARC-specific coverage gates were not reached**:
    `rearchivedDeliveredReceiptCount`, `maxVerifiedSourceProcessingDepth`,
    `oldWindowLongTailCount` and `probeCleanLongTailCount` are all 0. They are
