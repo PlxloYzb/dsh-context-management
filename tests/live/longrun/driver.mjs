@@ -622,12 +622,21 @@ export class Driver {
         crossCheck = { checked: true, sealedLabels: sealedLabels.size, matching, agrees: matching === (derived.questions ?? []).length }
       }
     }
-    this.oracle = { ...derived, oracleSource: 'derived-from-run-corpus', sealedCrossCheck: crossCheck }
-    await this.log('oracle-derived', { endpoint, oracleSource: this.oracle.oracleSource, sealedCrossCheck: crossCheck })
+    // Provenance rides beside the oracle, never on it: the scorer validates the
+    // oracle's shape strictly and rejects unknown fields.
+    this.oracleProvenance = { endpoint, oracleSource: 'derived-from-run-corpus', sealedCrossCheck: crossCheck }
+    this.oracle = derived
+    await this.log('oracle-derived', this.oracleProvenance)
     return this.oracle
   }
 
-  async runFinalProbe(endpoint) {
+  /**
+   * Ask the sealed probe. `label`/`answerPrefix` let a RE-PROBE ask the corrected
+   * questions without replaying the original turns: the dispatch journal keys on
+   * the logical prompt id, so the first probe's ids are already `completed` and
+   * re-asking under them would silently return the old answers.
+   */
+  async runFinalProbe(endpoint, { label = 'PROBE', answerPrefix = 'probe-answers', batchPrefix = 'probe-batch' } = {}) {
     const fixture = await import('./fixture.mjs')
     await this.loadSealedOracle(endpoint)
     if (this.oracle.endpoint !== endpoint) throw new Error(`ORACLE_ENDPOINT_MISMATCH: sealed ${this.oracle.endpoint} vs run endpoint ${endpoint}`)
@@ -648,15 +657,15 @@ export class Driver {
         `Return exactly one JSON object keyed by queryId containing only this batch's ${batch.length} answers. No other text.`,
         MARKERS.probe,
       ].join('\n')
-      const result = await this.turn({ logicalPromptId: `PROBE-${index + 1}`, text, purpose: 'final-probe', expectedEpisode: endpoint, turnSeconds: 900 })
+      const result = await this.turn({ logicalPromptId: `${label}-${index + 1}`, text, purpose: 'final-probe', expectedEpisode: endpoint, turnSeconds: 900 })
       // A replayed probe turn keeps its sealed answer text instead of an empty
       // in-memory reconstruction; the control file is the durable copy.
-      const stored = await readJsonFile(join(this.root, 'control', `probe-batch-${index + 1}.json`), null)
+      const stored = await readJsonFile(join(this.root, 'control', `${batchPrefix}-${index + 1}.json`), null)
       const text2 = result.replayed === true ? (stored?.answerText ?? '') : responseText(result.recent)
       answers.push({ batch: index + 1, queryIds: this.oracle.batches[index], text: text2 })
-      await atomicJson(join(this.root, 'control', `probe-batch-${index + 1}.json`), { batch: index + 1, queryIds: this.oracle.batches[index], answerText: text2 })
+      await atomicJson(join(this.root, 'control', `${batchPrefix}-${index + 1}.json`), { batch: index + 1, queryIds: this.oracle.batches[index], answerText: text2 })
     }
-    await atomicJson(join(this.root, 'control', 'probe-answers.json'), answers)
+    await atomicJson(join(this.root, 'control', `${answerPrefix}.json`), answers)
     await this.persist({ finalEndpoint: endpoint, finalProbeCount: this.oracle.batches.reduce((sum, batch) => sum + batch.length, 0) })
     return answers
   }

@@ -19,18 +19,28 @@
 | 公共覆盖门（3M / 500k / 全页 / 96 题 / 重启） | 5/5 PASS | 5/5 PASS |
 | ARC 专有覆盖门 | **4 项未达成**（见下） | 不适用 |
 | 真实换窗 / 原生压缩次数 | 23 次换窗 | 68 次压缩 |
-| 96 题质量 | **21/96 —— 无效证据**（oracle 与语料 id 空间不一致，见下） | 同样 21/96 —— 无效证据 |
+| 96 题质量（重问后） | **90/96，`qualityPassed: true`**（门 87/96） | **27/96，`qualityPassed: false`** |
+| 长尾 | `longTailPassed: true`，`probeCleanLongTailCount` **11** | `longTailPassed: false`，5 |
 | 分项 | state 0/24、exact 0/24、ambiguity 21/24、timeline 0/24 | 完全相同 |
 | `executionCompleted` | true | true |
 
 **三条要点：**
 
 1. **产品通过了全部硬完整性门。** 23 次换窗的窗口链、23 份摘要的交付回执与消费、受保护系统头、工具配对、跨会话隔离、后端自证全部无违反。这是本次执行最扎实的正面结论。
-2. **质量门的结果无效，不是"未过"——根因已定位并修复。** 96 题里只有 21 题对、且全在"来源存在性/歧义"类，两臂完全相同。**根因是封存 oracle 用了 pilot 种子（91561），而正式配对跑的是另一个种子（91601）**：实测封存的 `N24.json` 的 96 个题目标识**全部**属于 91561 的语料（96/96 命中），与 91601 的语料**一个都不匹配**（0/96）。于是模型读过的 576 页里根本没有题面给出的标识，每一道题都不可答；模型按题面字面量去 `search_context`，插件**如实**回报 `absent: true`（33 次搜索都是真实缺失，不是检索缺陷），它便答空或声明不存在。那 21 题"对"是因为这些歧义题的正确答案本就是"不存在"，即**一个退化的"一律答不存在"策略的基线分**。
+2. **质量门：根因定位、修复、重问，得到第一次有效测量——ARC 90/96 对原生 Basic 27/96。** 第一版 21/96 是无效证据，根因是**封存 oracle 用了 pilot 种子（91561），而正式配对跑的是 91601**：封存 `N24.json` 的 96 个题目标识全部属于 91561 的语料（96/96 命中），与 91601 一个都不匹配（0/96）。模型读过的 576 页里根本没有题面标识，每题都不可答；它按字面量检索、插件**如实**回报 `absent: true`（33 次都是真实缺失），于是答空——21 题"对"只是"一律答不存在"策略的基线。
 
-   已修复：`loadSealedOracle`、`scoreRun` 与哨兵题现在都**从该 run 自己的语料派生** oracle（盐 + 该配对的种子，语料清单哈希仍按封存记录校验，生成器确定性，因此运行行为无法影响题目），并记录 `oracleSource: 'derived-from-run-corpus'` 与对封存文件的交叉核对结果。常驻不变量用例 `w1.test.mjs`（"every sealed oracle question is answerable from the corpus it was sealed against"）覆盖 **pilot 与正式两个种子 × 计划真实的 48 episode 语料**，现已通过。
+   修复后 `loadSealedOracle`、`scoreRun`、哨兵题都从**该 run 自己的语料**派生 oracle（盐 + 配对种子，语料清单哈希仍按封存记录校验），并**重问了正确的 96 题**（原答案不可救——它们是回答给错误题目的）。结果：
 
-   **这次正式配对的答案不可救**——它们是回答给错误题目的。要得到第一次有效质量分数，需要**重跑 probe**（重开该 run 的会话、问正确的 96 题），成本约 1–2M token，远低于重跑 24 个 episode 的 2800 万。这是下一轮的首要任务。
+   | 分项 | ARC_DEFERRED | BASIC_MATCHED |
+   | --- | --- | --- |
+   | state | **21/24** | 1/24 |
+   | exact | **24/24** | 3/24 |
+   | source_existence_ambiguity | 21/24 | 21/24 |
+   | timeline_dependency | **24/24** | 2/24 |
+   | **合计** | **90/96（过门 87/96）** | **27/96** |
+   | 长尾 | `longTailPassed: true`，probeClean 长尾 **11** | `false`，5 |
+
+   同一条 24 episode 旅程、同一套题、同一个模型，插件臂答对 90 题、原生 Basic 答对 27 题，而插件臂只用了 **61% 的前台 token**。这是整个实验第一次**有效**的质量测量，也是迄今最强的产品证据。
 
 3. **ARC 的覆盖门有 4 项未达成**：`rearchivedDeliveredReceiptCount`、`maxVerifiedSourceProcessingDepth`、`oldWindowLongTailCount`、`probeCleanLongTailCount` 全为 0。它们对应的正是"旧摘要被再次压缩（tier 2/3）"与"跨六个以上窗口的长尾检索"——**这两条压力条件在这条轨迹上没有发生**。BASIC 臂的覆盖门全过，因为那 4 项对它不适用。
 

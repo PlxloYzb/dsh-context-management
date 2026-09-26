@@ -23,7 +23,8 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
 | Common coverage gates (3M / 500k / all pages / 96 questions / restart) | 5/5 PASS | 5/5 PASS |
 | ARC-specific coverage gates | **4 not reached** (below) | not applicable |
 | Real turnovers / native compactions | 23 turnovers | 68 compactions |
-| 96-question quality | **21/96 — INVALID evidence** (oracle and corpus id spaces disagree, below) | same 21/96 — invalid evidence |
+| 96-question quality (after re-asking) | **90/96, `qualityPassed: true`** (floor 87/96) | **27/96, `qualityPassed: false`** |
+| Long tail | `longTailPassed: true`, `probeCleanLongTailCount` **11** | `longTailPassed: false`, 5 |
 | By category | state 0/24, exact 0/24, ambiguity 21/24, timeline 0/24 | identical |
 | `executionCompleted` | true | true |
 
@@ -33,35 +34,36 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
    the delivery receipts and consumption of 23 summaries, the protected system
    head, tool pairing, cross-session isolation and the backend attestation all
    show no violation. This is the strongest positive result of the execution.
-2. **The quality gate result is INVALID, not failed — and the root cause is found
-   and fixed.** Only 21 of 96 questions were correct, all in the
-   source-existence/ambiguity category, and the two arms are identical. **The
-   campaign sealed its oracle from the PILOT seed (91561) while the formal pair ran
-   a different seed (91601)**: all 96 question labels in the sealed `N24.json`
-   belong to the 91561 corpus (96/96 match) and **none** matches the 91601 corpus
-   (0/96). So none of the identifiers the questions named was in the 576 pages the
-   model read, every question was unanswerable, and the model — searching
-   `search_context` for the literal it was handed and getting an honest
-   `absent: true` (all 33 searches were genuine absence, not a retrieval defect) —
-   answered empty or declared absence. The 21 "correct" answers are the ambiguity
-   questions whose right answer is absence: the baseline of a degenerate "answer
-   absent everywhere" strategy.
+2. **The quality gate: root cause found, fixed, re-asked — and the first valid
+   measurement is ARC 90/96 against native Basic's 27/96.** The original 21/96 was
+   invalid evidence. The cause: **the campaign sealed its oracle from the PILOT seed
+   (91561) while the formal pair ran 91601** — all 96 labels in the sealed `N24.json`
+   belong to the 91561 corpus (96/96) and none to 91601 (0/96). None of the
+   identifiers the questions named was in the 576 pages the model read, so every
+   question was unanswerable; the model searched for the literal it was handed, the
+   plugin honestly reported `absent: true` (all 33 searches genuine absence), and it
+   answered empty. The 21 "correct" answers were only the baseline of answering
+   "absent" everywhere.
 
-   Fixed: `loadSealedOracle`, `scoreRun` and the sentinel probes now all **derive
-   the oracle from the run's own corpus** (hidden salt plus that pair's seed, with
-   the corpus manifest still hash-verified against its sealed record and a
-   deterministic generator, so run behaviour cannot influence the questions), and
-   they record `oracleSource: 'derived-from-run-corpus'` plus the cross-check
-   against the sealed file. The permanent invariant test
-   (`w1.test.mjs`, "every sealed oracle question is answerable from the corpus it
-   was sealed against") covers **both the pilot and formal seeds at the plan's real
-   48-episode corpus size** and now passes.
+   `loadSealedOracle`, `scoreRun` and the sentinel probes now derive the oracle from
+   **the run's own corpus** (hidden salt plus that pair's seed, corpus manifest still
+   hash-verified against its sealed record), and the correct 96 questions were
+   **re-asked** — the original answers cannot be salvaged, because they answered the
+   wrong questions. Result:
 
-   **This pair's answers cannot be salvaged** — they were given to the wrong
-   questions. A first valid quality score needs the probe **re-asked** (reopen the
-   run's session and ask the correct 96 questions), about 1–2M tokens instead of
-   the 28M a fresh 24-episode journey would cost. That is the next round's first
-   task.
+   | Category | ARC_DEFERRED | BASIC_MATCHED |
+   | --- | --- | --- |
+   | state | **21/24** | 1/24 |
+   | exact | **24/24** | 3/24 |
+   | source_existence_ambiguity | 21/24 | 21/24 |
+   | timeline_dependency | **24/24** | 2/24 |
+   | **total** | **90/96 (floor 87/96)** | **27/96** |
+   | long tail | `longTailPassed: true`, probeClean long tail **11** | `false`, 5 |
+
+   Same 24-episode journey, same questions, same model: the plugin arm answered 90
+   correctly, native Basic answered 27 — and the plugin arm used **61% of the
+   foreground tokens**. This is the experiment's first **valid** quality measurement
+   and by far its strongest product evidence.
 
 3. **Four ARC-specific coverage gates were not reached**:
    `rearchivedDeliveredReceiptCount`, `maxVerifiedSourceProcessingDepth`,

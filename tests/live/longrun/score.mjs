@@ -27,27 +27,30 @@ async function deriveOracle({ campaign, root, endpoint }) {
   const corpus = generateCorpus({ seed, salt, episodes: sealedCorpus.episodes })
   const manifest = fixtureManifest(corpus)
   if (manifest.hash !== sealedCorpus.hash) throw new Error(`SEALED_CORPUS_CHANGED: seed ${seed}`)
+  // The oracle stays pristine: the scorer validates its shape and rejects unknown
+  // fields. Provenance is reported beside it.
   const oracle = generateOracle({ corpus, endpoint })
-  return { ...oracle, oracleSource: 'derived-from-run-corpus', corpusHash: manifest.hash }
+  return { oracle, provenance: { oracleSource: 'derived-from-run-corpus', corpusHash: manifest.hash, seed } }
 }
 
 // The scorer module is loaded lazily so the harness stays importable (and its
 // non-scoring contracts testable) before the corpus/scorer package is built.
-export async function scoreRun({ campaign, pairId, arm, runId }) {
+export async function scoreRun({ campaign, pairId, arm, runId, answersFile = 'probe-answers.json', scoreFile = 'score.json' }) {
   const { parseAnswerObject, scoreFinalProbe } = await import('./scoring.mjs')
   const root = runDirectory(campaign, pairId, arm, runId)
   const progress = await readJson(join(root, 'progress.json'), {})
   const endpoint = progress.finalEndpoint ?? progress.episode
-  const oracle = await deriveOracle({ campaign, root, endpoint })
-  const answers = await readJson(join(root, 'control', 'probe-answers.json'), [])
+  const { oracle, provenance } = await deriveOracle({ campaign, root, endpoint })
+  const answers = await readJson(join(root, 'control', answersFile), [])
   const parsed = parseProbeAnswers(answers, parseAnswerObject)
   const exposures = await readJson(join(root, 'control', 'probe-exposures.json'), {})
   const score = scoreFinalProbe({ parsed: parsed.answers, formatFailures: parsed.formatFailures, oracle, exposures, endpoint })
+  score.oracleProvenance = provenance
   score.runId = runId
   score.arm = arm
   score.pairId = pairId
   score.scoredAt = new Date().toISOString()
-  await atomicJson(join(root, 'score.json'), score)
+  await atomicJson(join(root, scoreFile), score)
   return score
 }
 
