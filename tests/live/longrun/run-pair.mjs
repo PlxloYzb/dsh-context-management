@@ -159,14 +159,16 @@ export async function drivePair({ campaign, pairId, dshBin, tarball, calibration
   }))
   if (heartbeat.timer) clearInterval(heartbeat.timer)
   for (const run of runs) {
-    await auditRun({ campaign, pairId, arm: run.arm, runId: run.driver.runId }).catch(error => {
-      results.push({ arm: run.arm, auditError: String(error.message ?? error) })
-    })
-    // Scoring runs after the audit so a score is never computed from a
-    // half-audited run; scorer failures are recorded, never silently skipped.
+    // Score BEFORE auditing. The audit's probe-clean long-tail observation is
+    // something the scorer measures, so auditing first read no score at all,
+    // reported the count as 0, and wrote a coverage verdict that its own re-run
+    // immediately contradicted.
     const { scoreRun } = await import('./score.mjs')
     await scoreRun({ campaign, pairId, arm: run.arm, runId: run.driver.runId }).catch(error => {
       results.push({ arm: run.arm, scoreError: String(error.message ?? error) })
+    })
+    await auditRun({ campaign, pairId, arm: run.arm, runId: run.driver.runId }).catch(error => {
+      results.push({ arm: run.arm, auditError: String(error.message ?? error) })
     })
     const { writeResult } = await import('./audit.mjs')
     await writeResult({ campaign, pairId, arm: run.arm, runId: run.driver.runId }).catch(error => {
@@ -412,7 +414,13 @@ export async function resumePair({ campaign, pairId, dshBin, tarball }) {
     } finally {
       if (driver.host) await driver.host.stop().catch(() => {})
     }
+    // A resumed run needs the same score-then-audit-then-result chain as a fresh
+    // one, in that order and for the same reason.
+    const { scoreRun } = await import('./score.mjs')
+    await scoreRun({ campaign, pairId, arm: run.arm, runId: run.runId }).catch(() => {})
     await auditRun({ campaign, pairId, arm: run.arm, runId: run.runId }).catch(() => {})
+    const { writeResult } = await import('./audit.mjs')
+    await writeResult({ campaign, pairId, arm: run.arm, runId: run.runId }).catch(() => {})
   }
   await atomicJson(join(pairRoot, 'resume-result.json'), { campaign, pairId, results, at: new Date().toISOString() })
   return { runs: results, candidate }

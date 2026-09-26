@@ -10,6 +10,33 @@ the normative one.
 **This execution found no new product defect. It found and fixed thirteen defects in the experiment tooling itself, six of which make a long campaign impossible to finish or its evidence unusable.** Where the run reached, the product behaved correctly: 24 episodes per run, 23 real turnovers, 23 delivered background summaries, one real restart, and **8/8 hard integrity gates passing**. The quality gate reported 21/96 on both arms, but that result is **invalid** (the oracle and corpus id spaces disagree).
 
 ## Final result
+## The second formal pair: the result replicates
+
+The protocol names this step `P3_SECOND_PAIR` and gates it on `G2_REVIEW`. The first
+pair was reviewed and accepted (structured evidence at
+`reviews/main-91601.evidence.json`, every criterion true), and the second pair ran
+24 episodes in the SAME campaign on a different seed, 91602.
+
+| | Pair 1 (seed 91601) | Pair 2 (seed 91602) |
+| --- | --- | --- |
+| ARC foreground tokens | 10,668,743 | 13,446,795 |
+| Basic foreground tokens | 17,377,940 | 21,970,909 |
+| ARC unique source tokens | 508,585 | 508,749 |
+| **ARC 96 questions** | **90/96 pass** | **91/96 pass** |
+| **Basic 96 questions** | **27/96 fail** | **26/96 fail** |
+| ARC hard integrity gates | 8/8 | 8/8 |
+| ARC-specific coverage gates | 7/8 (long tail 11/12) | **8/8 (long tail 12/12)** |
+| ARC turnovers / Basic compactions | 23 / 68 | 23 / 102 |
+
+**The conclusion replicates on a second seed**: ARC 90-91/96 against native Basic
+26-27/96, a gap of about 64 questions. The second pair's ARC arm also cleared all
+eight ARC-specific coverage gates for the first time (long tail 12/12), which
+settles the first pair's caveat — in a clean session it answered the same class of
+ambiguity question correctly.
+
+The four primary runs total roughly **63.5M** foreground tokens (10.67M + 17.38M +
+13.45M + 21.97M).
+
 
 Both primary runs completed all 24 episodes, the real restart, the 12-batch
 96-question final probe, and the independent audit.

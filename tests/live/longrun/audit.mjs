@@ -70,12 +70,18 @@ export async function writeResult({ campaign, pairId, arm, runId }) {
   const root = runDirectory(campaign, pairId, arm, runId)
   const progress = await readJson(join(root, 'progress.json'), {})
   const audit = await readJson(join(root, 'audit.json'), null)
-  const score = await readJson(join(root, 'score.json'), null)
+  // Prefer the re-asked probe when one exists, exactly as the audit does. The
+  // first campaign's original probe answered questions sealed from the wrong seed,
+  // so its `score.json` is not a measurement of anything; the re-ask is.
+  const reprobe = await readJson(join(root, 'score-reprobe.json'), null)
+  const score = reprobe ?? await readJson(join(root, 'score.json'), null)
+  const qualitySource = reprobe ? 'score-reprobe.json' : 'score.json'
   const usage = audit?.usage ?? {}
   const coverage = audit?.coverage ?? {}
   const quality = score ?? null
   const result = {
     schemaVersion: 1, runId, arm, campaign, pairId,
+    qualitySource,
     finalizedAt: new Date().toISOString(),
     terminalReason: progress.terminalReason ?? null,
     executionCompleted: progress.terminalReason === 'COMPLETED',
