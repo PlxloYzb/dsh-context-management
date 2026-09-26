@@ -376,3 +376,34 @@ The judge is shared by the probe and its test and judges **explicitness rather t
 success**: refused-with-a-reason and honoured-with-real-hits are both correct, an
 unverified restart or a missing cursor invalidates the probe, and an **empty page that
 does not declare absence** fails.
+
+#### X01 T-1/T/T+1: the one token at the boundary
+
+The only numeric-boundary case in the matrix, and where an off-by-one hides: the long
+runs proved the plugin correct **far above** the pressure line and never once sat on
+it. Two sites are the plugin's own exact comparisons, and neither had its boundary
+bracketed:
+
+| Call | Result |
+| --- | --- |
+| `governorCapacity(1000, reserve 800 + margin 200)` | `CONTEXT_INVALID_CONFIG` (no input budget remains) |
+| `governorCapacity(1001, ...)` | `effectiveInputLimit === 1` (one token more of window fits exactly) |
+| `governorCapacity(999, ...)` | `CONTEXT_INVALID_CONFIG` |
+| `governorCapacity(1_000_000, ...)` | `effectiveInputLimit === 999000` (exact arithmetic) |
+| `assertEnvelopeFits(4096, 4096)` | **accepted** (an exact fit must be allowed) |
+| `assertEnvelopeFits(4095, 4096)` | accepted |
+| `assertEnvelopeFits(4097, 4096)` | `context-envelope-too-large` |
+| `assertEnvelopeFits(null, 4096)` | accepted (no measurement is not an envelope problem) |
+
+**Both are correct at the boundary.** The existing governor test covered only the
+obviously-impossible setting, and `assertEnvelopeFits` had **no unit coverage of its
+comparison at all** — its failure mode is a spurious `CONTEXT_ENVELOPE_TOO_LARGE` on a
+route that fits exactly, quiet enough to hide for a long time.
+
+Both tests were verified to **discriminate**: they fail when `>` becomes `>=` and when
+`<= 0` becomes `< 0`. The mutation has to be real — flipping `<= 0` to `< 1` is the
+same predicate and proved nothing.
+
+`large-result-unicode` is recorded `NOT_APPLICABLE` rather than passed: multi-byte
+counting belongs to the **host token meter**, which the plugin consumes as
+`heuristicTokens` and never estimates itself. X01 is therefore 3/4.

@@ -229,3 +229,24 @@ node tests/live/longrun/cli.mjs status   --campaign <id>
 这是**符合契约**的结果。被禁止的失败是**静默返回空页**——那与"真的不存在"无法区分；而这里游标被**点名作废**，带机器可读的错误码与恢复指引。`restart-cursor` 因此 PASS，X08 达到 **4/5 声明变体**。
 
 判定器现在由探针与用例共享，且判的是**显式性而非成功**：带原因被拒绝、或带真实命中被接受，都算正确；重启未校验或缺游标则整个探针作废；**不声明缺失的空页**判失败。
+
+#### X01 T-1/T/T+1：压到边界的那一 token
+
+这是矩阵里唯一的**数值边界**专项，也是差一错误最容易藏身的地方：长跑证明了插件在**远超**压力线时正确，却从未坐在那条线上。插件自己拥有的两处精确比较，此前都没有被夹住边界：
+
+| 调用 | 结果 |
+| --- | --- |
+| `governorCapacity(1000, 预留 800 + 余量 200)` | `CONTEXT_INVALID_CONFIG`（恰好无输入预算 → 拒绝） |
+| `governorCapacity(1001, …)` | `effectiveInputLimit === 1`（多一个 token 的窗口 → 恰好可行） |
+| `governorCapacity(999, …)` | `CONTEXT_INVALID_CONFIG` |
+| `governorCapacity(1_000_000, …)` | `effectiveInputLimit === 999000`（精确算术） |
+| `assertEnvelopeFits(4096, 4096)` | **接受**（恰好装下必须允许） |
+| `assertEnvelopeFits(4095, 4096)` | 接受 |
+| `assertEnvelopeFits(4097, 4096)` | `context-envelope-too-large` |
+| `assertEnvelopeFits(null, 4096)` | 接受（没有测量值不算信封问题） |
+
+**两处边界都正确。** 原有的 governor 用例只覆盖了明显不可能的配置，而 `assertEnvelopeFits` 的比较**完全没有单元覆盖**——它的失败形态是"对一条恰好装得下的路由报出 `CONTEXT_ENVELOPE_TOO_LARGE`"，安静到足以长期隐藏。
+
+两个用例都验证过**判别性**：把 `>` 改成 `>=`、把 `<= 0` 改成 `< 0` 即失败。（第一次我用了 `<= 0` → `< 1`，那是**同一个谓词**，什么也没证明。）
+
+`large-result-unicode` 记为 `NOT_APPLICABLE` 而不是通过：多字节计数属于**宿主 token 计量器**，插件只消费 `heuristicTokens`、自己从不估算 token。X01 因此 **3/4 声明变体**。
