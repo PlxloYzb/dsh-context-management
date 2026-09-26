@@ -330,3 +330,28 @@ the first result and the other two looked empty; and it demanded `absent: true` 
 the impossible literal, **scoring the tool's correct, conservative behaviour as a
 failure** — a truncated scan may declare itself unfinished, a completed scan may
 declare absence, and silence is neither. A regression test covers all four.
+
+#### The cursor path, walked for the first time
+
+This was the most valuable remaining probe, because the cursor path had **never been
+walked**: across both formal pairs three searches stopped at the scan budget and
+handed back a `nextCursor`, and it was resumed **zero** times. A path that is offered
+and never taken is exactly where a defect hides.
+
+| Step | Call | Result |
+| --- | --- | --- |
+| first | `{"query":"short=","limit":5}` | 5 hits + `nextCursor` |
+| resumed | `{"query":"short=","limit":5,"cursor":C1}` | **5 different hits**, success |
+| misused | `{"query":"role=user-correction","cursor":C1}` | **status error (refused)** |
+| bogus | `{"query":"short=","cursor":"not-a-real-cursor"}` | **status error (refused)** |
+
+All four behave correctly: the resume **advances** rather than looping or re-serving
+the first page's hits, a cursor reused for a **different query** is refused instead of
+being silently answered with the original query's hits, and an invalid cursor is
+refused. X08 therefore reaches **3 of 5** declared variants.
+
+The judge had to be fixed twice, both times for scoring correct behaviour as failure:
+it demanded `scanBudgetReached` or `absent` on the resumed page, when a next page
+legitimately carries neither (`scanBudgetReached` describes the scan budget, not
+pagination); and it treated a cross-query cursor that was **refused** as a problem,
+when refusing is precisely the contract.
