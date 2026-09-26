@@ -44,3 +44,40 @@ test('host-budget: the envelope boundary is exact at T-1/T/T+1', async () => {
   assert.doesNotThrow(() => assertEnvelopeFits(null, budget))
   assert.doesNotThrow(() => assertEnvelopeFits({}, budget))
 })
+
+// X15 malformed usage: a bad host projection must degrade to conservative pricing,
+// never be trusted.
+//
+// The long campaign recorded `unknownUsageCalls: 0` for its whole duration, so this
+// branch was never fed. It matters because the projection feeds the pressure gate:
+// a NaN or negative `projectedTokens` compares false against every threshold, so
+// trusting one would silently stop compaction from ever firing while the context
+// kept growing. The plugin must refuse the reading and price conservatively instead.
+test('host-budget: a malformed projection degrades to conservative pricing', () => {
+  const build = (projectedTokens: unknown, baseline: { kind: string } = { kind: 'usage' }) => {
+    const session = Session.create('malformed'), ctx = new Context()
+    ctx.provide('tokenMeter', { measure: () => ({ logRevision: session.seq, totalTokens: 20546, surfaceTokens: 2046, baseline }) } as never)
+    ctx.provide('sessionProjections', { snapshot: () => ({ values: { contextPressure: { projectedTokens } } }) } as never)
+    return { session, ctx }
+  }
+  for (const bad of [NaN, Infinity, -Infinity, -1, '18547', null, undefined, {}]) {
+    const { session, ctx } = build(bad)
+    const pressure = inputPressure(ctx, session)
+    assert.equal(pressure?.source, 'meter-conservative', `${String(bad)} must not be trusted as a projection`)
+    assert.equal(pressure?.projectedTokens, 20546, 'conservative pricing uses the meter total')
+  }
+  // A well-formed projection is still used, so the guard is not refusing everything.
+  const { session, ctx } = build(18547)
+  assert.equal(inputPressure(ctx, session)?.source, 'host-projection')
+  assert.equal(inputPressure(ctx, session)?.projectedTokens, 18547)
+
+  // A stale measurement is not a usable reading at all.
+  const stale = Session.create('stale'), staleCtx = new Context()
+  staleCtx.provide('tokenMeter', { measure: () => ({ logRevision: stale.seq + 1, totalTokens: 1, surfaceTokens: 0, baseline: { kind: 'usage' } }) } as never)
+  assert.throws(() => inputPressure(staleCtx, stale), /stale/)
+
+  // Without a usage baseline the envelope is total minus surface, clamped at zero.
+  const over = Session.create('over'), overCtx = new Context()
+  overCtx.provide('tokenMeter', { measure: () => ({ logRevision: over.seq, totalTokens: 100, surfaceTokens: 400, baseline: { kind: 'estimate' } }) } as never)
+  assert.equal(inputPressure(overCtx, over)?.envelopeTokens, 0, 'a negative envelope is clamped, never passed through')
+})
