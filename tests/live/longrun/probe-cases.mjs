@@ -120,6 +120,105 @@ export function judgeCursor({ first, resumed, misused, bogus }) {
   return problems
 }
 
+/**
+ * Carry a cursor across a REAL restart.
+ *
+ * This is the last branch of the cursor semantics and the only X08 variant left.
+ * The archive is durable and the cursor is session-local, so a cursor taken before
+ * a restart should still resolve afterwards. If it does not, the plugin must say so
+ * explicitly — a cursor that silently returns an empty page would be indistinguish-
+ * able from a genuine absence, which is the failure the retrieval contract forbids.
+ */
+/**
+ * Judge a cursor carried across a restart.
+ *
+ * The contract is about explicitness: an invalidated cursor must be REFUSED with a
+ * reason, or honoured with real results. A page that comes back empty without
+ * declaring absence is indistinguishable from a genuine absence and is the one
+ * outcome that is never acceptable.
+ */
+export function judgeRestartCursor(row) {
+  const problems = []
+  if (!row) return ['no result']
+  if (row.hadCursor !== true) problems.push('the pre-restart page returned no cursor to carry')
+  if (row.restartVerified !== true) problems.push('the restart was not verified against the durable prefix')
+  const refused = row.postStatus === 'error'
+  const carried = row.postStatus === 'success'
+  if (!refused && !carried) problems.push(`the carried cursor was neither honoured nor refused: status ${JSON.stringify(row.postStatus)}`)
+  if (carried && (row.postHits ?? 0) === 0 && row.postAbsent !== true) {
+    problems.push('the carried cursor returned an empty page without declaring absence')
+  }
+  return problems
+}
+
+export async function runRestartCursorProbe({ campaign, pairId, arm = 'ARC_DEFERRED' }) {
+  const { results } = await withHost({ campaign, pairId, arm, label: 'x08-restart' }, async ({ driver }) => {
+    const ask = async (logicalPromptId, text) => {
+      const turn = await driver.turn({ logicalPromptId, text, purpose: 'diagnostic', expectedEpisode: 0, turnSeconds: 600 })
+      const calls = []
+      const pending = new Map()
+      for (const event of turn.recent) {
+        if (event.type === 'tool/call' && event.data?.name === 'search_context') {
+          let args = {}
+          try { args = JSON.parse(event.data.arguments ?? '{}') } catch { args = {} }
+          pending.set(event.data.callId, args)
+        }
+        if (event.type === 'tool/result') {
+          const args = pending.get(event.data?.message?.source?.callId)
+          if (!args) continue
+          let body = ''
+          for (const block of event.data.message.content ?? []) {
+            if (block.type === 'text') body += block.text
+            for (const inner of block.content ?? []) if (inner.type === 'text') body += inner.text
+          }
+          try { calls.push({ args, result: JSON.parse(body) }) } catch { calls.push({ args, result: null }) }
+        }
+      }
+      return calls
+    }
+
+    const before = await ask(`X08-RCURSOR-A-${Date.now()}`, [
+      'Cursor probe, part 1 of 2. Call search_context once with {"query":"short=","limit":5}.',
+      'Copy its nextCursor value exactly and reply with the raw JSON result only. Do not summarize.',
+    ].join('\n'))
+    const first = before[0]?.result ?? null
+    const cursor = first?.nextCursor ?? null
+
+    // A real restart, verified against the durable prefix, so the probe cannot
+    // silently continue on the old process.
+    const restart = await driver.openSession({ restart: true })
+
+    const after = cursor
+      ? await ask(`X08-RCURSOR-B-${Date.now()}`, [
+        'Cursor probe, part 2 of 2. The archive was reloaded.',
+        `Call search_context once with {"query":"short=","limit":5,"cursor":"${cursor}"}.`,
+        'Report the raw JSON result exactly, whatever it says. Do not retry with a different cursor.',
+      ].join('\n'))
+      : []
+    const resumed = after[0]?.result ?? null
+
+    const row = {
+      preHits: first?.hits?.length ?? null,
+      hadCursor: typeof cursor === 'string' && cursor.length > 0,
+      restartVerified: restart?.verified === true,
+      postStatus: resumed?.status ?? null,
+      postHits: resumed?.hits?.length ?? null,
+      postAbsent: resumed?.absent ?? null,
+      postCode: resumed?.code ?? null,
+      postRecovery: resumed?.recovery ?? null,
+    }
+    if (!first) row.postStatus = row.postStatus ?? null
+    const problems = judgeRestartCursor(row)
+    if (!first) problems.push('no pre-restart result observed')
+    if (cursor && !resumed) problems.push('no post-restart result observed')
+    if (resumed?.status === 'success' && (resumed.hits ?? []).some(hit => (first?.hits ?? []).some(prior => prior.seq === hit.seq))) {
+      problems.push('the carried cursor re-served hits from before the restart')
+    }
+    return { results: [{ ...row, problems }] }
+  })
+  return { results }
+}
+
 export async function runCursorProbes({ campaign, pairId, arm = 'ARC_DEFERRED' }) {
   const { results, evidencePath } = await withHost({ campaign, pairId, arm, label: 'X08-CURSOR' }, async ({ driver }) => {
     const text = [
@@ -158,8 +257,8 @@ export async function runCursorProbes({ campaign, pairId, arm = 'ARC_DEFERRED' }
       calls: calls.length,
       first: first ? { hits: first.hits?.length ?? null, scanBudgetReached: first.scanBudgetReached ?? null, hasCursor: typeof first.nextCursor === 'string' } : null,
       resumed: resumed ? { hits: resumed.hits?.length ?? null, scanBudgetReached: resumed.scanBudgetReached ?? null, hasCursor: typeof resumed.nextCursor === 'string', status: resumed.status } : null,
-      misused: misused ? { hits: misused.hits?.length ?? null, status: misused.status, error: misused.error ?? misused.hint ?? null } : null,
-      bogus: bogus ? { hits: bogus.hits?.length ?? null, status: bogus.status, error: bogus.error ?? bogus.hint ?? null } : null,
+      misused: misused ? { hits: misused.hits?.length ?? null, status: misused.status, code: misused.code ?? null, recovery: misused.recovery ?? null } : null,
+      bogus: bogus ? { hits: bogus.hits?.length ?? null, status: bogus.status, code: bogus.code ?? null, recovery: bogus.recovery ?? null } : null,
     }
     return { results: [{ ...summary, problems: judgeCursor({ first, resumed, misused, bogus }) }], evidencePath: null }
   })
@@ -199,7 +298,10 @@ async function withHost({ campaign, pairId, arm = 'ARC_DEFERRED', label }, body)
     await host.client.call('session/selectModel', { sessionId: driver.sessionId, ...planJson.plan.environment.model })
     return await body({ driver, runId, root })
   } finally {
-    if (host) await host.stop().catch(() => {})
+    // The body may have restarted the host, so stop what the driver holds NOW
+    // rather than the handle captured before the body ran.
+    const current = driver.host ?? host
+    if (current) await current.stop().catch(() => {})
   }
 }
 

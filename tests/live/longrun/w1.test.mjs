@@ -771,3 +771,21 @@ test('cursor probes require advancement and accept a refused misuse', async () =
   // An invalid cursor answered with hits is the same failure.
   assert.notDeepEqual(judgeCursor({ first, resumed: good, misused: { status: 'error' }, bogus: { status: 'success', hits: [{ seq: 9 }] } }), [])
 })
+
+// A cursor carried across a restart must be honoured or refused, never silently
+// empty — an empty page after a restart is indistinguishable from a real absence,
+// which is the failure the retrieval contract forbids.
+test('a restart-carried cursor is judged on explicitness, not on being honoured', async () => {
+  const { judgeRestartCursor } = await import('./probe-cases.mjs')
+  const base = { preHits: 5, hadCursor: true, restartVerified: true }
+  // Refused with a machine-readable reason is correct.
+  assert.deepEqual(judgeRestartCursor({ ...base, postStatus: 'error', postCode: 'invalid-cursor' }), [])
+  // Honoured with fresh hits is correct.
+  assert.deepEqual(judgeRestartCursor({ ...base, postStatus: 'success', postHits: 5 }), [])
+  // An unverified restart invalidates the probe.
+  assert.notDeepEqual(judgeRestartCursor({ ...base, restartVerified: false, postStatus: 'error', postCode: 'invalid-cursor' }), [])
+  // No cursor to carry means the case never ran.
+  assert.notDeepEqual(judgeRestartCursor({ ...base, hadCursor: false, postStatus: 'error', postCode: 'invalid-cursor' }), [])
+  // Silently empty is the forbidden outcome.
+  assert.notDeepEqual(judgeRestartCursor({ ...base, postStatus: 'success', postHits: 0, postAbsent: null }), [])
+})
