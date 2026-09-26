@@ -301,3 +301,20 @@ X13 之所以在未验证清单上，是因为长跑**只在干净边界上重�
 所以 `pending-restart` 在既有证据上 PASS，`flushed-restart` 在长跑证据上 PASS（新 pid、持久前缀哈希一致、分页历史一致、同一 session id），只剩 `commit-gap-sigkill` 未执行（没有注入 SIGKILL）。X13 因此 **2/3**。
 
 这是继 X12 之后**第二个"其实已被验证、只是在另一道门里"的 case**。这种情况应当明说，而不是因为长跑恰好没走到就把它留在未验证清单上。
+
+#### X06 `no-summary`：缺失的**前置条件**，不是失败类别
+
+摘要的**七种失败类别**（timeout、oversize、failed、invalid-output、cancelled、disposed、late）在别处都有覆盖。而"**从未请求过任何摘要**"是另一回事——**一个悄悄依赖摘要的插件会通过全部失败用例，却在这里卡住**。
+
+它没有卡住。既然从未准备过任何东西：`status` 为 `null`、`take` 与 `offer` 为 `undefined`，而 `await_context` **会 resolve 而不是阻塞**，并且给的是**显式答复而不是沉默**：
+
+```json
+{ "status": "unavailable", "reason": "no-background-handoff",
+  "hint": "Use search_context/decompress for missing historical evidence." }
+```
+
+**那句 hint 才是让模型继续前进的东西**，所以它被断言了。窗口换窗也**仅凭保留历史**就提交了自己的块——压缩完全不依赖后台摘要。用例有判别性：把 hint 去掉即失败。
+
+写这条用例纠正了我自己的两个假设：`wait` 是 **async**、返回的是 resolve 而不是 `undefined`；返回的是**显式的 unavailable** 而不是"什么都没有"。两者都比我原先假设的更好——**这正是"去查而不是断言"的意义**。
+
+X06 因此 **1/7**。

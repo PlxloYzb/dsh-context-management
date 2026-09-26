@@ -498,3 +498,30 @@ injected. X13 is 2/3.
 This is the **second case (after X12) whose honest answer was "already verified, just in
 a different gate"** — worth stating plainly rather than leaving it on an unverified list
 because the live campaign did not happen to reach it.
+
+#### X06 `no-summary`: the absent PRECONDITION, which is not a failure class
+
+Every summary **failure class** is covered elsewhere (timeout, oversize, failed,
+invalid-output, cancelled, disposed, late). A session where **no summary was ever
+requested** is a different thing — **a plugin that quietly depended on one would pass
+every failure test and still stall here**.
+
+It does not stall. Nothing was ever prepared, so `status` is `null`, `take` and `offer`
+are `undefined`, and `await_context` **resolves rather than blocking** — with an
+**explicit answer instead of silence**:
+
+```json
+{ "status": "unavailable", "reason": "no-background-handoff",
+  "hint": "Use search_context/decompress for missing historical evidence." }
+```
+
+**That hint is what keeps the model moving**, so it is asserted. The window turnover also
+commits its block **from retained history alone** — compaction does not depend on a
+background summary at all. The test discriminates: dropping the hint fails it.
+
+Writing it corrected two of my own assumptions — `wait` is **async** and returns a
+resolution rather than `undefined`, and the resolution is an **explicit unavailable**
+rather than an absence. Both are better than what I had assumed, **which is the point of
+checking rather than asserting**.
+
+X06 is therefore 1/7.
