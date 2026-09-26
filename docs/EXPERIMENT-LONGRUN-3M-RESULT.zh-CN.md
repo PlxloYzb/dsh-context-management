@@ -168,6 +168,13 @@ node tests/live/longrun/cli.mjs status   --campaign <id>
 
 原始证据在被 Git 忽略的 `.test-runtime/longrun-20260915/<campaign>/` 下，含逐请求观测、用量账本、摘要任务账本、压力轨迹与独立审计。
 
+**复现须知（两处真实差异）：**
+
+1. **campaign 自己封存了自己的计划**。`lr3m-v2-formal1` 是用**一对**的旧计划 prepare 的（封存 `planHash` 为 `40627bab…`），第二对是后来用**两对**的新计划（`f7370f81…`）在**同一个 campaign** 里跑的。所以今天用同一份计划重新 prepare 会得到两对的封存，而不是当年的那一份——campaign 的 `plan.json` 才是它实际的契约，`status` 输出里的 `manifest.planHash` 是权威值。
+2. **第二对必须用 `--plan` 显式指定**（`run-pair --pair main-91602 --plan docs/experiments/muse-longrun-v2.plan.json`）：`run-pair` 默认读 v1 计划路径，且 `G2_REVIEW` 门在代码里强制要求第一对已有接受评审，所以第二对**不能**放进另一个 campaign。
+
+另外：本仓库的 `npm run check`（typecheck / unit 194 / integration 176 / reliability 8 / live:local:unit 36 / build）**全绿**，与本实验的结论一致。
+
 ## 专项矩阵（P4_DIAGNOSTICS）
 
 18 个专项（X01–X18）此前**从未启动**：没有任何 campaign 有 `cases/` 目录，配对运行器也从不调用专项运行器。打开之后，从各 run 自己的 audit/progress/账本读数，得到：

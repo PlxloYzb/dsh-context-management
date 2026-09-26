@@ -264,6 +264,24 @@ Raw evidence lives under the git-ignored
 `.test-runtime/longrun-20260915/<campaign>/`: per-request observation, usage and
 job ledgers, pressure trace, and the independent audit.
 
+**Two real caveats for anyone reproducing this:**
+
+1. **The campaign sealed its own plan.** `lr3m-v2-formal1` was prepared with the
+   one-pair plan (sealed `planHash` `40627bab…`); the second pair was later run in the
+   **same campaign** under the two-pair plan (`f7370f81…`). Re-preparing today therefore
+   seals a different plan than the one this campaign ran under — the campaign's own
+   `plan.json` is its actual contract, and the `manifest.planHash` in `status` is
+   authoritative.
+2. **The second pair must name the plan explicitly**
+   (`run-pair --pair main-91602 --plan docs/experiments/muse-longrun-v2.plan.json`):
+   `run-pair` defaults to the v1 plan path, and the `G2_REVIEW` gate is enforced in code,
+   requiring an accepted review of the first pair — which is why the second pair could not
+   live in a separate campaign.
+
+Finally, this repository's `npm run check` (typecheck / unit 194 / integration 176 /
+reliability 8 / live:local:unit 36 / build) is **green**, consistent with the
+conclusions here.
+
 ## The diagnostic matrix (P4_DIAGNOSTICS)
 
 The 18 diagnostics (X01-X18) had never been started: no campaign had a `cases/`
