@@ -15,6 +15,8 @@ export async function prepareCampaign({ campaign, planPath }) {
   await ensurePrivateDirectory(join(root, 'private'))
   await ensurePrivateDirectory(join(root, 'reviews'))
   await ensurePrivateDirectory(join(root, 'private', 'endpoint-probes'))
+  await ensurePrivateDirectory(join(root, 'private', 'corpora'))
+  await ensurePrivateDirectory(join(root, 'private', 'sentinels'))
   await atomicJson(join(root, 'plan.json'), { planPath, planHash, plan, geometry, sealedAt: new Date().toISOString() })
 
   const { generateCorpus, generateOracle, fixtureManifest, pageTokens, sentinelQuestions, oracleAnswerabilityProblems } = await import('./fixture.mjs')
@@ -29,29 +31,40 @@ export async function prepareCampaign({ campaign, planPath }) {
   }
   const maximum = plan.workload.maximumEpisodes
   const saltHex = salt.toString('hex')
-  const corpus = generateCorpus({ seed: plan.schedule.pilot.seed, salt: saltHex, episodes: maximum })
-  const manifest = fixtureManifest(corpus)
-  const heuristic = pageTokens(corpus)
-  corpus.pageHeuristicTokens = heuristic
-  await atomicJson(join(root, 'private', 'corpus.json'), {
-    ...manifest, pageHeuristicTokens: heuristic,
-  })
-  for (const episode of plan.probes.sentinelEpisodes) {
-    const sentinel = sentinelQuestions(corpus, episode)
-    await atomicJson(join(root, 'private', `sentinel-E${episode}.json`), { episode, questions: sentinel })
-  }
+  // EVERY seed the plan runs, not just the pilot seed. Sealing one oracle set from
+  // the pilot seed and then running a formal pair on its own seed is what made the
+  // first campaign's quality score meaningless: 0 of 96 question labels matched the
+  // corpus the model actually read.
+  const seeds = [...new Set([plan.schedule.pilot.seed, ...plan.schedule.formalPairs.map(pair => pair.seed)])]
   const probeIndex = {}
-  for (const endpoint of plan.probes.endpoints) {
-    const oracle = generateOracle({ corpus, endpoint: endpoint.endpointEpisodes })
-    // Seal only an oracle the corpus can actually answer. An unanswerable oracle
-    // turns the quality gate into a measurement of nothing, which is precisely how
-    // the first executed campaign produced a meaningless 21/96 on both arms.
-    const unanswerable = oracleAnswerabilityProblems(corpus, oracle)
-    if (unanswerable.length > 0) {
-      throw new Error(`ORACLE_UNANSWERABLE at endpoint ${endpoint.endpointEpisodes} (${unanswerable.length} problems): ${unanswerable.slice(0, 5).join('; ')}`)
+  for (const seed of seeds) {
+    const corpus = generateCorpus({ seed, salt: saltHex, episodes: maximum })
+    const manifest = fixtureManifest(corpus)
+    const heuristic = pageTokens(corpus)
+    corpus.pageHeuristicTokens = heuristic
+    const corpusPath = join(root, 'private', 'corpora', `seed-${seed}.json`)
+    if (!existsSync(corpusPath)) await atomicJson(corpusPath, { ...manifest, pageHeuristicTokens: heuristic, seed })
+    if (seed === plan.schedule.pilot.seed) await atomicJson(join(root, 'private', 'corpus.json'), { ...manifest, pageHeuristicTokens: heuristic })
+    for (const episode of plan.probes.sentinelEpisodes) {
+      const sentinel = sentinelQuestions(corpus, episode)
+      await atomicJson(join(root, 'private', 'sentinels', `seed-${seed}`, `E${episode}.json`), { episode, seed, questions: sentinel })
+      // The pilot seed keeps the legacy flat names so the first campaign's record
+      // stays readable; every seed gets its own directory.
+      if (seed === plan.schedule.pilot.seed) await atomicJson(join(root, 'private', `sentinel-E${episode}.json`), { episode, questions: sentinel })
     }
-    await atomicJson(join(root, 'private', 'endpoint-probes', `N${endpoint.endpointEpisodes}.json`), oracle)
-    probeIndex[`N${endpoint.endpointEpisodes}`] = { questionCount: oracle.questions.length, oracleHash: sha256(JSON.stringify(oracle)) }
+    for (const endpoint of plan.probes.endpoints) {
+      const oracle = generateOracle({ corpus, endpoint: endpoint.endpointEpisodes })
+      // Seal only an oracle the corpus can actually answer. An unanswerable oracle
+      // turns the quality gate into a measurement of nothing, which is precisely how
+      // the first executed campaign produced a meaningless 21/96 on both arms.
+      const unanswerable = oracleAnswerabilityProblems(corpus, oracle)
+      if (unanswerable.length > 0) {
+        throw new Error(`ORACLE_UNANSWERABLE at seed ${seed} endpoint ${endpoint.endpointEpisodes} (${unanswerable.length} problems): ${unanswerable.slice(0, 5).join('; ')}`)
+      }
+      await atomicJson(join(root, 'private', 'endpoint-probes', `seed-${seed}`, `N${endpoint.endpointEpisodes}.json`), oracle)
+      if (seed === plan.schedule.pilot.seed) await atomicJson(join(root, 'private', 'endpoint-probes', `N${endpoint.endpointEpisodes}.json`), oracle)
+      probeIndex[`seed-${seed}/N${endpoint.endpointEpisodes}`] = { questionCount: oracle.questions.length, oracleHash: sha256(JSON.stringify(oracle)) }
+    }
   }
   const dist = await distManifest('dist')
   const candidate = {
@@ -61,15 +74,20 @@ export async function prepareCampaign({ campaign, planPath }) {
     builtAt: new Date().toISOString(),
   }
   await atomicJson(join(root, 'candidate.json'), candidate)
+  // The campaign manifest describes the PILOT corpus, which is the one the pilot
+  // pair reads; every seed now has its own sealed record under `private/corpora/`.
+  const pilotCorpus = generateCorpus({ seed: plan.schedule.pilot.seed, salt: saltHex, episodes: maximum })
+  const pilotManifest = fixtureManifest(pilotCorpus)
+  const pilotHeuristic = pageTokens(pilotCorpus)
   const manifestJson = {
     campaign, createdAt: new Date().toISOString(), planHash,
-    corpusHash: manifest.hash, corpusEpisodes: maximum,
-    totalSourceHeuristicTokens: heuristic.reduce((sum, value) => sum + value, 0),
-    baseSourceHeuristicTokens: heuristic.slice(0, plan.workload.baseEpisodes * plan.workload.pagesPerEpisode).reduce((sum, value) => sum + value, 0),
+    corpusHash: pilotManifest.hash, corpusEpisodes: maximum,
+    totalSourceHeuristicTokens: pilotHeuristic.reduce((sum, value) => sum + value, 0),
+    baseSourceHeuristicTokens: pilotHeuristic.slice(0, plan.workload.baseEpisodes * plan.workload.pagesPerEpisode).reduce((sum, value) => sum + value, 0),
     probeIndex, candidateDistSha256: candidate.dist.sha256, candidateDistFiles: candidate.dist.files,
   }
   await atomicJson(join(root, 'manifest.json'), manifestJson)
-  return { root, plan, geometry, planHash, manifest: manifestJson, corpus, candidate }
+  return { root, plan, geometry, planHash, manifest: manifestJson, corpus: pilotCorpus, candidate }
 }
 
 export async function sealPair({ campaign, pairId, plan, pilot = false }) {

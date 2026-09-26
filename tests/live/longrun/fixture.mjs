@@ -905,7 +905,10 @@ function buildCodeFixture(salt, seed) {
 
 export function fixtureManifest(corpus) {
   if (!corpus || typeof corpus !== 'object') throw new Error('A corpus is required')
-  return JSON.parse(JSON.stringify(corpus.manifest))
+  // The hash lives on the corpus, NOT inside `corpus.manifest`. Returning only the
+  // manifest meant every integrity check compared `undefined !== undefined` and
+  // passed unconditionally: the sealed-corpus check had never verified anything.
+  return { ...JSON.parse(JSON.stringify(corpus.manifest)), hash: corpus.hash }
 }
 
 function materialCountsFor(material, episodes, endpoint) {

@@ -82,7 +82,9 @@ export async function loadSealedCampaign(campaign, seed) {
   const manifest = fixtureManifest(corpus)
   const sealedPath = join(root, 'private', 'corpora', `seed-${seed ?? planJson.plan.schedule.pilot.seed}.json`)
   const previous = await readJson(sealedPath, null)
-  if (previous && previous.hash !== manifest.hash) throw new Error('SEALED_CORPUS_CHANGED: the hidden salt no longer reproduces the sealed corpus')
+  // A record sealed before the manifest carried its hash cannot be verified; say so
+  // rather than passing unconditionally, which is what comparing `undefined` did.
+  if (previous && typeof previous.hash === 'string' && previous.hash !== manifest.hash) throw new Error('SEALED_CORPUS_CHANGED: the hidden salt no longer reproduces the sealed corpus')
   if (!previous) await atomicJson(sealedPath, { ...manifest, pageHeuristicTokens: corpus.pageHeuristicTokens, seed: seed ?? planJson.plan.schedule.pilot.seed })
   return { root, plan: planJson.plan, geometry: planJson.geometry, planHash: planJson.planHash, planPath: planJson.planPath, corpus, corpusMeta: previous ?? manifest }
 }

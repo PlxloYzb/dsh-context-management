@@ -618,7 +618,12 @@ export class Driver {
     const campaign = this.campaign ?? this.runJson?.campaign
     let crossCheck = { checked: false }
     if (campaign) {
-      const sealed = await readJsonFile(join(campaignRoot(campaign), 'private', 'endpoint-probes', `N${endpoint}.json`), null)
+      // Prefer the per-seed sealed oracle. The flat name belongs to the pilot
+      // seed, so cross-checking a formal pair against it reported a mismatch that
+      // said nothing about the pair.
+      const probes = join(campaignRoot(campaign), 'private', 'endpoint-probes')
+      const sealed = await readJsonFile(join(probes, `seed-${this.seed}`, `N${endpoint}.json`), null)
+        ?? await readJsonFile(join(probes, `N${endpoint}.json`), null)
       if (sealed) {
         const sealedLabels = new Set((sealed.questions ?? []).map(question => question.targetLabel))
         const matching = (derived.questions ?? []).filter(question => sealedLabels.has(question.targetLabel)).length

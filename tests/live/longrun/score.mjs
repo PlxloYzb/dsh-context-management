@@ -26,11 +26,14 @@ async function deriveOracle({ campaign, root, endpoint }) {
   if (!sealedCorpus) throw new Error(`SEALED_CORPUS_UNAVAILABLE: seed ${seed}`)
   const corpus = generateCorpus({ seed, salt, episodes: sealedCorpus.episodes })
   const manifest = fixtureManifest(corpus)
-  if (manifest.hash !== sealedCorpus.hash) throw new Error(`SEALED_CORPUS_CHANGED: seed ${seed}`)
+  // A record sealed before the manifest carried its hash cannot be verified; say so
+  // rather than pretending. Everything sealed since is checked for real.
+  const corpusHashVerified = typeof sealedCorpus.hash === 'string'
+  if (corpusHashVerified && manifest.hash !== sealedCorpus.hash) throw new Error(`SEALED_CORPUS_CHANGED: seed ${seed}`)
   // The oracle stays pristine: the scorer validates its shape and rejects unknown
   // fields. Provenance is reported beside it.
   const oracle = generateOracle({ corpus, endpoint })
-  return { oracle, provenance: { oracleSource: 'derived-from-run-corpus', corpusHash: manifest.hash, seed } }
+  return { oracle, provenance: { oracleSource: 'derived-from-run-corpus', corpusHash: manifest.hash, corpusHashVerified, seed } }
 }
 
 // The scorer module is loaded lazily so the harness stays importable (and its

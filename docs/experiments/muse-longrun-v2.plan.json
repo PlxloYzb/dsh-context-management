@@ -225,10 +225,19 @@
           "BASIC_MATCHED"
         ],
         "requiresReview": "G1"
+      },
+      {
+        "pairId": "main-91602",
+        "seed": 91602,
+        "startOrder": [
+          "ARC_DEFERRED",
+          "BASIC_MATCHED"
+        ],
+        "requiresReview": "G2"
       }
     ],
-    "primaryRunCount": 2,
-    "minimumPrimaryForegroundTokens": 6000000,
+    "primaryRunCount": 4,
+    "minimumPrimaryForegroundTokens": 12000000,
     "gates": [
       "P0_TOOLS",
       "P1_PILOT",
@@ -256,8 +265,8 @@
     },
     "scopeRevision": {
       "from": "two formal pairs (four primary runs)",
-      "to": "one formal pair (two primary runs)",
-      "reason": "measured per-episode cost; one pair satisfies the 3M floor and the 500k unique-source gate"
+      "to": "one formal pair (two primary runs) for the first execution, then a second pair at a new seed",
+      "reason": "the first pair measured per-episode cost and satisfied both floors; the second pair is the independent confirmation the protocol already names as P3_SECOND_PAIR"
     }
   },
   "workload": {
@@ -2601,7 +2610,7 @@
     ]
   },
   "baseline": {
-    "sourceCommit": "7e93c57a2c3cdf9a51d003f585a99b51127afe7d",
+    "sourceCommit": "2bcf401593e2455f3b4a31ce89b5a830c90ad645",
     "artifactSha256": "0ec14937e53dc1758f38b0c896f2f5edc2ad108a60c8cf383a1a6916c177882b",
     "artifactPath": "artifacts/dsh-context-management-0.9.12.tgz",
     "role": "Candidate under test for muse-longrun-v2 on DSH 0.1.7-rc.1"
