@@ -14,6 +14,14 @@ dsh plugin --profile web add dsh-context-management
 
 The desktop application (DeepSeek Harness.app) manages its `desktop` profile exclusively and rejects the CLI, so install the same package from **Settings → Plugins** inside the app.
 
+> **Just published and it will not install?** pnpm 11 ships a supply-chain "minimum release age" gate (the app logs it as *supply-chain policies*): a bare package name resolves `latest` but **skips a version published too recently** and falls back to an older one, so you can end up with a long-outdated version that the host then rejects on peer mismatch. **Pin the version explicitly** — an exact version is not subject to the gate:
+>
+> ```sh
+> dsh plugin --profile web add dsh-context-management@0.9.12
+> ```
+>
+> In the desktop app, put `dsh-context-management@0.9.12` in the package-name field. Or wait until the release is older than the gate, after which the bare name resolves correctly.
+
 ## Uninstall
 
 ```sh
