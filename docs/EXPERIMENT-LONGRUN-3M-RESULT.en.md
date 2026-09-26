@@ -407,3 +407,24 @@ same predicate and proved nothing.
 `large-result-unicode` is recorded `NOT_APPLICABLE` rather than passed: multi-byte
 counting belongs to the **host token meter**, which the plugin consumes as
 `heuristicTokens` and never estimates itself. X01 is therefore 3/4.
+
+#### X12: cancellation was already verified; the other half of ownership was missing
+
+X12 was on the unverified list because the **live campaign never reached it**. Checking
+the gate that does cover it: cancellation while pending is verified by the deterministic
+integration file for **seven reasons** (late, cancelled, disposed, timeout, oversize,
+failed, invalid-output), asserting the four things that matter — the terminal reason is
+recorded and a **later cancel cannot erase it**, the provider request signal is aborted,
+a **late completion cannot append to the session** (seq unchanged), and **exactly one
+block** remains in the ledger. So the case was verified, just in a different gate, and
+the honest record names which.
+
+What was genuinely missing is the ownership boundary in the **other direction**. The
+contract says cancellation and disposal own **pending** work; its corollary — that they
+must not destroy work which already reached a terminal state — had no test. Added one:
+disposal stops a pending job and records the reason, while a **consumed receipt keeps
+its status and its operation id across disposal**, because erasing it would silently
+drop work the user already paid for. It discriminates: adding `consumed` to `active()`
+fails it.
+
+**X12 is the first case in the matrix to reach PASS (3/3).**
