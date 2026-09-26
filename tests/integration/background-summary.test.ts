@@ -180,3 +180,31 @@ test('pending model selection invalidates a ready summary; a seed alone never st
   assert.equal(other.jobs.take(other.agent), undefined)
   assert.equal((other.jobs.status(other.session) as { status: string }).status, 'stale')
 })
+
+// X12 ownership boundary: cancellation and disposal own PENDING work, and must not
+// destroy work that already reached a terminal state.
+//
+// `active()` is pending|ready|delivering, so a disposed agent stops an in-flight
+// summary — but a consumed or delivered receipt must survive it, because the receipt
+// is what a later turn relies on. Erasing it on disposal would silently drop
+// already-paid-for work.
+test('disposal owns pending work and leaves a consumed receipt intact', async t => {
+  const h = await setup('dispose-ownership', () => good()); t.after(h.close)
+
+  // Pending: disposal stops it and records the reason.
+  h.jobs.prepare(h.agent, config, archive, 0, new AbortController().signal, incoming())
+  h.jobs.cancel(h.session, 'disposed')
+  assert.equal((h.jobs.status(h.session) as { status: string }).status, 'disposed')
+
+  // Consumed: disposal must not touch it. One active job per session, so this half
+  // needs its own session rather than reusing the disposed one.
+  const c = await setup('dispose-ownership-consumed', () => good()); t.after(c.close)
+  const consumed = await ready(c)
+  assert.ok(consumed)
+  const beforeDispose = c.jobs.status(c.session) as { status: string; operationId: string }
+  assert.equal(beforeDispose.status, 'consumed')
+  c.jobs.cancel(c.session, 'disposed')
+  const afterDispose = c.jobs.status(c.session) as { status: string; operationId: string }
+  assert.equal(afterDispose.status, 'consumed', 'disposal cannot rewrite a terminal status')
+  assert.equal(afterDispose.operationId, beforeDispose.operationId, 'the receipt still names its operation')
+})
