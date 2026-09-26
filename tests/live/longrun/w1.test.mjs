@@ -718,3 +718,30 @@ test('the diagnostic matrix aggregates honestly and rejects undeclared variants'
   // A variant the matrix never declared is refused rather than silently stored.
   await assert.rejects(() => recordCase({ campaign, id: 'X15', variant: 'useage-accounting', status: 'PASS', detail: 'typo' }), /not precommitted for X15/)
 })
+
+// A retrieval probe must be judged against ITS OWN result.
+//
+// The first version scanned the joined transcript for "some object with a hits
+// key", so all three probes were attributed to the first result and the other two
+// looked empty. It also demanded `absent: true` for a literal the archive cannot
+// contain — but the tool had stopped at its scan budget and correctly refused to
+// claim absence it had not established, so the honest behaviour was scored a
+// failure.
+test('retrieval probes attribute results per call and accept a declared-unfinished absence', async () => {
+  const { probeResults, judgeProbe } = await import('./probe-cases.mjs')
+  const events = [
+    { type: 'tool/call', data: { callId: 'c1', name: 'search_context', arguments: '{"query":"a"}' } },
+    { type: 'tool/call', data: { callId: 'c2', name: 'search_context', arguments: '{"query":"b"}' } },
+    { type: 'tool/result', data: { message: { source: { callId: 'c1' }, content: [{ type: 'text', text: '{"hits":[],"scanBudgetReached":true,"nextCursor":"x"}' }] } } },
+    { type: 'tool/result', data: { message: { source: { callId: 'c2' }, content: [{ type: 'text', text: '{"hits":[{"seq":1},{"seq":2}],"absent":null}' }] } } },
+  ]
+  const byQuery = probeResults(events)
+  assert.equal(byQuery.get('a').hits.length, 0)
+  assert.equal(byQuery.get('b').hits.length, 2, 'the second result belongs to the second query')
+
+  const absence = { expect: { minHits: 0, maxHits: 0, absenceMustBeEarned: true } }
+  assert.deepEqual(judgeProbe(absence, byQuery.get('a')), [], 'a budget-limited scan may declare itself unfinished')
+  assert.deepEqual(judgeProbe(absence, { hits: [], absent: true, scanBudgetReached: false }), [], 'a completed scan may declare absence')
+  assert.notDeepEqual(judgeProbe(absence, { hits: [], absent: null, scanBudgetReached: false }), [], 'silence is not absence')
+  assert.notDeepEqual(judgeProbe(absence, { hits: [], absent: true, scanBudgetReached: true }), [], 'absence cannot be claimed from a truncated scan')
+})
