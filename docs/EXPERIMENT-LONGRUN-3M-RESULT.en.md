@@ -451,3 +451,27 @@ passed: **chunk accumulation is the host token meter's job**, and the plugin con
 finished `TokenMeasurement` without ever summing deltas itself. The four provider-failure
 variants stay `NOT_EXERCISED` — the live campaign hit one real request timeout that the
 harness retried, but no failure of those classes was injected. X15 is therefore 1/7.
+
+#### X09: source identity is positional, not content-based
+
+The re-archive path compares a stored `hash` against `sourceHash(session, seqs)` to
+decide whether a source changed. **If identity were content-based**, two distinct
+sources holding **identical bytes** would hash the same, and a real change between them
+would read as "unchanged" — **staleness detection would silently accept a summary built
+from the wrong source**.
+
+It is positional:
+
+| Assertion | Result |
+| --- | --- |
+| identical payloads, distinct seqs | hashes **differ** |
+| the same range in two orders | hashes **differ** |
+| the same range recomputed | hash **stable** |
+
+The test **discriminates**: hashing the event's `data` instead of the event (which is
+what content-based identity means) fails it. The live campaign produced these conditions
+in quantity — 24 re-archived delivered receipts over a lineage 25 deep — so this is the
+invariant they actually relied on.
+
+X09 is therefore 2/4 (`rearchived` and `same-bytes-distinct-seq` pass;
+`nested-sources` and `attachment-reference` were never constructed).
