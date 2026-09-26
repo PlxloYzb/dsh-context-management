@@ -7,7 +7,7 @@ document remains the specification; this page reports only what actually ran, an
 separates "established" from "failed" from "not exercised". The Chinese page is
 the normative one.
 
-**This execution found no new product defect. It found and fixed thirteen defects in the experiment tooling itself, six of which make a long campaign impossible to finish or its evidence unusable.** Where the run reached, the product behaved correctly: 24 episodes per run, 23 real turnovers, 23 delivered background summaries, one real restart, and **8/8 hard integrity gates passing**. The quality gate reported 21/96 on both arms, but that result is **invalid** (the oracle and corpus id spaces disagree).
+**This experiment found no new product defect. It found and fixed more than thirty defects in the experiment tooling itself** (section 5 of [conclusions and open items](EXPERIMENT-LONGRUN-3M-STATUS.en.md)). Where the run reached, the product behaved correctly: four runs of 24 episodes each, 23-25 real turnovers and delivered summaries, one real restart, and **8/8 hard integrity gates passing on both arms of both pairs**. The quality gate **does separate the arms**: ARC **90/96 and 91/96** against native Basic **27/96 and 26/96**.
 
 ## Final result
 ## The second formal pair: the result replicates
@@ -290,9 +290,11 @@ audit, progress and ledgers now gives:
 
 | Status | Count | Meaning |
 | --- | --- | --- |
-| PARTIAL | 7 | Some variants carry real evidence (X02/X03/X07/X08/X09/X10/X11/X13/X16) |
-| NOT_EXERCISED | 11 | No controlled implementation, or the precondition never occurred |
-| PASS | **0** | Every case still has unexecuted declared variants, so none can be PASS |
+| PASS | 3 | X04, X05 and X12 pass every variant |
+| PARTIAL | 15 | the rest, each with real evidence for some variants |
+| completely unexercised | **0** | all 18 cases have been reached at least once |
+
+**At variant level**: of 76 declared variants, 35 PASS / 3 NOT_APPLICABLE / 38 NOT_EXERCISED, with 0 FAIL and 0 INVALID_EVIDENCE. Per-item reasons and closing conditions are in [conclusions and open items](EXPERIMENT-LONGRUN-3M-STATUS.en.md).
 
 Some real readings: **X08 bounded retrieval** is PARTIAL — 110 searches, 269 hits, 29
 zero-hit, 26 absence-confirmed, and **3 searches hit the scan budget and returned a
