@@ -156,13 +156,34 @@ function integrityChecks({ run, root, requests, jobs, access, events, progress }
       repeatedReads: access.filter(row => row.status === 'READ' && row.repeated === true).length,
     },
   }
-  const delivered = jobs.filter(row => row.status === 'delivered')
-  const duplicateOperation = delivered.length - new Set(delivered.map(row => row.operationId)).size
-  const sourceHashCount = new Set(delivered.map(row => row.sourceHash)).size
-  const missingReceipt = delivered.filter(row => !Number.isSafeInteger(row.receiptSeq)).length
+  // Count per OPERATION, from the receipt rows only.
+  //
+  // The ledger carries several rows per operation (`started`, `receipt`,
+  // `consumed`/`unconsumed`, `termination`) and a termination row for a delivered
+  // job repeats `status: 'delivered'` with no receiptSeq. Counting rows therefore
+  // reported one operation twice AND reported a missing receipt for the same
+  // operation — three operations produced `duplicateOperation: 3,
+  // missingReceipt: 3` on a run where every delivery had a durable receipt.
+  // Duplicates now mean two delivered RECEIPTS for one operation, which is the
+  // product behaviour worth catching.
+  const receipts = jobs.filter(row => row.phase === 'receipt' && row.status === 'delivered')
+  const byOperation = new Map()
+  for (const row of receipts) {
+    const prior = byOperation.get(row.operationId)
+    if (prior === undefined) {
+      byOperation.set(row.operationId, { receipts: 1, receiptSeq: Number.isSafeInteger(row.receiptSeq) ? row.receiptSeq : null, sourceHash: row.sourceHash ?? null })
+      continue
+    }
+    prior.receipts += 1
+    if (prior.receiptSeq === null && Number.isSafeInteger(row.receiptSeq)) prior.receiptSeq = row.receiptSeq
+    prior.sourceHash = prior.sourceHash ?? row.sourceHash ?? null
+  }
+  const duplicateOperation = [...byOperation.values()].reduce((total, entry) => total + (entry.receipts - 1), 0)
+  const missingReceipt = [...byOperation.values()].filter(entry => entry.receiptSeq === null).length
+  const sourceHashCount = new Set([...byOperation.values()].map(entry => entry.sourceHash).filter(Boolean)).size
   checks.I05 = {
     status: duplicateOperation === 0 && missingReceipt === 0 ? 'PASS' : 'FAILED_PRODUCT',
-    detail: { delivered: delivered.length, distinctSourceHashes: sourceHashCount, duplicateOperation, missingReceipt },
+    detail: { deliveredOperations: byOperation.size, deliveredReceipts: receipts.length, distinctSourceHashes: sourceHashCount, duplicateOperation, missingReceipt },
   }
   const foreignSessions = requests.filter(row => row.purpose === 'agent' && row.sessionId && run.sessionId && row.sessionId !== run.sessionId)
   const secretAccess = access.filter(row => row.status === 'ALLOWED' && /oracle|hidden-salt|endpoint-probes/.test(row.name ?? ''))
@@ -222,8 +243,15 @@ export function retrievalStatistics(events) {
     if (!calls.has(callId)) continue
     stats.searches += 1
     if (calls.get(callId).cursor !== undefined) stats.cursorResumes += 1
+    // 0.1.7 tool results are flat `{ type: 'text', text }` blocks; 0.1.2 wrapped
+    // them in a `{ type: 'tool-result', content: [...] }` block. Reading only the
+    // nested shape left the text empty, so a perfectly good `arc_status` result
+    // was never recognised as backend evidence.
     let text = ''
-    for (const block of event.data.message.content ?? []) for (const inner of block.content ?? []) if (inner.type === 'text') text += inner.text
+    for (const block of event.data.message.content ?? []) {
+      if (block.type === 'text' && typeof block.text === 'string') text += block.text
+      for (const inner of block.content ?? []) if (inner.type === 'text') text += inner.text
+    }
     let parsed
     try { parsed = JSON.parse(text) } catch { continue }
     const hits = parsed?.hits ?? []
@@ -250,8 +278,15 @@ function readPluginBackend(events) {
     if (event.type !== 'tool/result') continue
     const callId = event.data?.message?.source?.callId
     if (!calls.has(callId)) continue
+    // 0.1.7 tool results are flat `{ type: 'text', text }` blocks; 0.1.2 wrapped
+    // them in a `{ type: 'tool-result', content: [...] }` block. Reading only the
+    // nested shape left the text empty, so a perfectly good `arc_status` result
+    // was never recognised as backend evidence.
     let text = ''
-    for (const block of event.data.message.content ?? []) for (const inner of block.content ?? []) if (inner.type === 'text') text += inner.text
+    for (const block of event.data.message.content ?? []) {
+      if (block.type === 'text' && typeof block.text === 'string') text += block.text
+      for (const inner of block.content ?? []) if (inner.type === 'text') text += inner.text
+    }
     try {
       const parsed = JSON.parse(text)
       if (parsed?.backend) found = { ...parsed.backend, atSeq: event.seq }
@@ -359,7 +394,13 @@ function coverageChecks({ plan, run, progress, events, jobs, requests, exposedPa
   const commonCoverage = {
     tokenFloorMet: usage.foregroundVerifiedTokens >= 3000000,
     uniqueSourceFloorMet: (progress.coverage?.uniqueSourceTokens ?? 0) >= 500000,
-    allAssignedPagesFullyExposed: (progress.coverage?.assignedPages ?? 0) > 0 && (progress.coverage?.exposedPages ?? 0) === progress.coverage?.assignedPages,
+    // `assignedPages` in the progress record is per-episode while `exposedPages`
+    // is cumulative, so comparing them flagged a complete 288-page journey as
+    // incomplete. The claim is "every assigned page was exposed", which the
+    // exposed set proves against the assignment BOUND: a set of size `bound` drawn
+    // from `1..bound` is the whole range, and I04 independently rejects any read
+    // past the bound.
+    allAssignedPagesFullyExposed: (progress.coverage?.assignedPageEnd ?? 0) > 0 && (progress.coverage?.exposedPages ?? 0) === progress.coverage?.assignedPageEnd,
     finalProbeCount: progress.finalProbeCount ?? 0,
     plannedRestartVerified: progress.restartVerified === true,
   }

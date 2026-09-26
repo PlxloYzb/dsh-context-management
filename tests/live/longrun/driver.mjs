@@ -55,7 +55,11 @@ export const LIMITS = {
   turnHardMs: 1800000,
   runWorkHardMs: 21600000,
   recoveryAllowanceMs: 1800000,
-  requestHardMs: 420000,
+  // A single Muse request on a long context was measured past 420s (one
+  // EXPERIMENT_REQUEST_TIMEOUT at 420s ended a Basic arm at episode 19; the 150k
+  // iteration recorded the same 356-624s server long tail). The request ceiling
+  // is raised to the turn ceiling so a slow tail is retried rather than fatal.
+  requestHardMs: 600000,
   hostReadyMs: 60000,
   pollMs: 1500,
 }
@@ -149,8 +153,11 @@ export async function createRun({ plan, geometry, command, arm, seed, campaign, 
 }
 
 export class Driver {
-  constructor({ plan, geometry, command, arm, seed, root, runId, route, corpus, oracle, dshBin, tarball, batchPages = 6, bare = false, mainMaxTokens }) {
-    Object.assign(this, { plan, geometry, command, arm, seed, root, runId, route, corpus, oracle, dshBin, tarball, batchPages, bare })
+  constructor({ plan, geometry, command, arm, seed, root, runId, route, corpus, oracle, dshBin, tarball, batchPages = 6, bare = false, mainMaxTokens, campaign, pairId, runJson }) {
+    // `campaign`/`pairId`/`runJson` are part of the identity, not decoration: the
+    // sealed final probe is located through them, and dropping them silently made
+    // every resumed run fail at the probe after completing all its episodes.
+    Object.assign(this, { plan, geometry, command, arm, seed, root, runId, route, corpus, oracle, dshBin, tarball, batchPages, bare, campaign, pairId, runJson })
     this.mainMaxTokens = mainMaxTokens ?? geometry.foregroundMaxOutputTokens
     this.events = createEventLog(root)
     this.progress = { schemaVersion: 1, runId, arm, seed, state: 'PLANNED', episode: 0, pagesRead: [], windows: 0, deliveredSummaries: 0, startedAt: new Date().toISOString() }
@@ -161,6 +168,15 @@ export class Driver {
     this.pageHeuristicTokens = Object.fromEntries((this.corpus.pageHeuristicTokens ?? []).map((tokens, index) => [index + 1, tokens]))
     this.pageTextTokens = this.corpus.pageHeuristicTokens ?? []
     this.journal = createPromptJournal(root)
+    // The durable run record is the identity fallback for a resumed driver.
+    if (this.campaign === undefined || this.pairId === undefined) {
+      try {
+        const record = JSON.parse(readFileSync(join(root, 'run.json'), 'utf8'))
+        this.campaign = this.campaign ?? record.campaign
+        this.pairId = this.pairId ?? record.pairId
+        this.runJson = this.runJson ?? record
+      } catch { /* a missing record is reported by the caller that needs identity */ }
+    }
   }
 
   async log(kind, detail = {}) {
@@ -382,7 +398,10 @@ export class Driver {
       await this.log('prompt-replayed', { logicalPromptId })
       return { replayed: true, state, elapsedMs: row?.elapsedMs ?? 0, recent: [] }
     }
-    if (state === 'ambiguous') throw new Error(`AMBIGUOUS_DISPATCH: ${logicalPromptId}`)
+    // A bare `planned` row with no terminal record IS the ambiguous-dispatch
+    // window: the request may have been accepted. Saying so beats the old
+    // PROMPT_ALREADY_PLANNED that the re-plan path used to raise here.
+    if (state === 'ambiguous' || state === 'planned') throw new Error(`AMBIGUOUS_DISPATCH: ${logicalPromptId}`)
     const requestId = newRequestId()
     const contentHash = sha256(text)
     this.journal.plan({ logicalPromptId, requestId, contentHash, expectedEpisode, beforeSeq })
@@ -392,7 +411,7 @@ export class Driver {
     let result
     try {
       result = await promptControlled(this.host.client, { observed: join(this.root, 'observed') }, this.sessionId, text, {
-        turnSeconds, requestSeconds: 420, signal: this.abortSignal,
+        turnSeconds, requestSeconds: Math.floor(LIMITS.requestHardMs / 1000), signal: this.abortSignal,
       })
     } catch (error) {
       this.journal.fail(logicalPromptId, String(error.message ?? error))
@@ -466,6 +485,28 @@ export class Driver {
     if (!existsSync(path)) return 0
     const rows = readFileSync(path, 'utf8').trim().split('\n').filter(Boolean).map(line => { try { return JSON.parse(line) } catch { return null } }).filter(Boolean)
     return new Set(rows.filter(row => row.status === 'delivered').map(row => row.operationId)).size
+  }
+
+  /**
+   * One bounded turn that requires the backend to identify itself.
+   *
+   * Integrity gate I07 must be proven from evidence, never asserted: for the ARC
+   * arm the audit looks for an `arc_status` result in the observed event stream.
+   * Leaving that to chance meant a run could finish with no evidence at all and
+   * the gate correctly refused to pass — which is honest but useless. Asking once,
+   * at the start, costs one short turn and makes the gate decidable.
+   */
+  async attestBackend() {
+    if (this.backendAttested) return
+    this.backendAttested = true
+    const text = [
+      'Backend attestation before any work begins.',
+      'Call arc_status once with no arguments and reply with exactly its JSON result.',
+      'Do not read pages, files or history in this turn.',
+      MARKERS.sentinel,
+    ].join('\n')
+    await this.turn({ logicalPromptId: 'E0-ATTEST', text, purpose: 'sentinel', expectedEpisode: 0, turnSeconds: 300 })
+    await this.log('backend-attestation', { logicalPromptId: 'E0-ATTEST' })
   }
 
   async runEpisode(episode) {
@@ -591,6 +632,10 @@ export class Driver {
   }
 
   async finalize({ terminalReason, error }) {
+    // The state must become terminal here. Setting only `terminalReason` left a
+    // failed run reading as RUNNING forever, which is how a dead Basic arm parked
+    // its peer at a barrier.
+    this.progress.state = terminalReason === 'COMPLETED' ? 'COMPLETED' : 'TERMINAL'
     this.progress.finishedAt = new Date().toISOString()
     this.progress.elapsedMs = Date.now() - this.startedAtMs
     this.progress.terminalReason = terminalReason

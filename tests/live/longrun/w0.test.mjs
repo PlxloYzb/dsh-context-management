@@ -194,3 +194,36 @@ test('releaseSupervisor stops the pair watchdog and reports an already-exited on
   assert.equal(again.released, false)
   assert.equal(again.reason, 'already-exited')
 })
+
+// The retry path must survive a retryable provider failure. Before this, a
+// single request timeout made the retry attempt re-plan the same logical prompt
+// and die on PROMPT_ALREADY_PLANNED, which ended a Basic arm 14.3M tokens in.
+test('a failed attempt may be re-planned, and only a failed one', async t => {
+  const { createPromptJournal } = await import('./checkpoint.mjs')
+  const root = await tempRoot('journal-retry')
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const journal = createPromptJournal(root)
+  const plan = requestId => journal.plan({ logicalPromptId: 'E20-READ-1', requestId, contentHash: sha256('x'), expectedEpisode: 20, beforeSeq: 10 })
+
+  plan('r1')
+  assert.equal(journal.stateOf('E20-READ-1'), 'planned')
+  // A bare planned row is the ambiguous window: never re-plan it.
+  assert.throws(() => plan('r2'), /PROMPT_ALREADY_PLANNED/)
+
+  journal.fail('E20-READ-1', 'EXPERIMENT_REQUEST_TIMEOUT: 420s')
+  assert.equal(journal.stateOf('E20-READ-1'), 'failed')
+  plan('r2')
+  assert.equal(journal.stateOf('E20-READ-1'), 'planned', 'the retry is the current attempt')
+  journal.complete('E20-READ-1', { elapsedMs: 12 })
+  assert.equal(journal.stateOf('E20-READ-1'), 'completed')
+
+  // A completed prompt must still never be re-planned, even after a retry.
+  assert.throws(() => plan('r3'), /PROMPT_ALREADY_PLANNED/)
+
+  // Ambiguity stays sticky across attempts.
+  const sticky = createPromptJournal(await tempRoot('journal-sticky'))
+  sticky.plan({ logicalPromptId: 'E1-A', requestId: 'a1', contentHash: sha256('y'), expectedEpisode: 1, beforeSeq: 0 })
+  sticky.ambiguous('E1-A', { reason: 'no terminal record' })
+  sticky.fail('E1-A', 'later failure')
+  assert.equal(sticky.stateOf('E1-A'), 'ambiguous')
+})

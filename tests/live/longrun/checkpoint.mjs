@@ -80,13 +80,29 @@ export function createPromptJournal(root) {
   }
   const append = row => appendFileSync(path, JSON.stringify({ time: new Date().toISOString(), ...row }) + '\n', { mode: 0o600 })
   const rows = () => read().rows
+  const matchingFor = logicalPromptId => rows().filter(row => row.logicalPromptId === logicalPromptId)
   return {
     path,
     read,
+    /**
+     * Record dispatch intent before the request goes out.
+     *
+     * A FAILED attempt may be re-planned: the caller's retry policy already
+     * decided the dispatch did not land, and refusing there made every retryable
+     * provider error fatal — one 420s request timeout on `E20-READ-1` killed a
+     * Basic arm 14.3M tokens in. Nothing else may be re-planned: a bare `planned`
+     * row is the ambiguous-dispatch window, and a completed prompt must never be
+     * sent twice.
+     */
     plan({ logicalPromptId, requestId, contentHash, expectedEpisode, beforeSeq }) {
-      const existing = rows().find(row => row.logicalPromptId === logicalPromptId)
-      if (existing) throw new Error(`PROMPT_ALREADY_PLANNED: ${logicalPromptId}`)
-      append({ kind: 'prompt', phase: 'planned', logicalPromptId, requestId, contentHash, expectedEpisode, beforeSeq, dispatchState: 'planned' })
+      const matching = matchingFor(logicalPromptId)
+      const last = matching.at(-1)
+      if (last !== undefined) {
+        if (last.phase !== 'failed') throw new Error(`PROMPT_ALREADY_PLANNED: ${logicalPromptId}`)
+        append({ kind: 'prompt', phase: 'planned', logicalPromptId, requestId, contentHash, expectedEpisode, beforeSeq, dispatchState: 'planned', attempt: matching.filter(row => row.phase === 'planned').length + 1, retryOf: last.requestId ?? null })
+        return
+      }
+      append({ kind: 'prompt', phase: 'planned', logicalPromptId, requestId, contentHash, expectedEpisode, beforeSeq, dispatchState: 'planned', attempt: 1, retryOf: null })
     },
     ack(logicalPromptId, evidence = {}) {
       append({ kind: 'prompt', phase: 'ack', logicalPromptId, dispatchState: 'accepted', ...evidence })
@@ -100,13 +116,24 @@ export function createPromptJournal(root) {
     ambiguous(logicalPromptId, evidence = {}) {
       append({ kind: 'prompt', phase: 'ambiguous', logicalPromptId, dispatchState: 'ambiguous', ...evidence })
     },
+    /**
+     * The state of one logical prompt, by its LAST attempt.
+     *
+     * Ambiguity stays sticky: if any attempt could have been accepted, the run is
+     * unsafe regardless of what a later attempt did. Otherwise the last row wins,
+     * so a retry that completed is `completed` even though an earlier attempt
+     * failed — scanning for `completed` anywhere first would also mis-report a
+     * prompt as done when only a stale earlier attempt had finished.
+     */
     stateOf(logicalPromptId) {
-      const matching = rows().filter(row => row.logicalPromptId === logicalPromptId)
+      const matching = matchingFor(logicalPromptId)
       if (matching.some(row => row.dispatchState === 'ambiguous')) return 'ambiguous'
-      if (matching.some(row => row.phase === 'completed')) return 'completed'
-      if (matching.some(row => row.phase === 'failed')) return 'failed'
-      if (matching.some(row => row.phase === 'ack')) return 'accepted'
-      if (matching.some(row => row.phase === 'planned')) return 'planned'
+      const last = matching.at(-1)
+      if (last === undefined) return 'unknown'
+      if (last.phase === 'completed') return 'completed'
+      if (last.phase === 'failed') return 'failed'
+      if (last.phase === 'ack') return 'accepted'
+      if (last.phase === 'planned') return 'planned'
       return 'unknown'
     },
     rows,

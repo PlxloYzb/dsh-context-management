@@ -222,11 +222,18 @@ export function validateAnswerAgainstOracle(answer, oracle) {
     if (extra.length > 0) problems.push(`unknown fields ${extra.join(',')} in ${queryId}`)
     const missingFields = question.scoredFields.filter(field => !Object.hasOwn(value, field))
     if (missingFields.length > 0) problems.push(`missing scored fields ${missingFields.join(',')} in ${queryId}`)
+    // `present: false` with `recordId: null` is the shape the question itself
+    // offers for "I could not find it". That is a WRONG answer, not a malformed
+    // one, and calling it a schema violation zeroed all 96 questions for both
+    // arms because three ambiguity questions were answered absent — it destroyed
+    // the quality signal entirely. A null that IS malformed is one that claims
+    // presence without an identifier.
+    const declaresAbsent = value['present'] === false
     for (const field of question.scoredFields) {
       if (!Object.hasOwn(value, field)) continue
       const actual = value[field]
       const expected = question.oracle.expected[field]
-      if (actual === null && expected !== null) problems.push(`null where a value is required: ${queryId}.${field}`)
+      if (actual === null && expected !== null && !(field === 'recordId' && declaresAbsent)) problems.push(`null where a value is required: ${queryId}.${field}`)
       if (Array.isArray(actual) && Array.isArray(expected) && expected.length > 0 && actual.length === 0) {
         problems.push(`empty required array: ${queryId}.${field}`)
       }

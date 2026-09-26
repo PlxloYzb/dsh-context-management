@@ -3,7 +3,7 @@
 // data-driven extension rule. Never schedules a second pair.
 import { spawn } from 'node:child_process'
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
-import { existsSync, readFileSync, appendFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, appendFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { atomicJson, readJson, campaignRoot } from './context.mjs'
 import { commandSpec } from './plan.mjs'
@@ -199,6 +199,9 @@ export async function driveToEndpoint(driver, pairRoot, { calibrationEpisodes = 
   const startEpisode = firstIncompleteEpisode(driver)
   if (startEpisode > 1) await driver.log('resume-start-episode', { startEpisode, progressEpisode: driver.progress.episode })
   let reachedEndpoint = 0
+  // The ARC arm has to be able to prove which backend is active (I07). Doing it
+  // once, up front, is the difference between a decidable gate and a coin flip.
+  if (driver.arm === 'ARC_DEFERRED') await driver.attestBackend()
   for (let episode = startEpisode; episode <= limit; episode++) {
     await driver.runEpisode(episode)
     await driver.runSentinel(episode)
@@ -230,9 +233,15 @@ export async function driveToEndpoint(driver, pairRoot, { calibrationEpisodes = 
     const peer = readJsonSync(join(pairRoot, `barrier-${peerArm(driver.arm)}-E${episode}.json`), null)
     // The expansion rule is symmetric: unless BOTH arms have satisfied the token
     // and new-material floors, both take the same next precommitted block.
-    const bothMet = decision.endpoint === episode && peer?.floorMet === true
-    await driver.log('endpoint-decision', { endpoint: episode, decision, peerFloorMet: peer?.floorMet ?? null, bothMet })
-    if (bothMet) {
+    // An arm that reached the precommitted endpoint on its own may still run its
+    // own final probe when the peer is terminal: the probe scores THIS arm's
+    // quality, and refusing it would throw away a 10M-token journey because the
+    // other arm died. The pair-level comparison stays explicitly unavailable.
+    const peerFloorMet = peer?.floorMet === true
+    const bothMet = decision.endpoint === episode && peerFloorMet
+    const ownFloorMet = decision.endpoint === episode || own?.floorMet === true
+    await driver.log('endpoint-decision', { endpoint: episode, decision, peerFloorMet: peer?.floorMet ?? null, bothMet, unpaired: !peerFloorMet && ownFloorMet })
+    if (bothMet || (!peerFloorMet && ownFloorMet && peer === null)) {
       await driver.runFinalProbe(episode)
       await driver.finalize({ terminalReason: 'COMPLETED' })
       return episode
@@ -248,9 +257,11 @@ export async function driveToEndpoint(driver, pairRoot, { calibrationEpisodes = 
       uniqueExposedSourceTokens: driver.progress.coverage?.uniqueSourceTokens ?? 0,
     })
     const own = readJsonSync(join(pairRoot, `barrier-${driver.arm}-E${limit}.json`), null)
-    const bothMet = (decision.endpoint === limit || own?.floorMet === true) && peer?.floorMet === true
-    await driver.log('endpoint-decision', { endpoint: limit, decision, resumed: true, peerFloorMet: peer?.floorMet ?? null, bothMet })
-    if (bothMet) {
+    const ownFloorMet = decision.endpoint === limit || own?.floorMet === true
+    const peerFloorMet = peer?.floorMet === true
+    const bothMet = ownFloorMet && peerFloorMet
+    await driver.log('endpoint-decision', { endpoint: limit, decision, resumed: true, peerFloorMet: peer?.floorMet ?? null, bothMet, unpaired: !peerFloorMet && ownFloorMet })
+    if (bothMet || (!peerFloorMet && ownFloorMet && peer === null)) {
       await driver.runFinalProbe(limit)
       await driver.finalize({ terminalReason: 'COMPLETED' })
       return limit
@@ -297,10 +308,48 @@ export async function waitForPeerBarrier(pairRoot, arm, endpoint) {
   const started = Date.now()
   while (Date.now() - started < LIMITS.runWorkHardMs) {
     const pending = others.filter(other => !existsSync(join(pairRoot, `barrier-${other}-E${endpoint}.json`)))
-    if (!pending.length) return { waitedMs: Date.now() - started }
+    if (!pending.length) return { waitedMs: Date.now() - started, peerTerminal: false }
+    // A terminal peer will never reach this endpoint, so waiting the full work
+    // deadline for it is a deadlock: a Basic arm that failed at E19 parked the ARC
+    // arm at the E24 barrier for six hours. Report the peer as terminal so the
+    // endpoint decision is recorded as not-barriered instead of hanging.
+    const terminal = pending.filter(other => readJsonSync(peerProgressPath(pairRoot, other), null)?.terminalReason)
+    if (terminal.length === pending.length) return { waitedMs: Date.now() - started, peerTerminal: true, terminalPeers: terminal }
     await sleep(2000)
   }
   throw new Error(`PAIR_BARRIER_TIMEOUT at endpoint ${endpoint}`)
+}
+
+/**
+ * Stop any host process this run recorded and that is still alive.
+ *
+ * Ownership is taken from the run's own launch records, never from a port scan,
+ * so a host belonging to another run is never touched.
+ */
+async function reclaimOwnedHosts(runRoot) {
+  const hostDir = join(runRoot, 'host')
+  if (!existsSync(hostDir)) return []
+  const reclaimed = []
+  for (const name of readdirSync(hostDir)) {
+    if (!name.startsWith('launch-') || !name.endsWith('.json')) continue
+    const launch = readJsonSync(join(hostDir, name), null)
+    if (!launch?.pid || !processAlive(launch.pid)) continue
+    try { process.kill(launch.pid, 'SIGTERM') } catch { /* reported as not reclaimed */ }
+    const deadline = Date.now() + 10000
+    while (Date.now() < deadline && processAlive(launch.pid)) await sleep(200)
+    if (processAlive(launch.pid)) { try { process.kill(launch.pid, 'SIGKILL') } catch { /* reported below */ } }
+    reclaimed.push({ launchId: launch.launchId, pid: launch.pid, alive: processAlive(launch.pid) })
+  }
+  return reclaimed
+}
+
+/** Locate a peer arm's live progress record without knowing its run id. */
+function peerProgressPath(pairRoot, arm) {
+  try {
+    const dir = join(pairRoot, arm)
+    const runId = readdirSync(dir).find(name => name.startsWith('main-') || name.startsWith('pilot-'))
+    return runId === undefined ? join(dir, 'progress.json') : join(dir, runId, 'progress.json')
+  } catch { return join(pairRoot, arm, 'progress.json') }
 }
 
 // Resume reconciles against durable state instead of replaying a command line:
@@ -326,6 +375,10 @@ export async function resumePair({ campaign, pairId, dshBin, tarball }) {
       plan, geometry, command, arm: run.arm, seed: pairSpec.seed,
       root: run.root, runId: run.runId, route: plan.environment.model,
       corpus, oracle: null, dshBin, tarball,
+      // The resumed driver must carry its identity: without it the sealed final
+      // probe cannot be located, and a run that completed every episode died at
+      // the probe with "Driver has no campaign/pair identity".
+      campaign, pairId,
     })
     const progress = await readJson(join(run.root, 'progress.json'), {})
     driver.progress = { ...driver.progress, ...progress }
@@ -338,6 +391,15 @@ export async function resumePair({ campaign, pairId, dshBin, tarball }) {
     if (!driver.sessionId) { results.push({ arm: run.arm, runId: run.runId, ok: false, error: 'NO_SESSION_ID' }); continue }
     try {
       await atomicJson(join(run.root, 'recovery', `resume-${Date.now()}.json`), { resumedAt: new Date().toISOString(), episode: progress.episode ?? 0, sessionId: driver.sessionId })
+      // A killed orchestrator leaks its host: the SIGTERM skips the finally that
+      // stops it, and the port stays bound. Resuming then dies on
+      // `loopback Web launch URL unavailable`. Reclaim the run's own recorded
+      // host process before launching, and record what was reclaimed.
+      const reclaimed = await reclaimOwnedHosts(run.root)
+      if (reclaimed.length) await atomicJson(join(run.root, 'recovery', `reclaimed-${Date.now()}.json`), { reclaimed, at: new Date().toISOString() })
+      // A resumed run is live again: a stale terminalReason makes the record lie
+      // about it and, worse, makes a peer treat it as terminal at a barrier.
+      driver.progress = { ...driver.progress, state: 'RECOVERING', terminalReason: null, error: null, finishedAt: null }
       driver.host = await launchHost({ dshBin, root: run.root, profile: homeRecord.profile, patch: driver.patch, port: command.port, env: driver.home.env }, `${run.runId}-resume-${Date.now()}`)
       await driver.host.client.call('session/selectModel', { sessionId: driver.sessionId, ...plan.environment.model })
       await driveToEndpoint(driver, pairRoot)
