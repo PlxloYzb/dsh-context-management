@@ -2,8 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { setImmediate as immediate, setTimeout as delay } from 'node:timers/promises'
 import { type GenerateOptions, type StreamChunk, createUserMessage } from '@deepseek-ai/dsh-llm'
+import { Session } from '@deepseek-ai/dsh-session'
 import { toolPairingBalancedAfter } from '@deepseek-ai/dsh-compaction'
-import { BackgroundSummaries, resolveBackgroundSummary, type PreparedSummary } from '../../src/background-summary.ts'
+import { BackgroundSummaries, resolveBackgroundSummary, sourceHash, type PreparedSummary } from '../../src/background-summary.ts'
 import { WindowController, seedLayout, resolveArchiveConfig } from '../../src/window-controller.ts'
 import { rebuildBlockLedger } from '../../src/region.ts'
 import { validWindowMetadata } from '../../src/archive-health.ts'
@@ -207,4 +208,30 @@ test('disposal owns pending work and leaves a consumed receipt intact', async t 
   const afterDispose = c.jobs.status(c.session) as { status: string; operationId: string }
   assert.equal(afterDispose.status, 'consumed', 'disposal cannot rewrite a terminal status')
   assert.equal(afterDispose.operationId, beforeDispose.operationId, 'the receipt still names its operation')
+})
+
+// X09 same-bytes-distinct-seq: source identity is positional, not content-based.
+//
+// The re-archive path compares a stored `hash` against `sourceHash(session, seqs)` to
+// decide whether a source changed. If identity were content-based, two distinct
+// sources that happen to hold identical bytes would hash the same, and a real change
+// between them would read as "unchanged" — staleness detection would silently pass a
+// summary built from the wrong source.
+test('source identity distinguishes identical bytes at distinct sequence positions', () => {
+  const session = Session.create('same-bytes-distinct-seq')
+  const payload = { header: { config: { provider: 'p', model: 'm', maxTokens: 8192 } } }
+  session.append('request/header', structuredClone(payload))
+  const first = session.seq
+  session.append('request/header', structuredClone(payload))
+  const second = session.seq
+
+  assert.notEqual(first, second, 'the two events occupy different positions')
+  assert.notEqual(sourceHash(session, [first]), sourceHash(session, [second]), 'identical bytes at distinct positions are distinct sources')
+  assert.notEqual(sourceHash(session, [first, second]), sourceHash(session, [second, first]), 'a reordered range is a different source')
+  // The operational consequence: a range whose positions moved must not compare
+  // equal to the stored hash, or staleness detection would accept a stale summary.
+  const stored = sourceHash(session, [first])
+  assert.notEqual(sourceHash(session, [second]), stored)
+  // And the same range is stable, so the check is not trivially always-unequal.
+  assert.equal(sourceHash(session, [first]), stored)
 })
