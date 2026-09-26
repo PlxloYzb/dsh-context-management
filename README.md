@@ -14,6 +14,14 @@ dsh plugin --profile web add dsh-context-management
 
 桌面端应用（DeepSeek Harness.app）的 `desktop` profile 由应用独占管理，CLI 会拒绝写入；请在应用内 **设置 → 插件** 安装同一个包。
 
+> **刚发布的版本装不上？** pnpm 11 默认带供应链「最小发布时长」门（应用日志里写作 *supply-chain policies*）：裸包名会解析 `latest`，但**跳过刚发布不久的那个版本**，退而选择足够旧的版本——于是可能装到很久以前的旧版，并因 peer 不匹配被宿主拒绝。**解决办法是显式带版本号**（精确版本不受该门限制）：
+>
+> ```sh
+> dsh plugin --profile web add dsh-context-management@0.9.12
+> ```
+>
+> 桌面端在 **设置 → 插件** 的包名栏填 `dsh-context-management@0.9.12`。或者等新版本超过该时长后，裸包名即可正常解析。
+
 ## 卸载
 
 ```sh
