@@ -635,3 +635,37 @@ the honest outcome is to **record the variants from the coverage that does discr
 and to **record the deletion in the case evidence** rather than quietly dropping it.
 
 **X04 is therefore 3/3**, leaving X18 as the only unexercised case.
+
+#### X18: the plugin's passes are sub-quadratic — the last blank case is filled
+
+The final unexercised case, and the only one whose previous "implementation" measured
+nothing: `measureCreateDispose` allocated Maps in the **recorder's own process** and
+sampled its own heap. Both halves are now real.
+
+**Scale**, over the plugin's own passes (compressible ranges, block ledger, source hash,
+protected head) on synthetic sessions:
+
+| Events | Total |
+| --- | --- |
+| 1,000 | 1.3ms |
+| 10,000 | 5.3ms |
+| 50,000 | **19.1ms** |
+
+**50× the events costs about 15× the time** — sub-linear to linear, so there is **no
+quadratic scan** in the region or ledger passes. That matters because a quadratic scan is
+**invisible** at the 288-page scale the live campaign reached and **fatal** at 50k events.
+
+**Lifecycle**: twenty genuine plugin sessions of 1000 events each, built, passed through
+the ledger and range passes, then dropped — heap growth **9.1MB** against a 48MB
+allowance, so disposal releases the session.
+
+This is **deliberately NOT host-integration**: a host session gains content through model
+turns, so 50k events through a real host would need a model call per event. **Host-level
+cost at scale stays unmeasured** and is recorded as such rather than implied.
+
+The guard test asserts the **shape** of the growth, not an absolute time: 10× the events
+must cost under 30× the time (linear ~10×, quadratic ~100×). Absolute times vary by
+machine; **the ratio does not**. It is a **complexity guard** rather than a
+mutation-verified test, and says so.
+
+**X18 is therefore 4/6, which leaves no case in the matrix completely unexercised.**
