@@ -1,7 +1,35 @@
 // Strict, deterministic scoring of the frozen 96-question probe. Scoring never
 // consults a second model and never cherry-picks fragments from several objects.
 import { join } from 'node:path'
-import { runDirectory, readJson, atomicJson } from './context.mjs'
+import { readFile } from 'node:fs/promises'
+import { runDirectory, readJson, atomicJson, campaignRoot } from './context.mjs'
+
+/**
+ * The probe oracle for this run's endpoint, derived from the run's OWN corpus.
+ *
+ * The campaign-wide `private/endpoint-probes/N<endpoint>.json` is generated once,
+ * from the PILOT seed. A formal pair runs a different seed, so grading a 91601
+ * journey against it produced 0 of 96 matching question labels, made every
+ * question unanswerable, and turned the quality gate into the baseline of
+ * answering "absent" everywhere. Deriving from the sealed salt plus the run's own
+ * seed cannot drift, and the corpus is still hash-verified against its sealed
+ * record so nothing about the run's behaviour can influence the questions.
+ */
+async function deriveOracle({ campaign, root, endpoint }) {
+  const { generateCorpus, generateOracle, fixtureManifest } = await import('./fixture.mjs')
+  const run = await readJson(join(root, 'run.json'), {})
+  const seed = run.seed
+  if (seed === undefined) throw new Error('ORACLE_SEED_UNAVAILABLE: run record carries no seed')
+  const rootDir = campaignRoot(campaign)
+  const salt = (await readFile(join(rootDir, 'private', 'hidden-salt'))).toString('hex')
+  const sealedCorpus = await readJson(join(rootDir, 'private', 'corpora', `seed-${seed}.json`), null)
+  if (!sealedCorpus) throw new Error(`SEALED_CORPUS_UNAVAILABLE: seed ${seed}`)
+  const corpus = generateCorpus({ seed, salt, episodes: sealedCorpus.episodes })
+  const manifest = fixtureManifest(corpus)
+  if (manifest.hash !== sealedCorpus.hash) throw new Error(`SEALED_CORPUS_CHANGED: seed ${seed}`)
+  const oracle = generateOracle({ corpus, endpoint })
+  return { ...oracle, oracleSource: 'derived-from-run-corpus', corpusHash: manifest.hash }
+}
 
 // The scorer module is loaded lazily so the harness stays importable (and its
 // non-scoring contracts testable) before the corpus/scorer package is built.
@@ -10,9 +38,7 @@ export async function scoreRun({ campaign, pairId, arm, runId }) {
   const root = runDirectory(campaign, pairId, arm, runId)
   const progress = await readJson(join(root, 'progress.json'), {})
   const endpoint = progress.finalEndpoint ?? progress.episode
-  const oraclePath = join(runDirectory(campaign, pairId, arm, runId), '..', '..', '..', 'private', 'endpoint-probes', `N${endpoint}.json`)
-  const oracle = await readJson(oraclePath, null)
-  if (!oracle) throw new Error(`Sealed oracle for endpoint ${endpoint} is unavailable`)
+  const oracle = await deriveOracle({ campaign, root, endpoint })
   const answers = await readJson(join(root, 'control', 'probe-answers.json'), [])
   const parsed = parseProbeAnswers(answers, parseAnswerObject)
   const exposures = await readJson(join(root, 'control', 'probe-exposures.json'), {})

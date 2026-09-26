@@ -565,10 +565,17 @@ export class Driver {
 
   async runSentinel(episode) {
     if (!this.plan.probes.sentinelEpisodes.includes(episode)) return null
-    // Sentinel questions live in the sealed private oracle; the driver never
-    // rebuilds them from the corpus mid-run.
+    // Sentinel questions come from THIS run's corpus. The sealed per-campaign
+    // files are generated from the pilot seed, so a formal pair was asked
+    // mid-journey questions about entities from another seed's corpus. The sealed
+    // file is kept only as a cross-check when it agrees.
     const sealed = await readJsonFile(join(this.root, 'sealed', `sentinel-E${episode}.json`), null)
-    const questions = sealed?.questions ?? this.oracle?.sentinels?.[String(episode)] ?? []
+    const { sentinelQuestions } = await import('./fixture.mjs')
+    const derived = sentinelQuestions(this.corpus, episode)
+    const sealedIds = new Set((sealed?.questions ?? []).map(question => question.queryId))
+    const agrees = sealedIds.size > 0 && derived.every(question => sealedIds.has(question.queryId))
+    await this.log('sentinel-derived', { episode, source: 'derived-from-run-corpus', sealedAgrees: agrees })
+    const questions = derived.length ? derived : (sealed?.questions ?? [])
     if (!questions.length) {
       await this.log('sentinel-unavailable', { episode })
       return null
@@ -584,17 +591,40 @@ export class Driver {
 
   // The sealed oracle lives in the campaign's private directory. It is loaded
   // only for the final probe and never enters the model context as a document.
+  /**
+   * The sealed probe oracle for this run's endpoint.
+   *
+   * It is DERIVED from this run's own corpus rather than read from the
+   * campaign-wide file. That file is generated once, from the PILOT seed, and a
+   * formal pair runs a different seed — so the first executed campaign scored a
+   * 91601 journey against a 91561 oracle: 0 of 96 question labels matched, every
+   * question named entities that were in no page, and the "21/96" it produced was
+   * the baseline of answering "absent" everywhere rather than a measurement.
+   *
+   * Deriving is still sealed: the corpus comes from the hidden salt plus the
+   * pair's seed, its manifest hash is verified against the sealed corpus record,
+   * and the generator is deterministic, so nothing about the run's behaviour can
+   * influence the questions. The campaign-wide file, when present, is kept as a
+   * cross-check and any disagreement is recorded.
+   */
   async loadSealedOracle(endpoint) {
     if (this.oracle) return this.oracle
+    const { generateOracle } = await import('./fixture.mjs')
     const { campaignRoot } = await import('./context.mjs')
+    const derived = generateOracle({ corpus: this.corpus, endpoint })
     const campaign = this.campaign ?? this.runJson?.campaign
-    const pairId = this.pairId ?? this.runJson?.pairId
-    if (!campaign || !pairId) throw new Error('Driver has no campaign/pair identity to load the sealed oracle')
-    const path = join(campaignRoot(campaign), 'private', 'endpoint-probes', `N${endpoint}.json`)
-    const oracle = await readJsonFile(path, null)
-    if (!oracle) throw new Error(`SEALED_ORACLE_UNAVAILABLE: ${path}`)
-    this.oracle = oracle
-    return oracle
+    let crossCheck = { checked: false }
+    if (campaign) {
+      const sealed = await readJsonFile(join(campaignRoot(campaign), 'private', 'endpoint-probes', `N${endpoint}.json`), null)
+      if (sealed) {
+        const sealedLabels = new Set((sealed.questions ?? []).map(question => question.targetLabel))
+        const matching = (derived.questions ?? []).filter(question => sealedLabels.has(question.targetLabel)).length
+        crossCheck = { checked: true, sealedLabels: sealedLabels.size, matching, agrees: matching === (derived.questions ?? []).length }
+      }
+    }
+    this.oracle = { ...derived, oracleSource: 'derived-from-run-corpus', sealedCrossCheck: crossCheck }
+    await this.log('oracle-derived', { endpoint, oracleSource: this.oracle.oracleSource, sealedCrossCheck: crossCheck })
+    return this.oracle
   }
 
   async runFinalProbe(endpoint) {

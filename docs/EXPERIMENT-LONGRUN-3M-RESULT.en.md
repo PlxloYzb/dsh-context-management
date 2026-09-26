@@ -33,26 +33,36 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
    the delivery receipts and consumption of 23 summaries, the protected system
    head, tool pairing, cross-session isolation and the backend attestation all
    show no violation. This is the strongest positive result of the execution.
-2. **The quality gate result is INVALID, not failed.** Only 21 of 96 questions were
-   correct, all in the source-existence/ambiguity category, and the two arms are
-   identical. Checking question by question showed this is **not a model or product
-   problem**: every oracle question names a `targetLabel` (`STATE-…`, `TML-…`,
-   `EXACT-ISL-…`, `EXIST-ISL-…`) and expects verbatim values that appear in **no page
-   of the corpus** — none of those identifiers is anywhere in the 576 pages the model
-   read. The model behaved correctly: it searched `search_context` for the literal
-   the question gave it, the plugin **honestly** reported `absent: true` (all 33
-   searches were genuinely absent, not a retrieval defect), and it answered empty or
-   declared the value absent. The 21 "correct" answers are the ambiguity questions
-   whose right answer is absence — that is the baseline of a degenerate
-   "answer absent everywhere" strategy. This page therefore **does not report 21/96
-   as a product-quality result**; it is invalid evidence.
+2. **The quality gate result is INVALID, not failed — and the root cause is found
+   and fixed.** Only 21 of 96 questions were correct, all in the
+   source-existence/ambiguity category, and the two arms are identical. **The
+   campaign sealed its oracle from the PILOT seed (91561) while the formal pair ran
+   a different seed (91601)**: all 96 question labels in the sealed `N24.json`
+   belong to the 91561 corpus (96/96 match) and **none** matches the 91601 corpus
+   (0/96). So none of the identifiers the questions named was in the 576 pages the
+   model read, every question was unanswerable, and the model — searching
+   `search_context` for the literal it was handed and getting an honest
+   `absent: true` (all 33 searches were genuine absence, not a retrieval defect) —
+   answered empty or declared absence. The 21 "correct" answers are the ambiguity
+   questions whose right answer is absence: the baseline of a degenerate "answer
+   absent everywhere" strategy.
 
-   A permanent invariant test now exists (`w1.test.mjs`, "every sealed oracle question
-   names a target and values the corpus actually contains"). It **currently fails and
-   pinpoints 57 problems**: the `publicLabel` of all 24 state questions is never
-   rendered into a page, the `groupId` of all 24 existence questions likewise, and 9
-   expected verbatim values are absent from the corpus. Repairing the fixture's id
-   spaces is the first task of the next round.
+   Fixed: `loadSealedOracle`, `scoreRun` and the sentinel probes now all **derive
+   the oracle from the run's own corpus** (hidden salt plus that pair's seed, with
+   the corpus manifest still hash-verified against its sealed record and a
+   deterministic generator, so run behaviour cannot influence the questions), and
+   they record `oracleSource: 'derived-from-run-corpus'` plus the cross-check
+   against the sealed file. The permanent invariant test
+   (`w1.test.mjs`, "every sealed oracle question is answerable from the corpus it
+   was sealed against") covers **both the pilot and formal seeds at the plan's real
+   48-episode corpus size** and now passes.
+
+   **This pair's answers cannot be salvaged** — they were given to the wrong
+   questions. A first valid quality score needs the probe **re-asked** (reopen the
+   run's session and ask the correct 96 questions), about 1–2M tokens instead of
+   the 28M a fresh 24-episode journey would cost. That is the next round's first
+   task.
+
 3. **Four ARC-specific coverage gates were not reached**:
    `rearchivedDeliveredReceiptCount`, `maxVerifiedSourceProcessingDepth`,
    `oldWindowLongTailCount` and `probeCleanLongTailCount` are all 0. They are
