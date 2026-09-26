@@ -44,7 +44,12 @@ export async function auditRun({ campaign, pairId, arm, runId }) {
     heuristicTokens: pageTokens ?? undefined,
   })
   const integrity = integrityChecks({ run, root, requests: requests.rows, jobs: jobs.rows, access: access.rows, events, progress })
-  const coverage = coverageChecks({ plan: run.protocol.geometry, run, progress, events, jobs: jobs.rows, requests: requests.rows, exposedPages, pageTokens })
+  // The probe-clean long-tail count is an observation the SCORER makes, so the
+  // audit reads it rather than recomputing it. A re-asked probe writes
+  // `score-reprobe.json`; preferring it keeps the audit consistent with the
+  // measurement the report quotes.
+  const score = readJsonSync(join(root, 'score-reprobe.json'), null) ?? readJsonSync(join(root, 'score.json'), null)
+  const coverage = coverageChecks({ plan: run.protocol.geometry, run, progress, events, jobs: jobs.rows, requests: requests.rows, exposedPages, pageTokens, score })
   const audit = {
     schemaVersion: 1, runId, arm, campaign, pairId, auditedAt: new Date().toISOString(),
     integrity, coverage, usage,
@@ -380,7 +385,49 @@ export function toolPairingProblems(events) {
 // Frozen by the protocol: every endpoint seals exactly 96 questions.
 const REQUIRED_FINAL_PROBE_COUNT = 96
 
-function coverageChecks({ plan, run, progress, events, jobs, requests, exposedPages, pageTokens }) {
+// The six most recent windows are the working set; everything older is the tail.
+const SIX_RECENT_WINDOWS = 6
+
+/**
+ * Derive the ARC block lineage from the observed summaries.
+ *
+ * A summary's own block is its `compactionId`, and `parentBlockIds` names the
+ * blocks it descends from — so the lineage is a real graph in the evidence, not a
+ * counter. Depth is the longest ancestry chain; a block is a re-archive when its
+ * parent had already been delivered as a handoff, which is exactly the "old
+ * summary compressed again" condition the protocol wants to observe.
+ */
+export function blockLineage(windows, deliveredOperations = new Set()) {
+  // The block's own id is `event.data.compactionId`; `contextManagement` does not
+  // carry it. `parentBlockIds` reference those ids, which is what makes the
+  // lineage a real graph rather than a counter.
+  const byId = new Map()
+  for (const event of windows) {
+    const id = event.data?.compactionId
+    if (typeof id === 'string') byId.set(id, event.data?.contextManagement ?? {})
+  }
+  const depthOf = (id, seen = new Set()) => {
+    if (seen.has(id)) return 0
+    seen.add(id)
+    const cm = byId.get(id)
+    if (!cm) return 0
+    const parents = (cm.parentBlockIds ?? []).filter(parent => byId.has(parent))
+    if (!parents.length) return 1
+    return 1 + Math.max(...parents.map(parent => depthOf(parent, new Set(seen))))
+  }
+  let maxDepth = 0, rearchivedDelivered = 0
+  for (const [id, cm] of byId) {
+    maxDepth = Math.max(maxDepth, depthOf(id))
+    // The parent was delivered if its handoff reached a delivered receipt in the
+    // job ledger. The summary event itself only ever carries `pending`: delivery
+    // happens later, so the ledger is the authority for this question.
+    const parents = (cm.parentBlockIds ?? []).filter(parent => byId.has(parent))
+    if (parents.length && parents.some(parent => deliveredOperations.has(byId.get(parent)?.pendingHandoff?.operationId))) rearchivedDelivered += 1
+  }
+  return { blocks: byId.size, maxDepth, rearchivedDelivered }
+}
+
+function coverageChecks({ plan, run, progress, events, jobs, requests, exposedPages, pageTokens, score = null }) {
   const usage = summarizeUsage({ rows: requests, exposedPages, heuristicTokens: pageTokens ?? undefined })
   // A committed ARC window is the compaction/summary row carrying sealed window
   // metadata; native Basic summaries have no contextManagement extension and are
@@ -413,15 +460,21 @@ function coverageChecks({ plan, run, progress, events, jobs, requests, exposedPa
     finalProbeCount: commonCoverage.finalProbeCount === REQUIRED_FINAL_PROBE_COUNT,
     plannedRestartVerified: commonCoverage.plannedRestartVerified === true,
   }
+  // These four were declared gates whose inputs NOTHING produced: the audit read
+  // `progress.coverage.<field> ?? 0` for fields no code ever wrote, so the ARC
+  // arm's coverage gate was structurally unsatisfiable and reported 0 for a
+  // journey that had in fact satisfied two of them. They are now derived from the
+  // observed block lineage and the receipt ledger.
+  const lineage = blockLineage(windows, new Set(jobs.filter(row => row.phase === 'receipt' && row.status === 'delivered').map(row => row.operationId)))
   const arcCoverage = run.arm === 'ARC_DEFERRED' ? {
     windowCommits: windows.length,
     pressureWindowCommits: windows.filter(event => event.data?.contextManagement?.trigger === 'pressure').length,
     distinctDeliveredSourceCount: distinctDelivered,
     deliveryGenerationCount: generations.size,
-    rearchivedDeliveredReceiptCount: progress.coverage?.rearchivedReceipts ?? 0,
-    maxVerifiedSourceProcessingDepth: progress.coverage?.maxDepth ?? 0,
-    oldWindowLongTailCount: progress.coverage?.oldWindowLongTailCount ?? 0,
-    probeCleanLongTailCount: progress.coverage?.probeCleanLongTailCount ?? 0,
+    rearchivedDeliveredReceiptCount: lineage.rearchivedDelivered,
+    maxVerifiedSourceProcessingDepth: lineage.maxDepth,
+    oldWindowLongTailCount: Math.max(0, lineage.blocks - SIX_RECENT_WINDOWS),
+    probeCleanLongTailCount: score?.probeCleanLongTailCount ?? 0,
   } : null
   const basicCoverage = run.arm !== 'ARC_DEFERRED' ? {
     nativeAutomaticCompactions: events.filter(event => event.type === 'compaction/summary').length,

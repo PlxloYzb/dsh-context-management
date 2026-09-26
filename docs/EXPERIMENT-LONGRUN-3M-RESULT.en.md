@@ -21,7 +21,7 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
 | Unique source tokens | **508,585** (gate ≥500,000) | 508,585 |
 | Hard integrity gates I01–I08 | **8/8 PASS** | **8/8 PASS** |
 | Common coverage gates (3M / 500k / all pages / 96 questions / restart) | 5/5 PASS | 5/5 PASS |
-| ARC-specific coverage gates | **4 not reached** (below) | not applicable |
+| ARC-specific coverage gates | **7/8 pass**; the only miss is long tail 11/12 (below) | not applicable |
 | Real turnovers / native compactions | 23 turnovers | 68 compactions |
 | 96-question quality (after re-asking) | **90/96, `qualityPassed: true`** (floor 87/96) | **27/96, `qualityPassed: false`** |
 | Long tail | `longTailPassed: true`, `probeCleanLongTailCount` **11** | `longTailPassed: false`, 5 |
@@ -65,13 +65,30 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
    foreground tokens**. This is the experiment's first **valid** quality measurement
    and by far its strongest product evidence.
 
-3. **Four ARC-specific coverage gates were not reached**:
-   `rearchivedDeliveredReceiptCount`, `maxVerifiedSourceProcessingDepth`,
-   `oldWindowLongTailCount` and `probeCleanLongTailCount` are all 0. They are
-   exactly "an old summary compressed again (tier 2/3)" and "long-tail retrieval
-   across more than six windows" — **neither pressure condition occurred on this
-   trajectory**. The Basic arm passes its coverage gates because those four do not
-   apply to it.
+3. **ARC's coverage gates: 7 of 8 pass; the single miss is long tail 11/12.** The
+   previous round's "four coverage gates not reached, S2/S3 never happened" was
+   **wrong** — those four read `progress.coverage.<field> ?? 0` for fields **no code
+   ever wrote**, so the ARC coverage gate was structurally unsatisfiable and a
+   journey carrying a 25-deep lineage chain and 24 re-archives was reported as 0.
+   Derived from the observed block lineage:
+
+   | ARC coverage observation | Measured | Gate | Result |
+   | --- | --- | --- | --- |
+   | windowCommits | 25 | ≥12 | pass |
+   | pressureWindowCommits | 25 | ≥8 | pass |
+   | distinctDeliveredSourceCount | 25 | ≥6 | pass |
+   | deliveryGenerationCount | 25 | ≥6 | pass |
+   | rearchivedDeliveredReceiptCount | **24** | ≥2 | pass |
+   | maxVerifiedSourceProcessingDepth | **25** | ≥3 | pass |
+   | oldWindowLongTailCount | **19** | ≥12 | pass |
+   | probeCleanLongTailCount | **11** | ≥12 | FAIL |
+
+   So **S2 did happen**: every window turnover re-archives the previously delivered
+   block, 24 times over; lineage depth is 25 against a required 3; and 19 blocks
+   remain beyond the six most recent windows. **The one real shortfall is 11 of 12
+   long-tail questions answered correctly** — one question short, a marginal quality
+   gap rather than a structural one. The Basic arm passes its coverage gates because
+   those eight do not apply to it.
 
 **Cost observation (not an efficiency claim)**: on the same 24-episode journey ARC
 used 61% of the native Basic foreground tokens (10.67M vs 17.38M) at the same

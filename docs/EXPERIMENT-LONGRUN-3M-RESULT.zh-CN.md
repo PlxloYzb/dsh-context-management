@@ -17,7 +17,7 @@
 | 独立来源 token | **508,585**（门 ≥500,000） | 508,585 |
 | 硬完整性门 I01–I08 | **8/8 PASS** | **8/8 PASS** |
 | 公共覆盖门（3M / 500k / 全页 / 96 题 / 重启） | 5/5 PASS | 5/5 PASS |
-| ARC 专有覆盖门 | **4 项未达成**（见下） | 不适用 |
+| ARC 专有覆盖门 | **7/8 通过**；唯一未过是长尾 11/12（见下） | 不适用 |
 | 真实换窗 / 原生压缩次数 | 23 次换窗 | 68 次压缩 |
 | 96 题质量（重问后） | **90/96，`qualityPassed: true`**（门 87/96） | **27/96，`qualityPassed: false`** |
 | 长尾 | `longTailPassed: true`，`probeCleanLongTailCount` **11** | `longTailPassed: false`，5 |
@@ -42,7 +42,20 @@
 
    同一条 24 episode 旅程、同一套题、同一个模型，插件臂答对 90 题、原生 Basic 答对 27 题，而插件臂只用了 **61% 的前台 token**。这是整个实验第一次**有效**的质量测量，也是迄今最强的产品证据。
 
-3. **ARC 的覆盖门有 4 项未达成**：`rearchivedDeliveredReceiptCount`、`maxVerifiedSourceProcessingDepth`、`oldWindowLongTailCount`、`probeCleanLongTailCount` 全为 0。它们对应的正是"旧摘要被再次压缩（tier 2/3）"与"跨六个以上窗口的长尾检索"——**这两条压力条件在这条轨迹上没有发生**。BASIC 臂的覆盖门全过，因为那 4 项对它不适用。
+3. **ARC 的覆盖门：7/8 通过，唯一未过是长尾 11/12。** 上一轮报告"4 项覆盖门未达成、S2/S3 从未发生"是**错的**——那 4 个门读的是 `progress.coverage.<字段> ?? 0`，而**没有任何代码写过这些字段**，所以 ARC 的覆盖门在结构上永远不可能满足，一个真实存在 25 层血统链、24 次再归档的旅程被报成 0。改为从**观测到的块血统**推导后：
+
+   | ARC 覆盖观测 | 实测 | 门 | 结果 |
+   | --- | --- | --- | --- |
+   | windowCommits | 25 | ≥12 | ✅ |
+   | pressureWindowCommits | 25 | ≥8 | ✅ |
+   | distinctDeliveredSourceCount | 25 | ≥6 | ✅ |
+   | deliveryGenerationCount | 25 | ≥6 | ✅ |
+   | rearchivedDeliveredReceiptCount | **24** | ≥2 | ✅ |
+   | maxVerifiedSourceProcessingDepth | **25** | ≥3 | ✅ |
+   | oldWindowLongTailCount | **19** | ≥12 | ✅ |
+   | probeCleanLongTailCount | **11** | ≥12 | ❌ |
+
+   所以 **S2（旧摘要被再次压缩）确实发生了**：每一次换窗都会再归档上一个已交付的块，24 次；血统深度 25 远超要求的 3；六个最近窗口之外仍有 19 个块。**唯一真实的缺口是长尾 12 题里答对 11 题**——差一题，属于边缘质量缺口，不是结构性缺失。BASIC 臂的覆盖门全过，因为那 8 项对它不适用。
 
 **成本观察（不是效率主张）**：同一条 24 episode 旅程，ARC 的前台用量是原生 Basic 的 61%（10.67M vs 17.38M），而质量分数相同。这与历史结论一致——不能据此声称"更快/更便宜"，只能记录这一次的用量。
 

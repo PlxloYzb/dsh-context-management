@@ -695,3 +695,35 @@ test('every sealed oracle question is answerable from the corpus it was sealed a
   assert.deepEqual(problems.slice(0, 12), [], `seed ${seed}: oracle references content absent from the corpus (${problems.length} problems)`)
   }
 })
+
+// The ARC coverage observations must come from the block lineage in the evidence.
+//
+// These four gates used to read `progress.coverage.<field> ?? 0` for fields no
+// code ever wrote, so the ARC arm's coverage gate was structurally unsatisfiable:
+// it reported 0 re-archives and 0 lineage depth for a journey whose own summaries
+// carried a 25-deep chain and 24 re-archived delivered receipts. That turned real
+// pressure evidence into a false "conditions never reached" conclusion.
+test('blockLineage derives depth and re-archives from the observed summaries', async () => {
+  const { blockLineage } = await import('./audit.mjs')
+  const summary = (compactionId, parents, operationId) => ({
+    type: 'compaction/summary',
+    data: { compactionId, contextManagement: { kind: 'window', trigger: 'pressure', parentBlockIds: parents, pendingHandoff: { operationId, status: 'pending' } } },
+  })
+  // b1 <- b2 <- b3, and b1/b2 were delivered: b2 and b3 each re-archive a delivered block.
+  const windows = [
+    summary('b1', [], 'op1'),
+    summary('b2', ['b1'], 'op2'),
+    summary('b3', ['b2'], 'op3'),
+  ]
+  const delivered = new Set(['op1', 'op2'])
+  const lineage = blockLineage(windows, delivered)
+  assert.equal(lineage.blocks, 3)
+  assert.equal(lineage.maxDepth, 3, 'the chain is three deep')
+  assert.equal(lineage.rearchivedDelivered, 2, 'b2 and b3 each re-archive a delivered parent')
+
+  // Delivery is authoritative from the ledger: with nothing delivered, nothing is
+  // a re-archive, but the depth is unchanged.
+  const undelivered = blockLineage(windows, new Set())
+  assert.equal(undelivered.rearchivedDelivered, 0)
+  assert.equal(undelivered.maxDepth, 3)
+})
