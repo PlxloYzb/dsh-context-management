@@ -302,3 +302,31 @@ does not support:
 
 The matrix still needs a real host-backed dose harness; the two existing
 "implementations" exercise the harness, not the plugin.
+
+### The first real host-backed case: X08 retrieval contract
+
+The case needs a session with a real archive, so the probe harness reopens a
+completed ARC journey — the archive it searches is the one the long run actually
+built — and asks for three `search_context` calls and their verbatim results. The
+model is only the transport for the tool call; the assertions are about what the
+TOOL returned.
+
+| Probe | Query | Hits | Scan budget | Cursor |
+| --- | --- | --- | --- | --- |
+| missing-id | `ZZZ-NOT-IN-ARCHIVE-9f3c2b` | 0 | reached | yes |
+| ambiguous-id | `short=d4ba` | **2** | reached | yes |
+| unique-id (control) | `short=2847` | 1 | not reached | no |
+
+**Both halves of the retrieval contract hold**: an identifier carried by two distinct
+records returns BOTH matches instead of silently selecting one, and a literal the
+archive cannot contain is **not** declared absent — the scan hit its budget, the tool
+said so, and it handed back a `nextCursor` rather than claiming an absence it had not
+established. `missing-id` and `ambiguous-id` therefore PASS on real evidence and X08
+reaches 2 of 5 declared variants (PARTIAL).
+
+Building the case tripped two defects worth recording: the judge scanned the joined
+transcript for "some object with a hits key", so all three probes were attributed to
+the first result and the other two looked empty; and it demanded `absent: true` for
+the impossible literal, **scoring the tool's correct, conservative behaviour as a
+failure** — a truncated scan may declare itself unfinished, a completed scan may
+declare absence, and silence is neither. A regression test covers all four.
