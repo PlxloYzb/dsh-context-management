@@ -584,3 +584,30 @@ displace it.
 Two of my own mistakes had to be fixed on the way: the first version assumed `setup`
 already prepares and delivers a handoff (it only builds the session), and `user/message`
 events carry the message at `event.data`, not `event.data.message`.
+
+#### X14: the receipt-window crash was already covered — and the live campaign has real crash evidence
+
+X14 was on the unverified list on the strength of a single harness measurement. Two of its
+three variants turn out to have **real evidence**.
+
+**`driver-crash` has LIVE evidence**: during this work the driver **crashed mid-campaign
+twice** — a null sealed oracle, then an over-eager resume — and the supervisor **kept a
+valid lease and reported both runs**. The same investigation found **abandoned
+orchestrators still holding leases hours later**, which is why `releaseSupervisor` exists
+and carries a test.
+
+**`receipt-window-crash` is covered thoroughly by `deferred-restart.test.ts` (10/10)**. For
+pressure, model and manual turnover alike:
+
+- the transaction commits a **`pending`** provenance record **before any host receipt
+  append**;
+- the session is flushed, restored from persisted events, and the handoff reads `pending`
+  then **`interrupted`** — it **never replays an uncommitted delivered status**;
+- a later committed pending record **supersedes** an older **delivered** receipt on replay;
+- restart **rejects** unclosed transactions, tampered provenance and user-message
+  imitations;
+- provenance must match on **five** dimensions — session, route, generation, hash and seqs.
+
+So the **receipt window** — the one place with half-written durable state, and the region
+the long run's `cleared-without-terminal-record` observation pointed at — is bracketed.
+Only `supervisor-crash` remains unexercised. X14 is therefore 2/3.

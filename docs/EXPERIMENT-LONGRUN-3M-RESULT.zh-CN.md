@@ -350,3 +350,19 @@ X06 因此 **1/7**。
 **X05 因此 2/2。** 另一半 `stale-authority` 早已被 `fallback-budget.test.ts` 覆盖：它在旧记录之后种入一条迟到的用户修正，并断言它在**真实预算压力**下**熬过字节上限**——被取代的值无法挤掉它。
 
 路上修掉了我自己的两个错误：第一版以为 `setup` 已经准备并交付了交接（它只构建会话）；以及 `user/message` 事件的消息在 `event.data` 上，不在 `event.data.message`。
+
+#### X14：回执窗口崩溃早已被覆盖——而且长跑里有**真实**的崩溃证据
+
+X14 之所以在未验证清单上，是因为只有一次装置级测量。三个变体里有两个其实**有真实证据**。
+
+**`driver-crash` 有现场证据**：这轮工作期间驱动器**真的崩过两次**——一次是空的封存 oracle，一次是过于激进的恢复——而监督进程**保住了有效租约并如实报告了两个 run**。同一次排查还发现**几小时前被遗弃的编排器仍握着租约**，这正是 `releaseSupervisor` 存在并带有用例的原因。
+
+**`receipt-window-crash` 被 `deferred-restart.test.ts`（10/10）覆盖得很彻底**。对 pressure、model、manual 三种换窗一视同仁：
+
+- 事务在**任何宿主回执追加之前**先提交一条 **`pending`** 的来源记录；
+- 会话被 flush、从持久事件恢复，交接读作 `pending` → **`interrupted`**，**绝不会重放一个未提交的 delivered 状态**；
+- 更晚提交的 pending 记录在重放时**压过**更早的 **delivered** 回执；
+- 重启**拒绝**未闭合事务、被篡改的来源、以及用户消息仿冒；
+- 来源必须在 session、route、generation、hash、seqs **五个维度**上都匹配，否则拒绝。
+
+所以**回执窗口**——唯一存在"写了一半"的持久状态的地方，也正是长跑里 `cleared-without-terminal-record` 观测所指向的区域——是被夹住的。只剩 `supervisor-crash` 未执行。X14 因此 **2/3**。
