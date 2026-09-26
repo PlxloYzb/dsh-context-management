@@ -216,3 +216,16 @@ node tests/live/longrun/cli.mjs status   --campaign <id>
 四项行为全部正确：续用**前进**而不是循环或重发首页命中；把游标用于**另一个查询**被拒绝，而不是静默按原查询作答；非法游标被拒绝。X08 因此达到 **3/5 声明变体**。
 
 判定器修了两次，两次都是**把正确行为判成失败**：它要求续用页必须带 `scanBudgetReached` 或 `absent`，而下一页合法地两者都不带（`scanBudgetReached` 描述的是扫描预算，不是分页）；它还把"跨查询游标被拒绝"当成问题，而**拒绝正是契约本身**。
+
+#### 跨重启的游标：被显式拒绝，而不是静默为空
+
+游标语义的最后一个分支。在**真实重启**（已按持久前缀校验）之前取一个游标，重启后用它续用。插件**拒绝**了它，并说明原因：
+
+```json
+{"status":"error","code":"invalid-cursor",
+ "recovery":"Restart the query without cursor. Cursors are session-scoped, bounded, and invalidated by restart or eviction."}
+```
+
+这是**符合契约**的结果。被禁止的失败是**静默返回空页**——那与"真的不存在"无法区分；而这里游标被**点名作废**，带机器可读的错误码与恢复指引。`restart-cursor` 因此 PASS，X08 达到 **4/5 声明变体**。
+
+判定器现在由探针与用例共享，且判的是**显式性而非成功**：带原因被拒绝、或带真实命中被接受，都算正确；重启未校验或缺游标则整个探针作废；**不声明缺失的空页**判失败。

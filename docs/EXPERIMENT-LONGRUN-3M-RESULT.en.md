@@ -355,3 +355,24 @@ it demanded `scanBudgetReached` or `absent` on the resumed page, when a next pag
 legitimately carries neither (`scanBudgetReached` describes the scan budget, not
 pagination); and it treated a cross-query cursor that was **refused** as a problem,
 when refusing is precisely the contract.
+
+#### A cursor across a restart: refused explicitly, not silently empty
+
+The last branch of the cursor semantics. A cursor was minted before a **real restart**
+(verified against the durable prefix) and resumed afterwards. The plugin refuses it,
+and says why:
+
+```json
+{"status":"error","code":"invalid-cursor",
+ "recovery":"Restart the query without cursor. Cursors are session-scoped, bounded, and invalidated by restart or eviction."}
+```
+
+That is the contract-compliant outcome. The forbidden failure would be a **silently
+empty page**, which is indistinguishable from a genuine absence; instead the cursor is
+invalidated by name, with a machine-readable code and a recovery instruction. So
+`restart-cursor` PASSes and X08 reaches **4 of 5** declared variants.
+
+The judge is shared by the probe and its test and judges **explicitness rather than
+success**: refused-with-a-reason and honoured-with-real-hits are both correct, an
+unverified restart or a missing cursor invalidates the probe, and an **empty page that
+does not declare absence** fails.
