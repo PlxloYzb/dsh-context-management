@@ -1,4 +1,4 @@
-// Frozen muse-longrun-v1 plan loading, geometry derivation and validation.
+// Frozen muse-longrun plan loading, geometry derivation and validation.
 // The plan JSON is an experiment contract: this module refuses to run when the
 // document and the machine-readable plan disagree with the frozen geometry.
 import { readFile } from 'node:fs/promises'
@@ -8,6 +8,18 @@ import { resolve } from 'node:path'
 export const PROTOCOL_ID = 'muse-longrun-v1'
 export const PLAN_PATH = 'docs/experiments/muse-longrun-v1.plan.json'
 export const REPO_ROOT = resolve('.')
+/**
+ * Protocol revisions the harness understands. v1 stays frozen against the
+ * 0.1.2-rc.1 host it was designed for. v2 exists because the product moved to the
+ * 0.1.7 prerelease series — whose host layout differs — and because the
+ * long-journey pressure geometry has to be re-derived for that host. Each
+ * protocol is admitted only with its own revision number, so a plan cannot be
+ * edited in place without the change being visible.
+ */
+export const PROTOCOLS = {
+  'muse-longrun-v1': 1,
+  'muse-longrun-v2': 2,
+}
 
 export const sha256 = value => createHash('sha256').update(value).digest('hex')
 export const sha256Json = value => sha256(JSON.stringify(value))
@@ -108,8 +120,11 @@ export function validatePlan(plan) {
   for (const [section, keys] of Object.entries(REQUIRED_PLAN_KEYS)) {
     for (const key of keys) if (plan[section]?.[key] === undefined) problems.push(`missing ${section}.${key}`)
   }
-  if (plan.protocolId !== PROTOCOL_ID) problems.push(`protocolId is ${plan.protocolId}`)
-  if (plan.revision !== 1) problems.push(`revision is ${plan.revision}`)
+  // A plan is admitted only under a known protocol AND that protocol's own
+  // revision number, so editing a frozen plan in place cannot go unnoticed.
+  const protocolRevision = PROTOCOLS[plan.protocolId]
+  if (protocolRevision === undefined) problems.push(`unknown protocolId ${plan.protocolId}`)
+  else if (plan.revision !== protocolRevision) problems.push(`${plan.protocolId} requires revision ${protocolRevision}, plan says ${plan.revision}`)
   let geometry = null
   try { geometry = deriveGeometry(plan) } catch (error) { problems.push(`geometry: ${error.message}`) }
   if (plan.schedule?.primaryArms?.length !== 2) problems.push('primaryArms must name exactly two arms')

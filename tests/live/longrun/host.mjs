@@ -1,7 +1,7 @@
 // Isolated host lifecycle for one long-run arm: private DSH_HOME, dedicated
 // profile, frozen binary identity, and restart-safe launch bookkeeping.
 import { spawn, execFileSync } from 'node:child_process'
-import { appendFileSync, existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { appendFileSync, existsSync, readFileSync, realpathSync, writeFileSync, mkdirSync } from 'node:fs'
 import { mkdir, readFile, writeFile, readdir, copyFile } from 'node:fs/promises'
 import { join, resolve, dirname } from 'node:path'
 import { homedir, tmpdir } from 'node:os'
@@ -10,23 +10,87 @@ import { webClient } from '../client.mjs'
 import { writePrivateSettings } from '../local/private-settings.mjs'
 import { atomicJson } from './context.mjs'
 
-export const PINNED_HOST = resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
-export const PINNED_HOST_PACKAGE = resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/@deepseek-ai/dsh/package.json')
-export const PINNED_HOST_VERSION = '0.1.2-rc.1'
+/**
+ * Host selection. The protocol freezes one host per revision, but which pin that
+ * is has to be selectable: the harness originally targeted 0.1.2-rc.1 and the
+ * product now targets the 0.1.7 prerelease series, whose host layout differs in
+ * three ways this module has to absorb — the shipped presets moved from
+ * `dsh-agent-presets/presets/<id>/agent.cordis.yml` to
+ * `dsh-web-app/presets/<id>.patch.yml`, a profile needs an explicit
+ * `packageManager` or the plugin command resolves a pnpm that ships no
+ * `bin/pnpm.cjs`, and the pin may hold only a `dsh` symlink rather than the whole
+ * host tree. The default stays the 0.1.2 pin so nothing changes unless
+ * `EXPERIMENT_DSH_BIN` (or `EXPERIMENT_HOST_PIN`) selects another.
+ */
+export const DEFAULT_HOST_PIN = '.test-runtime/host-pins/dsh-0.1.2-rc.1'
+export const HOST_PIN_ROOT = process.env.EXPERIMENT_HOST_PIN
+  ? resolve('.test-runtime/host-pins', process.env.EXPERIMENT_HOST_PIN)
+  : resolve(DEFAULT_HOST_PIN)
+export const PINNED_HOST = resolve(process.env.EXPERIMENT_DSH_BIN ?? join(HOST_PIN_ROOT, 'node_modules/.bin/dsh'))
+export const PINNED_HOST_PACKAGE = resolve(dirname(PINNED_HOST), '..', '@deepseek-ai/dsh/package.json')
 
 export function sha256(value) { return createHash('sha256').update(value).digest('hex') }
 
+/**
+ * Whether this host needs the profile's `packageManager` stated explicitly.
+ * 0.1.7 resolves pnpm through corepack, which otherwise picks a version that
+ * publishes only `pnpm.mjs` while the plugin command runs `bin/pnpm.cjs`.
+ */
+export function hostNeedsPackageManager(version) {
+  const triple = /^(\d+)\.(\d+)\.(\d+)/.exec(version)
+  if (triple === null) throw new Error(`Unparseable host version ${JSON.stringify(version)}`)
+  const [major, minor, patch] = triple.slice(1).map(Number)
+  return major > 0 || minor > 1 || (minor === 1 && patch >= 7)
+}
+
+/** The host's own pnpm pin, read from the runtime manifest when it ships one. */
+export function hostPackageManager(dshBin, version) {
+  if (!hostNeedsPackageManager(version)) return null
+  const manifest = resolve(dirname(dshBin), '..', '@deepseek-ai/dsh-desktop-runtime/runtime.json')
+  try {
+    const parsed = JSON.parse(readFileSync(manifest, 'utf8'))
+    if (typeof parsed.pnpm === 'string' && parsed.pnpm.length > 0) return `pnpm@${parsed.pnpm}`
+  } catch { /* a CLI install ships no runtime manifest; fall through */ }
+  return 'pnpm@11.7.0'
+}
+
 export async function pinnedHostIdentity(dshBin = PINNED_HOST) {
   const realpath = execFileSync('realpath', [dshBin], { encoding: 'utf8' }).trim()
-  const version = JSON.parse(await readFile(PINNED_HOST_PACKAGE, 'utf8')).version
-  if (version !== PINNED_HOST_VERSION) throw new Error(`Pinned host version changed: ${version}`)
+  const packagePath = resolve(dirname(dshBin), '..', '@deepseek-ai/dsh/package.json')
+  const version = JSON.parse(await readFile(packagePath, 'utf8')).version
   const requested = resolve(dshBin)
-  if (requested !== resolve(PINNED_HOST) && !requested.startsWith(resolve('.test-runtime/host-pins/'))) {
-    throw new Error('EXPERIMENT_DSH_BIN must point at the pinned 0.1.2-rc.1 host')
+  if (!requested.startsWith(resolve('.test-runtime/host-pins/'))) {
+    throw new Error('EXPERIMENT_DSH_BIN must point at a pinned host under .test-runtime/host-pins/')
   }
   const binaryBytes = await readFile(dshBin)
   const libRoot = dirname(dirname(realpath))
-  return { requested, realpath, version, binarySha256: sha256(binaryBytes), libRoot }
+  return { requested, realpath, packagePath, version, binarySha256: sha256(binaryBytes), libRoot }
+}
+
+/**
+ * Where this host's shipped preset definitions live. Returns the layout name
+ * alongside the per-preset paths so evidence records which shape was used.
+ *
+ * The pin may hold only a `dsh` symlink, so the search starts from the resolved
+ * package rather than the pin directory: 0.1.7 keeps its host packages nested
+ * under the `dsh` package, while the 0.1.2 pin keeps them flat beside it.
+ */
+export async function shippedPresetFiles(dshBin, version) {
+  const dshPackage = realpathSync(resolve(dirname(dshBin), '..', '@deepseek-ai/dsh'))
+  const candidates = [
+    { layout: '0.1.7-bundle-patch', root: join(dshPackage, 'node_modules/@deepseek-ai/dsh-web-app/presets'), file: id => `${id}.patch.yml` },
+    { layout: '0.1.7-bundle-patch', root: join(dirname(dirname(dshPackage)), '@deepseek-ai/dsh-web-app/presets'), file: id => `${id}.patch.yml` },
+    { layout: '0.1.2-agent-presets', root: join(dirname(dirname(dshPackage)), '@deepseek-ai/dsh-agent-presets/presets'), file: id => join(id, 'agent.cordis.yml') },
+  ]
+  const ids = ['standard', 'minimal', 'ptc', 'cordis']
+  const found = []
+  for (const candidate of candidates) {
+    if (!existsSync(candidate.root)) continue
+    const files = Object.fromEntries(ids.map(id => [id, join(candidate.root, candidate.file(id))]))
+    if (ids.every(id => existsSync(files[id]))) return { layout: candidate.layout, files }
+    found.push(candidate.root)
+  }
+  throw new Error(`No shipped preset definitions found for host ${version}; looked in ${found.join(', ')}`)
 }
 
 export async function distManifest(directory, relative = '') {
@@ -54,6 +118,8 @@ export async function prepareIsolatedHome({ root, arm, command, tarball, seedSet
   const profileDir = join(home, 'profiles', profile)
   await mkdir(profileDir, { recursive: true, mode: 0o700 })
   await mkdir(join(home, '.agent-presets'), { recursive: true, mode: 0o700 })
+  const hostVersion = JSON.parse(await readFile(resolve(dirname(dshBin), '..', '@deepseek-ai/dsh/package.json'), 'utf8')).version
+  const packageManager = hostPackageManager(dshBin, hostVersion)
   const bundles = ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app']
   if (command.pluginBundle) bundles.push('dsh-context-management')
   await writeFile(join(profileDir, 'package.json'), JSON.stringify({
@@ -61,6 +127,8 @@ export async function prepareIsolatedHome({ root, arm, command, tarball, seedSet
     private: true,
     dependencies: {},
     dsh: { profile: { bundles, patchReload: 'live' } },
+    // Stated only where the host needs it, so the 0.1.2 pin is untouched.
+    ...(packageManager === null ? {} : { packageManager }),
   }, null, 2), { mode: 0o600 })
   await writeFile(join(root, 'npmrc'), '', { mode: 0o600 })
   const env = {
@@ -88,17 +156,22 @@ export async function prepareIsolatedHome({ root, arm, command, tarball, seedSet
     credentialsHash = sha256(bytes)
     await writeFile(join(home, '.credentials.yaml'), bytes, { mode: 0o600 })
   }
-  // The host's shipped presets live beside the pinned package; copy them
-  // byte-identically into the isolated home so shipped files stay read-only.
-  const shippedPresets = resolve(dirname(dirname(dshBin)), '@deepseek-ai/dsh-agent-preset-registry/presets')
+  // Shipped presets are hashed as evidence that they stay unmodified. Where the
+  // host loads them from its own bundle (0.1.7), copying is skipped: the bundle
+  // copy is already read-only, and a copy into the isolated home would not be the
+  // file the host actually reads.
+  const shipped = await shippedPresetFiles(dshBin, hostVersion)
+  const shippedPresets = dirname(shipped.files.standard)
   const presetHashes = {}
   for (const id of ['standard', 'minimal', 'ptc', 'cordis']) {
-    const source = join(shippedPresets, id, 'agent.cordis.yml')
-    if (!existsSync(source)) throw new Error(`Shipped preset missing: ${source}`)
+    const source = shipped.files[id]
+    if (source === undefined || !existsSync(source)) throw new Error(`Shipped preset missing: ${source}`)
     presetHashes[id] = sha256(await readFile(source))
-    const target = join(home, '.agent-presets', id)
-    await mkdir(target, { recursive: true, mode: 0o700 })
-    await copyFile(source, join(target, 'agent.cordis.yml'))
+    if (shipped.layout === '0.1.2-agent-presets') {
+      const target = join(home, '.agent-presets', id)
+      await mkdir(target, { recursive: true, mode: 0o700 })
+      await copyFile(source, join(target, 'agent.cordis.yml'))
+    }
   }
   // The synthetic cwd carries the ownership marker the fixture tools and the
   // observer both require, so an unattributed session can never reach them.
@@ -106,7 +179,7 @@ export async function prepareIsolatedHome({ root, arm, command, tarball, seedSet
   const cwd = join(root, `${marker}${arm.toLowerCase()}`)
   await mkdir(cwd, { recursive: true, mode: 0o700 })
   await writeFile(join(cwd, 'README.txt'), 'Synthetic experiment working directory. Only the assigned experiment tools are available.\n', { mode: 0o600 })
-  return { home, profile, profileDir, settingsPath, shippedPresets, presetHashes, cwd, env, installLog, credentialsHash }
+  return { home, profile, profileDir, settingsPath, shippedPresets, presetLayout: shipped.layout, hostVersion, packageManager, presetHashes, cwd, env, installLog, credentialsHash }
 }
 
 // Starts one owned host process. `launchId` is recorded before the process can

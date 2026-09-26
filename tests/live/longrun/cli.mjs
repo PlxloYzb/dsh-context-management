@@ -8,6 +8,17 @@ import { campaignRoot, readJson, atomicJson, listRuns } from './context.mjs'
 import { loadPlan } from './plan.mjs'
 import { prepareCampaign, sealPair, pairStatus, campaignStatus, writeReview, sealCandidateTarball } from './campaign.mjs'
 import { runDiagnosticCase } from './cases.mjs'
+import { PINNED_HOST, pinnedHostIdentity } from './host.mjs'
+
+/**
+ * The pinned host every command must use. One resolver, so a pin cannot be
+ * selected in one command and silently defaulted in another; the identity check
+ * also refuses anything outside `.test-runtime/host-pins/`.
+ */
+async function resolveHostBin() {
+  const identity = await pinnedHostIdentity(PINNED_HOST)
+  return identity.requested
+}
 
 const USAGE = `muse-longrun-v1 harness
 
@@ -134,8 +145,7 @@ async function runPairCommand(args, { pilot }) {
     if (!review || review.decision !== 'accept') throw new Error(`REVIEW_REQUIRED: ${pairId} has no accepted review; refuse to start ${args.pair}`)
   }
   await sealPair({ campaign: args.campaign, pairId: args.pair, plan })
-  const dshBin = resolve(process.env.EXPERIMENT_DSH_BIN ?? '.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
-  if (!existsSync(dshBin)) throw new Error('EXPERIMENT_DSH_BIN is not the pinned 0.1.2-rc.1 host')
+  const dshBin = await resolveHostBin()
   const tarballRecord = await readJson(join(campaignRoot(args.campaign), 'candidate-tarball.json'), null)
   if (!tarballRecord?.path) throw new Error('Candidate tarball is not sealed; run prepare first')
   const { drivePair } = await import('./run-pair.mjs')
@@ -188,7 +198,7 @@ async function reviewCommand(args) {
 
 async function caseCommand(args) {
   requireArgs(args, ['campaign', 'id'])
-  const result = await runDiagnosticCase({ campaign: args.campaign, id: args.id, variant: args.variant ?? 'default', dshBin: resolve(process.env.EXPERIMENT_DSH_BIN ?? '.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh') })
+  const result = await runDiagnosticCase({ campaign: args.campaign, id: args.id, variant: args.variant ?? 'default', dshBin: await resolveHostBin() })
   console.log(JSON.stringify(result, null, 2))
   return result
 }
@@ -198,8 +208,7 @@ async function caseCommand(args) {
 async function probeCommand(args) {
   requireArgs(args, ['campaign', 'pair', 'endpoint'])
   const endpoint = Number(args.endpoint)
-  const dshBin = resolve(process.env.EXPERIMENT_DSH_BIN ?? '.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
-  if (!existsSync(dshBin)) throw new Error('EXPERIMENT_DSH_BIN is not the pinned 0.1.2-rc.1 host')
+  const dshBin = await resolveHostBin()
   const tarballRecord = await readJson(join(campaignRoot(args.campaign), 'candidate-tarball.json'), null)
   const { recoverProbe } = await import('./recover.mjs')
   const result = await recoverProbe({
@@ -213,8 +222,7 @@ async function probeCommand(args) {
 async function resumeCommand(args) {
   requireArgs(args, ['campaign', 'pair'])
   const status = await pairStatus({ campaign: args.campaign, pairId: args.pair })
-  const dshBin = resolve(process.env.EXPERIMENT_DSH_BIN ?? '.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/.bin/dsh')
-  if (!existsSync(dshBin)) throw new Error('EXPERIMENT_DSH_BIN is not the pinned 0.1.2-rc.1 host')
+  const dshBin = await resolveHostBin()
   const tarballRecord = await readJson(join(campaignRoot(args.campaign), 'candidate-tarball.json'), null)
   if (!tarballRecord?.path) throw new Error('Candidate tarball is not sealed; run prepare first')
   const { resumePair } = await import('./run-pair.mjs')

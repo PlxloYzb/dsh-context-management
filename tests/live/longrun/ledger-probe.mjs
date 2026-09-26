@@ -7,7 +7,18 @@
 // not which build is installed.
 import { writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
+import { dirname, join, resolve } from 'node:path'
+
+/** Identity of the built ledger implementation: every dist JS file, path-sorted. */
+function distManifestHash(entryModule) {
+  const directory = resolve(dirname(entryModule))
+  const hash = createHash('sha256')
+  for (const name of readdirSync(directory).filter(entry => entry.endsWith('.js')).sort()) {
+    hash.update(`${name}\0${createHash('sha256').update(readFileSync(join(directory, name))).digest('hex')}\n`)
+  }
+  return hash.digest('hex')
+}
 
 export const inject = ['sessions']
 
@@ -16,15 +27,18 @@ export function apply(ctx, config) {
   let target = null
   let observations = 0
   let maxBlocks = 0
-  // Keep observing rather than stopping at the first block: an early snapshot
+  // Keeps observing rather than stopping at the first block: an early snapshot
   // understates how much the engine has compacted by the end of the session.
-  let settled = false
+  // The interval is cleared on dispose, so no separate "done" flag is needed;
+  // an earlier revision referenced one that was never declared and crashed the
+  // host at load time.
+  let failed = false
   // The patch is written before the session exists, so the probe discovers it.
   ctx.on('session/created', session => {
     if (String(session?.header?.cwd ?? '').includes('dsh-context-experiment-')) target = session
   })
   const attempt = async () => {
-    if (done) return
+    if (failed) return
     const session = target ?? (config.sessionId ? ctx.sessions.get(config.sessionId) : null)
     if (!session) return
     if (!session.snapshotEvents().some(event => event.type === 'compaction/summary')) return
@@ -42,7 +56,10 @@ export function apply(ctx, config) {
         observations,
         maxBlocksObserved: maxBlocks,
         ledgerModule: config.ledgerModule,
-        ledgerModuleSha256: createHash('sha256').update(readFileSync(config.ledgerModule)).digest('hex'),
+        // The entry re-exports the ledger from a build-hashed chunk, so hashing
+        // the entry alone would not identify the implementation. Hash every dist
+        // JavaScript file in path order instead.
+        ledgerDistManifestSha256: distManifestHash(config.ledgerModule),
         events: events.length,
         compactionSummaries: summaries,
         replaceSurfaceOps: replacements,
@@ -53,7 +70,7 @@ export function apply(ctx, config) {
         firstBlock: ledger[0] ? { blockId: entry(ledger[0]), tier: ledger[0].tier, shadowedSeqs: ledger[0].shadowedSeqs.slice(0, 4) } : null,
       })
     } catch (error) {
-      if (!settled) { settled = true; write({ error: String(error.message ?? error) }) }
+      if (!failed) { failed = true; write({ error: String(error.message ?? error) }) }
     }
   }
   const entry = value => String(value.blockId).slice(0, 8)

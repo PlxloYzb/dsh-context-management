@@ -1,0 +1,2613 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "muse-longrun-v2",
+  "revision": 2,
+  "designedAt": "2026-09-26",
+  "status": "DESIGNED_NOT_EXECUTED",
+  "runnerStatus": "PORTED_TO_0_1_7",
+  "document": "../EXPERIMENT-LONGRUN-3M.zh-CN.md",
+  "englishDocument": "../EXPERIMENT-LONGRUN-3M.en.md",
+  "semantics": {
+    "normativeDocument": "zh-CN",
+    "kind": "Experiment protocol, not a DSH runtime configuration or an existing runner argument file",
+    "ifMismatch": "Stop before dispatch, resolve discrepancy, revise and freeze all plan/tool/oracle hashes",
+    "executionRequiresSeparateTaskInstruction": true,
+    "autoRunAllPairs": false,
+    "publicDataContainsNoOracleOrCredentials": true
+  },
+  "environment": {
+    "repository": "/Users/bruceplxl/Workspace/dsh-plugin-dev/dsh-context-management",
+    "hostVersion": "0.1.7-rc.1",
+    "hostBinary": ".test-runtime/host-pins/dsh-0.1.7-rc.1/node_modules/.bin/dsh",
+    "binaryEnvironmentVariable": "EXPERIMENT_DSH_BIN",
+    "globalDshAllowed": false,
+    "observedNodeVersion": "v22.23.1",
+    "model": {
+      "provider": "opencode-go-muse",
+      "model": "muse-spark-1.3-contributor",
+      "reasoningEffort": "minimal",
+      "expectedContextWindow": 1048576,
+      "verifyEachStream": true,
+      "privateProviderDefaultReasoning": "minimal",
+      "titleModelEnabled": false,
+      "cachePolicy": "preserve provider setting; record resolved value; no cache disabling to fill usage"
+    },
+    "privateSettingsSource": "~/.dsh/settings.yaml",
+    "settingsMode": "0600",
+    "privateDirectoryMode": "0700",
+    "isolatedPerRun": [
+      "DSH_HOME",
+      "profile",
+      "synthetic cwd",
+      "port",
+      "logs",
+      "session"
+    ],
+    "childEnvironmentPolicy": "Pass an explicit per-child environment and cwd; never mutate process.env across parallel host starts",
+    "requiredChildEnvironment": {
+      "COREPACK_ENABLE_AUTO_PIN": "0"
+    },
+    "primaryPreset": "standard",
+    "compatibilityPresets": [
+      "ptc",
+      "cordis",
+      "minimal"
+    ],
+    "dailyProfilesUntouched": [
+      "web",
+      "headless"
+    ],
+    "existingTestProfilesPreserved": [
+      "ctx-v012-smoke-c",
+      "ctx-v012-mini-native"
+    ],
+    "requiredBundles": [
+      "@deepseek-ai/dsh-base",
+      "@deepseek-ai/dsh-web-app"
+    ],
+    "pluginBundleOnlyInArc": true,
+    "presetFilesWritable": false,
+    "defaultPorts": {
+      "BASIC_MATCHED": 3341,
+      "ARC_DEFERRED": 3342,
+      "diagnostic": 3343
+    },
+    "localQwenOrTunnel": false,
+    "identityEvidence": [
+      "binary realpath/version/hash",
+      "Node/OS/CPU/memory",
+      "candidate artifact hash",
+      "full installed dist manifest",
+      "profile/patch hash",
+      "settings and shipped preset before/after hashes",
+      "actual backend realm",
+      "tools",
+      "effective route/capacity/effort",
+      "PID/start identity/launchId"
+    ],
+    "baseline": {
+      "sourceCommit": "950353627da25269daf86d63468f49f3c3ba921d",
+      "artifactSha256": "cfab61d84d5fedd8a0eaa4627cf054778a77fc7152436eb251467b3abc7f1127",
+      "distFileCount": 34,
+      "distManifestSha256": "799151fdada17114c8c818431cddee7705bc882c4d044719d07439db6023e96b",
+      "distManifestCanonicalization": "relative POSIX path byte-order sort; concatenate relativePath + NUL + sha256 + LF",
+      "role": "Prior verified candidate starting point; G1 records actual artifact and all final tool hashes"
+    },
+    "presetLayout": "0.1.7-bundle-patch (dsh-web-app/presets/<id>.patch.yml)",
+    "profilePackageManager": "pnpm@11.7.0 (corepack otherwise resolves a pnpm that ships no bin/pnpm.cjs)"
+  },
+  "arms": {
+    "ARC_DEFERRED": {
+      "kind": "primary",
+      "nativeBasicReplacedInSameRealm": true,
+      "bridgeConfig": {
+        "adaptiveGovernor": {
+          "enabled": true,
+          "strategy": "windowed",
+          "windowBudgetTokens": 83400,
+          "maxOutputTokens": 8192,
+          "safetyMarginTokens": 4096,
+          "nudgeAtEffectiveCapacityPct": 0.75,
+          "emergencyAtEffectiveCapacityPct": 0.9,
+          "targetAfterTurnoverPct": 0.55,
+          "emergencyFallback": true
+        },
+        "archive": {
+          "seedMaxTokens": 4096,
+          "retrievalDefaultMaxTokens": 2048,
+          "retrievalMaxTokens": 4096
+        },
+        "backgroundSummary": {
+          "provider": "opencode-go-muse",
+          "model": "muse-spark-1.3-contributor",
+          "reasoningEffort": "minimal",
+          "allowSameProvider": true,
+          "delivery": "deferred",
+          "prepareAtEffectiveCapacityPct": 0.6,
+          "maxInputBytes": 262144,
+          "maxSummaryBytes": 4096,
+          "maxOutputTokens": 2048,
+          "timeoutMs": 60000
+        }
+      },
+      "archiveUnitCaveat": "Current archive fields named Tokens constrain UTF-8 serialization bytes in multiple paths; record bytes and host heuristic estimates separately"
+    },
+    "BASIC_MATCHED": {
+      "kind": "primary",
+      "nativeImplementationUnmodified": true,
+      "pluginInstalled": false,
+      "stockDefaults": false,
+      "configuration": {
+        "auto": true,
+        "thresholdRatio": 0.06103515625,
+        "retainRatio": 0.037299728393554686,
+        "maxTokens": 8192
+      },
+      "expectedResolvedThresholdTokens": 64000,
+      "expectedResolvedRetainTokens": 39111,
+      "modelPolicies": "Inspect and explicitly resolve overriding policies in private overlay; record actual host budgets",
+      "retainTokensOverrideRemoved": true,
+      "summaryEffortVerifiedViaPrivateProviderDefault": true
+    },
+    "BASIC_DEFAULT": {
+      "kind": "mandatory_short_authenticity_diagnostic",
+      "configuration": {
+        "auto": true,
+        "thresholdRatio": 0.8,
+        "retainRatio": 0.16,
+        "maxTokens": 8192
+      },
+      "formalExtensionAutomaticallyScheduled": false,
+      "zeroNaturalCompactions": "Report not exercised, do not call it a matched comparison"
+    },
+    "ARC_NO_BACKGROUND": {
+      "kind": "optional_separately_preregistered_formal_ablation",
+      "formalExtensionAutomaticallyScheduled": false,
+      "minimumForegroundTokensPerRun": 3000000
+    },
+    "ARC_IN_PLACE": {
+      "kind": "short_diagnostic_only",
+      "formalExtensionAutomaticallyScheduled": false
+    }
+  },
+  "geometry": {
+    "routeCapacity": 1048576,
+    "pressureThreshold": 80000,
+    "foregroundMaxOutputTokens": 8192,
+    "safetyMarginTokens": 4096,
+    "effectiveInputCapacity": 88889,
+    "logicalWindowBudget": 101177,
+    "prepareLine": 53333.4,
+    "nudgeLine": 66666,
+    "emergencyLine": 80000,
+    "targetRetainPressure": 48888.950000000004,
+    "basicResolvedRetainTokens": 48888,
+    "formula": "E=ceil(T/0.90); W=E+R+S; host floor verifies Basic threshold and retention; minimally compensate floating point only if required",
+    "nativePruner": {
+      "thresholdCodePoints": 8192,
+      "headCodePoints": 4096,
+      "tailCodePoints": 1024
+    },
+    "sameGeneralToolsAndPruner": true,
+    "logicalPressureIsNotPhysicalOverflow": true,
+    "measuredFloorProbe": {
+      "in-place @45000": "CONTEXT_BUDGET_EXHAUSTED, retained 58619 > physical 54096, nothing archived yet",
+      "windowed @45000 + restart": "CONTEXT_BUDGET_EXHAUSTED, retained 61131 > physical 54096, 1 block archived",
+      "in-place @60000": "CONTEXT_BUDGET_EXHAUSTED, retained 84675 > physical 70763, 1 in-place fallback",
+      "windowed @60000 + restart": "CONTEXT_BUDGET_EXHAUSTED, retained 74144 > physical 70763, 4 in-place fallbacks, 13 calls",
+      "in-place @90000": "completed, strictPassed, facts 24/24, verbatim 3/3, 6 compactions, 23 calls"
+    },
+    "floorRationale": "Deliberately just above the measured 0.1.7 floor so each formal journey must survive many real turnovers instead of one or two."
+  },
+  "schedule": {
+    "primaryArms": [
+      "ARC_DEFERRED",
+      "BASIC_MATCHED"
+    ],
+    "pilot": {
+      "pairId": "pilot-91561",
+      "seed": 91561,
+      "foregroundTargetRange": [
+        200000,
+        800000
+      ],
+      "minArcWindows": 2,
+      "minBasicCompactions": 2,
+      "minArcDeliveredSummaries": 1,
+      "formalCredit": false
+    },
+    "formalPairs": [
+      {
+        "pairId": "main-91601",
+        "seed": 91601,
+        "startOrder": [
+          "ARC_DEFERRED",
+          "BASIC_MATCHED"
+        ],
+        "requiresReview": "G1"
+      },
+      {
+        "pairId": "main-91602",
+        "seed": 91602,
+        "startOrder": [
+          "BASIC_MATCHED",
+          "ARC_DEFERRED"
+        ],
+        "requiresReview": "G2"
+      }
+    ],
+    "primaryRunCount": 4,
+    "minimumPrimaryForegroundTokens": 12000000,
+    "gates": [
+      "P0_TOOLS",
+      "P1_PILOT",
+      "G1_FREEZE",
+      "P2_FIRST_PAIR",
+      "G2_REVIEW",
+      "P3_SECOND_PAIR",
+      "P4_DIAGNOSTICS",
+      "G3_REPORT"
+    ],
+    "maximumActivePairs": 1,
+    "maximumActiveRuns": 2,
+    "maximumGlobalModelStreams": 3,
+    "maximumForegroundStreamsPerSession": 1,
+    "maximumSummaryJobsPerSession": 1,
+    "barrier": "Independent advancement and checkpoints per episode; synchronize only at common expansion-decision endpoints 24/30/36/42/48, after completed turns; no wait prompts; track schedulerBarrierMs",
+    "jobsSettlingDuringBarrier": "Record separately; valid strategy output but not waiting hidden by actual task work; disclose endpoint scheduling in final quality",
+    "faultInjectionConcurrentWithPrimaryPair": false,
+    "plannedRestart": {
+      "afterEpisode": 12,
+      "when": "completed turn and confirmed flush",
+      "bothArms": true,
+      "sameSessionIdRequired": true,
+      "oldNetworkRequestResumptionClaimAllowed": false
+    }
+  },
+  "workload": {
+    "baseEpisodes": 24,
+    "pagesPerEpisode": 12,
+    "basePages": 288,
+    "targetPageCodePoints": 7000,
+    "maxPageCodePoints": 7800,
+    "minSubstantiveUniqueContentFraction": 0.6,
+    "extensionEpisodes": 6,
+    "maximumEpisodes": 48,
+    "allowedFinalEndpoints": [
+      24,
+      30,
+      36,
+      42,
+      48
+    ],
+    "readBatchMaxPages": 6,
+    "minimumUniqueExposedSourceHeuristicTokens": 500000,
+    "sourceMetric": "Sum actual pinned-host heuristicTokens(originalPageText) once per unique fully exposed page; verify page bytes in actual provider request objects",
+    "expansionPredicate": "After common work endpoint and before final probes: either arm foregroundVerifiedTokens < 3000000 OR common unique exposed source tokens < 500000",
+    "expansionPolicy": "Both arms take same next precommitted 6-episode block, at most 48 episodes; never extend for low scores, too few windows, or summary adoption",
+    "finalProbeUsageMayRescueEarlierCoverageFailure": false,
+    "contentThemes": [
+      "state/revision authority",
+      "incident logs and eventOrder",
+      "three-file code maintenance",
+      "workflow dependency actions",
+      "ambiguous identifiers",
+      "verbatim long-tail evidence",
+      "stale/non-authoritative source conflicts"
+    ],
+    "baseOracleMinimums": {
+      "stateEntities": 48,
+      "entitiesWithTwoUpdates": 16,
+      "revocationRestorationEntities": 8,
+      "similarIdPairs": 12,
+      "timelineDependencyRelations": 24,
+      "crossSixEpisodeRelations": 8,
+      "threeWayFanIn": 4,
+      "mutuallyExclusiveGroups": 4,
+      "exactHistoryTargets": 48,
+      "earliestQuartileExactTargets": 12,
+      "multiSourceExactTargets": 12,
+      "existenceAmbiguityGroups": 24,
+      "syntheticActions": 24
+    },
+    "extensionMinimumPerEpisode": {
+      "stateEntities": 2,
+      "dependencies": 1,
+      "exactTargets": 2,
+      "existenceAmbiguityCandidates": 1,
+      "syntheticActions": 1
+    },
+    "generation": "Deterministic from a private random 32-byte salt plus seed/protocol/namespace/ordinal using HMAC-SHA256; salt and oracle stay in the driver-only private directory; freeze actual corpus and all endpoint probes before formal dispatch",
+    "permissionBoundary": {
+      "oracleVisibleToModel": false,
+      "genericShellReadNetworkDelegationAllowed": false,
+      "onlyCurrentAssignedPagesReadable": true,
+      "probeDisables": [
+        "source pages",
+        "working code reads/writes",
+        "workflow actions"
+      ],
+      "installedContextToolsPreserved": true,
+      "noUniversalHistoryMemoFile": true,
+      "syntheticActionEffects": "Atomic durable state+idempotency receipt; replay same key returns same receipt"
+    },
+    "episodePattern": [
+      "goal and authoritative updates",
+      "12 source pages with interleaved state/log/code/dependency evidence",
+      "bounded work deliverable",
+      "E_n_COMPLETE"
+    ],
+    "sixEpisodeWorkPackage": [
+      "read/diagnose",
+      "read/diagnose",
+      "correction",
+      "three-file code change",
+      "dependency action",
+      "merge validation"
+    ],
+    "geometryCalibration": "Only before formal freeze, revise all formal runs and plan together if actual unique source minimum cannot be reached; preserve pilot failures"
+  },
+  "tokenAccounting": {
+    "minimumForegroundVerifiedTokensPerArmSeedSession": 3000000,
+    "foregroundDefinition": "Verified input+output from terminal successful normal main-session work requests, excluding sentinel/final probes, failed/cancelled/retry attempts and diagnostic forks",
+    "allReportedDefinition": "All known provider usage, including summaries, failed/cancelled calls and retries; a cost lower bound",
+    "cacheAndReasoning": "Do not add cached input or reasoning subtotals twice when included in input/output; preserve raw and normalized usage",
+    "usageChunkSemantics": "Confirm adapter cumulative/incremental semantics with controlled tests; generally final cumulative value per stream",
+    "deduplicationKey": [
+      "logicalRequestId",
+      "streamId",
+      "attemptId"
+    ],
+    "missingAttemptIdentity": "unknown; do not invent transport attempts",
+    "unknownUsageCountsTowardFloor": false,
+    "reservationsCountTowardFloor": false,
+    "backgroundCountsTowardFloor": false,
+    "inheritedForkUsageCountsTowardFloor": false,
+    "repeatedHistoryCountsAsForegroundUsage": true,
+    "repeatedHistoryCountsAsNewSource": false,
+    "tokenCeiling": null,
+    "mode": "observe",
+    "currencyClaimsWithoutVerifiedBilling": false,
+    "requiredTotals": [
+      "foregroundVerifiedTokens",
+      "allReportedTokens",
+      "unknownUsageCalls",
+      "reservedExposureTokens",
+      "uniqueExposedSourceTokens",
+      "currentProjectedTokens"
+    ],
+    "probeTokensCountTowardFloor": false
+  },
+  "probes": {
+    "totalQuestions": 96,
+    "batches": 12,
+    "questionsPerBatch": 8,
+    "sourceQuartiles": 4,
+    "questionsPerQuartile": 24,
+    "categoriesPerQuartile": {
+      "state": 6,
+      "exact": 6,
+      "source_existence_ambiguity": 6,
+      "timeline_dependency": 6
+    },
+    "requiredLatestUserCount": 16,
+    "longTailRequiredCount": 12,
+    "sentinelEpisodes": [
+      6,
+      12,
+      18
+    ],
+    "sentinelQuestionsEach": 4,
+    "sentinelsDisjointFromFinalEvidence": true,
+    "promptVisibleFields": [
+      "queryId",
+      "question",
+      "public target/entity label",
+      "page hint only when page lookup is given by the task and source identity is not itself scored"
+    ],
+    "hiddenFields": [
+      "oracle answer",
+      "hidden salt",
+      "true sourcePage when scored",
+      "correct recordId when scored",
+      "existence truth",
+      "private probe target mapping"
+    ],
+    "schemaPerQuestionRequired": [
+      "queryId",
+      "category",
+      "requiredLatestUser",
+      "longTailRequired",
+      "promptVisibleFields",
+      "scoredFields",
+      "oracle answer",
+      "evidence set",
+      "source position"
+    ],
+    "endpoints": [
+      {
+        "endpointEpisodes": 24,
+        "questionCount": 96,
+        "buckets": [
+          {
+            "bucket": 0,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N24-Q001",
+                "N24-Q002",
+                "N24-Q003",
+                "N24-Q004",
+                "N24-Q005",
+                "N24-Q006"
+              ],
+              "exact": [
+                "N24-Q007",
+                "N24-Q008",
+                "N24-Q009",
+                "N24-Q010",
+                "N24-Q011",
+                "N24-Q012"
+              ],
+              "source_existence_ambiguity": [
+                "N24-Q013",
+                "N24-Q014",
+                "N24-Q015",
+                "N24-Q016",
+                "N24-Q017",
+                "N24-Q018"
+              ],
+              "timeline_dependency": [
+                "N24-Q019",
+                "N24-Q020",
+                "N24-Q021",
+                "N24-Q022",
+                "N24-Q023",
+                "N24-Q024"
+              ]
+            },
+            "sourcePageStart": 1,
+            "sourcePageEnd": 72
+          },
+          {
+            "bucket": 1,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N24-Q025",
+                "N24-Q026",
+                "N24-Q027",
+                "N24-Q028",
+                "N24-Q029",
+                "N24-Q030"
+              ],
+              "exact": [
+                "N24-Q031",
+                "N24-Q032",
+                "N24-Q033",
+                "N24-Q034",
+                "N24-Q035",
+                "N24-Q036"
+              ],
+              "source_existence_ambiguity": [
+                "N24-Q037",
+                "N24-Q038",
+                "N24-Q039",
+                "N24-Q040",
+                "N24-Q041",
+                "N24-Q042"
+              ],
+              "timeline_dependency": [
+                "N24-Q043",
+                "N24-Q044",
+                "N24-Q045",
+                "N24-Q046",
+                "N24-Q047",
+                "N24-Q048"
+              ]
+            },
+            "sourcePageStart": 73,
+            "sourcePageEnd": 144
+          },
+          {
+            "bucket": 2,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N24-Q049",
+                "N24-Q050",
+                "N24-Q051",
+                "N24-Q052",
+                "N24-Q053",
+                "N24-Q054"
+              ],
+              "exact": [
+                "N24-Q055",
+                "N24-Q056",
+                "N24-Q057",
+                "N24-Q058",
+                "N24-Q059",
+                "N24-Q060"
+              ],
+              "source_existence_ambiguity": [
+                "N24-Q061",
+                "N24-Q062",
+                "N24-Q063",
+                "N24-Q064",
+                "N24-Q065",
+                "N24-Q066"
+              ],
+              "timeline_dependency": [
+                "N24-Q067",
+                "N24-Q068",
+                "N24-Q069",
+                "N24-Q070",
+                "N24-Q071",
+                "N24-Q072"
+              ]
+            },
+            "sourcePageStart": 145,
+            "sourcePageEnd": 216
+          },
+          {
+            "bucket": 3,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N24-Q073",
+                "N24-Q074",
+                "N24-Q075",
+                "N24-Q076",
+                "N24-Q077",
+                "N24-Q078"
+              ],
+              "exact": [
+                "N24-Q079",
+                "N24-Q080",
+                "N24-Q081",
+                "N24-Q082",
+                "N24-Q083",
+                "N24-Q084"
+              ],
+              "source_existence_ambiguity": [
+                "N24-Q085",
+                "N24-Q086",
+                "N24-Q087",
+                "N24-Q088",
+                "N24-Q089",
+                "N24-Q090"
+              ],
+              "timeline_dependency": [
+                "N24-Q091",
+                "N24-Q092",
+                "N24-Q093",
+                "N24-Q094",
+                "N24-Q095",
+                "N24-Q096"
+              ]
+            },
+            "sourcePageStart": 217,
+            "sourcePageEnd": 288
+          }
+        ],
+        "requiredLatestUserIds": [
+          "N24-Q001",
+          "N24-Q002",
+          "N24-Q003",
+          "N24-Q004",
+          "N24-Q025",
+          "N24-Q026",
+          "N24-Q027",
+          "N24-Q028",
+          "N24-Q049",
+          "N24-Q050",
+          "N24-Q051",
+          "N24-Q052",
+          "N24-Q073",
+          "N24-Q074",
+          "N24-Q075",
+          "N24-Q076"
+        ],
+        "latestUserSubtypeRule": "Within each bucket state slots 1-2 are latest user corrections; slots 3-4 are revocation/restoration; slots 5-6 are ordinary current state.",
+        "longTailRequiredIds": [
+          "N24-Q007",
+          "N24-Q008",
+          "N24-Q009",
+          "N24-Q010",
+          "N24-Q011",
+          "N24-Q012",
+          "N24-Q013",
+          "N24-Q014",
+          "N24-Q015",
+          "N24-Q016",
+          "N24-Q017",
+          "N24-Q018"
+        ],
+        "probeBatchIds": [
+          [
+            "N24-Q007",
+            "N24-Q008",
+            "N24-Q009",
+            "N24-Q010",
+            "N24-Q011",
+            "N24-Q012",
+            "N24-Q013",
+            "N24-Q014"
+          ],
+          [
+            "N24-Q015",
+            "N24-Q016",
+            "N24-Q017",
+            "N24-Q018",
+            "N24-Q001",
+            "N24-Q002",
+            "N24-Q003",
+            "N24-Q004"
+          ],
+          [
+            "N24-Q005",
+            "N24-Q006",
+            "N24-Q019",
+            "N24-Q020",
+            "N24-Q021",
+            "N24-Q022",
+            "N24-Q023",
+            "N24-Q024"
+          ],
+          [
+            "N24-Q025",
+            "N24-Q026",
+            "N24-Q027",
+            "N24-Q028",
+            "N24-Q029",
+            "N24-Q030",
+            "N24-Q031",
+            "N24-Q032"
+          ],
+          [
+            "N24-Q033",
+            "N24-Q034",
+            "N24-Q035",
+            "N24-Q036",
+            "N24-Q037",
+            "N24-Q038",
+            "N24-Q039",
+            "N24-Q040"
+          ],
+          [
+            "N24-Q041",
+            "N24-Q042",
+            "N24-Q043",
+            "N24-Q044",
+            "N24-Q045",
+            "N24-Q046",
+            "N24-Q047",
+            "N24-Q048"
+          ],
+          [
+            "N24-Q049",
+            "N24-Q050",
+            "N24-Q051",
+            "N24-Q052",
+            "N24-Q053",
+            "N24-Q054",
+            "N24-Q055",
+            "N24-Q056"
+          ],
+          [
+            "N24-Q057",
+            "N24-Q058",
+            "N24-Q059",
+            "N24-Q060",
+            "N24-Q061",
+            "N24-Q062",
+            "N24-Q063",
+            "N24-Q064"
+          ],
+          [
+            "N24-Q065",
+            "N24-Q066",
+            "N24-Q067",
+            "N24-Q068",
+            "N24-Q069",
+            "N24-Q070",
+            "N24-Q071",
+            "N24-Q072"
+          ],
+          [
+            "N24-Q073",
+            "N24-Q074",
+            "N24-Q075",
+            "N24-Q076",
+            "N24-Q077",
+            "N24-Q078",
+            "N24-Q079",
+            "N24-Q080"
+          ],
+          [
+            "N24-Q081",
+            "N24-Q082",
+            "N24-Q083",
+            "N24-Q084",
+            "N24-Q085",
+            "N24-Q086",
+            "N24-Q087",
+            "N24-Q088"
+          ],
+          [
+            "N24-Q089",
+            "N24-Q090",
+            "N24-Q091",
+            "N24-Q092",
+            "N24-Q093",
+            "N24-Q094",
+            "N24-Q095",
+            "N24-Q096"
+          ]
+        ]
+      },
+      {
+        "endpointEpisodes": 30,
+        "questionCount": 96,
+        "buckets": [
+          {
+            "bucket": 0,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N30-Q001",
+                "N30-Q002",
+                "N30-Q003",
+                "N30-Q004",
+                "N30-Q005",
+                "N30-Q006"
+              ],
+              "exact": [
+                "N30-Q007",
+                "N30-Q008",
+                "N30-Q009",
+                "N30-Q010",
+                "N30-Q011",
+                "N30-Q012"
+              ],
+              "source_existence_ambiguity": [
+                "N30-Q013",
+                "N30-Q014",
+                "N30-Q015",
+                "N30-Q016",
+                "N30-Q017",
+                "N30-Q018"
+              ],
+              "timeline_dependency": [
+                "N30-Q019",
+                "N30-Q020",
+                "N30-Q021",
+                "N30-Q022",
+                "N30-Q023",
+                "N30-Q024"
+              ]
+            },
+            "sourcePageStart": 1,
+            "sourcePageEnd": 90
+          },
+          {
+            "bucket": 1,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N30-Q025",
+                "N30-Q026",
+                "N30-Q027",
+                "N30-Q028",
+                "N30-Q029",
+                "N30-Q030"
+              ],
+              "exact": [
+                "N30-Q031",
+                "N30-Q032",
+                "N30-Q033",
+                "N30-Q034",
+                "N30-Q035",
+                "N30-Q036"
+              ],
+              "source_existence_ambiguity": [
+                "N30-Q037",
+                "N30-Q038",
+                "N30-Q039",
+                "N30-Q040",
+                "N30-Q041",
+                "N30-Q042"
+              ],
+              "timeline_dependency": [
+                "N30-Q043",
+                "N30-Q044",
+                "N30-Q045",
+                "N30-Q046",
+                "N30-Q047",
+                "N30-Q048"
+              ]
+            },
+            "sourcePageStart": 91,
+            "sourcePageEnd": 180
+          },
+          {
+            "bucket": 2,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N30-Q049",
+                "N30-Q050",
+                "N30-Q051",
+                "N30-Q052",
+                "N30-Q053",
+                "N30-Q054"
+              ],
+              "exact": [
+                "N30-Q055",
+                "N30-Q056",
+                "N30-Q057",
+                "N30-Q058",
+                "N30-Q059",
+                "N30-Q060"
+              ],
+              "source_existence_ambiguity": [
+                "N30-Q061",
+                "N30-Q062",
+                "N30-Q063",
+                "N30-Q064",
+                "N30-Q065",
+                "N30-Q066"
+              ],
+              "timeline_dependency": [
+                "N30-Q067",
+                "N30-Q068",
+                "N30-Q069",
+                "N30-Q070",
+                "N30-Q071",
+                "N30-Q072"
+              ]
+            },
+            "sourcePageStart": 181,
+            "sourcePageEnd": 270
+          },
+          {
+            "bucket": 3,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N30-Q073",
+                "N30-Q074",
+                "N30-Q075",
+                "N30-Q076",
+                "N30-Q077",
+                "N30-Q078"
+              ],
+              "exact": [
+                "N30-Q079",
+                "N30-Q080",
+                "N30-Q081",
+                "N30-Q082",
+                "N30-Q083",
+                "N30-Q084"
+              ],
+              "source_existence_ambiguity": [
+                "N30-Q085",
+                "N30-Q086",
+                "N30-Q087",
+                "N30-Q088",
+                "N30-Q089",
+                "N30-Q090"
+              ],
+              "timeline_dependency": [
+                "N30-Q091",
+                "N30-Q092",
+                "N30-Q093",
+                "N30-Q094",
+                "N30-Q095",
+                "N30-Q096"
+              ]
+            },
+            "sourcePageStart": 271,
+            "sourcePageEnd": 360
+          }
+        ],
+        "requiredLatestUserIds": [
+          "N30-Q001",
+          "N30-Q002",
+          "N30-Q003",
+          "N30-Q004",
+          "N30-Q025",
+          "N30-Q026",
+          "N30-Q027",
+          "N30-Q028",
+          "N30-Q049",
+          "N30-Q050",
+          "N30-Q051",
+          "N30-Q052",
+          "N30-Q073",
+          "N30-Q074",
+          "N30-Q075",
+          "N30-Q076"
+        ],
+        "latestUserSubtypeRule": "Within each bucket state slots 1-2 are latest user corrections; slots 3-4 are revocation/restoration; slots 5-6 are ordinary current state.",
+        "longTailRequiredIds": [
+          "N30-Q007",
+          "N30-Q008",
+          "N30-Q009",
+          "N30-Q010",
+          "N30-Q011",
+          "N30-Q012",
+          "N30-Q013",
+          "N30-Q014",
+          "N30-Q015",
+          "N30-Q016",
+          "N30-Q017",
+          "N30-Q018"
+        ],
+        "probeBatchIds": [
+          [
+            "N30-Q007",
+            "N30-Q008",
+            "N30-Q009",
+            "N30-Q010",
+            "N30-Q011",
+            "N30-Q012",
+            "N30-Q013",
+            "N30-Q014"
+          ],
+          [
+            "N30-Q015",
+            "N30-Q016",
+            "N30-Q017",
+            "N30-Q018",
+            "N30-Q001",
+            "N30-Q002",
+            "N30-Q003",
+            "N30-Q004"
+          ],
+          [
+            "N30-Q005",
+            "N30-Q006",
+            "N30-Q019",
+            "N30-Q020",
+            "N30-Q021",
+            "N30-Q022",
+            "N30-Q023",
+            "N30-Q024"
+          ],
+          [
+            "N30-Q025",
+            "N30-Q026",
+            "N30-Q027",
+            "N30-Q028",
+            "N30-Q029",
+            "N30-Q030",
+            "N30-Q031",
+            "N30-Q032"
+          ],
+          [
+            "N30-Q033",
+            "N30-Q034",
+            "N30-Q035",
+            "N30-Q036",
+            "N30-Q037",
+            "N30-Q038",
+            "N30-Q039",
+            "N30-Q040"
+          ],
+          [
+            "N30-Q041",
+            "N30-Q042",
+            "N30-Q043",
+            "N30-Q044",
+            "N30-Q045",
+            "N30-Q046",
+            "N30-Q047",
+            "N30-Q048"
+          ],
+          [
+            "N30-Q049",
+            "N30-Q050",
+            "N30-Q051",
+            "N30-Q052",
+            "N30-Q053",
+            "N30-Q054",
+            "N30-Q055",
+            "N30-Q056"
+          ],
+          [
+            "N30-Q057",
+            "N30-Q058",
+            "N30-Q059",
+            "N30-Q060",
+            "N30-Q061",
+            "N30-Q062",
+            "N30-Q063",
+            "N30-Q064"
+          ],
+          [
+            "N30-Q065",
+            "N30-Q066",
+            "N30-Q067",
+            "N30-Q068",
+            "N30-Q069",
+            "N30-Q070",
+            "N30-Q071",
+            "N30-Q072"
+          ],
+          [
+            "N30-Q073",
+            "N30-Q074",
+            "N30-Q075",
+            "N30-Q076",
+            "N30-Q077",
+            "N30-Q078",
+            "N30-Q079",
+            "N30-Q080"
+          ],
+          [
+            "N30-Q081",
+            "N30-Q082",
+            "N30-Q083",
+            "N30-Q084",
+            "N30-Q085",
+            "N30-Q086",
+            "N30-Q087",
+            "N30-Q088"
+          ],
+          [
+            "N30-Q089",
+            "N30-Q090",
+            "N30-Q091",
+            "N30-Q092",
+            "N30-Q093",
+            "N30-Q094",
+            "N30-Q095",
+            "N30-Q096"
+          ]
+        ]
+      },
+      {
+        "endpointEpisodes": 36,
+        "questionCount": 96,
+        "buckets": [
+          {
+            "bucket": 0,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N36-Q001",
+                "N36-Q002",
+                "N36-Q003",
+                "N36-Q004",
+                "N36-Q005",
+                "N36-Q006"
+              ],
+              "exact": [
+                "N36-Q007",
+                "N36-Q008",
+                "N36-Q009",
+                "N36-Q010",
+                "N36-Q011",
+                "N36-Q012"
+              ],
+              "source_existence_ambiguity": [
+                "N36-Q013",
+                "N36-Q014",
+                "N36-Q015",
+                "N36-Q016",
+                "N36-Q017",
+                "N36-Q018"
+              ],
+              "timeline_dependency": [
+                "N36-Q019",
+                "N36-Q020",
+                "N36-Q021",
+                "N36-Q022",
+                "N36-Q023",
+                "N36-Q024"
+              ]
+            },
+            "sourcePageStart": 1,
+            "sourcePageEnd": 108
+          },
+          {
+            "bucket": 1,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N36-Q025",
+                "N36-Q026",
+                "N36-Q027",
+                "N36-Q028",
+                "N36-Q029",
+                "N36-Q030"
+              ],
+              "exact": [
+                "N36-Q031",
+                "N36-Q032",
+                "N36-Q033",
+                "N36-Q034",
+                "N36-Q035",
+                "N36-Q036"
+              ],
+              "source_existence_ambiguity": [
+                "N36-Q037",
+                "N36-Q038",
+                "N36-Q039",
+                "N36-Q040",
+                "N36-Q041",
+                "N36-Q042"
+              ],
+              "timeline_dependency": [
+                "N36-Q043",
+                "N36-Q044",
+                "N36-Q045",
+                "N36-Q046",
+                "N36-Q047",
+                "N36-Q048"
+              ]
+            },
+            "sourcePageStart": 109,
+            "sourcePageEnd": 216
+          },
+          {
+            "bucket": 2,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N36-Q049",
+                "N36-Q050",
+                "N36-Q051",
+                "N36-Q052",
+                "N36-Q053",
+                "N36-Q054"
+              ],
+              "exact": [
+                "N36-Q055",
+                "N36-Q056",
+                "N36-Q057",
+                "N36-Q058",
+                "N36-Q059",
+                "N36-Q060"
+              ],
+              "source_existence_ambiguity": [
+                "N36-Q061",
+                "N36-Q062",
+                "N36-Q063",
+                "N36-Q064",
+                "N36-Q065",
+                "N36-Q066"
+              ],
+              "timeline_dependency": [
+                "N36-Q067",
+                "N36-Q068",
+                "N36-Q069",
+                "N36-Q070",
+                "N36-Q071",
+                "N36-Q072"
+              ]
+            },
+            "sourcePageStart": 217,
+            "sourcePageEnd": 324
+          },
+          {
+            "bucket": 3,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N36-Q073",
+                "N36-Q074",
+                "N36-Q075",
+                "N36-Q076",
+                "N36-Q077",
+                "N36-Q078"
+              ],
+              "exact": [
+                "N36-Q079",
+                "N36-Q080",
+                "N36-Q081",
+                "N36-Q082",
+                "N36-Q083",
+                "N36-Q084"
+              ],
+              "source_existence_ambiguity": [
+                "N36-Q085",
+                "N36-Q086",
+                "N36-Q087",
+                "N36-Q088",
+                "N36-Q089",
+                "N36-Q090"
+              ],
+              "timeline_dependency": [
+                "N36-Q091",
+                "N36-Q092",
+                "N36-Q093",
+                "N36-Q094",
+                "N36-Q095",
+                "N36-Q096"
+              ]
+            },
+            "sourcePageStart": 325,
+            "sourcePageEnd": 432
+          }
+        ],
+        "requiredLatestUserIds": [
+          "N36-Q001",
+          "N36-Q002",
+          "N36-Q003",
+          "N36-Q004",
+          "N36-Q025",
+          "N36-Q026",
+          "N36-Q027",
+          "N36-Q028",
+          "N36-Q049",
+          "N36-Q050",
+          "N36-Q051",
+          "N36-Q052",
+          "N36-Q073",
+          "N36-Q074",
+          "N36-Q075",
+          "N36-Q076"
+        ],
+        "latestUserSubtypeRule": "Within each bucket state slots 1-2 are latest user corrections; slots 3-4 are revocation/restoration; slots 5-6 are ordinary current state.",
+        "longTailRequiredIds": [
+          "N36-Q007",
+          "N36-Q008",
+          "N36-Q009",
+          "N36-Q010",
+          "N36-Q011",
+          "N36-Q012",
+          "N36-Q013",
+          "N36-Q014",
+          "N36-Q015",
+          "N36-Q016",
+          "N36-Q017",
+          "N36-Q018"
+        ],
+        "probeBatchIds": [
+          [
+            "N36-Q007",
+            "N36-Q008",
+            "N36-Q009",
+            "N36-Q010",
+            "N36-Q011",
+            "N36-Q012",
+            "N36-Q013",
+            "N36-Q014"
+          ],
+          [
+            "N36-Q015",
+            "N36-Q016",
+            "N36-Q017",
+            "N36-Q018",
+            "N36-Q001",
+            "N36-Q002",
+            "N36-Q003",
+            "N36-Q004"
+          ],
+          [
+            "N36-Q005",
+            "N36-Q006",
+            "N36-Q019",
+            "N36-Q020",
+            "N36-Q021",
+            "N36-Q022",
+            "N36-Q023",
+            "N36-Q024"
+          ],
+          [
+            "N36-Q025",
+            "N36-Q026",
+            "N36-Q027",
+            "N36-Q028",
+            "N36-Q029",
+            "N36-Q030",
+            "N36-Q031",
+            "N36-Q032"
+          ],
+          [
+            "N36-Q033",
+            "N36-Q034",
+            "N36-Q035",
+            "N36-Q036",
+            "N36-Q037",
+            "N36-Q038",
+            "N36-Q039",
+            "N36-Q040"
+          ],
+          [
+            "N36-Q041",
+            "N36-Q042",
+            "N36-Q043",
+            "N36-Q044",
+            "N36-Q045",
+            "N36-Q046",
+            "N36-Q047",
+            "N36-Q048"
+          ],
+          [
+            "N36-Q049",
+            "N36-Q050",
+            "N36-Q051",
+            "N36-Q052",
+            "N36-Q053",
+            "N36-Q054",
+            "N36-Q055",
+            "N36-Q056"
+          ],
+          [
+            "N36-Q057",
+            "N36-Q058",
+            "N36-Q059",
+            "N36-Q060",
+            "N36-Q061",
+            "N36-Q062",
+            "N36-Q063",
+            "N36-Q064"
+          ],
+          [
+            "N36-Q065",
+            "N36-Q066",
+            "N36-Q067",
+            "N36-Q068",
+            "N36-Q069",
+            "N36-Q070",
+            "N36-Q071",
+            "N36-Q072"
+          ],
+          [
+            "N36-Q073",
+            "N36-Q074",
+            "N36-Q075",
+            "N36-Q076",
+            "N36-Q077",
+            "N36-Q078",
+            "N36-Q079",
+            "N36-Q080"
+          ],
+          [
+            "N36-Q081",
+            "N36-Q082",
+            "N36-Q083",
+            "N36-Q084",
+            "N36-Q085",
+            "N36-Q086",
+            "N36-Q087",
+            "N36-Q088"
+          ],
+          [
+            "N36-Q089",
+            "N36-Q090",
+            "N36-Q091",
+            "N36-Q092",
+            "N36-Q093",
+            "N36-Q094",
+            "N36-Q095",
+            "N36-Q096"
+          ]
+        ]
+      },
+      {
+        "endpointEpisodes": 42,
+        "questionCount": 96,
+        "buckets": [
+          {
+            "bucket": 0,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N42-Q001",
+                "N42-Q002",
+                "N42-Q003",
+                "N42-Q004",
+                "N42-Q005",
+                "N42-Q006"
+              ],
+              "exact": [
+                "N42-Q007",
+                "N42-Q008",
+                "N42-Q009",
+                "N42-Q010",
+                "N42-Q011",
+                "N42-Q012"
+              ],
+              "source_existence_ambiguity": [
+                "N42-Q013",
+                "N42-Q014",
+                "N42-Q015",
+                "N42-Q016",
+                "N42-Q017",
+                "N42-Q018"
+              ],
+              "timeline_dependency": [
+                "N42-Q019",
+                "N42-Q020",
+                "N42-Q021",
+                "N42-Q022",
+                "N42-Q023",
+                "N42-Q024"
+              ]
+            },
+            "sourcePageStart": 1,
+            "sourcePageEnd": 126
+          },
+          {
+            "bucket": 1,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N42-Q025",
+                "N42-Q026",
+                "N42-Q027",
+                "N42-Q028",
+                "N42-Q029",
+                "N42-Q030"
+              ],
+              "exact": [
+                "N42-Q031",
+                "N42-Q032",
+                "N42-Q033",
+                "N42-Q034",
+                "N42-Q035",
+                "N42-Q036"
+              ],
+              "source_existence_ambiguity": [
+                "N42-Q037",
+                "N42-Q038",
+                "N42-Q039",
+                "N42-Q040",
+                "N42-Q041",
+                "N42-Q042"
+              ],
+              "timeline_dependency": [
+                "N42-Q043",
+                "N42-Q044",
+                "N42-Q045",
+                "N42-Q046",
+                "N42-Q047",
+                "N42-Q048"
+              ]
+            },
+            "sourcePageStart": 127,
+            "sourcePageEnd": 252
+          },
+          {
+            "bucket": 2,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N42-Q049",
+                "N42-Q050",
+                "N42-Q051",
+                "N42-Q052",
+                "N42-Q053",
+                "N42-Q054"
+              ],
+              "exact": [
+                "N42-Q055",
+                "N42-Q056",
+                "N42-Q057",
+                "N42-Q058",
+                "N42-Q059",
+                "N42-Q060"
+              ],
+              "source_existence_ambiguity": [
+                "N42-Q061",
+                "N42-Q062",
+                "N42-Q063",
+                "N42-Q064",
+                "N42-Q065",
+                "N42-Q066"
+              ],
+              "timeline_dependency": [
+                "N42-Q067",
+                "N42-Q068",
+                "N42-Q069",
+                "N42-Q070",
+                "N42-Q071",
+                "N42-Q072"
+              ]
+            },
+            "sourcePageStart": 253,
+            "sourcePageEnd": 378
+          },
+          {
+            "bucket": 3,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N42-Q073",
+                "N42-Q074",
+                "N42-Q075",
+                "N42-Q076",
+                "N42-Q077",
+                "N42-Q078"
+              ],
+              "exact": [
+                "N42-Q079",
+                "N42-Q080",
+                "N42-Q081",
+                "N42-Q082",
+                "N42-Q083",
+                "N42-Q084"
+              ],
+              "source_existence_ambiguity": [
+                "N42-Q085",
+                "N42-Q086",
+                "N42-Q087",
+                "N42-Q088",
+                "N42-Q089",
+                "N42-Q090"
+              ],
+              "timeline_dependency": [
+                "N42-Q091",
+                "N42-Q092",
+                "N42-Q093",
+                "N42-Q094",
+                "N42-Q095",
+                "N42-Q096"
+              ]
+            },
+            "sourcePageStart": 379,
+            "sourcePageEnd": 504
+          }
+        ],
+        "requiredLatestUserIds": [
+          "N42-Q001",
+          "N42-Q002",
+          "N42-Q003",
+          "N42-Q004",
+          "N42-Q025",
+          "N42-Q026",
+          "N42-Q027",
+          "N42-Q028",
+          "N42-Q049",
+          "N42-Q050",
+          "N42-Q051",
+          "N42-Q052",
+          "N42-Q073",
+          "N42-Q074",
+          "N42-Q075",
+          "N42-Q076"
+        ],
+        "latestUserSubtypeRule": "Within each bucket state slots 1-2 are latest user corrections; slots 3-4 are revocation/restoration; slots 5-6 are ordinary current state.",
+        "longTailRequiredIds": [
+          "N42-Q007",
+          "N42-Q008",
+          "N42-Q009",
+          "N42-Q010",
+          "N42-Q011",
+          "N42-Q012",
+          "N42-Q013",
+          "N42-Q014",
+          "N42-Q015",
+          "N42-Q016",
+          "N42-Q017",
+          "N42-Q018"
+        ],
+        "probeBatchIds": [
+          [
+            "N42-Q007",
+            "N42-Q008",
+            "N42-Q009",
+            "N42-Q010",
+            "N42-Q011",
+            "N42-Q012",
+            "N42-Q013",
+            "N42-Q014"
+          ],
+          [
+            "N42-Q015",
+            "N42-Q016",
+            "N42-Q017",
+            "N42-Q018",
+            "N42-Q001",
+            "N42-Q002",
+            "N42-Q003",
+            "N42-Q004"
+          ],
+          [
+            "N42-Q005",
+            "N42-Q006",
+            "N42-Q019",
+            "N42-Q020",
+            "N42-Q021",
+            "N42-Q022",
+            "N42-Q023",
+            "N42-Q024"
+          ],
+          [
+            "N42-Q025",
+            "N42-Q026",
+            "N42-Q027",
+            "N42-Q028",
+            "N42-Q029",
+            "N42-Q030",
+            "N42-Q031",
+            "N42-Q032"
+          ],
+          [
+            "N42-Q033",
+            "N42-Q034",
+            "N42-Q035",
+            "N42-Q036",
+            "N42-Q037",
+            "N42-Q038",
+            "N42-Q039",
+            "N42-Q040"
+          ],
+          [
+            "N42-Q041",
+            "N42-Q042",
+            "N42-Q043",
+            "N42-Q044",
+            "N42-Q045",
+            "N42-Q046",
+            "N42-Q047",
+            "N42-Q048"
+          ],
+          [
+            "N42-Q049",
+            "N42-Q050",
+            "N42-Q051",
+            "N42-Q052",
+            "N42-Q053",
+            "N42-Q054",
+            "N42-Q055",
+            "N42-Q056"
+          ],
+          [
+            "N42-Q057",
+            "N42-Q058",
+            "N42-Q059",
+            "N42-Q060",
+            "N42-Q061",
+            "N42-Q062",
+            "N42-Q063",
+            "N42-Q064"
+          ],
+          [
+            "N42-Q065",
+            "N42-Q066",
+            "N42-Q067",
+            "N42-Q068",
+            "N42-Q069",
+            "N42-Q070",
+            "N42-Q071",
+            "N42-Q072"
+          ],
+          [
+            "N42-Q073",
+            "N42-Q074",
+            "N42-Q075",
+            "N42-Q076",
+            "N42-Q077",
+            "N42-Q078",
+            "N42-Q079",
+            "N42-Q080"
+          ],
+          [
+            "N42-Q081",
+            "N42-Q082",
+            "N42-Q083",
+            "N42-Q084",
+            "N42-Q085",
+            "N42-Q086",
+            "N42-Q087",
+            "N42-Q088"
+          ],
+          [
+            "N42-Q089",
+            "N42-Q090",
+            "N42-Q091",
+            "N42-Q092",
+            "N42-Q093",
+            "N42-Q094",
+            "N42-Q095",
+            "N42-Q096"
+          ]
+        ]
+      },
+      {
+        "endpointEpisodes": 48,
+        "questionCount": 96,
+        "buckets": [
+          {
+            "bucket": 0,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N48-Q001",
+                "N48-Q002",
+                "N48-Q003",
+                "N48-Q004",
+                "N48-Q005",
+                "N48-Q006"
+              ],
+              "exact": [
+                "N48-Q007",
+                "N48-Q008",
+                "N48-Q009",
+                "N48-Q010",
+                "N48-Q011",
+                "N48-Q012"
+              ],
+              "source_existence_ambiguity": [
+                "N48-Q013",
+                "N48-Q014",
+                "N48-Q015",
+                "N48-Q016",
+                "N48-Q017",
+                "N48-Q018"
+              ],
+              "timeline_dependency": [
+                "N48-Q019",
+                "N48-Q020",
+                "N48-Q021",
+                "N48-Q022",
+                "N48-Q023",
+                "N48-Q024"
+              ]
+            },
+            "sourcePageStart": 1,
+            "sourcePageEnd": 144
+          },
+          {
+            "bucket": 1,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N48-Q025",
+                "N48-Q026",
+                "N48-Q027",
+                "N48-Q028",
+                "N48-Q029",
+                "N48-Q030"
+              ],
+              "exact": [
+                "N48-Q031",
+                "N48-Q032",
+                "N48-Q033",
+                "N48-Q034",
+                "N48-Q035",
+                "N48-Q036"
+              ],
+              "source_existence_ambiguity": [
+                "N48-Q037",
+                "N48-Q038",
+                "N48-Q039",
+                "N48-Q040",
+                "N48-Q041",
+                "N48-Q042"
+              ],
+              "timeline_dependency": [
+                "N48-Q043",
+                "N48-Q044",
+                "N48-Q045",
+                "N48-Q046",
+                "N48-Q047",
+                "N48-Q048"
+              ]
+            },
+            "sourcePageStart": 145,
+            "sourcePageEnd": 288
+          },
+          {
+            "bucket": 2,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N48-Q049",
+                "N48-Q050",
+                "N48-Q051",
+                "N48-Q052",
+                "N48-Q053",
+                "N48-Q054"
+              ],
+              "exact": [
+                "N48-Q055",
+                "N48-Q056",
+                "N48-Q057",
+                "N48-Q058",
+                "N48-Q059",
+                "N48-Q060"
+              ],
+              "source_existence_ambiguity": [
+                "N48-Q061",
+                "N48-Q062",
+                "N48-Q063",
+                "N48-Q064",
+                "N48-Q065",
+                "N48-Q066"
+              ],
+              "timeline_dependency": [
+                "N48-Q067",
+                "N48-Q068",
+                "N48-Q069",
+                "N48-Q070",
+                "N48-Q071",
+                "N48-Q072"
+              ]
+            },
+            "sourcePageStart": 289,
+            "sourcePageEnd": 432
+          },
+          {
+            "bucket": 3,
+            "sourcePositionRule": "floor((sourcePage - 1) * 4 / (endpointEpisodes * pagesPerEpisode))",
+            "categories": {
+              "state": [
+                "N48-Q073",
+                "N48-Q074",
+                "N48-Q075",
+                "N48-Q076",
+                "N48-Q077",
+                "N48-Q078"
+              ],
+              "exact": [
+                "N48-Q079",
+                "N48-Q080",
+                "N48-Q081",
+                "N48-Q082",
+                "N48-Q083",
+                "N48-Q084"
+              ],
+              "source_existence_ambiguity": [
+                "N48-Q085",
+                "N48-Q086",
+                "N48-Q087",
+                "N48-Q088",
+                "N48-Q089",
+                "N48-Q090"
+              ],
+              "timeline_dependency": [
+                "N48-Q091",
+                "N48-Q092",
+                "N48-Q093",
+                "N48-Q094",
+                "N48-Q095",
+                "N48-Q096"
+              ]
+            },
+            "sourcePageStart": 433,
+            "sourcePageEnd": 576
+          }
+        ],
+        "requiredLatestUserIds": [
+          "N48-Q001",
+          "N48-Q002",
+          "N48-Q003",
+          "N48-Q004",
+          "N48-Q025",
+          "N48-Q026",
+          "N48-Q027",
+          "N48-Q028",
+          "N48-Q049",
+          "N48-Q050",
+          "N48-Q051",
+          "N48-Q052",
+          "N48-Q073",
+          "N48-Q074",
+          "N48-Q075",
+          "N48-Q076"
+        ],
+        "latestUserSubtypeRule": "Within each bucket state slots 1-2 are latest user corrections; slots 3-4 are revocation/restoration; slots 5-6 are ordinary current state.",
+        "longTailRequiredIds": [
+          "N48-Q007",
+          "N48-Q008",
+          "N48-Q009",
+          "N48-Q010",
+          "N48-Q011",
+          "N48-Q012",
+          "N48-Q013",
+          "N48-Q014",
+          "N48-Q015",
+          "N48-Q016",
+          "N48-Q017",
+          "N48-Q018"
+        ],
+        "probeBatchIds": [
+          [
+            "N48-Q007",
+            "N48-Q008",
+            "N48-Q009",
+            "N48-Q010",
+            "N48-Q011",
+            "N48-Q012",
+            "N48-Q013",
+            "N48-Q014"
+          ],
+          [
+            "N48-Q015",
+            "N48-Q016",
+            "N48-Q017",
+            "N48-Q018",
+            "N48-Q001",
+            "N48-Q002",
+            "N48-Q003",
+            "N48-Q004"
+          ],
+          [
+            "N48-Q005",
+            "N48-Q006",
+            "N48-Q019",
+            "N48-Q020",
+            "N48-Q021",
+            "N48-Q022",
+            "N48-Q023",
+            "N48-Q024"
+          ],
+          [
+            "N48-Q025",
+            "N48-Q026",
+            "N48-Q027",
+            "N48-Q028",
+            "N48-Q029",
+            "N48-Q030",
+            "N48-Q031",
+            "N48-Q032"
+          ],
+          [
+            "N48-Q033",
+            "N48-Q034",
+            "N48-Q035",
+            "N48-Q036",
+            "N48-Q037",
+            "N48-Q038",
+            "N48-Q039",
+            "N48-Q040"
+          ],
+          [
+            "N48-Q041",
+            "N48-Q042",
+            "N48-Q043",
+            "N48-Q044",
+            "N48-Q045",
+            "N48-Q046",
+            "N48-Q047",
+            "N48-Q048"
+          ],
+          [
+            "N48-Q049",
+            "N48-Q050",
+            "N48-Q051",
+            "N48-Q052",
+            "N48-Q053",
+            "N48-Q054",
+            "N48-Q055",
+            "N48-Q056"
+          ],
+          [
+            "N48-Q057",
+            "N48-Q058",
+            "N48-Q059",
+            "N48-Q060",
+            "N48-Q061",
+            "N48-Q062",
+            "N48-Q063",
+            "N48-Q064"
+          ],
+          [
+            "N48-Q065",
+            "N48-Q066",
+            "N48-Q067",
+            "N48-Q068",
+            "N48-Q069",
+            "N48-Q070",
+            "N48-Q071",
+            "N48-Q072"
+          ],
+          [
+            "N48-Q073",
+            "N48-Q074",
+            "N48-Q075",
+            "N48-Q076",
+            "N48-Q077",
+            "N48-Q078",
+            "N48-Q079",
+            "N48-Q080"
+          ],
+          [
+            "N48-Q081",
+            "N48-Q082",
+            "N48-Q083",
+            "N48-Q084",
+            "N48-Q085",
+            "N48-Q086",
+            "N48-Q087",
+            "N48-Q088"
+          ],
+          [
+            "N48-Q089",
+            "N48-Q090",
+            "N48-Q091",
+            "N48-Q092",
+            "N48-Q093",
+            "N48-Q094",
+            "N48-Q095",
+            "N48-Q096"
+          ]
+        ]
+      }
+    ],
+    "naturalPromptPolicy": "No forced await_context or retrieval; install-native context tools remain usable",
+    "guidedAwaitContextParameters": {},
+    "sameQuestionsAndDenominatorsForBasic": true,
+    "basicInternalMechanismNA": [
+      "ARC blockId",
+      "ARC cursor",
+      "ARC handoff receipt",
+      "ARC source processing graph"
+    ],
+    "longTailEvidenceIslands": "Precommit disjoint source pages, entities and answer evidence for the 12 long-tail questions; ask them in the first two batches",
+    "probeCleanDefinition": "No answer-related evidence exposure caused by earlier sentinel/probe requests, retrievals or answers; contaminated questions stay in common score, no replacement",
+    "naturalSummaryOrWorkRecallCountsAsProbeContamination": false,
+    "reportAnswerAvailabilityStrata": [
+      "summaryContainsAnswer",
+      "rawContainsAnswer",
+      "neither"
+    ],
+    "strictUnreexposedSubset": "Report separately; no hard denominator that would penalize successful natural summary retention",
+    "responseFormat": "Exactly one complete JSON object, optionally one fenced block; nonempty outside text, multiple objects, missing fields, null required values, malformed JSON and required empty arrays fail; never cherry-pick fragments",
+    "absenceLongTailSourceScope": "For a negative long-tail question, use a precommitted explicitly bounded source set wholly in the earliest quartile; age is measured from its last source event, not from a nonexistent answer event",
+    "endpointBucketAssignment": "Exact page quartiles; all endpoints have totalPages divisible by four"
+  },
+  "acceptance": {
+    "executionAndAcceptanceSeparate": true,
+    "commonCoverage": {
+      "minimumForegroundTokens": 3000000,
+      "minimumUniqueSourceHeuristicTokens": 500000,
+      "allAssignedPagesFullyExposed": true,
+      "finalProbeCount": 96,
+      "plannedRestartVerified": true
+    },
+    "arcCoverage": {
+      "minimumWindowCommits": 12,
+      "minimumPressureWindowCommits": 8,
+      "minimumDistinctDeliveredSourceCount": 6,
+      "minimumDeliveryGenerations": 6,
+      "minimumRearchivedDeliveredReceipts": 2,
+      "minimumVerifiedSourceProcessingDepth": 3,
+      "minimumOriginalWindowDistance": 6,
+      "oldWindowLongTailCount": 12,
+      "probeCleanLongTailCount": 12
+    },
+    "basicCoverage": {
+      "minimumNativeAutomaticCompactions": 12,
+      "probeCleanLongTailCount": 12,
+      "arcSpecificMechanisms": "NOT_APPLICABLE"
+    },
+    "deliveredSourceDistinctness": "Unique operationId AND distinct sourceHash AND each later counted source adds at least one new original event seq",
+    "rearchiveProof": "Delivered receipt seq belongs to a later committed archive block's source set",
+    "sourceProcessingDepth": "Count distinct real processing nodes backed by source seq/receipt edges along a replayable path to original events; no virtual edges or repeated node inflation",
+    "quality": {
+      "minimumCorrect": 87,
+      "denominator": 96,
+      "minimumCorrectPerQuartile": 20,
+      "quartileDenominator": 24,
+      "requiredLatestUserCorrect": 16,
+      "requiredLatestUserDenominator": 16,
+      "longTailMinimumCorrect": 10,
+      "longTailDenominator": 12,
+      "allDependencyOrderAndActionOutputsCorrect": true,
+      "duplicateEffects": 0,
+      "prematureActions": 0,
+      "protectedFileMutations": 0,
+      "requiredEventOrderEmptyAllowed": false,
+      "strictFalseExistenceInBoundedAbsenceAllowed": false
+    },
+    "integrityIds": [
+      "I01",
+      "I02",
+      "I03",
+      "I04",
+      "I05",
+      "I06",
+      "I07",
+      "I08"
+    ],
+    "missingEvidenceValue": null,
+    "reliabilityAcceptedFormula": "executionCompleted && coveragePassed && integrityPassed && qualityPassed",
+    "arcLatencyTarget": {
+      "boundaryP95MaxMs": 1000,
+      "boundaryMaxMs": 5000,
+      "minimumWindowSamples": 12,
+      "quantileMethod": "nearest rank ceil(p*n), report sorted raw samples",
+      "missStatus": "LATENCY_TARGET_MISSED",
+      "includedInReliabilityBoolean": false
+    },
+    "requireBasicToPassForArcAcceptance": false,
+    "statisticalScope": "Two paired seeds: descriptive paired differences only, no universal superiority/non-inferiority or bootstrap equivalence claims",
+    "causalSpeedOrCostAcceptanceThreshold": null,
+    "everyDiagnosticIdMustHaveTraceableStatus": true,
+    "diagnosticCaseCount": 18
+  },
+  "supervision": {
+    "owners": [
+      "driver",
+      "independent persistent supervisor",
+      "responsible coding agent"
+    ],
+    "driverHeartbeatMs": 5000,
+    "supervisorPollMs": 5000,
+    "humanStatusMs": 30000,
+    "agentUpdateMaxMs": 60000,
+    "supervisorWarningMs": 15000,
+    "leaseExpiryMs": 30000,
+    "expiredLeaseAction": "No new prompts; existing calls retain their own bounded deadline; stop at safe boundary and reconcile before reacquiring lease",
+    "hostReadyMs": 60000,
+    "foregroundFirstContentSoftMs": 90000,
+    "foregroundNoContentSoftMs": 120000,
+    "foregroundAndBasicStreamHardMs": 420000,
+    "arcProductSummaryTimeoutMs": 60000,
+    "arcSummaryUnsettledDiagnosticMs": 65000,
+    "awaitContextWaitBound": "remaining job deadline + 5000ms, at most 65000ms; classify lifecycle fault if exceeded",
+    "turnHardMs": 1800000,
+    "runWorkHardMs": 21600000,
+    "recoveryCleanupAllowanceMs": 1800000,
+    "termToKillMs": 10000,
+    "diskPauseBelowBytes": 5368709120,
+    "diskStopBelowBytes": 2147483648,
+    "hostRssSoftBytes": 2147483648,
+    "hostRssHardBytes": 4294967296,
+    "hostRssHardSustainedMs": 30000,
+    "retry": {
+      "maxAttempts": 3,
+      "backoffMs": [
+        5000,
+        15000
+      ],
+      "retryAfterMaxMs": 60000,
+      "adapterRetriesObservedNoStacking": true,
+      "noBlindPromptResend": true,
+      "neverAutoRetry": [
+        "route/effort/candidate mismatch",
+        "authentication failure",
+        "integrity violation",
+        "ambiguous dispatch"
+      ]
+    },
+    "caffeine": "Task-owned caffeinate -i, stop during cleanup",
+    "noSupervisorModelNudges": true,
+    "pendingSummaryAloneIsFailure": false,
+    "sideJobTimeoutMayCancelUnrelatedForeground": false,
+    "states": [
+      "PLANNED",
+      "PREFLIGHT",
+      "READY",
+      "RUNNING",
+      "CHECKPOINT",
+      "WAIT_DEPENDENCY",
+      "PROVIDER_BACKOFF",
+      "RECOVERING",
+      "STOP_REQUESTED",
+      "DRAINING",
+      "STOPPED",
+      "AUDITING",
+      "REVIEW_REQUIRED",
+      "SEALED"
+    ],
+    "terminalReasons": [
+      "COMPLETED",
+      "COVERAGE_INCOMPLETE",
+      "FAILED_PRODUCT",
+      "INVALID_EVIDENCE",
+      "INVALID_LEAKAGE",
+      "INFRA_INTERRUPTED",
+      "AMBIGUOUS_DISPATCH",
+      "LATENCY_TARGET_MISSED",
+      "STOPPED_BY_OPERATOR"
+    ],
+    "checkpoint": {
+      "beforeDispatch": [
+        "logicalPromptId",
+        "requestId",
+        "contentHash",
+        "expectedEpisode",
+        "beforeSeq",
+        "dispatchState=planned"
+      ],
+      "afterDispatch": [
+        "ack or ambiguous state",
+        "observed host turn/queue evidence"
+      ],
+      "atBoundaries": [
+        "episode",
+        "window commit",
+        "summary receipt",
+        "before/after fault"
+      ],
+      "atomicView": true,
+      "appendOnlySourceOfTruth": true,
+      "observedAndDurableSeqSeparate": true,
+      "unknownDispatchAction": "Stop with AMBIGUOUS_DISPATCH; do not assume exactly-once",
+      "ownedProcessIdentity": [
+        "PID",
+        "OS start identity",
+        "runId",
+        "launchId",
+        "profile",
+        "binary realpath"
+      ]
+    }
+  },
+  "resources": {
+    "sampleMs": 5000,
+    "sampleProcesses": [
+      "host",
+      "driver",
+      "supervisor"
+    ],
+    "fields": [
+      "RSS",
+      "CPU",
+      "event loop lag",
+      "disk delta",
+      "archive blocks",
+      "summary receipts",
+      "jobs",
+      "listeners",
+      "temporary files"
+    ],
+    "offlineCreateDispose": {
+      "sessions": 20,
+      "baselineRounds": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "finalRounds": [
+        17,
+        18,
+        19,
+        20
+      ],
+      "explicitGC": true,
+      "allowedMedianRetainedHeapDelta": "max(32MiB, 0.20 * baseline)",
+      "jobsAndListenersReturnToBaseline": true
+    },
+    "offlineScale": {
+      "eventCounts": [
+        1000,
+        10000,
+        50000
+      ],
+      "windowCounts": [
+        1,
+        10,
+        50
+      ],
+      "legalCombinationsOnly": true,
+      "coldReads": 5,
+      "warmReads": 20,
+      "formalUsageCredit": false
+    }
+  },
+  "diagnostics": {
+    "commonStatuses": [
+      "PASS",
+      "FAIL",
+      "NOT_EXERCISED",
+      "NOT_APPLICABLE",
+      "INVALID_EVIDENCE"
+    ],
+    "maxNaturalAttemptsPerTiming": 2,
+    "noRetryUntilSuccess": true,
+    "cases": [
+      {
+        "id": "X01",
+        "title": "Threshold/pruner/Unicode",
+        "scope": "T-1/T/T+1, same R/pruner; genuine physical overflow separately labeled",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X02",
+        "title": "Pending summary and independent work",
+        "scope": "Natural real Muse pending after window; independent work progresses",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X03",
+        "title": "Immediate/delayed history dependency",
+        "scope": "Dependency at 0/2/5 steps; separate natural and guided empty-argument await_context",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X04",
+        "title": "Controlled delivery delay",
+        "scope": "Unchanged real Muse completion delayed by 0/5/20 seconds; label injection",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X05",
+        "title": "Overlapping sources and revision authority",
+        "scope": "User correction while pending; no duplicate or stale-authority delivery",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X06",
+        "title": "Summary limits/failure/fallback",
+        "scope": "No summary, input/output limit, empty, timeout, cancellation, budget rejection",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X07",
+        "title": "Safe pre-step and current input",
+        "scope": "Tool pairing, steering, queued input, accepted new_context before new user input",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X08",
+        "title": "Bounded retrieval and cursors",
+        "scope": "Missing/ambiguous/cross-session/cross-block/restart cursor, bounds, absence",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X09",
+        "title": "Archive source graph and attachments",
+        "scope": "Rearchived summaries, nested sources, same bytes distinct seq, attachment references",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X10",
+        "title": "Native commands and presets",
+        "scope": "compact/context, busy/cancel; standard/ptc/cordis/minimal; execute context tool via run_code in PTC",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X11",
+        "title": "Replacement lifecycle",
+        "scope": "Existing agent enable, toggling, late Basic, Include reload/rollback/config change, no backend",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X12",
+        "title": "Cancellation and disposal",
+        "scope": "Pending, ready-before-append and delivered-before-dispose ownership",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X13",
+        "title": "Host restart and transaction crash",
+        "scope": "Flushed/pending restart and precise commit/flush SIGKILL; durable prefix/receipts",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X14",
+        "title": "Driver/supervisor crash recovery",
+        "scope": "Planned/ack/receipt crash windows; lease and reattachment",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X15",
+        "title": "Provider failure and usage accounting",
+        "scope": "429/5xx/stall/transport loss/missing or duplicate or reordered usage",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X16",
+        "title": "Two-session isolation",
+        "scope": "Conflicting entity IDs; maximum 3 streams and no cross-session state",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X17",
+        "title": "Untrusted history instructions",
+        "scope": "Synthetic history pretending to be system/user and unapproved old-summary actions",
+        "status": "NOT_EXERCISED"
+      },
+      {
+        "id": "X18",
+        "title": "Scale/resources/observer overhead",
+        "scope": "Create/dispose, cancellation, observer-off controlled comparison",
+        "status": "NOT_EXERCISED"
+      }
+    ],
+    "defaultAttemptsPerRequiredControlledVariant": 1,
+    "casePassRule": "Every explicitly required applicable variant has passing evidence; not one arbitrary variant per row. Unexercised natural timing stays NOT_EXERCISED even when controlled mechanism passes."
+  },
+  "evidence": {
+    "ignoredRoot": ".test-runtime/longrun-20260915",
+    "immutableRunIds": true,
+    "existingRunDirectoryRejected": true,
+    "privateFiles": [
+      "oracle.json",
+      "hidden-salt",
+      "endpoint-probes"
+    ],
+    "requiredRunFiles": [
+      "run.json",
+      "checkpoint.json",
+      "progress.json",
+      "supervisor-events.jsonl",
+      "alerts.jsonl",
+      "requests.jsonl",
+      "summary-jobs.jsonl",
+      "pressure.jsonl",
+      "resources.jsonl",
+      "audit.json",
+      "score.json",
+      "result.json"
+    ],
+    "requiredSubdirectories": [
+      "events",
+      "objects",
+      "control",
+      "host",
+      "recovery",
+      "faults"
+    ],
+    "explicitJobStreamAssociationRequired": true,
+    "timeProximityOnlyAssociationAllowed": false,
+    "summaryFields": [
+      "operationId",
+      "streamId",
+      "sessionId",
+      "sourceSeqs",
+      "sourceHash",
+      "sourceGeneration",
+      "targetGeneration",
+      "route",
+      "status",
+      "startedAt",
+      "readyAt",
+      "offeredAt",
+      "receiptSeq",
+      "deliveredAt",
+      "consumedByRequestId",
+      "terminationReason"
+    ],
+    "incrementalAuditPerEpisode": true,
+    "finalAllArchiveByteReplay": true,
+    "malformedMiddleJsonlIgnored": false,
+    "publicExport": "Allowlisted aggregate metrics, hashes, failure types and reproducible synthetic schema; no raw credentials, auth cookies, private URLs or secret oracle",
+    "finalReportLanguages": [
+      "zh-CN",
+      "en"
+    ],
+    "failedRunsPreserved": true,
+    "unfinishedReportLabel": "INTERIM"
+  },
+  "implementation": {
+    "directory": "tests/live/longrun",
+    "existsAtDesign": false,
+    "proposedModules": [
+      "cli.mjs",
+      "driver.mjs",
+      "supervise.mjs",
+      "fixture.mjs",
+      "fixture-tools.mjs",
+      "scoring.mjs",
+      "observer.mjs",
+      "usage.mjs",
+      "checkpoint.mjs",
+      "audit.mjs",
+      "report.mjs"
+    ],
+    "proposedCliCommands": [
+      "validate",
+      "prepare",
+      "pilot",
+      "review",
+      "run-pair",
+      "status",
+      "audit",
+      "case",
+      "resume",
+      "stop",
+      "report"
+    ],
+    "runPairRequiresLiveSupervisorLease": true,
+    "pilotRequiresLiveSupervisorLease": true,
+    "supervisorStartup": "pilot/run-pair start an independent supervisor and wait for READY unless an identity-verified owner already exists; supervisor survives driver crash; standalone supervise attaches or restores one owner",
+    "runPairCliLifetime": "Foreground until the specified pair reaches REVIEW_REQUIRED or terminal; no automatic next pair",
+    "reviewIsNotScoreOverride": true,
+    "workPackages": [
+      {
+        "id": "W1",
+        "scope": "fixture and deterministic scorer",
+        "agent": "terra",
+        "effort": "medium"
+      },
+      {
+        "id": "W2",
+        "scope": "driver and checkpoint/recovery",
+        "agent": "terra",
+        "effort": "medium"
+      },
+      {
+        "id": "W3",
+        "scope": "observer, usage, persistent supervision",
+        "agent": "terra",
+        "effort": "medium"
+      },
+      {
+        "id": "W4",
+        "scope": "independent audit and protocol/transaction review",
+        "agent": "astra",
+        "effort": "xhigh"
+      },
+      {
+        "id": "ROOT",
+        "scope": "integration, heavy problems, freeze and supervised pair gates",
+        "agent": "primary"
+      }
+    ],
+    "unchangedExistingUntrackedFile": "tests/live/local-probe-cloud-route.mjs",
+    "engineChangeRequiresThreeArmWebModelGates": true,
+    "npmPackAndInstalledFullDistAuditRequired": true,
+    "cleanup": [
+      "owned hosts/supervisors/caffeinate stopped",
+      "ports closed",
+      "child processes gone",
+      "settings/preset/daily profile hashes unchanged",
+      "dedicated profiles and evidence preserved"
+    ],
+    "publicNpmPublishing": "User separately"
+  },
+  "supersedes": {
+    "protocolId": "muse-longrun-v1",
+    "reason": "host moved from 0.1.2-rc.1 to 0.1.7-rc.1"
+  },
+  "stressProfile": {
+    "intent": "Expose plugin defects, not to demonstrate success. A run that fails and is understood is worth more than a run that passes.",
+    "conditions": [
+      {
+        "id": "S1",
+        "name": "many real turnovers",
+        "target": "window advance must stay correct after repeated replacement; index/seed/latest-user authority must not drift",
+        "evidence": "ARC window count and generation chain in the durable ledger"
+      },
+      {
+        "id": "S2",
+        "name": "old summaries re-compacted (tier 2/3)",
+        "target": "distillation must keep KEEP-VERBATIM items and parent lineage",
+        "evidence": "parentBlockIds chain, tier fields, retrieval of a tier-1-only fact after tier-2"
+      },
+      {
+        "id": "S3",
+        "name": "long tail beyond six windows",
+        "target": "retrieval must still reach originals whose summaries were themselves archived",
+        "evidence": "quartile-0 exact and existence-ambiguity questions scored at the final endpoint"
+      },
+      {
+        "id": "S4",
+        "name": "planned real restart after episode 12",
+        "target": "durable pending summary receipt, no replayed prompt, no duplicated replacement",
+        "evidence": "restart evidence rows, seq monotonicity, no duplicate logicalPromptId"
+      },
+      {
+        "id": "S5",
+        "name": "concurrent steering and queued input inside an episode",
+        "target": "current user input protection and tool-pairing preservation at the boundary",
+        "evidence": "protected-current-user never raised; both messages present exactly once"
+      },
+      {
+        "id": "S6",
+        "name": "retrieval budget starvation at high pressure",
+        "target": "retrieval must not be starved exactly when it is needed; the hard per-turn cap must still converge",
+        "evidence": "retrieval counts per quartile, absence answers must be null not false"
+      },
+      {
+        "id": "S7",
+        "name": "stale versus authoritative revisions",
+        "target": "latest valid value must win; superseded values must stay retrievable as history",
+        "evidence": "X05 questions scored on authority, not recency alone"
+      },
+      {
+        "id": "S8",
+        "name": "native Basic comparison under the same geometry",
+        "target": "separate \"authoritative facts preserved\" from \"exact history retrievable\"",
+        "evidence": "BASIC_MATCHED verbatim probe versus ARC verbatim probe"
+      }
+    ]
+  },
+  "baseline": {
+    "sourceCommit": "6da31a8b4193b847273819ea8f938ebce02e802d",
+    "artifactSha256": "0ec14937e53dc1758f38b0c896f2f5edc2ad108a60c8cf383a1a6916c177882b",
+    "artifactPath": "artifacts/dsh-context-management-0.9.12.tgz",
+    "role": "Candidate under test for muse-longrun-v2 on DSH 0.1.7-rc.1"
+  }
+}

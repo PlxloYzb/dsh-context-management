@@ -15,6 +15,20 @@ import { createEventLog, writeCheckpoint, logDigest, createPromptJournal, newReq
 import { launchHost, prepareIsolatedHome, pinnedHostIdentity, distManifest, distManifestHash, canonicalDistEntries, processStartIdentity, processAlive, sha256 } from './host.mjs'
 import { sha256Json } from './plan.mjs'
 
+/**
+ * The user's settings, as the harness must seed the isolated home with them.
+ *
+ * DSH 0.1.7 imports `settings.yaml` into its own store on first boot and renames
+ * the original to `settings.yaml.imported`, so after any host run the plain file
+ * is gone. Reading only the plain name made every later run fail PREFLIGHT with
+ * ENOENT; the file the host actually left behind is the one to read.
+ */
+export async function readSeedSettings() {
+  const path = join(homedir(), '.dsh/settings.yaml')
+  try { return await readFile(path) }
+  catch { return readFile(`${path}.imported`) }
+}
+
 export const MARKERS = {
   work: '[[LR3M:work]]',
   sentinel: '[[LR3M:sentinel]]',
@@ -209,7 +223,7 @@ export class Driver {
 
   async prepare() {
     await this.setState('PREFLIGHT', 'prepare isolated home')
-    const settingsBytes = await readFile(join(homedir(), '.dsh/settings.yaml'))
+    const settingsBytes = await readSeedSettings()
     this.settingsHash = sha256(settingsBytes)
     const home = await prepareIsolatedHome({ root: this.root, arm: this.arm, command: this.command, tarball: this.tarball, seedSettingsBytes: settingsBytes, dshBin: this.dshBin })
     this.home = home
@@ -582,7 +596,7 @@ export class Driver {
     this.progress.terminalReason = terminalReason
     if (error) this.progress.error = String(error.message ?? error)
     // Settings and shipped presets must be untouched by the experiment.
-    const settingsNow = sha256(await readFile(join(homedir(), '.dsh/settings.yaml')))
+    const settingsNow = sha256(await readSeedSettings())
     this.progress.settingsUnchanged = settingsNow === this.settingsHash
     await this.persist()
     await this.checkpoint({ terminalReason })

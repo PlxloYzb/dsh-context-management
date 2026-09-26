@@ -61,12 +61,24 @@ export function ownedSession(session, marker = 'dsh-context-experiment-') {
   return String(session?.header?.cwd ?? '').includes(marker)
 }
 
+/**
+ * Whether a source identifies one of our context handoffs.
+ *
+ * DSH 0.1.7 removed the generic `plugin` source kind: each producer declares its
+ * own kind through a `MessageSourceMap` augmentation, and the plugin writes
+ * `kind: 'context-management'` with the same `plugin` field. The 0.1.2 spelling
+ * (`kind: 'plugin'`) is kept because the harness still supports that pin.
+ */
+export function isHandoffSource(source) {
+  if (!source || source.plugin !== HANDOFF_PLUGIN) return false
+  return source.kind === 'context-management' || source.kind === 'plugin'
+}
+
 /** Read the ARC handoff receipt carried by a plugin user/message event. */
 export function handoffReceipt(event) {
   if (!event || event.type !== 'user/message') return null
-  const data = event.data
-  const source = data?.source
-  if (!source || source.kind !== 'plugin' || source.plugin !== HANDOFF_PLUGIN) return null
+  const source = event.data?.source
+  if (!isHandoffSource(source)) return null
   return source.handoff ?? null
 }
 
@@ -75,7 +87,7 @@ export function handoffOperationIds(messages) {
   const ids = new Set()
   for (const message of messages ?? []) {
     const source = message?.source
-    if (source?.kind === 'plugin' && source.plugin === HANDOFF_PLUGIN && source.handoff?.operationId) ids.add(source.handoff.operationId)
+    if (isHandoffSource(source) && source.handoff?.operationId) ids.add(source.handoff.operationId)
   }
   return ids
 }

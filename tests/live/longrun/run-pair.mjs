@@ -18,6 +18,29 @@ function processAlive(pid) {
   try { process.kill(pid, 0); return true } catch { return false }
 }
 
+/**
+ * Stop the pair's supervisor once the pair is terminal.
+ *
+ * The supervisor is an independent watchdog that runs until told otherwise, and
+ * it is spawned with piped stdio. Without this the orchestrator's event loop
+ * stays alive on those pipes forever after the pair settles: the CLI printed its
+ * result and then never exited, holding the lease and its ports. Three abandoned
+ * orchestrators from failed attempts were still running 30-40 minutes later
+ * before this was added.
+ */
+export async function releaseSupervisor({ campaign, pairId }) {
+  const pairRoot = join(campaignRoot(campaign), pairId)
+  const lease = await readJson(join(pairRoot, 'supervisor.json'), null)
+  if (!lease?.pid) return { released: false, reason: 'no-supervisor-record' }
+  if (!processAlive(lease.pid)) return { released: false, reason: 'already-exited', pid: lease.pid }
+  try { process.kill(lease.pid, 'SIGTERM') } catch { return { released: false, reason: 'signal-failed', pid: lease.pid } }
+  const deadline = Date.now() + 5000
+  while (Date.now() < deadline && processAlive(lease.pid)) await sleep(200)
+  const exited = !processAlive(lease.pid)
+  if (!exited) { try { process.kill(lease.pid, 'SIGKILL') } catch { /* reported below */ } }
+  return { released: exited, pid: lease.pid, forced: !exited }
+}
+
 export async function ensureSupervisor({ campaign, pairId, dshBin }) {
   const pairRoot = join(campaignRoot(campaign), pairId)
   await mkdir(pairRoot, { recursive: true, mode: 0o700 })
@@ -61,7 +84,7 @@ export async function loadSealedCampaign(campaign, seed) {
   const previous = await readJson(sealedPath, null)
   if (previous && previous.hash !== manifest.hash) throw new Error('SEALED_CORPUS_CHANGED: the hidden salt no longer reproduces the sealed corpus')
   if (!previous) await atomicJson(sealedPath, { ...manifest, pageHeuristicTokens: corpus.pageHeuristicTokens, seed: seed ?? planJson.plan.schedule.pilot.seed })
-  return { root, plan: planJson.plan, geometry: planJson.geometry, planHash: planJson.planHash, corpus, corpusMeta: previous ?? manifest }
+  return { root, plan: planJson.plan, geometry: planJson.geometry, planHash: planJson.planHash, planPath: planJson.planPath, corpus, corpusMeta: previous ?? manifest }
 }
 
 export async function drivePair({ campaign, pairId, dshBin, tarball, calibrationEpisodes = null }) {
@@ -82,7 +105,7 @@ export async function drivePair({ campaign, pairId, dshBin, tarball, calibration
     const command = commandSpec(plan, geometry, arm, { port })
     const created = await createRun({
       plan, geometry, command, arm, seed, campaign, pairId, port, tarball,
-      identity: candidate, planPath: 'docs/experiments/muse-longrun-v1.plan.json', planHash: sealed.planHash,
+      identity: candidate, planPath: sealed.planPath ?? 'docs/experiments/muse-longrun-v1.plan.json', planHash: sealed.planHash,
     })
     const driver = new Driver({
       plan, geometry, command, arm, seed,
@@ -148,8 +171,11 @@ export async function drivePair({ campaign, pairId, dshBin, tarball, calibration
       results.push({ arm: run.arm, resultError: String(error.message ?? error) })
     })
   }
-  await atomicJson(join(pairRoot, 'pair-result.json'), { campaign, pairId, finishedAt: new Date().toISOString(), results })
-  return { runs: results }
+  // The pair is terminal, so its watchdog has nothing left to watch. Releasing it
+  // is also what lets this process exit.
+  const supervisorRelease = await releaseSupervisor({ campaign, pairId }).catch(error => ({ released: false, reason: String(error.message ?? error) }))
+  await atomicJson(join(pairRoot, 'pair-result.json'), { campaign, pairId, finishedAt: new Date().toISOString(), supervisorRelease, results })
+  return { runs: results, supervisorRelease }
 }
 
 export function classifyTerminal(error) {

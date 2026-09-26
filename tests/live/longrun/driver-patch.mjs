@@ -1,12 +1,31 @@
 // Host patch composition for one arm. The plugin under test is never modified;
 // this only selects the frozen arm configuration and mounts observation tools.
-import { writeFile } from 'node:fs/promises'
-import { resolve } from 'node:path'
+import { writeFile, readFile } from 'node:fs/promises'
+import { resolve, join } from 'node:path'
 import { createRequire } from 'node:module'
 
-// The host parses --patch overlays as YAML; serialize through the pinned host's
+// The host parses --patch overlays as YAML; serialize through a pinned host's
 // own YAML implementation so the dialect always matches.
 const yaml = createRequire(import.meta.url)(resolve('.test-runtime/host-pins/dsh-0.1.2-rc.1/node_modules/yaml'))
+
+/**
+ * The provider configuration the run needs, taken from the same private settings
+ * the isolated home was seeded with.
+ *
+ * On 0.1.7 the `settings` bundle entry is disabled unless the profile carries a
+ * `profileContext`, which only the Electron application supplies — so a
+ * CLI-launched profile never reads `settings.yaml` and registers no provider at
+ * all ("no adapter registered for provider ..."). Inlining the `llm-pi-ai`
+ * section into this arm's patch keeps one source of truth (the user's settings,
+ * already narrowed to Muse minimal) while making the provider available to a
+ * CLI-launched profile. Only `apiKeyEnv` names travel, never key material.
+ */
+async function providerSection(runRoot) {
+  const settings = yaml.parse(await readFile(join(runRoot, 'private-settings.yaml'), 'utf8'))
+  const section = settings?.['llm-pi-ai']
+  if (section === undefined || typeof section !== 'object') throw new Error('private settings carry no llm-pi-ai section')
+  return section
+}
 
 export async function writeArmPatch({ root, command, control, runRoot, arm, route, mainMaxTokens, bare = false }) {
   const patchPath = resolve(root, 'host.patch.yml')
@@ -41,7 +60,7 @@ export async function writeArmPatch({ root, command, control, runRoot, arm, rout
       insert.push({
         id: 'experiment-ledger-probe',
         name: resolve('tests/live/longrun/ledger-probe.mjs'),
-        config: { output: resolve(runRoot, 'ledger-probe.json'), sessionId: null, ledgerModule: resolve('dist/chunk-HFVS3Y5Y.js') },
+        config: { output: resolve(runRoot, 'ledger-probe.json'), sessionId: null, ledgerModule: resolve('dist/index.js') },
       })
       insert.push({
         id: 'experiment-arm',
@@ -55,6 +74,9 @@ export async function writeArmPatch({ root, command, control, runRoot, arm, rout
   // both are disabled without touching any shipped preset file.
   const patches = [
     { id: 'settings', config: { path: resolve(runRoot, 'private-settings.yaml') } },
+    // The provider must be registered on the profile itself: the `settings`
+    // entry above is inert without a profileContext.
+    { id: 'llm-pi-ai', config: await providerSection(runRoot) },
     { id: 'session-title-llm', disabled: true },
     { id: 'tool-skill', disabled: true },
   ]

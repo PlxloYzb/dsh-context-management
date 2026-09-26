@@ -162,3 +162,35 @@ test('work markers identify the request purpose without changing task wording', 
   assert.deepEqual(Object.values(MARKERS), ['[[LR3M:work]]', '[[LR3M:sentinel]]', '[[LR3M:final-probe]]'])
   for (const marker of Object.values(MARKERS)) assert.match(marker, /^\[\[LR3M:[a-z-]+\]\]$/)
 })
+
+// The pair orchestrator must stop its watchdog when the pair is terminal, and
+// stopping it is also what lets the CLI exit: the supervisor is spawned with
+// piped stdio, so a leaked supervisor keeps the orchestrator's event loop alive
+// forever. Three abandoned orchestrators stayed up 30-40 minutes this way.
+test('releaseSupervisor stops the pair watchdog and reports an already-exited one', async t => {
+  const { spawn } = await import('node:child_process')
+  const { campaignRoot } = await import('./context.mjs')
+  const { releaseSupervisor } = await import('./run-pair.mjs')
+  const campaign = `w0-release-${process.pid}-${Math.floor(Math.random() * 1e6)}`
+  const pairId = 'pilot-test'
+  const pairRoot = join(campaignRoot(campaign), pairId)
+  t.after(() => rm(campaignRoot(campaign), { recursive: true, force: true }))
+  await mkdir(pairRoot, { recursive: true })
+
+  // No record yet: nothing to release, and that must not throw.
+  assert.deepEqual(await releaseSupervisor({ campaign, pairId }), { released: false, reason: 'no-supervisor-record' })
+
+  const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore', detached: true })
+  child.unref()
+  const alive = () => { try { process.kill(child.pid, 0); return true } catch { return false } }
+  await atomicJson(join(pairRoot, 'supervisor.json'), { ready: true, pid: child.pid, leaseExpiresAt: new Date(Date.now() + 60000).toISOString() })
+  const released = await releaseSupervisor({ campaign, pairId })
+  assert.equal(released.released, true)
+  assert.equal(released.pid, child.pid)
+  await new Promise(resolvePromise => setTimeout(resolvePromise, 200))
+  assert.equal(alive(), false, 'the watchdog process must be gone after release')
+
+  const again = await releaseSupervisor({ campaign, pairId })
+  assert.equal(again.released, false)
+  assert.equal(again.reason, 'already-exited')
+})
