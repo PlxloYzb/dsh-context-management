@@ -428,3 +428,26 @@ drop work the user already paid for. It discriminates: adding `consumed` to `act
 fails it.
 
 **X12 is the first case in the matrix to reach PASS (3/3).**
+
+#### X15: malformed usage had never been fed — all eight bad readings are refused
+
+The whole campaign ran with `unknownUsageCalls: 0`, so this branch was **never fed**. It
+matters because the projection feeds the **pressure gate**: `NaN` and `-1` compare false
+against every threshold, so a trusted bad reading would silently stop compaction from
+ever firing while the context kept growing — **a defect that produces no error at all**.
+
+The plugin refuses all eight: `NaN`, `Infinity`, `-Infinity`, `-1`, a numeric string,
+`null`, `undefined` and an object each degrade to `meter-conservative` pricing from the
+meter total. In addition:
+
+- a **well-formed** projection is still used, so the guard is not refusing everything;
+- a **stale measurement** (`logRevision != session.seq`) throws by name;
+- a **negative envelope is clamped to zero** rather than passed through.
+
+Both guards **discriminate**: dropping the finiteness check, or the clamp, fails the test.
+
+`usage-duplicate` and `usage-reordered` are recorded `NOT_APPLICABLE` rather than
+passed: **chunk accumulation is the host token meter's job**, and the plugin consumes a
+finished `TokenMeasurement` without ever summing deltas itself. The four provider-failure
+variants stay `NOT_EXERCISED` — the live campaign hit one real request timeout that the
+harness retried, but no failure of those classes was injected. X15 is therefore 1/7.
