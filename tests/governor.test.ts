@@ -849,3 +849,23 @@ test('fallbackRepeatAllowed judges progress from the attempt, not from the rebou
   // A tiny reduction is still progress; the per-turn cap bounds how far that goes.
   assert.equal(fallbackRepeatAllowed(101_396, 101_186), true)
 })
+
+// X01 T-1/T/T+1: the capacity arithmetic must be exact at the boundary.
+//
+// The existing test only covered the obviously-impossible setting. The boundary
+// itself — where the reserve plus the safety margin exactly equals the window — was
+// never bracketed, and that is where an off-by-one decides whether a legal route is
+// refused or an impossible one is accepted.
+test('governor: capacity boundary is exact at T-1/T/T+1', () => {
+  const config = resolveAdaptiveGovernor({ enabled: true, maxOutputTokens: 800, safetyMarginTokens: 200 })
+  // reserve + margin = 1000 exactly: no input budget remains, so it must be refused.
+  assert.throws(() => governorCapacity(1000, config), /must be below context window/)
+  // One token more of window leaves exactly one input token: legal, and exact.
+  const tight = governorCapacity(1001, config)
+  assert.equal(tight.effectiveInputLimit, 1)
+  // One token less than the reserve: still impossible.
+  assert.throws(() => governorCapacity(999, config), /must be below context window/)
+  // And the ordinary case keeps the exact arithmetic.
+  const roomy = governorCapacity(1_000_000, config)
+  assert.equal(roomy.effectiveInputLimit, 1_000_000 - 800 - 200)
+})

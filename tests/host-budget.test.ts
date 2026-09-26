@@ -24,3 +24,23 @@ test('Equivalent assembled headers keep the validated usage projection; changed 
   assert.equal(inputPressure(ctx,session,{...header,config:{...header.config,model:'small'}})?.projectedTokens,20546)
   assert.equal(inputPressure(ctx,session,{...header,tools:[{name:'new_tool',description:'New tool',parameters:{type:'object',properties:{}}}]})?.source,'meter-conservative')
 })
+
+// X01 T-1/T/T+1: an envelope that exactly fits must be allowed.
+//
+// `assertEnvelopeFits` refuses an envelope larger than the budget. The boundary was
+// never bracketed, so an off-by-one here would refuse a route that fits exactly —
+// the failure mode is a spurious CONTEXT_ENVELOPE_TOO_LARGE, not a crash, which is
+// why it can hide.
+test('host-budget: the envelope boundary is exact at T-1/T/T+1', async () => {
+  const { assertEnvelopeFits } = await import('../src/host-budget.ts')
+  const budget = 4096
+  // Exactly at the budget fits.
+  assert.doesNotThrow(() => assertEnvelopeFits({ envelopeTokens: budget }, budget))
+  // One below fits.
+  assert.doesNotThrow(() => assertEnvelopeFits({ envelopeTokens: budget - 1 }, budget))
+  // One above is refused, by name.
+  assert.throws(() => assertEnvelopeFits({ envelopeTokens: budget + 1 }, budget), /context-envelope-too-large/)
+  // No envelope measurement at all is not an envelope problem.
+  assert.doesNotThrow(() => assertEnvelopeFits(null, budget))
+  assert.doesNotThrow(() => assertEnvelopeFits({}, budget))
+})
