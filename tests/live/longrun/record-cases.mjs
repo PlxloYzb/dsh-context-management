@@ -1,106 +1,163 @@
 #!/usr/bin/env node
 // Records the section-11 diagnostic matrix for one campaign from durable
 // evidence. Every status must be traceable; a controlled substitute never
-// upgrades a natural-timing case to PASS.
+// upgrades a natural-timing case to PASS, and a claim is only recorded when the
+// campaign's own evidence supports it.
+//
+// This recorder previously carried claims from the 0.1.2 campaign — 672 tool
+// calls, "background summaries were never delivered", "no delivered summary ever
+// re-entered the archive" — which are simply false for the 0.1.7 runs, where 25
+// summaries were delivered and 24 delivered receipts were re-archived. It also
+// recorded `X18/create-dispose-20` as PASS from a measurement that allocates Maps
+// in the RECORDER's own process and never touches the plugin. Every number below
+// is read from the run's audit, progress and ledgers, and anything not actually
+// controlled is recorded as NOT_EXERCISED with the missing precondition.
 import { join } from 'node:path'
 import { campaignRoot, readJson, listRuns, atomicJson } from './context.mjs'
 import { recordCase, CASE_MATRIX } from './cases.mjs'
-import { measureCreateDispose } from './resources.mjs'
 
-const campaign = process.env.LR3M_CAMPAIGN ?? 'lr3m-r1'
+const campaign = process.env.LR3M_CAMPAIGN ?? 'lr3m-v2-formal1'
 const pairId = process.env.LR3M_PAIR ?? 'main-91601'
 const root = campaignRoot(campaign)
 const runs = await listRuns(campaign, pairId)
 const runRoots = Object.fromEntries(runs.map(run => [run.arm, run.root]))
+const arc = runRoots.ARC_DEFERRED
+const basic = runRoots.BASIC_MATCHED
+if (!arc) throw new Error(`No ARC_DEFERRED run in ${campaign}/${pairId}`)
 
-async function mainRunEvidence(arm) {
-  const runRoot = runRoots[arm]
-  if (!runRoot) return null
-  return { progress: await readJson(join(runRoot, 'progress.json'), {}), audit: await readJson(join(runRoot, 'audit.json'), null), score: await readJson(join(runRoot, 'score.json'), null) }
+const read = async (runRoot, name, fallback = null) => (runRoot ? readJson(join(runRoot, name), fallback) : fallback)
+const arcAudit = await read(arc, 'audit.json')
+const arcProgress = await read(arc, 'progress.json', {})
+const arcResult = await read(arc, 'result.json')
+const basicAudit = await read(basic, 'audit.json')
+const arcCoverage = arcAudit?.coverage?.arcCoverage ?? {}
+const retrieval = arcAudit?.retrieval ?? {}
+const unpaired = arcAudit?.integrity?.I02?.detail?.pairingProblems?.length ?? null
+const delivered = arcCoverage.distinctDeliveredSourceCount ?? 0
+const rearchived = arcCoverage.rearchivedDeliveredReceiptCount ?? 0
+const depth = arcCoverage.maxVerifiedSourceProcessingDepth ?? 0
+const restart = await read(join(campaignRoot(campaign), pairId), `restart-ARC_DEFERRED.json`)
+const quality = arcResult?.quality ?? null
+
+const record = (id, variant, status, detail, evidence = null) => recordCase({ campaign, id, variant, status, detail, evidence })
+
+// --- X01 threshold boundaries: only natural pressure crossed the line ---------
+await record('X01', 'T', 'NOT_EXERCISED', 'No controlled T-1/T/T+1 threshold sweep was run; the journeys crossed the compaction line only through natural pressure, so the boundary itself was never bracketed.')
+await record('X01', 'large-result-unicode', 'NOT_EXERCISED', 'No large-result Unicode boundary probe was run.')
+
+// --- X02 a pending handoff never blocked independent work ---------------------
+if (delivered > 0) {
+  await record('X02', 'natural-pending', 'PASS',
+    `Every window commit carries a handoff that starts \`pending\`; ${delivered} were later delivered while foreground episodes continued to completion, so a pending or absent summary never blocked independent work.`,
+    join(arc, 'summary-jobs.jsonl'))
+} else {
+  await record('X02', 'natural-pending', 'NOT_EXERCISED', 'No summary handoff was prepared in this run, so pending-ness was never observed.')
 }
 
-const arc = await mainRunEvidence('ARC_DEFERRED')
-const basic = await mainRunEvidence('BASIC_MATCHED')
-const searchStats = await import('node:fs').then(fs => {
-  const path = join(runRoots.ARC_DEFERRED, 'observed')
-  const entries = fs.readdirSync(path).filter(name => name.endsWith('.events.json'))
-  if (!entries.length) return { total: 0, zeroHit: 0, scanBudget: 0 }
-  const events = JSON.parse(fs.readFileSync(join(path, entries[0]), 'utf8'))
-  const calls = new Map()
-  for (const event of events) if (event.type === 'tool/call' && event.data?.name === 'search_context') calls.set(event.data.callId, event.data.arguments)
-  let total = 0, zeroHit = 0, scanBudget = 0
-  for (const event of events) {
-    if (event.type !== 'tool/result') continue
-    const callId = event.data?.message?.source?.callId
-    if (!calls.has(callId)) continue
-    total++
-    let text = ''
-    for (const block of event.data.message.content ?? []) for (const inner of block.content ?? []) if (inner.type === 'text') text += inner.text
-    try {
-      const parsed = JSON.parse(text)
-      if (!(parsed.hits ?? []).length) zeroHit++
-      if (parsed.scanBudgetReached === true) scanBudget++
-    } catch { /* non-JSON pages are not counted */ }
-  }
-  return { total, zeroHit, scanBudget }
-})
+// --- X03 history dependency after turnover -----------------------------------
+await record('X03', 'immediate', retrieval.searches > 0 ? 'PASS' : 'NOT_EXERCISED',
+  retrieval.searches > 0
+    ? `The model reached for archived history during the blind probe: ${retrieval.searches} searches, ${retrieval.hits} hits.`
+    : 'The model never reached for archived history in this run.')
 
-const note = detail => detail
+// --- X05 revision authority --------------------------------------------------
+await record('X05', 'stale-authority', 'NOT_EXERCISED', 'No controlled stale-versus-authoritative revision injection was run; the journeys carried stale page text but the authority conflict was never isolated as a case.')
 
-await recordCase({ campaign, id: 'X01', variant: 'T', status: 'NOT_EXERCISED', detail: note('No controlled T-1/T/T+1 threshold sweep was run this campaign; the formal runs only crossed the line through natural pressure.') })
-await recordCase({
-  campaign, id: 'X02', variant: 'natural-pending', status: 'PASS',
-  detail: note('ARC produced window commits with no delivered handoff and foreground work continued to completion in every episode; a pending or absent summary never blocked independent work.'),
-  evidence: join(runRoots.ARC_DEFERRED, 'audit.json'),
-})
-await recordCase({
-  campaign, id: 'X03', variant: 'immediate', status: 'PASS',
-  detail: note('The model reached for historical evidence immediately after turnover (search_context/decompress during the blind probe).'),
-  evidence: join(runRoots.ARC_DEFERRED, 'control', 'probe-batch-1.json'),
-})
-await recordCase({ campaign, id: 'X04', variant: 'delay-0', status: 'NOT_EXERCISED', detail: note('No controlled delivery-delay injection was run.') })
-await recordCase({
-  campaign, id: 'X05', variant: 'stale-authority', status: 'PASS',
-  detail: note('User corrections in every episode were applied over revision-0 page text: the arms answered from the latest user-channel value where retrieval succeeded, and no stale-authority overwrite of a current user instruction was observed in the transcripts.'),
-  evidence: join(runRoots.ARC_DEFERRED, 'control', 'episode-1-work.json'),
-})
-await recordCase({ campaign, id: 'X06', variant: 'timeout', status: 'NOT_EXERCISED', detail: note('No controlled summary failure injection was run; background summaries were never delivered, so the failure classes were not distinguished.') })
-await recordCase({
-  campaign, id: 'X07', variant: 'tool-pairing', status: 'PASS',
-  detail: note('Integrity I02 passed on both arms after settling the event snapshot: 0 unpaired tool calls across 672 calls.'),
-  evidence: join(runRoots.ARC_DEFERRED, 'audit.json'),
-})
-await recordCase({
-  campaign, id: 'X08', variant: 'bounded-absence', status: 'PASS',
-  detail: note(`Bounded retrieval behaved as designed: ${searchStats.total} searches, ${searchStats.zeroHit} zero-hit, ${searchStats.scanBudget} pages stopped at the 1,000,000-character scan budget and told the model to continue with nextCursor; no hit was silently fabricated and no cursor loop was observed.`),
-  evidence: join(runRoots.ARC_DEFERRED, 'audit.json'),
-})
-await recordCase({ campaign, id: 'X08', variant: 'missing-id', status: 'NOT_EXERCISED', detail: note('Deliberate missing/ambiguous id and cross-session cursor probes were not run.') })
-await recordCase({ campaign, id: 'X09', variant: 'rearchived', status: 'NOT_EXERCISED', detail: note('No delivered summary ever re-entered the archive, so re-archive identity was not exercised.') })
-await recordCase({ campaign, id: 'X10', variant: 'standard', status: 'PASS', detail: note('Both formal runs booted the shipped standard preset in their own realm; the ARC arm replaced native Basic and exposed /arc and /compact, the Basic arm did not load the plugin.'), evidence: join(runRoots.ARC_DEFERRED, 'host', 'isolated-home.json') })
-await recordCase({ campaign, id: 'X10', variant: 'ptc', status: 'NOT_EXERCISED', detail: note('The ptc/cordis/minimal preset matrix was not run this campaign.') })
-await recordCase({ campaign, id: 'X11', variant: 'enable-existing', status: 'PASS', detail: note('Every ARC run installed the packaged candidate into a fresh isolated profile and resolved the plugin backend at agent creation; the Basic profile never loaded it.'), evidence: join(runRoots.BASIC_MATCHED, 'host', 'isolated-home.json') })
-await recordCase({ campaign, id: 'X11', variant: 'toggle', status: 'NOT_EXERCISED', detail: note('Repeated enable/disable, late Basic activation and Include reload/rollback belong to the reliability suite and were not re-run here.') })
-await recordCase({ campaign, id: 'X12', variant: 'pending-cancel', status: 'NOT_EXERCISED', detail: note('No cancellation-with-pending-summary case was run; the arms had no pending summaries because none were prepared.') })
-await recordCase({
-  campaign, id: 'X13', variant: 'flushed-restart', status: 'PASS',
-  detail: note('The planned E12 restart verified on both arms: new PID, identical durable prefix hash, identical paginated history, same session id.'),
-  evidence: join(campaignRoot(campaign), pairId, 'restart-ARC_DEFERRED.json'),
-})
-await recordCase({ campaign, id: 'X13', variant: 'commit-gap-sigkill', status: 'NOT_EXERCISED', detail: note('The exact transaction commit/flush SIGKILL gap was not injected.') })
-await recordCase({ campaign, id: 'X14', variant: 'driver-crash', status: 'NOT_EXERCISED', detail: note('The driver crashed mid-campaign twice (a null sealed oracle and an over-eager resume) and the supervisor kept a valid lease and reported the runs; the deliberate planned/ack/receipt crash windows were not injected this campaign.') })
-await recordCase({ campaign, id: 'X15', variant: 'useage-accounting', status: 'NOT_EXERCISED', detail: note('No 429/5xx/stall or malformed-usage injection was run; unknownUsageCalls stayed 0 across both formal runs.') })
-await recordCase({ campaign, id: 'X16', variant: 'stream-cap', status: 'PASS', detail: note('Two isolated sessions ran concurrently with foreground+summary streams and never exceeded the global stream budget; no cross-session content, job or cursor mixing appeared in the audits.'), evidence: join(runRoots.ARC_DEFERRED, 'audit.json') })
-await recordCase({ campaign, id: 'X17', variant: 'fake-user', status: 'PASS', detail: note('Page text carried an explicit data-only boundary and the model treated it as data; no archived instruction was executed as a user instruction in the transcripts. The deliberately crafted forged-system/user probe was not run.'), evidence: join(runRoots.ARC_DEFERRED, 'control', 'episode-1-work.json') })
-await recordCase({ campaign, id: 'X18', variant: 'observer-off', status: 'NOT_EXERCISED', detail: note('The observer-off controlled performance comparison was not run.') })
-const churn = await measureCreateDispose({ sessions: 20 })
-await recordCase({
-  campaign, id: 'X18', variant: 'create-dispose-20', status: churn.passed ? 'PASS' : 'FAIL',
-  detail: note(`Twenty create/dispose rounds without a model call: heap growth ${churn.growthBytes} bytes against an allowance of ${churn.allowedGrowthBytes}.`),
-  evidence: churn.evidencePath,
-})
+// --- X06 summary failure classes ---------------------------------------------
+await record('X06', 'timeout', 'NOT_EXERCISED', 'No controlled summary failure (limit/empty/timeout/cancel/budget) was injected, so the failure classes were never distinguished.')
 
-const rows = {}
-for (const id of Object.keys(CASE_MATRIX)) rows[id] = (await readJson(join(root, 'cases', `${id}.json`), { id, status: 'NOT_EXERCISED' })).status
-await atomicJson(join(root, 'cases', 'matrix.json'), { campaign, pairId, recordedAt: new Date().toISOString(), searchStats, statuses: rows })
-console.log(JSON.stringify({ searchStats, statuses: rows }, null, 2))
+// --- X07 tool pairing and current input --------------------------------------
+if (unpaired === 0) {
+  await record('X07', 'tool-pairing', 'PASS', `Integrity I02 passed with 0 unpaired tool calls across the whole journey.`, join(arc, 'audit.json'))
+} else {
+  await record('X07', 'tool-pairing', unpaired === null ? 'NOT_EXERCISED' : 'FAIL', `I02 reported ${unpaired} unpaired tool calls.`, join(arc, 'audit.json'))
+}
+await record('X07', 'steer', 'NOT_EXERCISED', 'Mid-turn steering was never injected; only naturally queued input occurred.')
+
+// --- X08 bounded retrieval and cursors ---------------------------------------
+const bounded = (retrieval.searches ?? 0) > 0
+await record('X08', 'bounded-absence',
+  !bounded ? 'NOT_EXERCISED'
+    : (retrieval.scanBudgetReached ?? 0) > 0 && (retrieval.cursorResumes ?? 0) === 0 ? 'PARTIAL' : 'PASS',
+  bounded
+    ? `Bounded retrieval behaved as designed: ${retrieval.searches} searches, ${retrieval.hits} hits, ${retrieval.zeroHit} zero-hit, ${retrieval.absentConfirmed} absence-confirmed. ${retrieval.scanBudgetReached} searches stopped at the scan budget and returned a nextCursor, but the cursor was resumed ${retrieval.cursorResumes} times — the resume path was offered and never taken, so it is only partially exercised.`
+    : 'No retrieval ran, so the bounded path was never exercised.',
+  join(arc, 'audit.json'))
+await record('X08', 'missing-id', 'NOT_EXERCISED', 'No deliberate missing-id probe was run.')
+await record('X08', 'ambiguous-id', 'NOT_EXERCISED', 'No deliberate ambiguous-id probe was run; the shared-short-identifier questions exercised ambiguity through the probe, not through a controlled retrieval call.')
+await record('X08', 'restart-cursor', 'NOT_EXERCISED', 'No cursor was carried across the planned restart.')
+
+// --- X09 archive source graph -------------------------------------------------
+if (rearchived > 0 && depth >= 3) {
+  await record('X09', 'rearchived', 'PASS',
+    `A delivered summary DID re-enter the archive: ${rearchived} re-archived delivered receipts over a lineage ${depth} deep.`,
+    join(arc, 'audit.json'))
+} else {
+  await record('X09', 'rearchived', 'NOT_EXERCISED', `Only ${rearchived} re-archives at depth ${depth}; re-archive identity was not exercised.`)
+}
+await record('X09', 'attachment-reference', 'NOT_EXERCISED', 'No attachment-reference case was run.')
+
+// --- X10 presets --------------------------------------------------------------
+await record('X10', 'standard', 'PASS',
+  'Both runs booted the shipped standard preset in their own profile realm; the ARC arm replaced native Basic and exposed the plugin tools, the Basic arm did not load the plugin.',
+  join(arc, 'host', 'isolated-home.json'))
+await record('X10', 'ptc', 'NOT_EXERCISED', 'The ptc/cordis/minimal preset matrix was not run in this campaign.')
+
+// --- X11 replacement lifecycle ------------------------------------------------
+await record('X11', 'enable-existing', 'PASS',
+  'Each ARC run installed the packaged candidate into a fresh isolated profile and resolved the plugin backend at agent creation, proven by the `arc_status` attestation; the matched Basic profile resolved its native engine with no plugin bundle.',
+  join(arc, 'audit.json'))
+await record('X11', 'toggle', 'NOT_EXERCISED', 'Repeated enable/disable, late activation and Include reload/rollback were not run here.')
+await record('X11', 'no-backend', 'NOT_EXERCISED', 'No no-backend fallback case was run.')
+
+// --- X12 cancellation and disposal -------------------------------------------
+await record('X12', 'pending-cancel', 'NOT_EXERCISED', 'No cancellation with a pending summary was injected.')
+await record('X12', 'delivered-before-dispose', 'NOT_EXERCISED', 'No dispose-with-delivered-receipt case was run.')
+
+// --- X13 restart --------------------------------------------------------------
+await record('X13', 'flushed-restart', restart?.verified === true ? 'PASS' : 'NOT_EXERCISED',
+  restart?.verified === true
+    ? `The planned E12 restart verified: new PID, identical durable prefix hash (${String(restart.beforeHash).slice(0, 12)}), identical paginated history, same session id.`
+    : 'No verified planned restart was recorded for this run.',
+  join(campaignRoot(campaign), pairId, 'restart-ARC_DEFERRED.json'))
+await record('X13', 'pending-restart', 'NOT_EXERCISED', 'No restart was taken while a handoff was still pending.')
+await record('X13', 'commit-gap-sigkill', 'NOT_EXERCISED', 'The transaction commit/flush SIGKILL gap was not injected.')
+
+// --- X14 driver/supervisor crash ---------------------------------------------
+await record('X14', 'driver-crash', 'NOT_EXERCISED', 'The deliberate planned/ack/receipt crash windows were not injected.')
+await record('X14', 'receipt-window-crash', 'NOT_EXERCISED', 'No crash was injected inside the receipt window.')
+
+// --- X15 provider failure -----------------------------------------------------
+await record('X15', 'usage-missing', 'NOT_EXERCISED', 'No malformed or missing usage payload was injected; unknownUsageCalls stayed 0.')
+
+// --- X16 two-session isolation ------------------------------------------------
+if (basic && arcAudit?.integrityPassed && basicAudit?.integrityPassed) {
+  await record('X16', 'conflicting-ids', 'PASS',
+    'Two sessions ran concurrently under matched pressure with independent backends (plugin on one arm, native Basic on the other); both audits passed their integrity gates with no cross-session content, job or cursor mixing.',
+    join(arc, 'audit.json'))
+} else {
+  await record('X16', 'conflicting-ids', 'NOT_EXERCISED', 'No concurrent two-session pair was available in this campaign.')
+}
+await record('X16', 'stream-cap', 'NOT_EXERCISED', 'The global stream budget was never deliberately saturated.')
+
+// --- X17 untrusted history ----------------------------------------------------
+await record('X17', 'fake-system', 'NOT_EXERCISED', 'No forged system message was planted in the archive.')
+await record('X17', 'fake-user', 'NOT_EXERCISED', 'No forged user instruction was planted; page text carried a data-only boundary and was treated as data, but the deliberate forgery probe was not run.')
+
+// --- X18 scale and observer overhead -----------------------------------------
+// `measureCreateDispose` allocates Maps in THIS process and samples its own heap;
+// it never loads the plugin. Recording it as a plugin diagnostic PASS would be an
+// overclaim, so the variant stays NOT_EXERCISED until a real host-backed dose
+// harness exists.
+await record('X18', 'create-dispose-20', 'NOT_EXERCISED', 'The offline implementation measures the harness process heap, not the plugin, so it is not accepted as plugin evidence.')
+await record('X18', 'scale-1k-1w', 'NOT_EXERCISED', 'The no-model dose harness for 1k/10k/50k token sessions is not implemented.')
+await record('X18', 'observer-off', 'NOT_EXERCISED', 'The observer-off performance comparison was not run.')
+
+const statuses = {}
+for (const id of Object.keys(CASE_MATRIX)) statuses[id] = (await readJson(join(root, 'cases', `${id}.json`), { status: 'NOT_EXERCISED' })).status
+await atomicJson(join(root, 'cases', 'matrix.json'), {
+  campaign, pairId, recordedAt: new Date().toISOString(),
+  evidence: { delivered, rearchived, depth, retrieval, unpaired, quality: quality ? `${quality.total}/${quality.questionCount}` : null },
+  statuses,
+})
+console.log(JSON.stringify({ evidence: { delivered, rearchived, depth, retrieval, unpaired }, statuses }, null, 2))

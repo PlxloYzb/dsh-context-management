@@ -685,3 +685,36 @@ test('blockLineage derives depth and re-archives from the observed summaries', a
   assert.equal(undelivered.rearchivedDelivered, 0)
   assert.equal(undelivered.maxDepth, 3)
 })
+
+// The diagnostic matrix must not claim coverage it does not have.
+//
+// Two ways it did: recording every declared variant as NOT_EXERCISED aggregated to
+// PARTIAL (so an untouched case looked partially covered), and an undeclared
+// variant name was accepted silently (a typo'd `useage-accounting` was recorded
+// against a matrix that never declared it).
+test('the diagnostic matrix aggregates honestly and rejects undeclared variants', async t => {
+  const { recordCase, CASE_MATRIX } = await import('./cases.mjs')
+  const campaign = `case-matrix-${process.pid}`
+  t.after(async () => { const { campaignRoot } = await import('./context.mjs'); rmSync(campaignRoot(campaign), { recursive: true, force: true }) })
+
+  // X04 declares delay-0/delay-5/delay-20. Nothing exercised must stay NOT_EXERCISED.
+  for (const variant of CASE_MATRIX.X04.variants) {
+    await recordCase({ campaign, id: 'X04', variant, status: 'NOT_EXERCISED', detail: 'not run' })
+  }
+  let record = await recordCase({ campaign, id: 'X04', variant: 'delay-0', status: 'NOT_EXERCISED', detail: 'still not run' })
+  assert.equal(record.status, 'NOT_EXERCISED', 'an untouched case is not partial coverage')
+
+  // One exercised variant among unexercised ones is PARTIAL, never PASS.
+  record = await recordCase({ campaign, id: 'X04', variant: 'delay-0', status: 'PASS', detail: 'zero delay observed' })
+  assert.equal(record.status, 'PARTIAL')
+  assert.equal(record.coveredVariants, 1)
+
+  // Every declared variant passing is the only route to PASS.
+  await recordCase({ campaign, id: 'X04', variant: 'delay-5', status: 'PASS', detail: 'ok' })
+  record = await recordCase({ campaign, id: 'X04', variant: 'delay-20', status: 'PASS', detail: 'ok' })
+  assert.equal(record.status, 'PASS')
+  assert.equal(record.coveredVariants, 3)
+
+  // A variant the matrix never declared is refused rather than silently stored.
+  await assert.rejects(() => recordCase({ campaign, id: 'X15', variant: 'useage-accounting', status: 'PASS', detail: 'typo' }), /not precommitted for X15/)
+})

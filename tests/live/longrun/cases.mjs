@@ -31,6 +31,13 @@ export async function caseRoot(campaign, id) {
 
 export async function recordCase({ campaign, id, variant, status, detail, evidence }) {
   if (!CASE_MATRIX[id]) throw new Error(`Unknown diagnostic case ${id}`)
+  // An undeclared variant silently corrupts the matrix: it is not one of the
+  // precommitted variants, so aggregating over declared variants would ignore it
+  // while the ledger looked complete. (A typo'd `useage-accounting` was recorded
+  // this way.)
+  if (variant !== 'default' && !CASE_MATRIX[id].variants.includes(variant)) {
+    throw new Error(`Variant ${variant} is not precommitted for ${id} (declared: ${CASE_MATRIX[id].variants.join(', ')})`)
+  }
   if (!['PASS', 'PARTIAL', 'FAIL', 'NOT_EXERCISED', 'NOT_APPLICABLE', 'INVALID_EVIDENCE'].includes(status)) throw new Error(`Unknown case status ${status}`)
   const path = join(campaignRoot(campaign), 'cases', `${id}.json`)
   const previous = await readJson(path, { id, title: CASE_MATRIX[id].title, variants: {} })
@@ -44,12 +51,17 @@ export async function recordCase({ campaign, id, variant, status, detail, eviden
   const recorded = rows.filter(row => row !== null)
   previous.coveredVariants = recorded.filter(row => row === 'PASS').length
   previous.declaredVariants = required.length
+  // "Nothing was exercised" must not read as PARTIAL. Recording every declared
+  // variant as NOT_EXERCISED is exactly what an unexercised case looks like, and
+  // reporting PARTIAL there would claim coverage that does not exist — the same
+  // overclaim as marking a harness measurement a plugin PASS.
+  const unexercised = new Set(['NOT_EXERCISED', 'NOT_APPLICABLE'])
   previous.status = rows.every(row => row === 'PASS') ? 'PASS'
     : recorded.some(row => row === 'FAIL') ? 'FAIL'
       : recorded.some(row => row === 'INVALID_EVIDENCE') ? 'INVALID_EVIDENCE'
-        : recorded.length === 0 ? 'NOT_EXERCISED'
-          : recorded.every(row => row === 'NOT_APPLICABLE') ? 'NOT_APPLICABLE'
-            : 'PARTIAL'
+        : recorded.length === 0 || recorded.every(row => unexercised.has(row))
+          ? (recorded.every(row => row === 'NOT_APPLICABLE') && recorded.length > 0 ? 'NOT_APPLICABLE' : 'NOT_EXERCISED')
+          : 'PARTIAL'
   previous.updatedAt = new Date().toISOString()
   if (!previous.ledger) previous.ledger = []
   previous.ledger.push({ variant, status, recordedAt: previous.updatedAt, evidence: evidence ?? null })
