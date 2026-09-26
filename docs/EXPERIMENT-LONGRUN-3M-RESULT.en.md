@@ -611,3 +611,27 @@ pressure, model and manual turnover alike:
 So the **receipt window** — the one place with half-written durable state, and the region
 the long run's `cleared-without-terminal-record` observation pointed at — is bracketed.
 Only `supervisor-crash` remains unexercised. X14 is therefore 2/3.
+
+#### X04: recorded from existing coverage, with a non-discriminating test deleted
+
+X04's delivery-delay variants are covered by the gate-based **ordering** tests, which pin
+**the ordering any delay produces**:
+
+- a handoff crosses a real window while pending, then appends **exactly once**;
+- an offered message is **not delivered until the host append is observed**, so a later
+  pre-step can offer it again;
+- **the same receipt cannot be sent twice**.
+
+A separate controlled **5ms timeout** case pins the late-callback path.
+
+I also wrote a purpose-built **0/5/20ms delay trio and then deleted it**. It passed, but it
+did **not discriminate**: the mutation that breaks the delivery lifecycle (`delivered` →
+`ready`) fails **two other** tests and leaves the trio **green**.
+
+> **A test that cannot fail for its own reason is noise, not coverage.**
+
+Per this repository's standing preference — verify discrimination, delete what lacks it —
+the honest outcome is to **record the variants from the coverage that does discriminate**
+and to **record the deletion in the case evidence** rather than quietly dropping it.
+
+**X04 is therefore 3/3**, leaving X18 as the only unexercised case.
