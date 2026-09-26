@@ -86,8 +86,21 @@ Both primary runs completed all 24 episodes, the real restart, the 12-batch
    So **S2 did happen**: every window turnover re-archives the previously delivered
    block, 24 times over; lineage depth is 25 against a required 3; and 19 blocks
    remain beyond the six most recent windows. **The one real shortfall is 11 of 12
-   long-tail questions answered correctly** — one question short, a marginal quality
-   gap rather than a structural one. The Basic arm passes its coverage gates because
+   long-tail questions answered correctly** — one question short (N24-Q015, an
+   ambiguity question asking which of two entities sharing a short identifier is
+   authoritative; the plugin arm answered "absent"). **That answer carries a
+   caveat**: the re-ask ran in the SAME session, whose history still holds the
+   invalid first probe's question text — the model was observed searching `S371ab`,
+   an identifier from the OLD questions that is not in the corpus. Re-running the
+   answerability check with the real salt confirms **all 96 questions are answerable
+   for both seeds (0 problems)**, so this one failure may be contaminated by history
+   and is not established as a product defect. Ruling it out needs a clean-session
+   measurement.
+
+   The answerability check is now also enforced at **prepare** time: sealing fails
+   with `ORACLE_UNANSWERABLE` if any question references content the corpus does not
+   contain. It has to live in prepare, because the real salt is generated per
+   campaign and a unit test cannot exercise it. The Basic arm passes its coverage gates because
    those eight do not apply to it.
 
 **Cost observation (not an efficiency claim)**: on the same 24-episode journey ARC
