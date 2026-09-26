@@ -475,3 +475,26 @@ invariant they actually relied on.
 
 X09 is therefore 2/4 (`rearchived` and `same-bytes-distinct-seq` pass;
 `nested-sources` and `attachment-reference` were never constructed).
+
+#### X13: a restart with a pending receipt was already verified, in another gate
+
+X13 was on the unverified list because the live campaign **only restarted on a clean
+boundary**. Checking the gate that covers the other half: `deferred-restart.test.ts`
+(10/10) already exercises a restart with a durable **`pending` receipt** and no
+in-memory jobs, asserting the four things that matter:
+
+- the receipt reads as **`interrupted`**, never as `pending` forever;
+- a ready-but-unappended proposal is **transient** and does **not replay its delivered
+  status** across the restart;
+- the recovery notice is an **append** — recovery **cannot rewrite history**;
+- the notice carries reason `interrupted` and leaves the job `unavailable`, so recovery
+  is **single-shot**.
+
+So `pending-restart` PASSes on existing evidence, `flushed-restart` PASSes on the live
+campaign (new pid, identical durable prefix hash, identical paginated history, same
+session id), and only `commit-gap-sigkill` remains unexercised because no SIGKILL was
+injected. X13 is 2/3.
+
+This is the **second case (after X12) whose honest answer was "already verified, just in
+a different gate"** — worth stating plainly rather than leaving it on an unverified list
+because the live campaign did not happen to reach it.
