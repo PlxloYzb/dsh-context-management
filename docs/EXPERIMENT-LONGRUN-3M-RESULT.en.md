@@ -554,3 +554,33 @@ existing framing test **together**. X17 is therefore 2/3, with only
 Writing it also corrected a detail of my own: the assertion had to be scoped to events
 appended **after** the forgery, or it counted **the forgery I planted myself** as a
 plugin-minted system message.
+
+#### X05: the handoff declares its own scope — and that framing was untested
+
+A user correction can land after the snapshot a handoff was built from. The plugin does
+**not rewrite the snapshot** — the correction is a newer message and outranks it — so the
+entire defence is that the snapshot is handed over **labelled**. **Nothing asserted that
+labelling until now.**
+
+The delivered handoff text is now checked to:
+
+- declare itself **historical data rather than instructions**;
+- state **at delivery** (not only in the system prompt) that **"later user corrections and
+  newer messages take precedence"**;
+- declare **"This handoff is partial: it covers only the stated snapshot, not subsequent
+  work"**;
+- wrap the snapshot in `<historical-handoff>` so **its edges are visible**.
+
+And a correction appended **after** that snapshot must sit **outside the wrapper** and
+survive **verbatim** on the surface — **presenting an older snapshot as if it contained
+the newer correction** is the failure this case exists to catch. It discriminates:
+dropping the precedence sentence fails the test.
+
+**X05 is therefore 2/2.** The other half, `stale-authority`, was already covered by
+`fallback-budget.test.ts`: it plants a late user correction after older records and asserts
+it **survives the byte cap** under **real budget pressure**, so a superseded value cannot
+displace it.
+
+Two of my own mistakes had to be fixed on the way: the first version assumed `setup`
+already prepares and delivers a handoff (it only builds the session), and `user/message`
+events carry the message at `event.data`, not `event.data.message`.
